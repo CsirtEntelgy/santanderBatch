@@ -1,0 +1,7 @@
+1305396400941|D:\\\\versionDesSantander6Abril2010\\\\archivosEntradaECB\\\\LayoutECB-1.txt|448
+1305396415043|D:\\\\versionDesSantander6Abril2010\\\\archivosEntradaECB\\\\LayoutECB-2.txt|448
+1305396429074|D:\\\\versionDesSantander6Abril2010\\\\archivosEntradaECB\\\\LayoutECB-3.txt|448
+1305396444065|D:\\\\versionDesSantander6Abril2010\\\\archivosEntradaECB\\\\LayoutECB-4.txt|448
+1305396458263|D:\\\\versionDesSantander6Abril2010\\\\archivosEntradaECB\\\\LayoutECB-5.txt|448
+1305396472304|D:\\\\versionDesSantander6Abril2010\\\\archivosEntradaECB\\\\LayoutECB.txt|448
+1305396472351|D:\\\\versionDesSantander6Abril2010\\\\archivosEntradaECB\\\\LayoutECBEjemplo.txt|1

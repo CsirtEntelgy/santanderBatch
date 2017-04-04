@@ -1,0 +1,1 @@
+java -classpath /usr/masiva/ com.interfactura.firmalocal.main.Stop

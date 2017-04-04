@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence version="1.0" xmlns="http://java.sun.com/xml/ns/persistence" 
+                           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+                           xsi:schemaLocation="http://java.sun.com/xml/ns/persistence 
+                                               http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd">
+	<persistence-unit name="sandboxJPA" transaction-type="RESOURCE_LOCAL">	
+		<provider>org.apache.openjpa.persistence.PersistenceProviderImpl</provider> 
+		<class>com.interfactura.firmalocal.domain.entities.BaseEntity</class>
+		<class>com.interfactura.firmalocal.domain.entities.Folio</class>
+		<class>com.interfactura.firmalocal.domain.entities.AddendumCustoms</class>
+		<class>com.interfactura.firmalocal.domain.entities.Address</class>
+		<class>com.interfactura.firmalocal.domain.entities.CFDIssued</class>
+		<class>com.interfactura.firmalocal.domain.entities.Country</class>
+		<class>com.interfactura.firmalocal.domain.entities.FiscalEntity</class>
+		<class>com.interfactura.firmalocal.domain.entities.FolioRange</class>
+		<class>com.interfactura.firmalocal.domain.entities.FolioRangeAlerts</class>
+		<class>com.interfactura.firmalocal.domain.entities.Route</class>
+		<class>com.interfactura.firmalocal.domain.entities.SealCertificate</class>
+		<class>com.interfactura.firmalocal.domain.entities.SealCertificateAlerts</class>
+		<class>com.interfactura.firmalocal.domain.entities.State</class>
+		<class>com.interfactura.firmalocal.domain.entities.Series</class>
+		<class>com.interfactura.firmalocal.domain.entities.Iva</class>
+		<class>com.interfactura.firmalocal.domain.entities.Moneda</class>
+		<class>com.interfactura.firmalocal.domain.entities.CFDIssuedIn</class>
+		<class>com.interfactura.firmalocal.domain.entities.CFDFieldsV22</class>
+		<class>com.interfactura.firmalocal.domain.entities.RegimenFiscal</class>
+		<class>com.interfactura.firmalocal.domain.entities.InterfaceMetodoPago</class>
+		<exclude-unlisted-classes>true</exclude-unlisted-classes>
+		
+		<properties>
+			<property name="openjpa.ConnectionFactoryProperties" value="QueryTimeout=5000"/>
+	    	<property name="openjpa.ConnectionUserName" value="ifsantander"/>
+	    	<property name="openjpa.ConnectionPassword" value="ifsantander"/>
+	    	<property name="openjpa.Log" value="DefaultLevel=TRACE, Tool=TRACE, SQL=TRACE, RunTime=TRACE,"/>
+	    	<property name="openjpa.RuntimeUnenhancedClasses" value="supported"/>
+	    	<property name="openjpa.DynamicDataStructs" value="true"/>
+	    	<property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema"/>
+	    	<property name="openjpa.QueryCache" value="false"/>
+	    	<property name="openjpa.DataCache" value="false"/>
+	    	<property name="openjpa.BrokerImpl" value="EvictFromDataCache=true"/>
+	    	<property name="openjpa.jdbc.QuerySQLCache" value="false"/>
+	    	<property name="openjpa.TransactionMode" value="local"/>
+	    	<property name="openjpa.jdbc.TransactionIsolation" value="serializable"/>
+    	</properties>
+    	
+	</persistence-unit>
+</persistence>

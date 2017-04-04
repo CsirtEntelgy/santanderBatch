@@ -1,0 +1,2274 @@
+package com.interfactura.firmalocal.xml.nc;
+
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+
+import java.io.RandomAccessFile;
+
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
+
+import java.text.ParseException;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+
+import java.util.HashMap;
+import java.util.List;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.validation.ValidatorHandler;
+
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.util.FileCopyUtils;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+
+import com.interfactura.firmalocal.domain.entities.CFDIssued;
+import com.interfactura.firmalocal.domain.entities.CFDIssuedIn;
+import com.interfactura.firmalocal.domain.entities.FiscalEntity;
+import com.interfactura.firmalocal.domain.entities.Route;
+import com.interfactura.firmalocal.domain.entities.SealCertificate;
+import com.interfactura.firmalocal.xml.Properties;
+import com.interfactura.firmalocal.xml.WebServiceCliente;
+import com.interfactura.firmalocal.xml.nc.NotaCredito;
+import com.interfactura.firmalocal.xml.file.XMLProcess;
+
+import com.interfactura.firmalocal.xml.util.Util;
+
+
+/**
+ * Procesamiento automatico de ECB
+ * 
+ * @author jose luis
+ * 
+ */
+@Component
+public class GeneraXML_NC 
+{
+	private Logger logger = Logger.getLogger(GeneraXML_NC.class);
+	private BufferedReader br;
+	private String linea;
+	private String token;
+	@Autowired
+	private Convertir_NC conver;
+	private int cont;
+	@Autowired
+	private Properties properties;
+	private ByteArrayOutputStream out;
+	private FileOutputStream salida;
+	private FileOutputStream salidaBD;
+	private FileOutputStream salidaODM;
+	private FileOutputStream incidencia;
+	private FileOutputStream salidaRutasXML;
+	
+	private long offSetComprobante = 0;
+	@Autowired
+	private XMLProcess xmlProcess;
+	private Transformer transf;
+	private String temp;
+	private boolean flagProcesado;
+	private File file;
+	private String nameFile;
+	private FiscalEntity fiscal;
+	private SealCertificate certificate;
+	private long contCFD;
+	private long contCFD2;
+	private String startLine;
+	private String endLine;
+	private HashMap<String, FiscalEntity> lstFiscal;
+	private HashMap<String, HashMap> campos22;
+	private HashMap<String, HashMap> tipoCambio;
+	private List<SealCertificate> lstSeal;
+	private ValidatorHandler validator;
+	private int sizeT = 255;
+	private List<CFDIssuedIn> lstECBIncidence;
+	private List<CFDIssued> lstECB;
+	private String msgError;
+	private boolean processStarted = false;
+
+	private WebServiceCliente servicePort = null;
+	private DocumentBuilderFactory dbf = null;
+	private DocumentBuilder db = null;
+	private Transformer tx = null;
+	
+	private String urlWebService = null;
+	    	
+	//Atributos TimbreFiscalDigital
+    private String strFechaTimbrado = "";
+    private String strUUID = "";
+    private String strNoCertificadoSAT = "";
+    private String strSelloCFD = "";
+    private String strSelloSAT = "";
+    private String strVersion = "";				            
+    
+    //RFC del Emisor y Receptor
+    private String strEmisorRFC = "";
+    private String strReceptorRFC = "";
+    
+    //Total del xml timbrado
+    private String strTotal = "";
+	/**
+	 * 
+	 */
+    //Lista de objetos ECB
+    private List<NotaCredito> lstObjECBs = new ArrayList<NotaCredito>();
+    
+   	public GeneraXML_NC() {
+
+	}
+
+	/**
+	 * 
+	 * @param nameFile
+	 */
+	public GeneraXML_NC(String nameFile) {
+		this.nameFile = nameFile;
+	}
+
+	/**
+	 * Proceso de generacion de ECB para un solo archivo de entrada
+	 * 
+	 * @return
+	 */
+	public boolean convierte(String idProceso, String fecha, String fileNames)
+	{
+		try 
+		{
+			flagProcesado = true;
+			// Se crea el archivo de salida
+			File fileExit = new File(this.getNameFile(properties.getPathSalida(), -1, "XML", idProceso));
+			File fileExitBD = new File(this.getNameFile(properties.getPathSalida(), -1, "BD", idProceso));
+			
+			this.salida = new FileOutputStream(fileExit);
+			this.salidaBD = new FileOutputStream(fileExitBD);
+			File fileExitODM = new File(properties.getPathDirGenr() + File.separator + fecha + "ODM-" + idProceso);
+			
+			if (!this.processStarted)
+			{	
+				this.salidaODM = new FileOutputStream(fileExitODM);
+				this.processStarted = true;
+				
+			}
+			else
+			{	
+				this.salidaODM = new FileOutputStream(fileExitODM, true);
+				
+			}
+						
+			// Se crea el archivo de incidencias
+			File fileIncidence=new File(this.getNameFile(properties.getPathIncidencia(), -1, "INC", idProceso));
+			//fileIncidence.setReadable(true,true);
+			this.incidencia = new FileOutputStream(fileIncidence);
+
+			file = new File(properties.getPathDirProECB() + this.nameFile);
+			br = new BufferedReader(new FileReader(file));
+			contCFD = 0;
+			this.begin();
+			lstECB = new ArrayList<CFDIssued>();
+			lstECBIncidence = new ArrayList<CFDIssuedIn>();
+			//Copia el archivo antes de procesarlo
+			copy(this.getNameFile(properties.getPathDirBackup(), -1, null, idProceso));
+			logger.info("Inicio de lectura del archivo");
+			//Empieza a procesar el archivo
+			while ((linea = br.readLine()) != null) 
+			{
+				contCFD += 1;
+				if (!linea.startsWith(";")&&linea.length()>0) 
+				{	this.formatLinea(idProceso, fecha, fileNames);	}
+				logger.debug("Numero de linea: "+contCFD+" "+this.nameFile + " . . . " + linea);
+			}
+			logger.info("Fin de lectura del archivo");
+			
+			this.endCONCEPTOS();
+			this.endRETENCIONES();			
+			if (conver.getTags().isTralados) 
+			{	
+				this.endTRALADOS();	
+			}else if (!conver.getTags().isTralados){	
+				out.write("\n<cfdi:Traslados/>".getBytes());		
+			}
+			if (conver.getTags().isImpuestos) 
+			{	
+				this.endIMPUESTOS();	
+			}else if (!conver.getTags().isImpuestos){	
+				out.write("\n<cfdi:Impuestos/>".getBytes());		
+			}
+			
+			this.end(0, idProceso, fecha, fileNames);
+			//Manda a guardar los ultimos ECB
+			if (lstECB != null && lstECB.size() > 0) {
+				conver.getTags().cFDIssuedManager.update(lstECB);
+				lstECB = null;
+			}
+			
+			//Manda a guardar las incidencias
+			if (lstECBIncidence != null && lstECBIncidence.size() > 0) 
+			{	conver.getTags().cFDIssuedIncidenceManager.update(lstECBIncidence);		}
+		} 
+		catch (IOException ioe) 
+		{
+			logger.error("Ocurrio un error inesperado", ioe);
+			flagProcesado = false;
+		} 
+		finally 
+		{
+			lstECBIncidence = null;
+			this.close();
+		}
+
+		return flagProcesado;
+	}
+
+	/**
+	 * Procesa una parte de un archivo en especifico
+	 * 
+	 * @param byteStart
+	 * @param byteEnd
+	 * @param path
+	 * @param cont
+	 * @return
+	 */
+	public boolean convierte(long byteStart, long byteEnd, String path, long cont, String idProceso, String fecha, String fileNames) 
+	{
+		//System.out.println("convierte");
+		System.out.println("LINEA PROCESO: Inicia bloque - " + cont + "," + byteStart + "," + byteEnd + "," + idProceso);
+		flagProcesado = true;	
+		//Cadena que contiene la linea leida del archivo
+		//StringBuilder linea = new StringBuilder();
+		StringBuffer linea = new StringBuffer();
+		//Bandera que indica si se termino de leer los ECB completos
+		boolean flagEnd = false;
+		//Bandera que indica si se procesa la linea actual
+		boolean procesa = false;
+		//Bandera que indica si se termina el ciclo de lectura
+		boolean activo = false;
+		//Bandera que indica si sigue leyendo
+		boolean activo2 = false;
+		int i = 0;
+		char c=0;
+		byte[] array = null;
+		RandomAccessFile file=null;
+
+		//System.out.println("anteslstECB y lstECBIncidence");
+		lstECB = new ArrayList<CFDIssued>();
+		lstECBIncidence = new ArrayList<CFDIssuedIn>();
+		//System.out.println("despueslstECB y lstECBIncidence");
+		try 
+		{
+			this.file=new File(path);
+			this.nameFile = this.file.getName();
+			
+			// Se crea el archivo de salida
+			logger.debug("Paso 3.- Creando archivo de salida byte de inicio: " + byteStart);
+			logger.debug("Paso 3.- Creando archivo de salida byte de final: " + byteEnd);
+			File fileExit=new File(this.getNameFile(properties.getPathSalida(), cont,"XML", idProceso));
+			this.salida = new FileOutputStream(fileExit);
+			File fileExitBD=new File(this.getNameFile(properties.getPathSalida(), cont,"BD", idProceso));
+			this.salidaBD = new FileOutputStream(fileExitBD);
+			File fileExitODM = new File(properties.getPathDirGenr() + File.separator + fecha + "ODM-" + idProceso);
+			
+			//Obtener el nombre de la interface origen
+			String nameInterface = this.nameFile.substring(0, this.nameFile.length()-12);
+			System.out.println("nameInterface: " + nameInterface);
+			
+			File fileRutasXML = new File(properties.getPathDirGenrNotasDeCredito() + nameInterface + File.separator + "XML" + File.separator + "RUTAS-" + idProceso);
+			if (!this.processStarted)
+			{	
+				this.salidaODM = new FileOutputStream(fileExitODM);
+				this.processStarted = true;
+				this.salidaRutasXML = new FileOutputStream(fileRutasXML);
+			}
+			else
+			{	
+				this.salidaODM = new FileOutputStream(fileExitODM, true);	
+				this.salidaRutasXML = new FileOutputStream(fileRutasXML, true);
+			}
+			// Se crea el archivo de incidencias
+			logger.debug("Paso 3.- Creando archivo de incidencia byte de inicio: "+byteStart);
+			logger.debug("Paso 3.- Creando archivo de incidencia byte de final: "+byteEnd);
+			File fileIncidence=new File(this.getNameFile(properties.getPathIncidencia(), cont,"INC", idProceso));
+			this.incidencia = new FileOutputStream(fileIncidence);
+			logger.debug("Paso 3.- BackUp de la parte del archivo");
+			copy(byteStart, byteEnd, path, cont, idProceso);
+			file = new RandomAccessFile(path, "r");
+			int sizeArray = 1024 * 8;
+			long byteEndLine = 10;
+					
+			contCFD = byteStart;
+			this.begin();
+			do 
+			{
+				file.seek(byteStart);
+				array = new byte[sizeArray];
+				file.read(array, 0, (sizeArray - 1));
+				i = 0;
+				while (((c = (char) (array[i] & 0xFF) ) != 0)) 
+				{
+					i++;
+					byteStart++;
+					//Pregunta si llego al fin de linea
+					//System.out.println("byteActual: " + c);
+					if (c == byteEndLine) 
+					{
+						// Si no empieza con ';' se procesa
+						if (!linea.toString().startsWith(";")
+								&& linea.toString().length() > 0) 
+						{
+							//Pregunta si empieza con 01
+							if (linea.toString().startsWith("01")) 
+							{	
+								procesa = true;
+								if (activo) 
+								{
+									flagEnd = true;
+									break;
+								}
+								if (activo2) 
+								{
+									activo = true;
+									activo2 = false;
+								}
+							}
+							//Procesa la linea
+							//System.out.println("byteStart == byteEnd: " +  byteStart + "==" + byteEnd);
+							//System.out.println("procesa: " + procesa);
+							if (procesa) 
+							{								
+								this.linea = new String(linea.toString().getBytes("UTF-8"), "UTF-8");
+								//System.out.println("linea a leer: " + this.linea);
+								this.formatLinea(idProceso, fecha, fileNames);							
+							}
+						}
+						//linea = new StringBuilder();
+						linea = new StringBuffer();
+						contCFD = byteStart;
+					} 
+					else 
+					{	//System.out.println("c toString: " +  Character.toString(c));
+						//System.out.println("byteStart == byteEnd: " +  byteStart + "==" + byteEnd);
+						//System.out.println("procesa: " + procesa);
+					
+						if (c != 13) 
+						{	linea.append(c);	}
+					}
+
+					//Pregunta si ya se terminaron de leer los bytes establecidos
+					//System.out.println("byteStart == byteEnd: " +  byteStart + "==" + byteEnd);
+					if (byteStart == byteEnd) 
+					{
+						flagEnd = true;
+						break;
+					}
+				}
+
+				if (flagEnd && (!activo)) 
+				{
+					if (linea.toString().startsWith("01")) 
+					{	 activo2 = true;		} 
+					else 
+					{	activo = true;		}
+					flagEnd = false;
+				} 
+				else if (activo) 
+				{
+					if (linea.toString().startsWith("01")) 
+					{	flagEnd = true;		}
+				}
+				if (array[0] == 0) 
+				{	flagEnd = true;		}
+			} while (!flagEnd);
+			
+			// Problema de incidencia duplicada de entidad fiscal no existente
+			if((linea.toString().length()>0)&&(!activo))
+			{
+				this.linea = linea.toString();
+				//System.out.println("linea a leer2: " + this.linea);
+				this.formatLinea(idProceso, fecha, fileNames);	
+			}
+			
+			
+			if (conver.getTags().isTralados) 
+			{	
+				this.endTRALADOS();	
+			}else if (!conver.getTags().isTralados){	
+				out.write("\n<cfdi:Traslados/>".getBytes());		
+			}
+			if (conver.getTags().isImpuestos) 
+			{	this.endIMPUESTOS();	} 
+			else if (!conver.getTags().isImpuestos) 
+			{	out.write("\n<cfdi:Impuestos/>".getBytes());		}
+			
+			this.end(0, idProceso, fecha, fileNames);
+			
+			if (lstECB.size() > 0) 
+			{
+				try
+				{	conver.getTags().cFDIssuedManager.update(lstECB);	}
+				catch (Exception e1)
+				{
+					String ids = "";
+					for (int j = 0; j < lstECB.size(); j++)
+					{
+						CFDIssued cf = lstECB.get(j);
+						ids += cf.getId() + "-" + cf.getFolio() + "|";
+					}
+					System.out.println("BD: Reintentando ids " + ids);
+					try
+					{	
+						System.out.println("BD: Intento 2");
+						conver.getTags().cFDIssuedManager.update(lstECB);	
+					}
+					catch (Exception e2)
+					{
+						try
+						{	
+							System.out.println("BD: Intento 3");
+							conver.getTags().cFDIssuedManager.update(lstECB);	
+						}
+						catch (Exception e3)
+						{	
+							try
+							{	
+								System.out.println("BD: Intento 4");
+								conver.getTags().cFDIssuedManager.update(lstECB);	
+							}
+							catch (Exception e4)
+							{	
+								try
+								{	
+									System.out.println("BD: Intento 5");
+									conver.getTags().cFDIssuedManager.update(lstECB);	
+								}
+								catch (Exception e5)
+								{	
+									try
+									{	
+										System.out.println("BD: Intento 6");
+										conver.getTags().cFDIssuedManager.update(lstECB);	
+									}
+									catch (Exception e6)
+									{	
+										try
+										{	
+											System.out.println("BD: Intento 7");
+											conver.getTags().cFDIssuedManager.update(lstECB);	
+										}
+										catch (Exception e7)
+										{	
+											try
+											{
+												System.out.println("BD: Intento 8");
+												conver.getTags().cFDIssuedManager.update(lstECB);	
+											}
+											catch (Exception e8)
+											{	
+												try
+												{	
+													System.out.println("BD: Intento 9");
+													conver.getTags().cFDIssuedManager.update(lstECB);	
+												}
+												catch (Exception e9)
+												{	
+													try
+													{	
+														System.out.println("BD: Intento 10");
+														conver.getTags().cFDIssuedManager.update(lstECB);	
+													}
+													catch (Exception e10)
+													{	
+														try
+														{	
+															System.out.println("BD: Intento 11");
+															conver.getTags().cFDIssuedManager.update(lstECB);	
+														}
+														catch (Exception e11)
+														{																
+															try
+															{	
+																System.out.println("BD: Intento 12");
+																conver.getTags().cFDIssuedManager.update(lstECB);	
+															}
+															catch (Exception e12)
+															{										
+																try
+																{	
+																	System.out.println("BD: Intento 13");
+																	conver.getTags().cFDIssuedManager.update(lstECB);	
+																}	
+																catch (Exception e13)
+																{	
+																	try
+																	{	
+																		System.out.println("BD: Intento 14");
+																		conver.getTags().cFDIssuedManager.update(lstECB);	
+																	}
+																	catch (Exception e14)
+																	{	
+																		System.out.println("BD: Intento 15");
+																		conver.getTags().cFDIssuedManager.update(lstECB);
+																	}
+																}
+															}
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+				lstECB = new ArrayList<CFDIssued>();
+			}
+			
+		} 
+		catch (FileNotFoundException e) 
+		{
+			flagProcesado = false;
+			e.printStackTrace();
+		} 
+		catch (IOException e) 
+		{
+			flagProcesado = false;
+			e.printStackTrace();
+		} 
+		catch (Exception e) 
+		{
+			flagProcesado = false;
+			e.printStackTrace();
+		} 
+		finally 
+		{
+			if(file!=null)
+			{
+				try 
+				{	file.close();		} 
+				catch (IOException e) 
+				{	logger.error("No se pudo cerrar el archivo ",e);	}
+			}
+			this.linea = null;
+			//this.closeByte();
+		}
+		/*DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+		Date dateFin = new Date();
+		System.out.println("TIMEFIN:" + dateFormat.format(dateFin) + "M" + System.currentTimeMillis());
+		*/
+		
+		/*
+		 *Enviar bloque a timbrar 
+		 */
+		StringBuffer sbXmlATimbrar = new StringBuffer();
+		StringBuffer sbPeriodos = new StringBuffer();
+		
+		long t1;
+		long t2;
+		String timbrados = null;
+		try{
+			
+			//Instalar certificados
+			/*System.setProperty("javax.net.ssl.keyStoreType", "PKCS12");
+			System.setProperty("javax.net.ssl.keyStore", properties.getCertificadoSantander());
+			System.setProperty("javax.net.ssl.keyStorePassword", properties.getCertificadoPass());													
+			System.setProperty("javax.net.ssl.trustStore", properties.getCertificadoInterfactura());
+			*/
+			//Iniciar conexion con WebService
+			
+			if(this.servicePort == null){
+				this.servicePort = new WebServiceCliente();								
+			}			
+			
+			t1 = System.currentTimeMillis();
+						
+			for(int index=0; index<lstObjECBs.size(); index++){
+				//System.out.println("xmlATimbrar " + index + " :" + lstObjECBs.get(index).getXmlSinECB().toString("UTF-8"));
+				System.out.println("periodos " + index + " :" + lstObjECBs.get(index).getTagEMISION_PERIODO());
+				if(index < lstObjECBs.size()-1){
+					sbXmlATimbrar.append(lstObjECBs.get(index).getXmlSinECB().toString("UTF-8") + "|");
+					sbPeriodos.append(lstObjECBs.get(index).getTagEMISION_PERIODO() + "|");
+				}else{
+					sbXmlATimbrar.append(lstObjECBs.get(index).getXmlSinECB().toString("UTF-8"));
+					sbPeriodos.append(lstObjECBs.get(index).getTagEMISION_PERIODO());
+				}
+			}								
+			
+			t2 = t1- System.currentTimeMillis();
+			System.out.println("TIME: Unir XMLs a Timbrar:" + t2 + " ms");
+			
+			System.out.println("xmlsATimbrar: " + sbXmlATimbrar.toString());
+			
+			if(!sbXmlATimbrar.toString().trim().equals("")){
+				t1 = System.currentTimeMillis();
+				timbrados = "";
+				timbrados = this.servicePort.generaTimbre(sbXmlATimbrar.toString(), false, this.urlWebService, properties, this.nameFile, Integer.parseInt(idProceso), 5, sbPeriodos.toString(), "");
+				
+				t2 = t1- System.currentTimeMillis();
+				System.out.println("TIME: Timbrado:" + t2 + " ms - contador: " + lstObjECBs.size());
+				System.out.println("Timbrado del bloque " + cont + " terminado.");
+				System.out.println("Timbrados: " + timbrados);
+
+				String [] xmlsTimbrados = timbrados.split("\\|");
+				System.out.println("Num xmls Timbrados:" + xmlsTimbrados.length);
+				
+				t1 = System.currentTimeMillis();
+				StringBuffer sbFoliosSAT = new StringBuffer();
+				for(int index=0; index<xmlsTimbrados.length; index++){
+					lstObjECBs.get(index).setDomResultado(stringToDocument(xmlsTimbrados[index]));
+					//Obtenemos la etiqueta raiz (Resultado)
+					Element docEleResultado = lstObjECBs.get(index).getDomResultado().getDocumentElement();
+					
+					String descripcion = docEleResultado.getAttribute("Descripcion");
+					String idRespuesta = docEleResultado.getAttribute("IdRespuesta");
+					
+					if(descripcion.toLowerCase().trim().equals("ok") && idRespuesta.trim().equals("1")){
+						//Obtenemos la etiqueta raiz (Comprobante)								
+						//Element docEleComprobante = domComprobante.getDocumentElement();
+						Element docEleComprobante = (Element) docEleResultado.getFirstChild();
+						
+						if(index < xmlsTimbrados.length-1){
+							sbFoliosSAT.append(this.getFolioSAT(docEleComprobante, lstObjECBs.get(index).getDomResultado()) + ",");
+						}else{
+							sbFoliosSAT.append(this.getFolioSAT(docEleComprobante, lstObjECBs.get(index).getDomResultado()));
+						}					
+					}
+				}
+				
+				System.out.println("Bloque: " + cont);
+				System.out.println("Folios-SAT timbrados: " + sbFoliosSAT.toString());
+				
+				for(int index=0; index<xmlsTimbrados.length; index++){
+					//System.out.println("xmlTimbrado " + index + " :" + xmlsTimbrados[index]);
+					//Convertir xmlTimbrado a objeto Document						
+					//Document domResultado = stringToDocument(xmlsTimbrados[index]);
+				
+					//Obtenemos la etiqueta raiz (Resultado)
+					//Element docEleResultado = domResultado.getDocumentElement();
+					Element docEleResultado = lstObjECBs.get(index).getDomResultado().getDocumentElement();
+					
+					String descripcion = docEleResultado.getAttribute("Descripcion");
+					String idRespuesta = docEleResultado.getAttribute("IdRespuesta");
+					
+					if(descripcion.toLowerCase().trim().equals("ok") && idRespuesta.trim().equals("1")){
+						//Transformar el hijo del nodo Resultado (Comprobante) a StreamResult								
+						//StreamResult resultComprobante = nodeToStreamResult(docEleResultado.getFirstChild());
+						
+						//Obtenemos la etiqueta raiz (Comprobante)								
+						//Element docEleComprobante = domComprobante.getDocumentElement();
+						Element docEleComprobante = (Element) docEleResultado.getFirstChild();
+						
+						//Atributos TimbreFiscalDigital
+			            this.strFechaTimbrado = "";this.strUUID = "";this.strNoCertificadoSAT = "";this.strSelloCFD = "";this.strSelloSAT = "";this.strVersion = "";  
+			            
+			            //RFC del Emisor y Receptor
+			            this.strEmisorRFC = "";this.strReceptorRFC = "";
+			            
+			            //Total del xml timbrado
+			            this.strTotal = "";
+			            
+			            //System.out.println("docEleComprobante: " + docEleComprobante.toString());
+			            //System.out.println("AntesdeAgregarMovimientosECB: " + lstObjECBs.get(index).getDomResultado().toString());
+			            
+						//domResultado = this.putMovimientoECB(docEleComprobante, domResultado);
+			            lstObjECBs.get(index).setDomResultado(this.getInfoTimbreFiscalDigital(docEleComprobante, lstObjECBs.get(index).getDomResultado()));
+			            
+						//Concatenar foliosSAT
+						sbFoliosSAT.append(this.strUUID + "||");
+						
+						//Transformar el hijo del nodo Resultado (document Comprobante) a StringResult								
+						//StreamResult resultComprobanteTimbrado = this.documentToStreamResult(domComprobante);
+						
+						//Obtenemos la etiqueta raiz (Resultado con MovimientosECB) 								
+						//Element docEleResultadoConMovimientosECB = domResultado.getDocumentElement();
+						Element docEleResultadoConMovimientosECB = lstObjECBs.get(index).getDomResultado().getDocumentElement();
+						
+						StreamResult resultComprobanteTimbrado = this.nodeToStreamResult(docEleResultadoConMovimientosECB.getFirstChild());
+						
+						System.out.println("getTagEMISION_PERIODO: " + lstObjECBs.get(index).getTagEMISION_PERIODO());
+						System.out.println("getTagNUM_CTA: " + lstObjECBs.get(index).getTagNUM_CTA());
+						System.out.println("getTagNUM_CTE: " + lstObjECBs.get(index).getTagNUM_CTE());
+						System.out.println("getTagTIPO_MONEDA: " + lstObjECBs.get(index).getTagTIPO_MONEDA());
+						System.out.println("getTagTIPO_CAMBIO: " + lstObjECBs.get(index).getTagTIPO_CAMBIO());
+						System.out.println("getTagSERIE_FISCAL_CFD: " + lstObjECBs.get(index).getTagSERIE_FISCAL_CFD());
+						
+						String strAddenda = "";
+						
+						if(lstObjECBs.get(index).getTagTIPO_MONEDA().equals("")){
+							strAddenda = "<cfdi:Addenda xmlns:as=\"http://www.santander.com.mx/schemas/xsd/AddendaSantanderV1\">" +
+										"<as:AddendaSantanderV1>" +
+										"<as:InformacionEmision periodo=\"" + lstObjECBs.get(index).getTagEMISION_PERIODO() +"\" contrato=\"" + lstObjECBs.get(index).getTagNUM_CTA() + "\" codigoCliente=\"" + lstObjECBs.get(index).getTagNUM_CTE() + "\"/>" +
+										"<as:CampoAdicional valor=\"MXN\" campo=\"Moneda\"/>" +
+										"<as:CampoAdicional valor=\"1.0\" campo=\"Tipo Cambio\"/>" +
+										"<as:CampoAdicional valor=\"IVA TASA 16%\" campo=\"Descripción IVA\"/>" +
+										"</as:AddendaSantanderV1>" +
+										"</cfdi:Addenda>" +
+										"</cfdi:Comprobante>";
+						}else{
+							strAddenda = "<cfdi:Addenda xmlns:as=\"http://www.santander.com.mx/schemas/xsd/AddendaSantanderV1\">" +
+									"<as:AddendaSantanderV1>" +
+									"<as:InformacionEmision periodo=\"" + lstObjECBs.get(index).getTagEMISION_PERIODO() +"\" contrato=\"" + lstObjECBs.get(index).getTagNUM_CTA() + "\" codigoCliente=\"" + lstObjECBs.get(index).getTagNUM_CTE() + "\"/>" +
+									"<as:CampoAdicional valor=\"" + lstObjECBs.get(index).getTagTIPO_MONEDA() + "\" campo=\"Moneda\"/>" +
+									"<as:CampoAdicional valor=\"" + lstObjECBs.get(index).getTagTIPO_CAMBIO() + "\" campo=\"Tipo Cambio\"/>" +
+									"<as:CampoAdicional valor=\"IVA TASA 16%\" campo=\"Descripción IVA\"/>" +
+									"</as:AddendaSantanderV1>" +
+									"</cfdi:Addenda>" + 
+									"</cfdi:Comprobante>";
+						}
+						//System.out.println("AddendaNC: " + strAddenda);
+											
+						StringBuffer sbTimbradoSinAddenda = new StringBuffer(resultComprobanteTimbrado.getWriter().toString().replaceAll("[\n\r]", ""));
+												
+						StringBuffer sbTimbradoFinal = new StringBuffer(sbTimbradoSinAddenda.toString().substring(0, sbTimbradoSinAddenda.toString().length()-19) + strAddenda);
+						
+						//System.out.println("XMLTimbradoFinal: " + sbTimbradoFinal.toString());
+						
+						long length = sbTimbradoFinal.toString().getBytes("UTF-8").length;
+						
+						this.salidaODM.write(sbTimbradoFinal.toString().getBytes("UTF-8"));
+						
+						//Obtener el nombre de la interface origen
+						String nameInterface = this.nameFile.substring(0, this.nameFile.length()-12);
+						System.out.println("nameInterface: " + nameInterface);
+						
+						//Guardar el XML
+						FileOutputStream  salidaXML;
+						String pathXML = "";
+						//pathXML = properties.getPathDirGenrNotasDeCredito() + "Cuenta_" + lstObjECBs.get(index).getTagEMISION_PERIODO() + "_" + lstObjECBs.get(index).getTagNUM_CTE() + "_" + lstObjECBs.get(index).getTagFOLIO_FISCAL_CFD() + ".xml";
+						pathXML = properties.getPathDirGenrNotasDeCredito() + nameInterface + File.separator + "XML" + File.separator + "Cuenta_" + lstObjECBs.get(index).getTagEMISION_PERIODO() + "_" + lstObjECBs.get(index).getTagNUM_CTE() + "_" + lstObjECBs.get(index).getTagFOLIO_FISCAL_CFD() + ".xml";
+						File fileXML = new File(pathXML);
+						salidaXML = new FileOutputStream(fileXML);
+						salidaXML.write(sbTimbradoFinal.toString().getBytes("UTF-8"));					
+						salidaXML.close();
+									
+						this.salidaRutasXML.write((pathXML+"\n").getBytes("UTF-8"));
+						
+						Route route = new Route();
+						String routeName = properties.getPathDirGenr() + File.separator + fecha + "ODM-" + idProceso;
+						
+						//17FEB2012 --- Cambio optimizacion Oracle
+						//route.setRoute(routeName + "|" + this.offSetComprobante + "|" + (this.offSetComprobante + length));
+						//conver.getTags().cfd.setFilePath(route);
+						conver.getTags().cfd.setXmlRoute(routeName + "|" + this.offSetComprobante + "|" + (this.offSetComprobante + length));
+						conver.getTags().cfd.setProcessID(idProceso);
+						
+						String strTotalZeros = putZeros(this.strTotal);
+										
+						this.fileSALIDA(lstObjECBs.get(index), fileNames, 
+								this.strUUID, this.strFechaTimbrado, this.strNoCertificadoSAT, this.strSelloCFD, this.strSelloSAT,
+								this.strVersion, this.strEmisorRFC, this.strReceptorRFC, strTotalZeros);
+						this.offSetComprobante += length;
+					}else{
+						System.out.println("ERROR: " + descripcion + " " + idRespuesta);
+									
+						fileINCIDENCIA(idRespuesta + "-" + descripcion + " ", "ERROR", 
+								lstObjECBs.get(index).getTagEMISON_RFC(), lstObjECBs.get(index).getTagNUM_CTE(), lstObjECBs.get(index).getTagNUM_CTA(), lstObjECBs.get(index).getTagEMISION_PERIODO(), lstObjECBs.get(index).getTagNUM_TARJETA());				
+					}
+								
+				}
+				this.lstObjECBs.clear();
+				t2 = t1- System.currentTimeMillis();
+				System.out.println("TIME: Procesar timbrados: " + t2 + " - Bloque: " + cont);
+				System.out.println("FoliosSAT del Bloque " + cont + " " + sbFoliosSAT.toString());
+				
+			}
+			
+		}catch(Exception e){
+			e.printStackTrace();
+			System.out.println(e.getMessage());
+		}finally{
+			this.closeByte();
+		}
+			
+		System.out.println("LINEA PROCESO: Fin bloque - " + cont + "," + byteStart + "," + byteEnd + "," + idProceso);
+		return flagProcesado;
+	}
+
+	/**
+	 * Copia el archivo en el path indicado
+	 * @param path
+	 * @throws IOException
+	 */
+	private void copy(String path) throws IOException 
+	{
+		/*DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+		Date dateInicio = new Date();
+		System.out.println("TIMEINICIOCOPY:" + dateFormat.format(dateInicio) + " M" + System.currentTimeMillis());
+		*/
+		long t1 = System.currentTimeMillis();
+		FileCopyUtils.copy(file, new File(path));
+		long t2 = t1- System.currentTimeMillis();
+		System.out.println("TIME: Para copiar archivo a " + path + t2 + " ms");
+		/*		
+		Date dateInicio2 = new Date();
+		System.out.println("TIMEFINALCOPY:" + dateFormat.format(dateInicio2) + " M" + System.currentTimeMillis());
+		*/
+	}
+	
+	/**
+	 * 
+	 * @param path
+	 * @param cont
+	 * @param prefix
+	 * @return
+	 */
+	private String getNameFile(String path,long cont, String prefix, String idProceso)
+	{
+		String nameProcess[] = this.nameFile.split("\\.");
+		String time=null;	
+		if(File.separatorChar=='/')
+		{	time=Util.convertirFecha(Calendar.getInstance().getTime(), "HH:mm:ss");		} 
+		else 
+		{	time=Util.convertirFecha(Calendar.getInstance().getTime(), "HHmmss");	}
+		
+		if(prefix==null)
+		{
+			if(cont==-1)
+			{	return path+nameProcess[0]+"T"+time+ "."+ nameProcess[1];	} 
+			else 
+			{	return path+nameProcess[0]+ "_" + cont + "_" + idProceso + "."+ nameProcess[1];	}
+		} 
+		else 
+		{
+			if(cont==-1)
+			{	return path+prefix+nameProcess[0].substring(3,nameProcess[0].length())+"." + nameProcess[1];	} 
+			else 
+			{	return path+prefix+nameProcess[0].substring(3,nameProcess[0].length())+ "_" + cont + "_" + idProceso +  "." + nameProcess[1];	}
+		}
+	}
+
+	/**
+	 * Copia desde un byte de inicio hasta uno final y el nombre del archivo
+	 * queda de la siguiente manera 
+	 * <Nombre del Archivo>_<consecutivo>.<extension>
+	 * @param byteStart
+	 * @param byteEnd
+	 * @param path
+	 * @param cont
+	 * @throws IOException
+	 */
+	private void copy(long byteStart, long byteEnd, String path, long cont, String idProceso)
+			throws IOException 
+	{/*
+		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+		Date dateInicio = new Date();
+		System.out.println("TIMEINICIOCopiando archivo:" + dateFormat.format(dateInicio) + " M" + System.currentTimeMillis());
+		*/
+		if(byteStart == byteEnd){
+			byteStart = byteStart - 1 ;
+		}
+		long t1 = System.currentTimeMillis();
+		RandomAccessFile file = new RandomAccessFile(path, "r");
+		FileWriter fileW = new FileWriter(this.getNameFile(properties.getPathDirBackup(), cont,null, idProceso));
+		int sizeArray = 1024 * 8;
+		int i = 0;
+		char c=0;
+		byte array[]=null;
+		boolean flagReader = true;
+		file.seek(byteStart);
+		//StringBuilder line = null;
+		StringBuffer line = null;
+		System.out.println("inicioDo");
+		do 
+		{
+			//line = new StringBuilder();
+			line = new StringBuffer();
+			array = new byte[sizeArray];
+			file.read(array, 0, (sizeArray - 1));
+			i = 0;
+			while ((c = (char) array[i]) != 0) {
+				if (byteStart < byteEnd) 
+				{
+					flagReader = false;
+					line.append(c);
+				}
+				i++;
+				byteStart++;
+			}
+			fileW.write(line.toString());
+		} while (flagReader);
+		System.out.println("finDo");
+		file.close();
+		fileW.close();
+		long t2 = t1- System.currentTimeMillis();
+		System.out.println("TIME: Copiando archivo " + path + "," + byteStart + "," + byteEnd + t2 + " ms");
+		
+		/*
+		Date dateInicio2 = new Date();
+		System.out.println("TIMEFINALCopiando archivos:" + dateFormat.format(dateInicio2) + " M" + System.currentTimeMillis());
+		*/
+	}
+
+	/**
+	 * 
+	 */
+	private void close() 
+	{
+		try 
+		{
+			if (br != null) 
+			{	br.close();	}
+			
+			if(salida!=null)
+			{	salida.close();		}
+			if(incidencia!=null)
+			{	incidencia.close();	}
+			if (salidaBD != null)
+			{	salidaBD.close();	}
+			if (salidaODM != null)
+			{	salidaODM.close();	}
+						
+			if (flagProcesado) 
+			{
+				//Una vez terminado el proeso copia el archivo
+				copy(properties.getPathDirProcesados()+this.nameFile);
+				//Elimina el archivo del directorio procesar ECB
+				/*DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+				Date dateInicio = new Date();
+				System.out.println("TIMEINICIOBorrando archivo:" + dateFormat.format(dateInicio) + " M" + System.currentTimeMillis());
+				*/
+				long t1 = System.currentTimeMillis();
+				file.delete();
+				long t2 = t1- System.currentTimeMillis();
+				System.out.println("TIME: Borrando archivo, " + this.nameFile + t2 + " ms");
+					/*			
+				Date dateInicio2 = new Date();
+				System.out.println("TIMEFINALBorrando archivo:" + dateFormat.format(dateInicio2) + " M" + System.currentTimeMillis());*/
+			}
+		} 
+		catch (IOException ioe) 
+		{
+			logger.error(ioe.getLocalizedMessage(), ioe);
+		} 
+		finally 
+		{
+			br = null;
+			salida = null;
+			salidaBD = null;
+			salidaODM = null;
+			incidencia = null;
+		}
+	}
+
+	/**
+	 * 
+	 */
+	private void closeByte() 
+	{
+		try 
+		{
+			if (salida != null) 
+			{	salida.close();		}
+			
+			if (salidaBD != null)
+			{	salidaBD.close();	}
+			
+			if (salidaODM != null)
+			{	salidaODM.close();	}
+			
+			if (incidencia != null) 
+			{	incidencia.close();	}
+			
+			if (salidaRutasXML != null)
+			{	salidaRutasXML.close();	}
+			
+			
+			//this.file=new File(this.nameFile);
+//			boolean flag1=Util.concatFile(file.getName(), properties.getPathIncidencia(), properties.getConfiguration(), "INC");
+//			boolean flag2=Util.concatFile(file.getName(), properties.getPathSalida(), properties.getConfiguration(), "XML");
+//			
+//			if(flag1&&flag2){
+//				FileCopyUtils.copy(file, new File(properties.getPathDirProcesados()+file.getName()));
+//				file.delete();
+//			}
+		} 
+		catch (Throwable ioe) 
+		{
+			ioe.printStackTrace();
+		} 
+		finally 
+		{
+			salida = null;
+			salidaBD = null;
+			salidaODM = null;
+			incidencia = null;
+			salidaRutasXML = null;
+		}
+	}
+
+	/**
+	 * 
+	 * @throws IOException
+	 */
+	
+	private static long generaXmlTime = 0;
+	
+	private void formatLinea(String idProceso, String fecha, String fileNames) 
+		throws IOException 
+	{	//System.out.println("formatLinea");
+		linea = Util.convierte(linea).concat("|temp");
+		token = linea.substring(0, 2);
+		int numElement = 0;
+		try 
+		{	numElement = Integer.parseInt(token);	} 
+		catch (NumberFormatException numberEx) 
+		{	logger.error("No empieza con un numero " + linea);	} 
+		switch (numElement) 
+		{
+		case 1:
+			System.out.println("case1");
+			if (conver.getTags().isComprobante) 
+			{	//System.out.println("endIMPUESTOS");
+				
+				if (conver.getTags().isTralados) 
+				{	
+					this.endTRALADOS();	
+				}else if (!conver.getTags().isTralados){	
+					out.write("\n<cfdi:Traslados/>".getBytes());		
+				}
+				if (conver.getTags().isImpuestos) 
+				{	this.endIMPUESTOS();	} 
+				else if (!conver.getTags().isImpuestos) 
+				{	out.write("\n<cfdi:Impuestos/>".getBytes());		}
+				this.end(1, idProceso, fecha, fileNames);
+				//System.out.println("generaXmlTime");
+				long t2 = generaXmlTime - System.currentTimeMillis();
+				System.out.println("TIME: Genera XMLTime " + t2 + " ms");
+				//System.out.println("generaXmlTime2");
+				generaXmlTime = System.currentTimeMillis();
+				//System.out.println("begin");
+				this.begin();
+			}
+			startLine = "" + contCFD;
+			endLine = null;
+			conver.getTags().isComprobante = true;
+			//System.out.println("conver.set");
+			conver.set(linea, contCFD);
+			break;
+		case 2:
+			System.out.println("case2");
+			out.write(conver.fComprobante(linea, contCFD, tipoCambio, lstFiscal, campos22));
+			break;
+		case 3:
+			System.out.println("case3");
+			out.write(conver.emisor(linea, lstFiscal, contCFD, campos22));
+			break;
+		case 4:
+			System.out.println("case4");
+			out.write(conver.receptor(linea, contCFD));
+			break;
+		case 5:
+			System.out.println("case5");
+			out.write(conver.domicilio(linea, contCFD));
+			this.beginCONCEPTOS();
+			break;
+		case 6:
+			System.out.println("case6");
+			out.write(conver.concepto(linea, contCFD, lstFiscal, campos22));
+			break;
+		case 7:
+			System.out.println("case7");
+			out.write(conver.impuestos(linea, contCFD));
+			break;
+		case 8:
+			System.out.println("case8");
+			this.beginRETENCIONES();
+			out.write(conver.retenciones(linea, contCFD));
+			break;
+		case 9:
+			System.out.println("case9");
+			this.endRETENCIONES();
+			this.beginTRASLADOS();
+			out.write(conver.traslados(linea, contCFD));
+				
+			this.endCONCEPTOS();
+						
+			break;
+		/*case 10:
+			//System.out.println("case10");
+			this.endCONCEPTOS();
+			this.endRETENCIONES();
+			this.endTRALADOS();
+			if (conver.getTags().isImpuestos) 
+			{	this.endIMPUESTOS();	} 
+			else if (!conver.getTags().isImpuestos) 
+			{	out.write("\n<cfdi:Impuestos/>".getBytes());		}
+			this.endMOVIMIENTOS();
+			this.complemento();
+			break;
+		case 11:
+			//System.out.println("case11");
+			this.beginMOVIMIENTOS(); 
+			out.write(conver.movimeinto(linea, contCFD));
+									
+			break;*/
+		default:
+			//System.out.println("caseBreak");
+			break;
+		}
+	}
+
+	/**
+	 * 
+	 */
+	public void beginIMPUESTOS() 
+	{
+
+	}
+
+	/**
+	 * 
+	 * @throws IOException
+	 */
+	public void endIMPUESTOS() 
+		throws IOException 
+	{
+		if (conver.getTags().isImpuestos) 
+		{
+			try 
+			{	temp = "\n</cfdi:" + conver.getPila().pop() + ">";		} 
+			catch (Exception e) 
+			{
+				// logger.error(e.getMessage(),e);
+			}
+			out.write("\n</cfdi:Impuestos>".getBytes());
+			conver.getTags().isImpuestos = false;
+		}
+	}
+
+	/**
+	 * 
+	 * @throws IOException
+	 */
+	public void beginCONCEPTOS() 
+		throws IOException 
+	{
+		out.write("\n<cfdi:Conceptos>".getBytes());
+		conver.getTags().isConceptos = true;
+		conver.getPila().push("Conceptos");
+	}
+
+	/**
+	 * 
+	 * @throws IOException
+	 */
+	public void endCONCEPTOS() 
+		throws IOException 
+	{
+		if (conver.getTags().isConceptos) 
+		{
+			temp = "\n</cfdi:" + conver.getPila().pop() + ">";
+			out.write(temp.getBytes());
+			conver.getTags().isConceptos = false;
+		}
+	}
+
+	/**
+	 * 
+	 * @throws IOException
+	 */
+	public void beginRETENCIONES() 
+		throws IOException 
+	{
+		if (!conver.getTags().isRetenciones) 
+		{
+			out.write("\n<cfdi:Retenciones>".getBytes());
+			conver.getTags().isRetenciones = true;
+		}
+	}
+
+	/**
+	 * 
+	 * @throws IOException
+	 */
+	public void endRETENCIONES() 
+		throws IOException 
+	{
+		if (conver.getTags().isRetenciones) 
+		{
+			out.write("\n</cfdi:Retenciones>".getBytes());
+			conver.getTags().isRetenciones = false;
+		}
+	}
+
+	/**
+	 * 
+	 * @throws IOException
+	 */
+	public void beginTRASLADOS() 
+		throws IOException 
+	{
+		if (!conver.getTags().isTralados) 
+		{
+			out.write("\n<cfdi:Traslados>".getBytes());
+			conver.getTags().isTralados = true;
+		}
+	}
+
+	/**
+	 * 
+	 * @throws IOException
+	 */
+	public void endTRALADOS() 
+		throws IOException 
+	{
+		if (conver.getTags().isTralados) 
+		{
+			out.write("\n</cfdi:Traslados>".getBytes());
+			conver.getTags().isTralados = false;
+		}
+	}
+
+	/**
+	 * 
+	 * @throws IOException
+	 */
+	public void beginMOVIMIENTOS() 
+		throws IOException 
+	{
+		if (!conver.getTags().isMovimiento) 
+		{
+			out.write("\n<ecb:Movimientos>".getBytes());
+			conver.getTags().isMovimiento = true;
+		}
+	}
+
+	/**
+	 * 
+	 * @throws IOException
+	 */
+	public void endMOVIMIENTOS() 
+		throws IOException 
+	{
+		if (conver.getTags().isMovimiento) 
+		{
+			out.write("\n</ecb:Movimientos>".getBytes());
+			conver.getTags().isMovimiento = false;
+		}
+	}
+
+	/**
+	 * 
+	 * @throws IOException
+	 */
+	public void complemento() 
+		throws IOException 
+	{
+		if (conver.getTags().isComplemento) 
+		{	this.endCOMPLEMENTO();	} 
+		else if (!conver.getTags().isComplemento) 
+		{	this.beginCOMPLEMENTO();	}
+	}
+
+	/**
+	 * 
+	 * @throws IOException
+	 */
+	public void beginCOMPLEMENTO() 
+		throws IOException 
+	{
+		if (!conver.getTags().isComplemento) 
+		{
+			out.write("\n<cfdi:Complemento>".getBytes());
+			out.write(conver.complemento(linea, contCFD));
+			conver.getTags().isComplemento = true;
+		}
+	}
+
+	/**
+	 * 
+	 * @throws IOException
+	 */
+	public void endCOMPLEMENTO() 
+		throws IOException 
+	{
+		if (conver.getTags().isComplemento) 
+		{
+			out.write("\n</ecb:EstadoDeCuentaBancario>".getBytes());
+			out.write("\n</cfdi:Complemento>".getBytes());
+			conver.getTags().isComplemento = false;
+		}
+	}
+
+	/**
+	 * 
+	 * @throws IOException
+	 */
+	private void begin() 
+		throws IOException 
+	{
+		
+		out = new ByteArrayOutputStream();
+		out.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>".getBytes());
+		conver.getTags().cfd = new CFDIssued();
+	}
+
+	//Convierte un ByteArrayOutputStream a Document
+	public Document byteArrayOutputStreamToDocument(ByteArrayOutputStream byteArray){
+		Document dom = null;
+		try{
+			if (this.db == null){
+				this.dbf = DocumentBuilderFactory.newInstance();
+				this.db = this.dbf.newDocumentBuilder();
+			}
+			dom = this.db.parse(new InputSource(new StringReader(byteArray.toString("UTF-8"))));
+		}catch(Exception e){
+			System.out.println(e.getMessage());
+			e.printStackTrace();
+		}		
+		return dom;
+	}
+	
+	//Covierte de Document a StringWriter
+	public StringWriter documentToStringWriter(Document dom){
+		StringWriter sw2 = new StringWriter();		
+		try{
+			if(this.tx == null){
+				this.tx = TransformerFactory.newInstance().newTransformer();
+				this.tx.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+			}					
+			this.tx.transform(new DOMSource(dom), new StreamResult(sw2));
+		}catch(Exception e){
+			System.out.println(e.getMessage());
+			e.printStackTrace();
+		}		
+		return sw2;
+	}
+	
+	//Convierte de String a Document
+	public Document stringToDocument(String strXML){
+		Document domResultado = null;
+		try{
+			if (this.db == null){
+				this.dbf = DocumentBuilderFactory.newInstance();
+				this.db = this.dbf.newDocumentBuilder();
+			}
+			
+			domResultado = this.db.parse(new InputSource(new StringReader(strXML)));	
+		}catch(Exception e){
+			System.out.println(e.getMessage());
+			e.printStackTrace();
+		}	
+		return domResultado;
+	}
+	
+	public StreamResult nodeToStreamResult(Node nodo){
+		StreamResult sr = null;
+		try{
+			if (this.tx == null){
+				this.tx = TransformerFactory.newInstance().newTransformer();
+				this.tx.setOutputProperty(OutputKeys.INDENT, "yes");
+			}
+			sr = new StreamResult(new StringWriter());
+			DOMSource sourceComprobante = new DOMSource(nodo);
+			this.tx.transform(sourceComprobante, sr);	
+		}catch(Exception e){
+			System.out.println(e.getMessage());
+			e.printStackTrace();
+		}		
+		
+		return sr;
+	}
+	
+	public StreamResult documentToStreamResult(Document dom){
+		StreamResult sr = null;
+		try{
+			if (this.tx == null){
+				this.tx = TransformerFactory.newInstance().newTransformer();
+				this.tx.setOutputProperty(OutputKeys.INDENT, "yes");
+			}
+			
+			sr = new StreamResult(new StringWriter());
+			DOMSource sourceComprobante = new DOMSource(dom);
+			this.tx.transform(sourceComprobante, sr);	
+		}catch(Exception e){
+			System.out.println(e.getMessage());
+			e.printStackTrace();
+		}		
+		
+		return sr;
+	}
+	
+	public String putZeros(String str){
+		String [] total = str.split("\\.");
+		//System.out.println("size: " + total.length);
+		
+		int nEnteros = total[0].length();
+		int nDecimales = total[1].length();
+		
+		int nZerosEnteros = 10 - nEnteros;
+		int nZerosDecimales = 6 - nDecimales;
+		
+		String strEnteros = "";
+		String strDecimales = "";
+		
+		if(nZerosEnteros > 0){
+			for(int nZero=0; nZero<nZerosEnteros; nZero++){
+				strEnteros = strEnteros + "0";
+			}
+			strEnteros = strEnteros + total[0];
+		}else{
+			strEnteros =  total[0];
+		}
+		if(nZerosDecimales > 0){
+			strDecimales = total[1];
+			for(int nZero=0; nZero<nZerosDecimales; nZero++){
+				strDecimales = strDecimales + "0";
+			}
+		}else{
+			strDecimales = total[1];
+		}	 
+		return strEnteros + "." + strDecimales;
+	}
+	
+	
+	private String getFolioSAT(Element docEleComprobante, Document domResultado){
+		String strFolioSAT = "";
+		NodeList hijosComprobante = docEleComprobante.getChildNodes();
+		for(int i=0; i<hijosComprobante.getLength(); i++){
+			Node nodo = hijosComprobante.item(i);								
+			//System.out.println("NAME: " + nodo.getNodeName());
+			if(nodo instanceof Element && nodo.getNodeName().equals("cfdi:Complemento")){
+				NodeList hijosComplemento = nodo.getChildNodes();
+				for(int j=0; j<hijosComplemento.getLength(); j++){
+					Node nodo2 = hijosComplemento.item(j);
+					if(nodo2 instanceof Element && nodo2.getNodeName().equals("tfd:TimbreFiscalDigital")){	
+						strFolioSAT = nodo2.getAttributes().getNamedItem("UUID").getTextContent().trim();						
+					}
+				}
+			}
+		}
+		return strFolioSAT;
+	}
+	
+	private Document getInfoTimbreFiscalDigital(Element docEleComprobante, Document domResultado){
+		
+        
+		strTotal = docEleComprobante.getAttributes().getNamedItem("total").getTextContent();
+		
+		NodeList hijosComprobante = docEleComprobante.getChildNodes();
+		for(int i=0; i<hijosComprobante.getLength(); i++){
+			Node nodo = hijosComprobante.item(i);								
+			//System.out.println("NAME: " + nodo.getNodeName());
+			if(nodo instanceof Element && nodo.getNodeName().equals("cfdi:Emisor")){
+				strEmisorRFC = nodo.getAttributes().getNamedItem("rfc").getTextContent();
+			}
+			else if(nodo instanceof Element && nodo.getNodeName().equals("cfdi:Receptor")){
+				strReceptorRFC = nodo.getAttributes().getNamedItem("rfc").getTextContent();
+			}
+			else if(nodo instanceof Element && nodo.getNodeName().equals("cfdi:Complemento")){
+				NodeList hijosComplemento = nodo.getChildNodes();
+				for(int j=0; j<hijosComplemento.getLength(); j++){
+					Node nodo2 = hijosComplemento.item(j);
+					if(nodo2 instanceof Element && nodo2.getNodeName().equals("tfd:TimbreFiscalDigital")){	
+						strFechaTimbrado = nodo2.getAttributes().getNamedItem("FechaTimbrado").getTextContent().trim();
+						strUUID = nodo2.getAttributes().getNamedItem("UUID").getTextContent().trim();
+						strNoCertificadoSAT = nodo2.getAttributes().getNamedItem("noCertificadoSAT").getTextContent().trim();
+						strSelloCFD = nodo2.getAttributes().getNamedItem("selloCFD").getTextContent().trim();
+						strSelloSAT = nodo2.getAttributes().getNamedItem("selloSAT").getTextContent().trim();
+						strVersion = nodo2.getAttributes().getNamedItem("version").getTextContent().trim();
+					}
+				}				
+			}
+		}
+		
+		return domResultado;
+	}
+	/**
+	 * Finaliza la creacion del ECB
+	 * @param decremento
+	 * @throws IOException
+	 */
+	private void end(int decremento, String idProceso, String fechaCtlM, String fileNames) 
+		throws IOException 
+	{
+		if (conver.getTags().isComprobante) 
+		{
+			out.write("\n</cfdi:Comprobante>".getBytes("UTF-8"));
+			conver.getTags().isComprobante = false;
+			try 
+			{	long t1 = System.currentTimeMillis();
+				endLine = "" + (contCFD - decremento);
+				if (conver.getTags().isFormat) 
+				{
+					StringBuffer numberLines = new StringBuffer();
+					for (String error : conver.getDescriptionFormat()) 
+					{
+						numberLines.append(error);
+						numberLines.append(" ");
+					}
+					throw new Exception("Estructura Incorrecta " + numberLines.toString());
+				}
+				long t2 = t1- System.currentTimeMillis();
+				System.out.println("TIME: getDescriptionFormat:" + t2 + " ms");
+				
+				if (conver.getTags().isEntidadFiscal) 
+				{	
+					t1 = System.currentTimeMillis();
+					
+					certificate = null;
+					Calendar cal = Calendar.getInstance();
+					for (SealCertificate obj : lstSeal) 
+					{
+						if (obj.getFiscalEntity().getId() == conver.getTags().fis.getId()) 
+						{
+							if (obj.getStartOfValidity().before(cal.getTime())) 
+							{
+								if (obj.getEndOfValidity().after(cal.getTime())) 
+								{
+									certificate = obj;
+									break;
+								}
+							}
+						}
+					}
+					
+					t2 = t1- System.currentTimeMillis();
+					System.out.println("TIME: SealCertificate:" + t2 + " ms");
+					
+					if (certificate == null) 
+					{
+						throw new Exception(
+								"No existe certificado para la entidad fiscal"
+										+ conver.getTags().fis.getFiscalName());
+					} 
+					else 
+					{						
+						t1 = System.currentTimeMillis();
+						
+						String fecha = Util.systemDate();
+						
+						String nameFile = xmlProcess.setName(fecha, true,
+								conver.getTags().NUM_CTA,
+								conver.getTags().EMISION_PERIODO, false, idProceso);
+						
+						out = Util.enconding(out);
+						logger.info(out.toString());
+						xmlProcess.getValidator().valida(out, this.validator);
+						conver.getTags().NUM_CERTIFICADO = certificate.getSerialNumber();
+						xmlProcess.setTransf(transf);
+						
+						t2 = t1- System.currentTimeMillis();
+						System.out.println("TIME: xmlProcess:" + t2 + " ms");
+										
+						try{
+														
+							//if(lstObjECBs.size()<26643 ){
+								t1 = System.currentTimeMillis();
+								//ecbActual++;
+								NotaCredito objEcbActual = new NotaCredito();
+								
+								//System.out.println("XMLCONECB: " + out.toString("UTF-8"));
+																
+								ByteArrayOutputStream originalString = xmlProcess.generatesOriginalString(out);
+								String cadena = originalString.toString("UTF-8");
+								cadena = cadena.replaceFirst(properties.getLabelLugarExpedicion(), conver.getTags().LUGAR_EXPEDICION);
+								cadena = cadena.replaceFirst(properties.getLabelMetodoPago(), conver.getTags().METODO_PAGO);
+								cadena = cadena.replaceFirst(properties.getlabelFormaPago(), conver.getTags().FORMA_PAGO);
+								
+								byte[] cadenaBytes = cadena.getBytes("UTF-8");
+								originalString = new ByteArrayOutputStream();
+								originalString.write(cadenaBytes, 0, cadenaBytes.length);
+								objEcbActual.setOriginalString(originalString);
+								
+								long t1b = System.currentTimeMillis();
+								System.out.println("originalString: " + originalString.toString("UTF-8"));
+								String seal = xmlProcess.sealEncryption(originalString, certificate);
+								long t2b = t1b- System.currentTimeMillis();
+								System.out.println("TIME: EncriptionFuera:" + t2b + " ms");
+
+								objEcbActual.setSeal(seal);
+								
+								byte[] bytesToWrite = xmlProcess.replacesOriginalString(out, certificate, seal, 
+										conver.getTags().LUGAR_EXPEDICION, conver.getTags().METODO_PAGO, conver.getTags().FORMA_PAGO, true).toByteArray();
+								
+								ByteArrayOutputStream xmlSinECB = new ByteArrayOutputStream();
+								xmlSinECB.write(bytesToWrite, 0, bytesToWrite.length);
+								objEcbActual.setXmlSinECB(xmlSinECB);
+								
+								//System.out.println("XML sin ECB a timbrar: " + xmlSinECB.toString("UTF-8"));
+								objEcbActual.setTagEMISON_RFC(conver.getTags().EMISION_RFC);
+								objEcbActual.setTagNUM_CTE(conver.getTags().NUM_CTE);
+								objEcbActual.setTagNUM_CTA(conver.getTags().NUM_CTA);
+								objEcbActual.setTagEMISION_PERIODO(conver.getTags().EMISION_PERIODO);
+								objEcbActual.setTagNUM_TARJETA(conver.getTags().NUM_TARJETA);
+								objEcbActual.setTagFECHA_CFD(conver.getTags().FECHA_CFD);
+								objEcbActual.setTagSERIE_FISCAL_CFD(conver.getTags().SERIE_FISCAL_CFD);
+								objEcbActual.setTagFOLIO_FISCAL_CFD(conver.getTags().FOLIO_FISCAL_CFD);
+								objEcbActual.setTagYEAR_APROBACION(conver.getTags().YEAR_APROBACION);
+								objEcbActual.setTagNUM_CERTIFICADO(conver.getTags().NUM_CERTIFICADO);
+								objEcbActual.setTagNUM_APROBACION(conver.getTags().NUM_APROBACION);
+								objEcbActual.setTagUNIDAD_MEDIDA(conver.getTags().UNIDAD_MEDIDA);
+								objEcbActual.setTagLUGAR_EXPEDICION(conver.getTags().LUGAR_EXPEDICION);
+								objEcbActual.setTagMETODO_PAGO(conver.getTags().METODO_PAGO);
+								objEcbActual.setTagREGIMEN_FISCAL(conver.getTags().REGIMEN_FISCAL);
+								objEcbActual.setTagFORMA_PAGO(conver.getTags().FORMA_PAGO);
+								objEcbActual.setTagTIPO_CAMBIO(conver.getTags().TIPO_CAMBIO);
+								objEcbActual.setTagTIPO_MONEDA(conver.getTags().TIPO_MONEDA);
+								objEcbActual.setTagLONGITUD(conver.getTags().LONGITUD);
+								
+								objEcbActual.setTagFis_ID(conver.getTags().fis.getId());
+								objEcbActual.setTagRECEPCION_RFC(conver.getTags().RECEPCION_RFC);
+								objEcbActual.setTagIVATOTAL_MN(conver.getTags().IVA_TOTAL_MN);
+								objEcbActual.setTagSUBTOTAL_MN(conver.getTags().SUBTOTAL_MN);
+								objEcbActual.setTagTOTAL_MN(conver.getTags().TOTAL_MN);
+								objEcbActual.setTagTIPO_FORMATO(conver.getTags().TIPO_FORMATO);
+								objEcbActual.setTagCFD_TYPE(conver.getTags().CFD_TYPE);
+								
+								objEcbActual.setStartLine(this.startLine);
+								objEcbActual.setEndLine(this.endLine);
+								
+								this.lstObjECBs.add(objEcbActual);
+								
+								t2 = t1- System.currentTimeMillis();
+								System.out.println("TIME: Procesar ECB:" + t2 + " ms");
+								
+						}catch(Exception e){							
+							e.printStackTrace();
+							System.out.println(e.getMessage());							
+							fileINCIDENCIA(e.getMessage() + " ", "ERROR", 
+									conver.getTags().EMISION_RFC, conver.getTags().NUM_CTE, conver.getTags().NUM_CTA, conver.getTags().EMISION_PERIODO, conver.getTags().NUM_TARJETA);							
+						}										
+					}
+				} 
+				else 
+				{	throw new Exception("No existe la entidad fiscal con R.F.C.: " + conver.getTags().EMISION_RFC);		}
+			} 
+			catch (Exception ex) 
+			{
+				msgError = ex.getMessage();	
+				String typeIncidence="ERROR";
+				if(msgError!=null && msgError.contains("The transaction has been rolled back"))
+				{	typeIncidence="WARNING";	} 
+				if(msgError!=null && msgError.contains("ORA-08177: can't serialize access for this transaction"))
+				{	typeIncidence="WARNING";	}
+				
+				try 
+				{	this.fileINCIDENCIA(ex,typeIncidence,
+						conver.getTags().EMISION_RFC, conver.getTags().NUM_CTE, conver.getTags().NUM_CTA, conver.getTags().EMISION_PERIODO, conver.getTags().NUM_TARJETA);		} 
+				catch (Exception e) 
+				{	lstECBIncidence.add(this.setCFDIncidence(msgError,typeIncidence));	} 
+				finally 
+				{
+					conver.setDescriptionFormat(null);
+					logger.error(ex.getLocalizedMessage(), ex);
+				}
+			} 
+			finally 
+			{	cont += 1;	}
+		}
+	}
+
+	
+	public void fileSALIDA(List<String> sello, String cadena, String fileNames, String strUUID, String strFechaTimbrado, String strNoCertificadoSAT, String strSelloCFD,
+			String strSelloSAT, String strVersion, String strEmisorRFC, String strReceptorRFC, String strTotalZeros) 
+		throws IOException, ParseException 
+	{
+		for  (int i = 0; i < sello.size(); i++)
+		{
+			//fileSALIDA(sello.get(i), cadena.get(), String fileNames, String strUUID, String strFechaTimbrado, String strNoCertificadoSAT, String strSelloCFD,
+			//		String strSelloSAT, String strVersion, String strEmisorRFC, String strReceptorRFC, String strTotalZeros);
+		}
+	}
+	/**
+	 * 
+	 * @param sello
+	 * @param cadena
+	 * @throws IOException
+	 * @throws ParseException
+	 */
+	public void fileSALIDA(NotaCredito objECB, String fileNames, String strUUID, String strFechaTimbrado, String strNoCertificadoSAT, String strSelloCFD,
+			String strSelloSAT, String strVersion, String strEmisorRFC, String strReceptorRFC, String strTotalZeros) 
+		throws IOException, ParseException 
+	{/*
+		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+		Date dateInicio = new Date();
+		System.out.println("TIMEINICIOEscritura archivo respuesta:" + dateFormat.format(dateInicio) + " M" + System.currentTimeMillis());
+		*/
+		long t1 = System.currentTimeMillis();
+		temp = "CFD|"
+				+ objECB.getTagEMISON_RFC()
+				+ "|"
+				+ objECB.getTagNUM_CTE()
+				+ "|"
+				+ objECB.getTagNUM_CTA()
+				+ "|"
+				+ objECB.getTagEMISION_PERIODO()
+				+ "|"
+				+ objECB.getTagNUM_TARJETA()
+				+ "|"
+				+ objECB.getTagFECHA_CFD()
+				+ "|"
+				+ objECB.getTagSERIE_FISCAL_CFD() + "|"
+				+ objECB.getTagFOLIO_FISCAL_CFD() + "|"
+				+ objECB.getTagYEAR_APROBACION() + "|"
+				+ objECB.getTagNUM_CERTIFICADO() + "|"
+				+ objECB.getTagNUM_APROBACION();
+		//+ Util.convertirFecha(objECB.getTagEMISION_PERIODO(),
+		//objECB.getTagFECHA_CFD()) + "|"
+		
+		//Verificar si se esta evaluando Mexder
+		boolean fMexder = false;
+		String[] fileNamesArr = fileNames.split(",");
+		for (int i=0; i < fileNamesArr.length; i++)
+		{	
+			if(fileNamesArr[i].equals("CFDOPMEXD21") || fileNamesArr[i].equals("CFDOPMEXD22")){
+				fMexder=true;	
+				break;
+			}
+		}
+		
+		if(fMexder){
+			temp = temp + "|" 		 
+			+ objECB.getTagUNIDAD_MEDIDA() + "|" 
+			+ objECB.getTagLUGAR_EXPEDICION() + "|"  
+			+ objECB.getTagMETODO_PAGO() + "|" 
+			+ objECB.getTagREGIMEN_FISCAL() + "|"
+			+ objECB.getTagFORMA_PAGO() + "|"
+			+ objECB.getTagTIPO_CAMBIO() + "|" 
+			+ objECB.getTagTIPO_MONEDA()  
+			+ "|\r\n";
+		}else{
+			temp = temp 
+			+ "|"		 
+			+ objECB.getTagTIPO_CAMBIO() + "|" 
+			+ objECB.getTagTIPO_MONEDA()
+			+ "|\r\n";
+		}
+		
+		this.salida.write(temp.getBytes("UTF-8"));
+		temp = null;
+		
+		temp =  "CFDI|" + strUUID + "|" + strFechaTimbrado  + "|" + strNoCertificadoSAT + "|" + "\r\n";
+		this.salida.write(temp.getBytes("UTF-8"));
+		temp = null;
+		//System.out.println("LONGITUD: " + Integer.parseInt(objECB.getTagLONGITUD()));
+		this.salida.write(Util.selloCadena(objECB.getSeal(), "SELLO", Integer.parseInt(objECB.getTagLONGITUD())));
+						
+		this.salida.write(Util.selloCadena(strSelloSAT, "SELLO_SAT", Integer.parseInt(objECB.getTagLONGITUD())));
+		
+		this.salida.write(Util.selloCadena(
+				"||" + strVersion + "|" + strUUID + "|" + strFechaTimbrado + "|" + objECB.getSeal() + "|" + strNoCertificadoSAT + "||", 
+				"CADENA_TIMBRE",
+				Integer.parseInt(objECB.getTagLONGITUD())));	
+		
+		temp = "COD_B|?re=" + strEmisorRFC + "&rr=" + strReceptorRFC  + "&tt=" + strTotalZeros + "&id=" + strUUID + "\r\n";
+		this.salida.write(temp.getBytes("UTF-8"));
+		temp = null;
+		
+		long t2 = t1- System.currentTimeMillis();
+		System.out.println("TIME: Escritura archivo respuesta " + t2 + " ms");
+		/*		
+		Date dateInicio2 = new Date();
+		System.out.println("TIMEFINALEscritura archivo respuesta:" + dateFormat.format(dateInicio2) + " M" + System.currentTimeMillis());
+		*/
+		this.setBDv2(strUUID, objECB);
+	}
+	
+	public void setBDv2(String strUUID, NotaCredito objECB) 
+		throws ParseException, UnsupportedEncodingException, IOException 
+	{/*
+		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+		Date dateInicio = new Date();
+		System.out.println("TIMEINICIOCalculando tiempo lote para BD (archivo):" + dateFormat.format(dateInicio) + " M" + System.currentTimeMillis());
+		*/
+		long t1 = System.currentTimeMillis();
+		System.out.println("TIME: Calculando tiempo lote para BD (archivo)...");
+		
+		StringBuffer temp = new StringBuffer();
+		 
+		//17FEB2012 -- Cambio optimizacion Oracle
+		//temp.append("r," + conver.getTags().cfd.getFilePath().getRoute() + "\r\n");
+		//temp.append("c," + conver.getTags().fis.getId() + ",");
+		temp.append("c," + conver.getTags().cfd.getXmlRoute() + ",");
+		temp.append(conver.getTags().cfd.getProcessID() + ",");
+		temp.append(objECB.getTagFis_ID() + ",");
+		
+		temp.append(objECB.getTagRECEPCION_RFC() + ",");
+		temp.append("masivo,");
+		int fechaIdx =objECB.getTagFECHA_CFD().indexOf("T");
+		//String dateStr = objECB.getTagEMISION_PERIODO() + " " + objECB.getTagFECHA_CFD().substring(fechaIdx + 1) + ",";
+		String strDate = objECB.getTagFECHA_CFD().substring(0, fechaIdx);		
+		temp.append(strDate + " " + objECB.getTagFECHA_CFD().substring(fechaIdx + 1) + ",");
+		temp.append(strDate + " " + objECB.getTagFECHA_CFD().substring(fechaIdx + 1) + ",");
+		temp.append(strDate + " " + objECB.getTagFECHA_CFD().substring(fechaIdx + 1) + ",");
+		//temp.append(objECB.getTagFOLIO_FISCAL_CFD() + ",");
+		temp.append(",");
+		temp.append(objECB.getTagSERIE_FISCAL_CFD() + ",");
+		temp.append("|" + objECB.getTagFOLIO_FISCAL_CFD()+"|"+objECB.getTagNUM_TARJETA()+ "|" + ",");
+		temp.append(objECB.getTagFOLIO_FISCAL_CFD() + ",");
+		temp.append(",");
+		temp.append(objECB.getTagNUM_CTE()+ ",");
+		
+		////////////////Obtener tipo de cambio
+		String strTipoCambio = "";
+		if(objECB.getTagTIPO_CAMBIO() != null && objECB.getTagTIPO_CAMBIO().length() > 0){
+			strTipoCambio=objECB.getTagTIPO_CAMBIO();
+			//System.out.println("conver.getTags().TIPO_CAMBIO:" + objECB.getTagTIPO_CAMBIO());
+		}	
+				
+		/*
+		if( conver.getTags().SERIE_FISCAL_CFD != null && conver.getTags().SERIE_FISCAL_CFD.trim() != "" ){
+			HashMap<String, String> monedas = (HashMap<String, String>) tipoCambio.get(conver.getTags().EMISION_PERIODO);
+			
+			if(monedas != null){
+				strTipoCambio = (String) monedas.get(conver.getTags().SERIE_FISCAL_CFD);				
+			}
+						
+		}*/		
+		//////////////////////////////////////
+		
+		if(!Util.isNullEmpty(objECB.getTagEMISION_PERIODO()))
+		{	temp.append(objECB.getTagEMISION_PERIODO() + ",");	}
+		else
+		{	temp.append(",");	}
+		if (Util.isNullEmpty(objECB.getTagIVATOTAL_MN()) && objECB.getTagIVATOTAL_MN().length() == 0) 
+		{	temp.append("0.0" + ",");	} 
+		else 
+		{	
+			if(strTipoCambio != ""){
+				double iva = Double.valueOf(objECB.getTagIVATOTAL_MN())*Double.valueOf(strTipoCambio);
+				temp.append(String.valueOf(iva) + ",");
+			}else{
+				temp.append(objECB.getTagIVATOTAL_MN() + ",");
+			}				
+		}
+		temp.append("1" + ",");
+		
+		if(strTipoCambio != ""){
+			double subtotal = Double.valueOf(objECB.getTagSUBTOTAL_MN()) * Double.valueOf(strTipoCambio);
+			double total = Double.valueOf(objECB.getTagTOTAL_MN()) * Double.valueOf(strTipoCambio);
+			temp.append(subtotal + ",");
+			temp.append(total + ",");
+		}else{
+			temp.append(objECB.getTagSUBTOTAL_MN() + ",");
+			temp.append(objECB.getTagTOTAL_MN() + ",");			
+		}
+
+		/*System.out.println("strTipoCambio:" + strTipoCambio);
+		System.out.println("SUBTOTAL_MN:" + objECB.getTagSUBTOTAL_MN());
+		System.out.println("IVA_TOTAL_MN:" + objECB.getTagIVATOTAL_MN());
+		System.out.println("TOTAL_MN:" + objECB.getTagTOTAL_MN());
+		*/
+		temp.append(objECB.getTagTIPO_FORMATO() + ",");
+		temp.append(objECB.getTagCFD_TYPE() + ",");
+		temp.append(this.nameFile + ",");
+		temp.append(strUUID + ",");
+		temp.append(1 + ",");
+		temp.append(objECB.getStartLine() + ",");
+		temp.append(objECB.getEndLine() + "\r\n");		
+		//temp.append(this.startLine + ",");
+		//temp.append(this.endLine + "\r\n");
+		
+		this.salidaBD.write(temp.toString().getBytes("UTF-8"));
+		long t2 = t1- System.currentTimeMillis();
+		System.out.println("TIME: Tiempo Lote para BD (archivo)" + t2 + " ms");
+		/*		
+		Date dateInicio2 = new Date();
+		System.out.println("TIMEFINALTiempo Lote para BD (archivo):" + dateFormat.format(dateInicio2) + " M" + System.currentTimeMillis());
+		*/
+		//conver.getTags().cfd.setFiscalEntity(conver.getTags().fis);
+		//conver.getTags().cfd.setTaxIdReceiver(conver.getTags().RECEPCION_RFC);
+		//conver.getTags().cfd.setAuthor("masivo");
+		//conver.getTags().cfd.setCreationDate(Util.convertirString(conver.getTags().EMISION_PERIODO, conver.getTags().FECHA_CFD));
+		//conver.getTags().cfd.setDateOfIssuance(Util.convertirString(conver.getTags().EMISION_PERIODO, conver.getTags().FECHA_CFD));
+		//conver.getTags().cfd.setFolio(conver.getTags().FOLIO_FISCAL_CFD);
+		//System.out.println("El numero de Tarjeta es: "+conver.getTags().NUM_TARJETA);
+		//System.out.println("El numero de Cuenta es: "+conver.getTags().FOLIO_FISCAL_CFD);
+		//conver.getTags().cfd.setComplement("|"+conver.getTags().FOLIO_FISCAL_CFD+"|"+conver.getTags().NUM_TARJETA+"|");
+		//conver.getTags().cfd.setContractNumber(conver.getTags().NUM_CTA);
+		//conver.getTags().cfd.setCostCenter(conver.getTags().NUM_CTA);
+		//conver.getTags().cfd.setCustomerCode(conver.getTags().NUM_CTE);
+		//if(!Util.isNullEmpty(conver.getTags().EMISION_PERIODO))
+		//{	conver.getTags().cfd.setPeriod(conver.getTags().EMISION_PERIODO);	}
+		//if (Util.isNullEmpty(conver.getTags().IVA_TOTAL_MN)
+		//		&& conver.getTags().IVA_TOTAL_MN.length() == 0) 
+		//{	conver.getTags().cfd.setIva(0.0);	} 
+		//else 
+		//{	conver.getTags().cfd.setIva(Double.valueOf(conver.getTags().IVA_TOTAL_MN));	}
+		//conver.getTags().cfd.setStatus(1);
+		//conver.getTags().cfd.setSubTotal(Double.valueOf(conver.getTags().SUBTOTAL_MN));
+		//conver.getTags().cfd.setTotal(Double.valueOf(conver.getTags().TOTAL_MN));
+		// logger.info("El valor del Tipo de Formato: "+conver.getTags().TIPO_FORMATO.length());
+		// logger.info("El valor del Tipo de Formato: "+conver.getTags().TIPO_FORMATO);
+		//conver.getTags().cfd.setFormatType(Integer.parseInt(conver.getTags().TIPO_FORMATO));
+		//conver.getTags().cfd.setCfdType(conver.getTags().CFD_TYPE);
+		//conver.getTags().cfd.setSourceFileName(this.nameFile);
+		//conver.getTags().cfd.setStartLine(startLine);
+		//conver.getTags().cfd.setEndLine(endLine);
+		//Route route = new Route();
+		//route.setRoute(nameFile);
+		//conver.getTags().cfd.setFilePath(route);
+		//lstECB.add(conver.getTags().cfd);
+		//if (lstECB.size() >= properties.getSizeECB()) 
+		//{
+		//	boolean cleanList = true;
+		//	try
+		//	{	conver.getTags().cFDIssuedManager.update(lstECB);	}
+		//	catch (Exception e1)
+		//	{
+		//		
+		//	}
+		//	if (cleanList)
+		//	{	lstECB = new ArrayList<CFDIssued>();	}
+		//}
+	}
+
+	/**
+	 * 
+	 * @throws ParseException
+	 */
+	public void setBD() 
+		throws ParseException 
+	{/*
+		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+		Date dateInicio = new Date();
+		System.out.println("TIMEINICIOCalculando tiempo lote BD:" + dateFormat.format(dateInicio) + " M" + System.currentTimeMillis());
+		*/
+		long t1 = System.currentTimeMillis();
+		System.out.println("TIME: Calculando tiempo lote BD...");
+		conver.getTags().cfd.setFiscalEntity(conver.getTags().fis);
+		conver.getTags().cfd.setTaxIdReceiver(conver.getTags().RECEPCION_RFC);
+		conver.getTags().cfd.setAuthor("masivo");
+		conver.getTags().cfd.setCreationDate(Util.convertirString(conver.getTags().EMISION_PERIODO, conver.getTags().FECHA_CFD));
+		conver.getTags().cfd.setDateOfIssuance(Util.convertirString(conver.getTags().EMISION_PERIODO, conver.getTags().FECHA_CFD));
+		conver.getTags().cfd.setFolio(conver.getTags().FOLIO_FISCAL_CFD);
+		System.out.println("El numero de Tarjeta es: "+conver.getTags().NUM_TARJETA);
+		System.out.println("El numero de Cuenta es: "+conver.getTags().FOLIO_FISCAL_CFD);
+		conver.getTags().cfd.setComplement("|"+conver.getTags().FOLIO_FISCAL_CFD+"|"+conver.getTags().NUM_TARJETA+"|");
+		//conver.getTags().cfd.setContractNumber(conver.getTags().NUM_CTA);
+		//conver.getTags().cfd.setCostCenter(conver.getTags().NUM_CTA);
+		conver.getTags().cfd.setCustomerCode(conver.getTags().NUM_CTE);
+		if(!Util.isNullEmpty(conver.getTags().EMISION_PERIODO))
+		{	conver.getTags().cfd.setPeriod(conver.getTags().EMISION_PERIODO);	}
+		if (Util.isNullEmpty(conver.getTags().IVA_TOTAL_MN)
+				&& conver.getTags().IVA_TOTAL_MN.length() == 0) 
+		{	conver.getTags().cfd.setIva(0.0);	} 
+		else 
+		{	conver.getTags().cfd.setIva(Double.valueOf(conver.getTags().IVA_TOTAL_MN));	}
+		conver.getTags().cfd.setStatus(1);
+		conver.getTags().cfd.setSubTotal(Double.valueOf(conver.getTags().SUBTOTAL_MN));
+		conver.getTags().cfd.setTotal(Double.valueOf(conver.getTags().TOTAL_MN));
+		// logger.info("El valor del Tipo de Formato: "+conver.getTags().TIPO_FORMATO.length());
+		// logger.info("El valor del Tipo de Formato: "+conver.getTags().TIPO_FORMATO);
+		conver.getTags().cfd.setFormatType(Integer.parseInt(conver.getTags().TIPO_FORMATO));
+		conver.getTags().cfd.setCfdType(conver.getTags().CFD_TYPE);
+		conver.getTags().cfd.setSourceFileName(this.nameFile);
+		conver.getTags().cfd.setStartLine(startLine);
+		conver.getTags().cfd.setEndLine(endLine);
+		logger.debug("Guardar ECB");
+		lstECB.add(conver.getTags().cfd);
+		if (lstECB.size() >= properties.getSizeECB()) 
+		{
+			boolean cleanList = true;
+			try
+			{	conver.getTags().cFDIssuedManager.update(lstECB);	}
+			catch (Exception e1)
+			{
+				String ids = "";
+				for (int j = 0; j < lstECB.size(); j++)
+				{
+					CFDIssued cf = lstECB.get(j);
+					ids += cf.getId() + "-" + cf.getFolio() + "|";
+				}
+				System.out.println("BD: Reintentando ids " + ids);
+				try
+				{	
+					System.out.println("BD: Intento 2");
+					conver.getTags().cFDIssuedManager.update(lstECB);	
+				}
+				catch (Exception e2)
+				{
+					try
+					{	
+						System.out.println("BD: Intento 3");
+						conver.getTags().cFDIssuedManager.update(lstECB);	
+					}
+					catch (Exception e3)
+					{	
+						try
+						{	
+							System.out.println("BD: Intento 4");
+							conver.getTags().cFDIssuedManager.update(lstECB);	
+						}
+						catch (Exception e4)
+						{	
+							try
+							{	
+								System.out.println("BD: Intento 5");
+								conver.getTags().cFDIssuedManager.update(lstECB);	
+							}
+							catch (Exception e5)
+							{	
+								try
+								{	
+									System.out.println("BD: Intento 6");
+									conver.getTags().cFDIssuedManager.update(lstECB);	
+								}
+								catch (Exception e6)
+								{	
+									try
+									{	
+										System.out.println("BD: Intento 7");
+										conver.getTags().cFDIssuedManager.update(lstECB);	
+									}
+									catch (Exception e7)
+									{	
+										try
+										{
+											System.out.println("BD: Intento 8");
+											conver.getTags().cFDIssuedManager.update(lstECB);	
+										}
+										catch (Exception e8)
+										{	
+											try
+											{	
+												System.out.println("BD: Intento 9");
+												conver.getTags().cFDIssuedManager.update(lstECB);	
+											}
+											catch (Exception e9)
+											{	
+												try
+												{	
+													System.out.println("BD: Intento 10");
+													conver.getTags().cFDIssuedManager.update(lstECB);	
+												}
+												catch (Exception e10)
+												{	
+													try
+													{	
+														System.out.println("BD: Intento 11");
+														conver.getTags().cFDIssuedManager.update(lstECB);	
+													}
+													catch (Exception e11)
+													{																
+														try
+														{	
+															System.out.println("BD: Intento 12");
+															conver.getTags().cFDIssuedManager.update(lstECB);	
+														}
+														catch (Exception e12)
+														{										
+															try
+															{	
+																System.out.println("BD: Intento 13");
+																conver.getTags().cFDIssuedManager.update(lstECB);	
+															}	
+															catch (Exception e13)
+															{	
+																try
+																{	
+																	System.out.println("BD: Intento 14");
+																	conver.getTags().cFDIssuedManager.update(lstECB);	
+																}
+																catch (Exception e14)
+																{	
+																	try
+																	{
+																		System.out.println("BD: Intento 15");
+																		conver.getTags().cFDIssuedManager.update(lstECB);
+																	}
+																	catch (Exception e15)
+																	{
+																		e15.printStackTrace();
+																		long t2 = t1- System.currentTimeMillis();
+																		System.out.println("TIME: Tiempo Lote BD -- No pudo completar transaccion " + t2 + " ms");
+																		cleanList = false;
+																	}
+																}
+															}
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			if (cleanList)
+			{	lstECB = new ArrayList<CFDIssued>();	}
+		}
+		long t2 = t1- System.currentTimeMillis();
+		System.out.println("TIME: Tiempo Lote BD " + t2 + " ms");
+		/*
+		Date dateInicio2 = new Date();
+		System.out.println("TIMEFINAL Tiempo Lote BD:" + dateFormat.format(dateInicio2) + " M" + System.currentTimeMillis());
+		*/
+	}
+
+	/**
+	 * 
+	 * @param msgError
+	 * @param typeIncidence
+	 * @return
+	 */
+	public CFDIssuedIn setCFDIncidence(String msgError, String typeIncidence) 
+	{
+		CFDIssuedIn cFDIssuedIncidence = new CFDIssuedIn();
+		if (msgError != null) 
+		{
+			if (msgError.length() > sizeT) 
+			{	cFDIssuedIncidence.setErrorMessage(msgError.substring(0, sizeT));	} 
+			else 
+			{	cFDIssuedIncidence.setErrorMessage(msgError);	}
+		}
+		cFDIssuedIncidence.setSourceFileName(this.nameFile);
+		cFDIssuedIncidence.setAuthor("masivo");
+		cFDIssuedIncidence.setComplement(typeIncidence);
+		cFDIssuedIncidence.setCreationDate(Calendar.getInstance().getTime());
+		cFDIssuedIncidence.setStartLine(startLine);
+		cFDIssuedIncidence.setEndLine(endLine);
+		return cFDIssuedIncidence;
+	}
+
+	/**
+	 * Guarda una Incidencia en la Base de Datos
+	 * @param e
+	 * @param typeIncidence
+	 * @throws IOException
+	 */
+	public void fileINCIDENCIA(Exception e, String typeIncidence,
+			String strTagEMISON_RFC, String strTagNUM_CTE, String strTagNUM_CTA, String strTagEMISION_PERIODO, String strTagNUM_TARJETA) 
+			throws IOException 
+		{
+			this.fileINCIDENCIA(e.getMessage(), typeIncidence, 
+					strTagEMISON_RFC, strTagNUM_CTE, strTagNUM_CTA, strTagEMISION_PERIODO, strTagNUM_TARJETA);
+		}
+	public void fileINCIDENCIA(String e, String typeIncidence, 
+			String strTagEMISON_RFC, String strTagNUM_CTE, String strTagNUM_CTA, String strTagEMISION_PERIODO, String strTagNUM_TARJETA) 
+		throws IOException 
+	{/*
+		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+		Date dateInicio = new Date();
+		System.out.println("TIMEINICIOEscritura archivo incidente:" + dateFormat.format(dateInicio) + " M" + System.currentTimeMillis());
+		*/
+		long t1 = System.currentTimeMillis();
+		temp = strTagEMISON_RFC 
+			+ "|" + strTagNUM_CTE
+			+ "|" + strTagNUM_CTA
+			+ "|" + strTagEMISION_PERIODO
+			+ "|" + strTagNUM_TARJETA
+			+ "|" + "\r\n";
+		incidencia.write(temp.getBytes());
+		incidencia.write("Se presentaron los siguientes errores al validar la estructura del comprobante: \r\n".getBytes());
+		if(typeIncidence.equals("ERROR"))
+		{	temp = "Error: " + e + "\r\n";	} 
+		else 
+		{	temp = "Warning: " + e + "\r\n";	}
+		temp += "Inicio de CFD: " + startLine + "\r\n";
+		incidencia.write(temp.getBytes("UTF-8"));
+		temp = null;
+		long t2 = t1- System.currentTimeMillis();
+		System.out.println("TIME: Escritura archivo incidente " + t2 + " ms");
+		/*
+		Date dateInicio2 = new Date();
+		System.out.println("TIMEFINALEscritura archivo incidente:" + dateFormat.format(dateInicio2) + " M" + System.currentTimeMillis());
+		*/
+		
+		//this.setBDIncidence(setCFDIncidence(e,typeIncidence));
+	}
+
+	/**
+	 * Guarda la incidencia del ECB
+	 * 
+	 * @param cFDIssuedIncidence
+	 */
+	public void setBDIncidence(CFDIssuedIn cFDIssuedIncidence)
+	{/*
+		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+		Date dateInicio = new Date();
+		System.out.println("TIMEINICIOActualizacion Incidencia BD:" + dateFormat.format(dateInicio) + " M" + System.currentTimeMillis());
+		*/
+		long t1 = System.currentTimeMillis();
+		logger.debug("Guardar CFD Incidence");
+		conver.getTags().cFDIssuedIncidenceManager.update(cFDIssuedIncidence);
+		long t2 = t1- System.currentTimeMillis();
+		System.out.println("TIME: Actualizacion Incidencia BD " + t2 + " ms");
+		/*
+		Date dateInicio2 = new Date();
+		System.out.println("TIMEFINAL Actualizacion Incidencia BD:" + dateFormat.format(dateInicio2) + " M" + System.currentTimeMillis());
+		*/
+	}
+
+	public String getNameFile() 
+	{	return nameFile;	}
+
+	public void setNameFile(String nameFile) 
+	{	this.nameFile = nameFile;	}
+
+	public HashMap<String, FiscalEntity> getLstFiscal() {
+		return lstFiscal;
+	}
+
+	public void setLstFiscal(HashMap<String, FiscalEntity> lstFiscal) {
+		this.lstFiscal = lstFiscal;
+	}
+
+	public HashMap<String, HashMap> getCampos22() {
+		return campos22;
+	}
+
+	public void setCampos22(HashMap<String, HashMap> campos22) {
+		this.campos22 = campos22;
+	}
+
+	public HashMap<String, HashMap> getTipoCambio() {
+		return tipoCambio;
+	}
+
+	public void setTipoCambio(HashMap<String, HashMap> tipoCambio) {
+		this.tipoCambio = tipoCambio;
+	}
+
+	public List<SealCertificate> getLstSeal() {
+		return lstSeal;
+	}
+
+	public void setLstSeal(List<SealCertificate> lstSeal) 
+	{	this.lstSeal = lstSeal;		}
+
+	public Transformer getTransf() 
+	{	return transf;	}
+
+	public void setTransf(Transformer transf) 
+	{	this.transf = transf;	}
+
+	public ValidatorHandler getValidator() 
+	{	return validator;	}
+
+	public void setValidator(ValidatorHandler validator) 
+	{	this.validator = validator;	}
+
+	public String getUrlWebService() {
+		return urlWebService;
+	}
+
+	public void setUrlWebService(String urlWebService) {
+		this.urlWebService = urlWebService;
+	}
+	
+}

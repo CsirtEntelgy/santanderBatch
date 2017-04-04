@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="lib/spring/org.springframework.aop-3.0.2.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/spring/org.springframework.asm-3.0.2.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/spring/org.springframework.aspects-3.0.2.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/spring/spring-beans-3.0.3.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/spring/spring-context-3.0.3.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/spring/spring-core-3.0.3.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/spring/spring-expression-3.0.3.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/spring/org.springframework.orm-3.0.2.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/spring/org.springframework.transaction-3.0.2.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/cglib/cglib-2.2.jar"/>
+	<classpathentry kind="lib" path="lib/openjpa/openjpa-1.2.2.jar"/>
+	<classpathentry kind="lib" path="lib/javax/com.springsource.javax.transaction-1.1.0.jar"/>
+	<classpathentry kind="lib" path="lib/javax/javax.persistence.jar"/>
+	<classpathentry kind="lib" path="lib/javax/validation-api-1.0.0.GA.jar"/>
+	<classpathentry kind="lib" path="lib/oracle/ojdbc6.jar"/>
+	<classpathentry kind="lib" path="lib/objectweb/asm-3.3.jar"/>
+	<classpathentry kind="lib" path="lib/spring/spring-modules-validation-0.9.jar"/>
+	<classpathentry kind="lib" path="lib/apache/commons-codec-1.4.jar"/>
+	<classpathentry kind="lib" path="lib/crypto/not-yet-commons-ssl-0.3.11.jar"/>
+	<classpathentry kind="lib" path="lib/crypto/infra.jar"/>
+	<classpathentry kind="lib" path="lib/spring/org.springframework.jdbc-3.0.2.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/apache/commons-lang-2.1.jar"/>
+	<classpathentry kind="lib" path="lib/apache/commons-collections-3.2.1.jar"/>
+	<classpathentry kind="lib" path="lib/log/log4j-1.2.15.jar"/>
+	<classpathentry kind="lib" path="lib/log/log4j-1.2.16.jar"/>
+	<classpathentry kind="lib" path="lib/apache/commons-logging-1.1.jar"/>
+	<classpathentry kind="lib" path="lib/spring/com.springsource.org.aopalliance-1.0.0.jar"/>
+	<classpathentry kind="lib" path="lib/spring/org.springframework.context.support-3.0.2.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/servlet-api-2.5.jar">
+		<attributes>
+			<attribute name="maven.groupId" value="javax.servlet"/>
+			<attribute name="maven.artifactId" value="servlet-api"/>
+			<attribute name="maven.version" value="2.5"/>
+			<attribute name="maven.scope" value="provided"/>
+			<attribute name="org.eclipse.jst.component.nondependency" value=""/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/xbean.jar"/>
+	<classpathentry kind="lib" path="lib/spring/spring-web-3.0.3.RELEASE.jar">
+		<attributes>
+			<attribute name="maven.groupId" value="org.springframework"/>
+			<attribute name="maven.artifactId" value="spring-web"/>
+			<attribute name="maven.version" value="3.0.1.RELEASE"/>
+			<attribute name="maven.scope" value="compile"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/spring/spring-webmvc-3.0.3.RELEASE.jar">
+		<attributes>
+			<attribute name="maven.groupId" value="org.springframework"/>
+			<attribute name="maven.artifactId" value="spring-webmvc"/>
+			<attribute name="maven.version" value="3.0.1.RELEASE"/>
+			<attribute name="maven.scope" value="compile"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/dom4j-1.6.1.jar"/>
+	<classpathentry kind="lib" path="lib/poi-3.9-20121203.jar"/>
+	<classpathentry kind="lib" path="lib/poi-ooxml-3.9-20121203.jar"/>
+	<classpathentry kind="lib" path="lib/poi-ooxml-schemas-3.9-20121203.jar"/>
+	<classpathentry kind="lib" path="lib/xmlbeans-2.3.0.jar"/>
+	<classpathentry kind="lib" path="lib/jsch-0.1.50.jar"/>
+	<classpathentry kind="lib" path="lib/xerces-1.4.3.jar"/>
+	<classpathentry kind="lib" path="lib/ODApi.jar"/>
+	<classpathentry kind="lib" path="lib/comprobante3schema.jar"/>
+	<classpathentry kind="lib" path="lib/comprobanteschema.jar"/>
+	<classpathentry kind="lib" path="lib/commons-lang3-3.3.jar"/>
+	<classpathentry kind="lib" path="lib/commons-lang3-3.3-javadoc.jar"/>
+	<classpathentry kind="lib" path="E:/Proyectos/Batch/emisionMasivaCifrasControl/lib/iText-5.0.4.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

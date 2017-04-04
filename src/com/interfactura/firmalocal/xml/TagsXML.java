@@ -1,0 +1,152 @@
+package com.interfactura.firmalocal.xml;
+
+import java.util.Set;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import com.interfactura.firmalocal.domain.entities.AddendumCustoms;
+import com.interfactura.firmalocal.domain.entities.CFDIssued;
+import com.interfactura.firmalocal.domain.entities.FiscalEntity;
+import com.interfactura.firmalocal.persistence.CFDIssuedIncidenceManager;
+import com.interfactura.firmalocal.persistence.CFDIssuedManager;
+
+@Component
+public class TagsXML {
+
+	public TagsXML(){
+		
+	}
+	
+	public final String addenda="\r\n<as:AddendaSantanderV1 " +
+			"xmlns:as=\"http://www.santander.com.mx/schemas/xsd/AddendaSantanderV1\" " +
+			"xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">";
+	public String _E="Emisor";
+	public String _R="Receptor";
+	public String _Cons="Conceptos";
+	public String _Con="Concepto";
+	public String _I="Impuestos";
+	public String _Tra="Traslado";
+	public String _Tras="Traslados";
+	public String _Cmp="Complemento";
+	public String _ECB="ecb:";
+	public String _ECBD="EstadoDeCuentaBancario";
+	public String _mov="Movimientos";
+	public String _movECB="MovimientoECB";
+	public String _movECBF="MovimientoECBFiscal ";
+	
+	public String NUM_CTE;
+	public String NUM_CTA;
+	public String PERIODO;
+	public String NUM_TARJETA;
+	public String SUBTOTAL_MN;
+	public String SUBTOTAL_REPORTE;
+	public String TOTAL_MN;
+	public String TOTAL_REPORTE;
+	public String IVA_TOTAL_MN;
+	public String IVA_TOTAL_REPORTE;
+	public String LONGITUD;
+	public String NUM_PROVEEDOR;
+	public String CTA_DEPOSITO;
+	public String EMAIL;
+	public String MONEDA;
+	public String ORDEN_COMPRA;
+	public String TIPO_MONEDA;
+	public String TIPO_CAMBIO;
+	public String UNIDAD_MEDIDA;
+	public String REGIMEN_FISCAL;
+	public String METODO_PAGO;
+	public String LUGAR_EXPEDICION;
+	public String FORMA_PAGO;
+	
+	public String EMISION_RFC="";
+	public String RECEPCION_RFC="";
+	public String INSTITUCION_RECEPTORA="";
+	public String NOMBRE_BENIFICIARIO="";
+	public String EMISION_CONTRATO="";
+	public String EMISION_CODIGO_CLIENTE="";
+	public String EMISION_CENTRO_COSTOS="";
+	public String EMISION_PERIODO="";
+	public String EMISION_CLAVE_SANTANDER="";
+	public String EMISION_FOLIO_INTERNO="";
+	public String TIPO_FORMATO="";
+	public String FECHA_CFD="";
+	public String SERIE_FISCAL_CFD="";
+	public String FOLIO_FISCAL_CFD="";
+	public String NUM_APROBACION="";
+	public String YEAR_APROBACION="";
+	public String NUM_CERTIFICADO="";
+	public String CFD_TYPE="";
+	public String FOLIO_REFERENCE="";
+	public String DESCRIPTION_TASA="";
+	public String FACTORAJE_HORA="";
+	public String FACTORAJE_TIPO="";
+	public String FACTORAJE_SVN="";
+	public String FACTORAJE_SPB="";
+	public String FACTORAJE_SPF="";
+	public String FACTORAJE_SID="";
+	public String FACTORAJE_LCI="";
+	public String FACTORAJE_LIVA="";
+	public String FACTORAJE_COMISION="";
+	public String FACTORAJE_LETRAS="";
+	
+	public String _Calle;
+	public String _NoExterior;
+	public String _NoInterior;
+	public String _Colonia;
+	public String _Municipio;
+	public String _Estado;
+	public String _Pais;
+	public String _CodigoPostal;
+	public String _Localidad;
+	public String _Referencia;
+	
+	public boolean isEmisor;
+	public boolean isReceptor;
+	public boolean isConceptos;
+	public boolean isConcepto;
+	public boolean isPredial;
+	public boolean isParte;
+	public boolean isComplementoConcepto;
+	public boolean isAduanera;
+	public boolean isRetenciones;
+	public boolean isTralados;
+	public boolean isImpuestos;
+	public boolean isComplemento;
+	public boolean isMovimiento;
+	public boolean isComprobante;
+	public boolean isAdenda;
+	public boolean isDescriptionTASA;
+	public boolean isEntidadFiscal;
+	public boolean isFolioRange;
+	public boolean isFormat;
+	public boolean isAddenda;
+	
+	public String _CONTROLCFD="CONTROLCFD";
+	public String _CFD="CFD";
+	public String _EMISOR="EMISOR";
+	public String _RECEPTOR="RECEPTOR";
+	public String _DOMICILIO="DOMICILIO";
+	public String _CONCEPTO="CONCEPTO";
+	public String _CCONCEPTO="CCONCEPTO";
+	public String _INFOADUANERA="INFOADUANERA";
+	public String _PREDIAL="PREDIAL";
+	public String _PARTE="PARTE";
+	public String _IMPUESTOS="IMPUESTOS";
+	public String _RETENCION="RETENCION";
+	public String _TRASLADO="TRASLADO";
+	public String _FACTORAJE="FACTORAJE";
+	@Autowired
+	public CFDIssuedManager cFDIssuedManager;
+	@Autowired
+	public CFDIssuedIncidenceManager cFDIssuedIncidenceManager;
+
+	public FiscalEntity fis;
+	public CFDIssued cfd;
+	public Set<AddendumCustoms> lstCustoms;
+	
+	public String TOTAL_IMP_RET = "";
+	public String TOTAL_IMP_TRA = "";
+	
+	public String NOMBRE_APP_REPECB = "";
+}
