@@ -187,6 +187,10 @@ public class Properties
 	@Value("${url.webservice.cifrasControl}")
     private String urlWebServiceCifrasControl;
 	
+	//Variable de ubicacion a archivo XLS catalogos AMDA
+	@Value("${url.archivo.catalogs}")
+	private String urlArchivoCatalogs;
+	
 	public String getInterfaces() {
 		return interfaces;
 	}
@@ -864,4 +868,13 @@ public class Properties
 	public void setUrlWebServiceCifrasControl(String urlWebServiceCifrasControl) {
 		this.urlWebServiceCifrasControl = urlWebServiceCifrasControl;
 	}
+
+	public String getUrlArchivoCatalogs() {
+		return urlArchivoCatalogs;
+	}
+
+	public void setUrlArchivoCatalogs(String urlArchivoCatalogs) {
+		this.urlArchivoCatalogs = urlArchivoCatalogs;
+	}
+	
 }

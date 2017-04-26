@@ -1,5 +1,7 @@
 package com.interfactura.firmalocal.xml;
 
+import java.util.ArrayList;
+import java.util.Map;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -149,4 +151,17 @@ public class TagsXML {
 	public String TOTAL_IMP_TRA = "";
 	
 	public String NOMBRE_APP_REPECB = "";
+	
+	//Variable de mapeo de catalogos AMDA
+	public Map<String, ArrayList<CatalogosDom>> mapCatalogos ;
+	public String tipoComprobante = "";
+	public String recepCP = "";
+	public String recepPais = "";
+	public String regimenFiscalCode = "";
+	public String retencionImpuestoVal = "";
+	public String retencionImporteVal = "";
+	public String trasladoImpuestoVal = "";
+	public String trasladoTasaVal = "";
+	public String trasladoImporteVal = "";
+	
 }

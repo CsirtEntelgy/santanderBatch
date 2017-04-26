@@ -45,7 +45,6 @@ import org.xml.sax.InputSource;
 import com.interfactura.firmalocal.domain.entities.CFDIssued;
 import com.interfactura.firmalocal.domain.entities.CFDIssuedIn;
 import com.interfactura.firmalocal.domain.entities.FiscalEntity;
-
 import com.interfactura.firmalocal.domain.entities.SealCertificate;
 import com.interfactura.firmalocal.xml.Properties;
 import com.interfactura.firmalocal.xml.WebServiceCliente;
@@ -54,15 +53,13 @@ import com.interfactura.firmalocal.xml.util.Util;
 import com.interfactura.firmalocal.xml.util.NombreAplicativo;
 
 @Component
-public class GeneraXML_ECBDS {
-	private Logger logger = Logger.getLogger(GeneraXML_ECBDS.class);
+public class GeneraXML_ECBDSV3_3 {
+	private Logger logger = Logger.getLogger(GeneraXML_ECBDSV3_3.class);
 	private BufferedReader br;
 	private String linea;
 	private String token;
 	@Autowired
-	private Convertir conver;
-	@Autowired
-	private ConvertirV3_3 converV3_3; //Nueva clase 
+	private ConvertirV3_3 conver; 
 	private int cont;
 	@Autowired
 	private Properties properties;
@@ -148,7 +145,7 @@ public class GeneraXML_ECBDS {
     //Nombres de los Aplicativos ECB
     private HashMap<String, String> nombresApps = new HashMap<String, String>();
     
-   	public GeneraXML_ECBDS() {
+   	public GeneraXML_ECBDSV3_3() {
 
 	}
 
@@ -156,7 +153,7 @@ public class GeneraXML_ECBDS {
 	 * 
 	 * @param nameFile
 	 */
-	public GeneraXML_ECBDS(String nameFile) {
+	public GeneraXML_ECBDSV3_3(String nameFile) {
 		this.nameFile = nameFile;
 	}
 
@@ -586,11 +583,11 @@ public class GeneraXML_ECBDS {
 			}			
 			
 			t1 = System.currentTimeMillis();
-									
+			System.out.println("ANTES DE ENTRAR TIMBRAR SACANDO VALORES: "+lstObjECBs.size());						
 			for(int index=0; index<lstObjECBs.size(); index++){
-				/*System.out.println("xmlATimbrar " + index + " :" + lstObjECBs.get(index).getXmlSinECB().toString("UTF-8"));
+				System.out.println("xmlATimbrar " + index + " :" + lstObjECBs.get(index).getXmlSinECB().toString("UTF-8"));
 				System.out.println("periodos " + index + " :" + lstObjECBs.get(index).getTagEMISION_PERIODO());
-				System.out.println("nombreAplicativo" + index + " :" + lstObjECBs.get(index).getTagNOMBRE_APP_REPECB());*/
+				System.out.println("nombreAplicativo" + index + " :" + lstObjECBs.get(index).getTagNOMBRE_APP_REPECB());
 				if(index < lstObjECBs.size()-1){
 					sbXmlATimbrar.append(lstObjECBs.get(index).getXmlSinECB().toString("UTF-8") + "|");		
 					sbPeriodos.append(lstObjECBs.get(index).getTagEMISION_PERIODO() + "|");
@@ -609,7 +606,7 @@ public class GeneraXML_ECBDS {
 			System.out.println("NombreInterface:" +  this.nameFile);
 			System.out.println("NumeroProceso:" + idProceso);
 			
-			if(!sbXmlATimbrar.toString().trim().equals("")){
+			if(!sbXmlATimbrar.toString().trim().equals("")){ // Aqui se timbra al parecer AMDA
 				System.out.println("Num xmls A Timbrar:" + lstObjECBs.size());
 				
 				t1 = System.currentTimeMillis();
@@ -662,14 +659,14 @@ public class GeneraXML_ECBDS {
 					String descripcion = docEleResultado.getAttribute("Descripcion");
 					String idRespuesta = docEleResultado.getAttribute("IdRespuesta");
 					
-					if(descripcion.toLowerCase().trim().equals("ok") && idRespuesta.trim().equals("1")){
+//					if(descripcion.toLowerCase().trim().equals("ok") && idRespuesta.trim().equals("1")){ // Pruebas solo para que genere XML AMDA V3.3 descomentar despues
 						//Transformar el hijo del nodo Resultado (Comprobante) a StreamResult								
 						//StreamResult resultComprobante = nodeToStreamResult(docEleResultado.getFirstChild());
 						
 						//Obtenemos la etiqueta raiz (Comprobante)								
 						//Element docEleComprobante = domComprobante.getDocumentElement();
 						Element docEleComprobante = (Element) docEleResultado.getFirstChild();
-						
+						System.out.println("Bloque AMDA : " + docEleComprobante.toString());
 						//Atributos TimbreFiscalDigital
 			            this.strFechaTimbrado = "";this.strUUID = "";this.strNoCertificadoSAT = "";this.strSelloCFD = "";this.strSelloSAT = "";this.strVersion = "";  
 			            
@@ -687,6 +684,7 @@ public class GeneraXML_ECBDS {
 			            
 						//Concatenar foliosSAT
 						sbFoliosSAT.append(this.strUUID + "||");
+						System.out.println("Bloque AMDA 2 : " + sbFoliosSAT);
 						
 						//Transformar el hijo del nodo Resultado (document Comprobante) a StringResult								
 						//StreamResult resultComprobanteTimbrado = this.documentToStreamResult(domComprobante);
@@ -702,7 +700,7 @@ public class GeneraXML_ECBDS {
 						//System.out.println("XML Timbrado con addenda incluida: " + sbTimbradoFinal.toString());
 						long length = sbTimbradoFinal.toString().getBytes("UTF-8").length;
 						this.salidaODM.write(sbTimbradoFinal.toString().getBytes("UTF-8"));
-						
+						System.out.println("Bloque AMDA 3 : " + sbTimbradoFinal.toString());
 						//Route route = new Route();
 						String routeName = properties.getPathDirGenr() + File.separator + fecha + "ODM-" + idProceso;
 						
@@ -718,17 +716,17 @@ public class GeneraXML_ECBDS {
 								this.strUUID, this.strFechaTimbrado, this.strNoCertificadoSAT, this.strSelloCFD, this.strSelloSAT,
 								this.strVersion, this.strEmisorRFC, this.strReceptorRFC, strTotalZeros);
 						this.offSetComprobante += length;
-					}else{
-						System.out.println("ERROR: " + descripcion + " " + idRespuesta);
-									
-						fileINCIDENCIA(idRespuesta + "-" + descripcion + " ", "ERROR", 
-								lstObjECBs.get(index).getTagEMISON_RFC(), lstObjECBs.get(index).getTagNUM_CTE(), lstObjECBs.get(index).getTagNUM_CTA(), lstObjECBs.get(index).getTagEMISION_PERIODO(), lstObjECBs.get(index).getTagNUM_TARJETA(), lstObjECBs.get(index).getTagCFD_TYPE());				
-						
-						//Generar Archivo de incidentes para Cifras (ERR...TXT)
-						fileINCIDENCIACIFRAS(idRespuesta + "-" + descripcion + " ", "ERROR", 
-								lstObjECBs.get(index).getTagEMISON_RFC(), lstObjECBs.get(index).getTagNUM_CTE(), lstObjECBs.get(index).getTagNUM_CTA(), lstObjECBs.get(index).getTagEMISION_PERIODO(), lstObjECBs.get(index).getTagNUM_TARJETA(), lstObjECBs.get(index).getTagCFD_TYPE(), 
-								lstObjECBs.get(index).getTagSUBTOTAL_MN(), lstObjECBs.get(index).getTagTOTAL_IMP_TRA(), lstObjECBs.get(index).getTagTOTAL_IMP_RET(), fileNames, lstObjECBs.get(index).getTagSERIE_FISCAL_CFD(), numeroMalla);
-					}
+//					}else{
+//						System.out.println("ERROR: " + descripcion + " " + idRespuesta);
+//									
+//						fileINCIDENCIA(idRespuesta + "-" + descripcion + " ", "ERROR", 
+//								lstObjECBs.get(index).getTagEMISON_RFC(), lstObjECBs.get(index).getTagNUM_CTE(), lstObjECBs.get(index).getTagNUM_CTA(), lstObjECBs.get(index).getTagEMISION_PERIODO(), lstObjECBs.get(index).getTagNUM_TARJETA(), lstObjECBs.get(index).getTagCFD_TYPE());				
+//						
+//						//Generar Archivo de incidentes para Cifras (ERR...TXT)
+//						fileINCIDENCIACIFRAS(idRespuesta + "-" + descripcion + " ", "ERROR", 
+//								lstObjECBs.get(index).getTagEMISON_RFC(), lstObjECBs.get(index).getTagNUM_CTE(), lstObjECBs.get(index).getTagNUM_CTA(), lstObjECBs.get(index).getTagEMISION_PERIODO(), lstObjECBs.get(index).getTagNUM_TARJETA(), lstObjECBs.get(index).getTagCFD_TYPE(), 
+//								lstObjECBs.get(index).getTagSUBTOTAL_MN(), lstObjECBs.get(index).getTagTOTAL_IMP_TRA(), lstObjECBs.get(index).getTagTOTAL_IMP_RET(), fileNames, lstObjECBs.get(index).getTagSERIE_FISCAL_CFD(), numeroMalla);
+//					} // Pruebas solo para que genere XML AMDA V3.3, descomentar despues
 								
 				}
 				this.lstObjECBs.clear();
@@ -981,6 +979,9 @@ public class GeneraXML_ECBDS {
 		{	numElement = Integer.parseInt(token);	} 
 		catch (NumberFormatException numberEx) 
 		{	logger.error("No empieza con un numero " + linea);	} 
+		// Metodo Prueba AMDA Version 3.3
+		conver.loadInfoV33(numElement, linea);
+		System.out.println("GENERA XML Despues de LOADINFO AMDA: ");
 		switch (numElement) 
 		{
 		case 1:
@@ -1014,65 +1015,87 @@ public class GeneraXML_ECBDS {
 			
 			break;
 		case 2:
-			//System.out.println("case2");
+			System.out.println("case2");
 //			if(!versionTypo) // Validando a que tipo de version apunta AMDA
 				out.write(conver.fComprobante(linea, contCFD, tipoCambio, lstFiscal, campos22, fileNames));
 //			else
 //				//Entra a la version 3.3
 //				out.write(conver.fComprobante(linea, contCFD, tipoCambio, lstFiscal, campos22, fileNames));
+				System.out.println("Out: Case 2 " + out);
 			break;
 		case 3:
-			//System.out.println("case3");
+			System.out.println("case3");
 			out.write(conver.emisor(linea, lstFiscal, contCFD, campos22));
+			System.out.println("Out: Case 3 " + out);
 			break;
 		case 4:
-			//System.out.println("case4");
+			System.out.println("case4");
 			out.write(conver.receptor(linea, contCFD));
+			System.out.println("Out: Case 4 " + out);
 			break;
 		case 5:
-			//System.out.println("case5");
+			System.out.println("case5");
 			out.write(conver.domicilio(linea, contCFD));
+			System.out.println("Out: Case 5 " + out);
 			this.beginCONCEPTOS();
+			System.out.println("Out: Case 5-1 " + out);
 			break;
 		case 6:
-			//System.out.println("case6");
+			System.out.println("case6");
 			out.write(conver.concepto(linea, contCFD, lstFiscal, campos22));
+			System.out.println("Out: Case 6 " + out);
 			break;
 		case 7:
-			//System.out.println("case7");
+			System.out.println("case7");
 			out.write(conver.impuestos(linea, contCFD));
+			System.out.println("Out: Case 7 " + out);
 			break;
 		case 8:
-			//System.out.println("case8");
+			System.out.println("case8");
 			this.beginRETENCIONES();
+			System.out.println("Out: Case 8 " + out);
 			out.write(conver.retenciones(linea, contCFD));
+			System.out.println("Out: Case 8-1 " + out);
 			break;
 		case 9:
-			//System.out.println("case9");
+			System.out.println("case9");
+			System.out.println("Out: Case 9 " + out);
 			this.endRETENCIONES();
+			System.out.println("Out: Case 9-1 " + out);
 			this.beginTRASLADOS();
+			System.out.println("Out: Case 9-2 " + out);
 			out.write(conver.traslados(linea, contCFD));
+			System.out.println("Out: Case 9-3 " + out);
 			break;
 		case 10:
-			//System.out.println("case10");
+			System.out.println("case10");
+			System.out.println("Out: Case 10 " + out);
 			this.endCONCEPTOS();
+			System.out.println("Out: Case 10-1 " + out);
 			this.endRETENCIONES();
+			System.out.println("Out: Case 10-2 " + out);
 			this.endTRALADOS();
+			System.out.println("Out: Case 10-3 " + out);
 			if (conver.getTags().isImpuestos) 
 			{	this.endIMPUESTOS();	} 
 			else if (!conver.getTags().isImpuestos) 
 			{	out.write("\n<cfdi:Impuestos/>".getBytes());		}
+			System.out.println("Out: Case 10-4 " + out);
 			this.endMOVIMIENTOS();
+			System.out.println("Out: Case 10-5 " + out);
 			this.addenda();
+			System.out.println("Out: Case 10-6 " + out);
 			break;
 		case 11:
-			//System.out.println("case11");
+			System.out.println("case11");
+			System.out.println("Out: Case 11 " + out);
 			this.beginMOVIMIENTOS(); 
+			System.out.println("Out: Case 11-1 " + out);
 			out.write(conver.movimeinto(linea, contCFD));
-									
+			System.out.println("Out: Case 11-2 " + out);
 			break;
 		default:
-			//System.out.println("caseBreak");
+			System.out.println("caseBreak");
 			break;
 		}
 	}
@@ -1757,17 +1780,18 @@ public class GeneraXML_ECBDS {
 				
 		docEleComprobante.appendChild(rootAddenda).appendChild(nodeAddendaECB).appendChild(domResultado.createElement("Santander:EstadoDeCuentaBancario")).appendChild(domResultado.createElement("Santander:Movimientos"));
 		
-		strTotal = docEleComprobante.getAttributes().getNamedItem("total").getTextContent();
+		strTotal = docEleComprobante.getAttributes().getNamedItem("Total").getTextContent(); // Antes total, ahora en version 3.3 Total AMDA
 		
 		NodeList hijosComprobante = docEleComprobante.getChildNodes();
 		for(int i=0; i<hijosComprobante.getLength(); i++){
 			Node nodo = hijosComprobante.item(i);								
-			//System.out.println("NAME: " + nodo.getNodeName());
+			System.out.println("NAME: " + nodo.getNodeName());
+			System.out.println("NAME AMDA: " + nodo.getAttributes());
 			if(nodo instanceof Element && nodo.getNodeName().equals("cfdi:Emisor")){
-				strEmisorRFC = nodo.getAttributes().getNamedItem("rfc").getTextContent();
+				strEmisorRFC = nodo.getAttributes().getNamedItem("RFC").getTextContent(); // Antes rfc, Version 3.3 AMDA
 			}
 			else if(nodo instanceof Element && nodo.getNodeName().equals("cfdi:Receptor")){
-				strReceptorRFC = nodo.getAttributes().getNamedItem("rfc").getTextContent();
+				strReceptorRFC = nodo.getAttributes().getNamedItem("RFC").getTextContent(); // Antes rfc, Version 3.3 AMDA
 			}
 			else if(nodo instanceof Element && nodo.getNodeName().equals("cfdi:Complemento")){
 				NodeList hijosComplemento = nodo.getChildNodes();
@@ -1779,7 +1803,7 @@ public class GeneraXML_ECBDS {
 						strNoCertificadoSAT = nodo2.getAttributes().getNamedItem("noCertificadoSAT").getTextContent().trim();
 						strSelloCFD = nodo2.getAttributes().getNamedItem("selloCFD").getTextContent().trim();
 						strSelloSAT = nodo2.getAttributes().getNamedItem("selloSAT").getTextContent().trim();
-						strVersion = nodo2.getAttributes().getNamedItem("version").getTextContent().trim();
+						strVersion = nodo2.getAttributes().getNamedItem("Version").getTextContent().trim(); // Antes version, Version 3.3 AMDA
 					}
 				}				
 			}else if(nodo instanceof Element && nodo.getNodeName().equals("cfdi:Addenda")){
@@ -1794,7 +1818,7 @@ public class GeneraXML_ECBDS {
 							if(nodo2 instanceof Element && nodo2.getNodeName().equals("Santander:EstadoDeCuentaBancario")){
 								Element nodeECB = (Element) nodo2;
 								if(!estadoDeCuentaBancariox.getVersion().equals("")){
-									nodeECB.setAttribute("version", estadoDeCuentaBancariox.getVersion());
+									nodeECB.setAttribute("version", estadoDeCuentaBancariox.getVersion()); 
 								}
 								if(!estadoDeCuentaBancariox.getNumeroCuenta().equals("")){
 									nodeECB.setAttribute("numeroCuenta", estadoDeCuentaBancariox.getNumeroCuenta());
@@ -1895,6 +1919,7 @@ public class GeneraXML_ECBDS {
 	{
 		if (conver.getTags().isComprobante) 
 		{
+			System.out.println("OUT FIRST PRINT AMDA : " + out.toString());
 			out.write("\n</cfdi:Comprobante>".getBytes("UTF-8"));
 			conver.getTags().isComprobante = false;
 			try 
@@ -1905,6 +1930,7 @@ public class GeneraXML_ECBDS {
 					StringBuffer numberLines = new StringBuffer();
 					for (String error : conver.getDescriptionFormat()) 
 					{
+						System.out.println("TIME: getDescriptionFormat ERR:" + error + " ms");
 						numberLines.append(error);
 						numberLines.append(" ");
 					}
@@ -1912,7 +1938,8 @@ public class GeneraXML_ECBDS {
 				}
 				long t2 = t1- System.currentTimeMillis();
 				System.out.println("TIME: getDescriptionFormat:" + t2 + " ms");
-				
+				System.out.println("EntidadFiscal AMDA despues de GetDescriptionFormat:" + conver.getTags().isEntidadFiscal);
+				System.out.println("lstSeal AMDA :" + lstSeal.size());
 				if (conver.getTags().isEntidadFiscal) 
 				{	
 					t1 = System.currentTimeMillis();
@@ -1966,13 +1993,14 @@ public class GeneraXML_ECBDS {
 						 
 						 */
 						out = Util.enconding(out);
+						System.out.println("OUT PRINT AMDA : " + out.toString());
 						logger.info(out.toString());
 						 
 						try{
 														
 							//if(lstObjECBs.size()<26643 ){
 								t1 = System.currentTimeMillis();
-								
+								System.out.println("Dentro del TRY AMDA Genera " );
 								//En caso de ser CFDREPROCESOECB, validar que el nombre de aplicativo informado en cada comprobante, sea correcto
 								/*if(fileNames.trim().equals("CFDREPROCESOECB") && ! NombreAplicativo.validaNombreApp(getNombresApps(), conver.getTags().NOMBRE_APP_REPECB))
 									throw new Exception(
@@ -1994,12 +2022,16 @@ public class GeneraXML_ECBDS {
 								//Manipular con Document el xml obtenido de la variable out					
 								Document dom = this.removeMovimientoECB(byteArrayOutputStreamToDocument(out));
 								//Fin - Quitar todos los movimientos no fiscales del XML almacenado en la variable out
-												    
+								System.out.println("fAttMovIncorrect AMDA Genera " + this.fAttMovIncorrect );
+								System.out.println("fnombreCliente AMDA Genera " + this.fnombreCliente );
+								System.out.println("fnumeroCuenta AMDA Genera " + this.fnumeroCuenta );
+								System.out.println("fperiodo AMDA Genera " + this.fperiodo );
+								System.out.println("fsucursal AMDA Genera " + this.fsucursal );
 								//System.out.println("flags: fAttMovIncorrect:" + this.fAttMovIncorrect + " fnombreCliente:" + this.fnombreCliente + " fnumeroCuenta:" + this.fnumeroCuenta + " fperiodo:" + this.fperiodo + " fsucursal:" + this.fsucursal);
 								if(!this.fAttMovIncorrect && !this.fnombreCliente && !this.fnumeroCuenta && !this.fperiodo && !this.fsucursal){
 									objEcbActual.setLstMovimientosECB(this.lstMovimientosECB);
 									objEcbActual.setEstadoDeCuentaBancario(this.estadoDeCuentaBancario);
-																	
+									System.out.println("Dentro del IF donde esta el TRUE DE VALIDACION " );								
 									//Convertir de Document a StringWriter
 									StringWriter sw2 = documentToStringWriter(dom);									
 												
@@ -2028,19 +2060,19 @@ public class GeneraXML_ECBDS {
 									//logger.info("xmlFinal:" + xmlFinal.toString());
 									//Valida el XML sin Addenda
 									boolean fValidaXMLSinAddenda = true;
-									try{
-										xmlProcess.getValidator().valida(xmlFinal, this.validator);
-									}catch(Exception ex){
-										fValidaXMLSinAddenda = false;
-										System.out.println(ex.getMessage());
-										fileINCIDENCIA(ex.getMessage() + " ", "ERROR", 
-												conver.getTags().EMISION_RFC, conver.getTags().NUM_CTE, conver.getTags().NUM_CTA, conver.getTags().EMISION_PERIODO, conver.getTags().NUM_TARJETA, conver.getTags().CFD_TYPE);
-										
-										//Generar Archivo de incidentes para Cifras (ERR...TXT)
-										fileINCIDENCIACIFRAS(ex.getMessage() + " ", "ERROR", 
-												conver.getTags().EMISION_RFC, conver.getTags().NUM_CTE, conver.getTags().NUM_CTA, conver.getTags().EMISION_PERIODO, conver.getTags().NUM_TARJETA, conver.getTags().CFD_TYPE,
-												conver.getTags().SUBTOTAL_MN, conver.getTags().TOTAL_IMP_TRA, conver.getTags().TOTAL_IMP_RET, fileNames, conver.getTags().SERIE_FISCAL_CFD, numeroMalla);
-									}
+//									try{ // Solo se comenta para pruebas AMDA
+//										xmlProcess.getValidator().valida(xmlFinal, this.validator); // Al Parecer Aqui Valida AMDA
+//									}catch(Exception ex){
+//										fValidaXMLSinAddenda = false;
+//										System.out.println(ex.getMessage());
+//										fileINCIDENCIA(ex.getMessage() + " ", "ERROR", 
+//												conver.getTags().EMISION_RFC, conver.getTags().NUM_CTE, conver.getTags().NUM_CTA, conver.getTags().EMISION_PERIODO, conver.getTags().NUM_TARJETA, conver.getTags().CFD_TYPE);
+//										
+//										//Generar Archivo de incidentes para Cifras (ERR...TXT)
+//										fileINCIDENCIACIFRAS(ex.getMessage() + " ", "ERROR", 
+//												conver.getTags().EMISION_RFC, conver.getTags().NUM_CTE, conver.getTags().NUM_CTA, conver.getTags().EMISION_PERIODO, conver.getTags().NUM_TARJETA, conver.getTags().CFD_TYPE,
+//												conver.getTags().SUBTOTAL_MN, conver.getTags().TOTAL_IMP_TRA, conver.getTags().TOTAL_IMP_RET, fileNames, conver.getTags().SERIE_FISCAL_CFD, numeroMalla);
+//									}
 									
 									if(fValidaXMLSinAddenda){
 										conver.getTags().NUM_CERTIFICADO = certificate.getSerialNumber();
@@ -2150,7 +2182,7 @@ public class GeneraXML_ECBDS {
 																				
 						}catch(Exception e){							
 							e.printStackTrace();
-							System.out.println(e.getMessage());							
+							System.out.println("Antes Catch AMDA: "+e.getMessage());							
 							fileINCIDENCIA(e.getMessage() + " ", "ERROR", 
 									conver.getTags().EMISION_RFC, conver.getTags().NUM_CTE, conver.getTags().NUM_CTA, conver.getTags().EMISION_PERIODO, conver.getTags().NUM_TARJETA, conver.getTags().CFD_TYPE);
 							
@@ -2166,6 +2198,7 @@ public class GeneraXML_ECBDS {
 			} 
 			catch (Exception ex) 
 			{
+				System.out.println("Catch AMDA: " +ex.getMessage());	
 				msgError = ex.getMessage();	
 				String typeIncidence="ERROR";
 				if(msgError!=null && msgError.contains("The transaction has been rolled back"))
@@ -2241,7 +2274,7 @@ public class GeneraXML_ECBDS {
 				+ objECB.getTagNUM_APROBACION();
 		//+ Util.convertirFecha(objECB.getTagEMISION_PERIODO(),
 		//objECB.getTagFECHA_CFD()) + "|"
-		
+		System.out.println("Bloque AMDA SALIDA 3 : " );
 		//Obtener interfaces que llevaran los campos
 		String strInterfaces = properties.getInterfaces(); 
 		String [] interfacesCfdFields = strInterfaces.split(",");		
@@ -2711,7 +2744,7 @@ public class GeneraXML_ECBDS {
 			+ "|" + strRetenciones					 
 			+ "|" + "\r\n";
 		incidenciaCifras.write(temp.getBytes());
-		incidenciaCifras.write("Se presentaron los siguientes errores al validar la estructura del comprobante: \r\n".getBytes());
+		incidenciaCifras.write("Se presentaron los siguientes errores al validar la estructura del comprobante Cifras: \r\n".getBytes());
 		
 		
 		if(typeIncidence.equals("ERROR"))
@@ -2760,7 +2793,7 @@ public class GeneraXML_ECBDS {
 		incidencia.write(temp.getBytes("UTF-8"));
 		temp = null;
 		long t2 = t1- System.currentTimeMillis();
-		System.out.println("TIME: Escritura archivo incidente " + t2 + " ms");
+		System.out.println("TIME: Escritura archivo incidente fileIncidencia " + t2 + " ms");
 		/*
 		Date dateInicio2 = new Date();
 		System.out.println("TIMEFINALEscritura archivo incidente:" + dateFormat.format(dateInicio2) + " M" + System.currentTimeMillis());

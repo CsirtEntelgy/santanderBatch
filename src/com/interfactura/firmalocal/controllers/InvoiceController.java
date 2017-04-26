@@ -40,7 +40,9 @@ import com.interfactura.firmalocal.persistence.RegimenFiscalManager;
 import com.interfactura.firmalocal.persistence.SealCertificateManager;
 import com.interfactura.firmalocal.xml.Properties;
 import com.interfactura.firmalocal.xml.ecb.GeneraXML_ECBDS;
+import com.interfactura.firmalocal.xml.ecb.GeneraXML_ECBDSV3_3;
 import com.interfactura.firmalocal.xml.factura.GeneraXML_CFD;
+import com.interfactura.firmalocal.xml.factura.GeneraXML_CFDV3_3;
 import com.interfactura.firmalocal.xml.nc.GeneraXML_NC;
 import com.interfactura.firmalocal.xml.util.FiltroParam;
 import com.interfactura.firmalocal.xml.util.NombreAplicativo;
@@ -53,6 +55,10 @@ public class InvoiceController
 {	
 	@Autowired
 	private GeneraXML_ECBDS xmlECB;
+	@Autowired
+	private GeneraXML_ECBDSV3_3 xmlECBV3; // Clase para version 3.3 AMDA
+	@Autowired
+	private GeneraXML_CFDV3_3 xmlCFDV3; // Clase para version 3.3 AMDA
 	@Autowired
 	private GeneraXML_CFD xmlCFD;
 	@Autowired
@@ -202,6 +208,7 @@ public class InvoiceController
 					HashMap valores22 = new HashMap(); /// Sacar de Bd lo que corresponda la Id
 					valores22.put("unidadMedida", obj2.getUnidadDeMedida());
 					valores22.put("regimenFiscal", obj2.getRegimenFiscal().getName());
+					valores22.put("regimenFiscalCode", obj2.getRegimenFiscal().getCode()); // Clave RegimenFiscal AMDA version 3.3
 					valores22.put("formaDePago", obj2.getFormaDePago());
 					
 					System.out.println("Fiscal Entity ID a buscar: " + obj2.getFiscalEntity().getId() );
@@ -704,37 +711,67 @@ class Thread1 implements Runnable{
 			long byteStart, long byteEnd, String path,long cont, String idProceso, String fecha, String fileNames, String urlWebService, String numeroMalla) throws Exception
 	{
 		File file=new File(path);
+		boolean versionTypo = true; // Tipo version AMDA
 		if(file.length()>0)
 		{
 			logger.debug("Paso 2.- El Archivo a procesar es:" + path);
 			if (isECB) 
-			{
 				
-				logger.debug("Procesando Estados de Cuenta");
-				xmlECB.setNombresApps(NombreAplicativo.cargaNombresApps());
-				xmlECB.setNameFile(file.getName());
-				xmlECB.setLstFiscal(lstFiscal);
-				xmlECB.setLstSeal(lstSeal);
-				xmlECB.setCampos22(lstCampos22);
-				xmlECB.setTipoCambio(lstTipoCambio);
-				xmlECB.setTransf(transf);
-				xmlECB.setValidator(val);
-				xmlECB.setUrlWebService(urlWebService);
-				xmlECB.convierte(byteStart, byteEnd, path, cont, idProceso, fecha, fileNames, numeroMalla);
+			{
+				if(!versionTypo){
+					logger.debug("Procesando Estados de Cuenta");
+					xmlECB.setNombresApps(NombreAplicativo.cargaNombresApps());
+					xmlECB.setNameFile(file.getName());
+					xmlECB.setLstFiscal(lstFiscal);
+					xmlECB.setLstSeal(lstSeal);
+					xmlECB.setCampos22(lstCampos22);
+					xmlECB.setTipoCambio(lstTipoCambio);
+					xmlECB.setTransf(transf);
+					xmlECB.setValidator(val);
+					xmlECB.setUrlWebService(urlWebService);
+					xmlECB.convierte(byteStart, byteEnd, path, cont, idProceso, fecha, fileNames, numeroMalla);
+				}else{
+					logger.debug("Procesando Estados de Cuenta V3.3");
+					xmlECBV3.setNombresApps(NombreAplicativo.cargaNombresApps());
+					xmlECBV3.setNameFile(file.getName());
+					xmlECBV3.setLstFiscal(lstFiscal);
+					xmlECBV3.setLstSeal(lstSeal);
+					xmlECBV3.setCampos22(lstCampos22);
+					xmlECBV3.setTipoCambio(lstTipoCambio);
+					xmlECBV3.setTransf(transf);
+					xmlECBV3.setValidator(val);
+					xmlECBV3.setUrlWebService(urlWebService);
+					xmlECBV3.convierte(byteStart, byteEnd, path, cont, idProceso, fecha, fileNames, numeroMalla);
+				}
+				
 							
 			} 
 			else 
 			{
-				logger.debug("Paso 2.- Procesando Facturas");
-				xmlCFD.setNombresApps(NombreAplicativo.cargaNombresApps());
-				//xmlCFD.setNameFile(file.getName());
-				xmlCFD.setLstFiscal(lstFiscal);
-				xmlCFD.setLstSeal(lstSeal);
-				xmlCFD.setLstIva(lstIva);
-				xmlCFD.setTipoCambio(lstTipoCambio);
-				xmlCFD.setCampos22(lstCampos22);
-				xmlCFD.setTransf(transf);
-				xmlCFD.setValidator(val);
+				if(!versionTypo){
+					logger.debug("Paso 2.- Procesando Facturas");
+					xmlCFD.setNombresApps(NombreAplicativo.cargaNombresApps());
+					//xmlCFD.setNameFile(file.getName());
+					xmlCFD.setLstFiscal(lstFiscal);
+					xmlCFD.setLstSeal(lstSeal);
+					xmlCFD.setLstIva(lstIva);
+					xmlCFD.setTipoCambio(lstTipoCambio);
+					xmlCFD.setCampos22(lstCampos22);
+					xmlCFD.setTransf(transf);
+					xmlCFD.setValidator(val);
+				}else{
+					logger.debug("Paso 2.- Procesando Facturas V3.3 AMDA");
+					xmlCFDV3.setNombresApps(NombreAplicativo.cargaNombresApps());
+					//xmlCFD.setNameFile(file.getName());
+					xmlCFDV3.setLstFiscal(lstFiscal);
+					xmlCFDV3.setLstSeal(lstSeal);
+					xmlCFDV3.setLstIva(lstIva);
+					xmlCFDV3.setTipoCambio(lstTipoCambio);
+					xmlCFDV3.setCampos22(lstCampos22);
+					xmlCFDV3.setTransf(transf);
+					xmlCFDV3.setValidator(val);
+				}
+				
 				
 			}
 		}

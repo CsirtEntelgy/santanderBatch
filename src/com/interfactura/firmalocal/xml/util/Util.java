@@ -3,6 +3,7 @@ package com.interfactura.firmalocal.xml.util;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
@@ -20,6 +21,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Stack;
 import java.util.regex.Matcher;
@@ -27,8 +30,14 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import org.apache.log4j.Logger;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
+
+import com.interfactura.firmalocal.xml.CatalogosDom;
 
 public class Util 
 {
@@ -987,5 +996,149 @@ public class Util
 	    	 //RFC valido
 	    	 return true;
 	     }
+	}
+	
+	public static Map<String, ArrayList<CatalogosDom>> readXLSFile(String pathFileXLS) {
+		// TODO Auto-generated method stub				
+		System.out.println("Leyendo Archivo XLS de Catalogs");
+		System.out.println("Ubicacion del archivo: "+pathFileXLS);
+		String key = "";
+		int value = 0;
+		Map<String, Object> knownGoodMap = new LinkedHashMap<String, Object>();
+		Map<String, ArrayList<CatalogosDom>> mapValDom = new LinkedHashMap<String, ArrayList<CatalogosDom>>();
+		        try {
+
+		        	FileInputStream file = new FileInputStream(new File(pathFileXLS));
+
+		            // Get the workbook instance for XLS file
+		            HSSFWorkbook workbook = new HSSFWorkbook(file);
+
+		            // Get first sheet from the workbook
+		            HSSFSheet sheet = workbook.getSheetAt(0);
+		            
+		            for (int i=0; i<workbook.getNumberOfSheets(); i++) { // PARA ITERAR VARIAS HOJAS (SHEETS)
+		            	key = workbook.getSheetName(i);
+		            	HSSFSheet sheetDin = workbook.getSheetAt(i);
+		            	System.out.println("Key Sheet : "+ key );
+		            	ArrayList<CatalogosDom> listValDom = new ArrayList<CatalogosDom>();
+
+		            // Iterate through each rows from first sheet
+		            Iterator<Row> rowIterator = sheetDin.iterator(); // Para las pestaÃ±as dinamicas
+		            while (rowIterator.hasNext()) {
+		                Row row = rowIterator.next();
+		                
+		                CatalogosDom valDom = new CatalogosDom();
+		                // For each row, iterate through each columns
+		                Iterator<Cell> cellIterator = row.cellIterator();
+//		                System.out.println("CELL ITERATOR : "+ cellIterator.hasNext() );
+		                while (cellIterator.hasNext()) {
+		                    Cell cell = cellIterator.next();
+//		                    System.out.println("CELL Value Num : "+ cell.getColumnIndex() );
+		                    
+		                    if(cell.getColumnIndex() == 0){
+		                    	switch (cell.getCellType()) {
+			                    case Cell.CELL_TYPE_NUMERIC:
+			                    	valDom.setVal1(String.valueOf(cell.getNumericCellValue()));
+//			                    	System.out.println("val1 KEY : "+ valDom.getVal1() );
+			                        break;
+			                    case Cell.CELL_TYPE_STRING:
+			                    	valDom.setVal1(cell.getStringCellValue());
+//			                        System.out.println("val1 KEY : "+ valDom.getVal1() );
+			                        break;
+			                    }		                    	
+		                    }else if((cell.getColumnIndex() == 1)){
+		                    	switch (cell.getCellType()) {
+			                    case Cell.CELL_TYPE_NUMERIC:
+			                    	valDom.setVal2(String.valueOf(cell.getNumericCellValue()));
+//			                    	System.out.println("val2 : "+ valDom.getVal2() );
+			                        break;
+			                    case Cell.CELL_TYPE_STRING:
+			                    	valDom.setVal2(cell.getStringCellValue());
+//			                        System.out.println("val2 : "+ valDom.getVal2() );
+			                        break;
+			                    }
+		                    }else if((cell.getColumnIndex() == 2)){
+		                    	switch (cell.getCellType()) {
+			                    case Cell.CELL_TYPE_NUMERIC:
+			                    	valDom.setVal3(String.valueOf(cell.getNumericCellValue()));
+//			                    	System.out.println("val3 : "+ valDom.getVal3() );
+			                        break;
+			                    case Cell.CELL_TYPE_STRING:
+			                    	valDom.setVal3(cell.getStringCellValue());
+//			                        System.out.println("val3 : "+ valDom.getVal3() );
+			                        break;
+			                    }
+		                    }else if((cell.getColumnIndex() == 3)){
+		                    	switch (cell.getCellType()) {
+			                    case Cell.CELL_TYPE_NUMERIC:
+			                    	valDom.setVal4(String.valueOf(cell.getNumericCellValue()));
+//			                    	System.out.println("val4 : "+ valDom.getVal4() );
+			                        break;
+			                    case Cell.CELL_TYPE_STRING:
+			                    	valDom.setVal4(cell.getStringCellValue());
+//			                        System.out.println("val4 : "+ valDom.getVal4() );
+			                        break;
+			                    }
+		                    }else if((cell.getColumnIndex() == 4)){
+		                    	switch (cell.getCellType()) {
+			                    case Cell.CELL_TYPE_NUMERIC:
+			                    	valDom.setVal5(String.valueOf(cell.getNumericCellValue()));
+//			                    	System.out.println("val5 : "+ valDom.getVal5() );
+			                        break;
+			                    case Cell.CELL_TYPE_STRING:
+			                    	valDom.setVal5(cell.getStringCellValue());
+//			                        System.out.println("val5 : "+ valDom.getVal5() );
+			                        break;
+			                    }
+		                    }else if((cell.getColumnIndex() == 5)){
+		                    	switch (cell.getCellType()) {
+			                    case Cell.CELL_TYPE_NUMERIC:
+			                    	valDom.setVal6(String.valueOf(cell.getNumericCellValue()));
+//			                    	System.out.println("val6 : "+ valDom.getVal6() );
+			                        break;
+			                    case Cell.CELL_TYPE_STRING:
+			                    	valDom.setVal6(cell.getStringCellValue());
+//			                        System.out.println("val6 : "+ valDom.getVal6() );
+			                        break;
+			                    }
+		                    }else if((cell.getColumnIndex() == 6)){
+		                    	switch (cell.getCellType()) {
+			                    case Cell.CELL_TYPE_NUMERIC:
+			                    	valDom.setVal7(String.valueOf(cell.getNumericCellValue()));
+//			                    	System.out.println("val7 : "+ valDom.getVal7() );
+			                        break;
+			                    case Cell.CELL_TYPE_STRING:
+			                    	valDom.setVal7(cell.getStringCellValue());
+//			                        System.out.println("val7 : "+ valDom.getVal7() );
+			                        break;
+			                    }
+		                    }
+		                    		                  
+		                } // Termina el recorrido de las celdas
+		                
+		                listValDom.add(valDom);
+		                mapValDom.put(key, listValDom); 
+		                
+		            } // Termina de leer los rows		            
+		            
+		            } // Termina el For de la Lista de Shets (Nombre de las hojas)
+		            
+		            file.close();
+		        } catch (FileNotFoundException e) {
+		            e.printStackTrace();
+		        } catch (IOException e) {
+		            e.printStackTrace();
+		        }
+		        System.out.println("Principal MapValDom SIZE : "+mapValDom.size());
+		        System.out.println("TipoDeComprobante SIZE : "+mapValDom.get("TipoDeComprobante").size());
+		        System.out.println("MetodoPago SIZE : "+mapValDom.get("MetodoPago").size());
+		        System.out.println("TipoRelacion SIZE : "+mapValDom.get("TipoRelacion").size());
+		        System.out.println("RegimenFiscal SIZE : "+mapValDom.get("RegimenFiscal").size());
+		        System.out.println("UsoCFDI SIZE : "+mapValDom.get("UsoCFDI").size());
+		        System.out.println("Impuesto SIZE : "+mapValDom.get("Impuesto").size());
+		        System.out.println("TipoFactor SIZE : "+mapValDom.get("TipoFactor").size());
+		        System.out.println("TasaOCuota SIZE : "+mapValDom.get("TasaOCuota").size());
+		        return mapValDom;
+		        
 	}
 }
