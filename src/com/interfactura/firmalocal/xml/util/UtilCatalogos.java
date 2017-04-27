@@ -52,7 +52,7 @@ public class UtilCatalogos
 		if(mapCatalogos.size() > 0 && value.trim() != ""){
 			for(int i=0; i<mapCatalogos.get("TipoDeComprobante").size(); i++){
 				if(mapCatalogos.get("TipoDeComprobante").get(i).getVal1().equalsIgnoreCase(value)){
-					response = mapCatalogos.get("TipoDeComprobante").get(i).getVal2();
+					response = mapCatalogos.get("TipoDeComprobante").get(i).getVal1();
 					break;
 				}else{
 					response = "tipoDeComprobanteIncorrecto";
@@ -65,6 +65,30 @@ public class UtilCatalogos
 		return response;
 		
 	}
+	
+	// Validacion Tipo de comprobante por descripcion AMDA
+		public static String findTipoComprobanteByDescription(Map<String, ArrayList<CatalogosDom>> mapCatalogos, String value){
+			
+			String response = "";
+			 System.out.println("Entrando a findTipoComprobante");
+			 System.out.println("Tamaño lista catalogos; "+ mapCatalogos.size());
+			 System.out.println("Valor del tipoDeComprobante a buscar: "+ value);
+			if(mapCatalogos.size() > 0 && value.trim() != ""){
+				for(int i=0; i<mapCatalogos.get("TipoDeComprobante").size(); i++){
+					if(mapCatalogos.get("TipoDeComprobante").get(i).getVal2().equalsIgnoreCase(value)){
+						response = mapCatalogos.get("TipoDeComprobante").get(i).getVal1();
+						break;
+					}else{
+						response = "tipoDeComprobanteIncorrecto";
+					}
+				}
+			}else{
+				response = "tipoDeComprobanteIncorrecto";
+			}
+			
+			return response;
+			
+		}
 	
 	// Validacion Encuentra Valor Maximo en Tipo de Comprobante AMDA
 	public static String findValMaxTipoComprobanteByTotal(Map<String, ArrayList<CatalogosDom>> mapCatalogos, String value){
@@ -114,6 +138,14 @@ public class UtilCatalogos
 			for(int i=0; i<mapCatalogos.get("RegimenFiscal").size(); i++){
 				if(mapCatalogos.get("RegimenFiscal").get(i).getVal2().equalsIgnoreCase(value)){
 					response = mapCatalogos.get("RegimenFiscal").get(i).getVal1();
+					System.out.println("*** response AMDA: " + response);
+					if(response.contains(".")){
+						System.out.println("*** response Dentro IF AMDA: " + response);
+						String words[] = response.split("\\.");
+						response = words[0];
+						System.out.println("*** response Dentro IF despues AMDA: " + response);
+					}
+					
 					break;
 				}else{
 					response = "vacio";

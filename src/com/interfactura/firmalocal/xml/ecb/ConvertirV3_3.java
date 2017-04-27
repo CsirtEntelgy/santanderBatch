@@ -448,13 +448,13 @@ public class ConvertirV3_3
 					System.out.println("TIPO DE COMPROBANTE: " + lineas[1].trim().toUpperCase());
 					tags.tipoComprobante = UtilCatalogos.findTipoComprobante(tags.mapCatalogos, lineas[1].trim().toUpperCase());
 					concat.append(" TipoDeComprobante=\""
-							+ UtilCatalogos.findTipoComprobante(tags.mapCatalogos, lineas[1].trim().toUpperCase()).toLowerCase() + "\" ");					
+							+ UtilCatalogos.findTipoComprobante(tags.mapCatalogos, lineas[1].trim().toUpperCase()) + "\" ");					
 				}
 				
 				// Validacion para el campo condicionesDePago AMDA
 				if(!lineas[1].trim().toUpperCase().equalsIgnoreCase("T") && !lineas[1].trim().toUpperCase().equalsIgnoreCase("P") && !lineas[1].trim().toUpperCase().equalsIgnoreCase("N")){
-					String valorCondicionDePago = "3 meses"; // Valor fijo por el momento
-					if(valorCondicionDePago.length() > 100){
+					String valorCondicionDePago = " "; // Valor fijo por el momento
+					if(valorCondicionDePago.length() <= 100){
 						concat.append(" CondicionesDePago=\""
 								+ valorCondicionDePago + "\" ");
 					}else{
@@ -470,7 +470,7 @@ public class ConvertirV3_3
 				// Validacion para el campo Forma de Pago y Metodo de Pago AMDA
 				if(!lineas[1].trim().toUpperCase().equalsIgnoreCase("T") && !lineas[1].trim().toUpperCase().equalsIgnoreCase("P")){
 					concat.append(" FormaDePago=\""
-							+ "PAGO EN UNA SOLA EXHIBICION" + "\" "); // Antes PAGO EN UNA SOLA EXHIBICION AMDA V 3.3
+							+ "03" + "\" "); // Antes PAGO EN UNA SOLA EXHIBICION AMDA V 3.3
 					concat.append(" MetodoDePago=\""
 							+  "PUE" + "\" "); // Antes properties.getLabelMetodoPago() AMDA V 3.3
 				}
@@ -751,7 +751,8 @@ public class ConvertirV3_3
 			
 			String claveUnidad = "";
 			if(unidadVal.length() > 0){
-				claveUnidad = UtilCatalogos.findValClaveUnidad(tags.mapCatalogos, unidadVal);
+//				claveUnidad = UtilCatalogos.findValClaveUnidad(tags.mapCatalogos, unidadVal);
+				claveUnidad = "E48";
 			}
 			
 			// Importe V 3.3 AMDA pendiente logica de redondeo
@@ -871,15 +872,14 @@ public class ConvertirV3_3
 					 		   "\n</cfdi:Impuestos>";
 			System.out.println("Elemento Impuestos AMDA : " + elementImpuestos);
 			
-			String nodoConcepto = "\n<cfdi:Concepto>" + 
-								  elementImpuestos +
-								  "\" ClaveProdServ=\"" + "84121500" + 
+			String nodoConcepto = "\n<cfdi:Concepto ClaveProdServ=\"" + "84121500" + 
 								  "\" Cantidad=\"" + "1" +
 								  "\" ClaveUnidad=\"" + claveUnidad + //Pendiente el valor de ClaveUnidad
 								  "\" Unidad=\"" + unidadVal + 
 								  "\" Descripcion=\"" + Util.convierte(lineas[1]).trim() + 
 								  nodoValorUnitarioStr + 
-								  "\" Importe=\"" + valImporte + "\"" + 
+								  "\" Importe=\"" + valImporte + "\"" + " >"+
+								  elementImpuestos +
 								  "\n</cfdi:Concepto>";
 			System.out.println("String Nodo Concepto: " + nodoConcepto);
 				
@@ -960,7 +960,7 @@ public class ConvertirV3_3
 			System.out.println("***Buscando campos cfd22 para Regimen Fiscal Code: " + map.get("regimenFiscalCode"));
 			String regVal = (String) map.get("regimenFiscal");
 //			regimenStr = "\n<cfdi:RegimenFiscal Regimen=\"" + regVal + "\" />";
-			regimenStr = " regimenFiscal=\"" + UtilCatalogos.findRegFiscalCode(tags.mapCatalogos, regVal) + "\" "; // Agregue esto /> para cerrar el nodo de concepto al regresar AMDA
+			regimenStr = " RegimenFiscal=\"" + UtilCatalogos.findRegFiscalCode(tags.mapCatalogos, regVal) + "\" "; // Agregue esto /> para cerrar el nodo de concepto al regresar AMDA
 			tags.REGIMEN_FISCAL = regVal;	
 		}
 		
@@ -1049,10 +1049,11 @@ public class ConvertirV3_3
 					.conctatArguments(
 							tags("", pila),
 							"\n<cfdi:Impuestos  ",
-							elementRetencion,
-							elementTraslado,
 							isNullEmpity(lineas[1], "TotalImpuestosRetenidos"),
 							isNullEmpity(lineas[2], "TotalImpuestosTrasladados"),
+							">",
+							elementRetencion,
+							elementTraslado,
 							">").toString().getBytes("UTF-8");
 		} 
 		else 
@@ -1291,7 +1292,7 @@ public class ConvertirV3_3
 			break;
 		case 8:
 			// Retenciones
-//			System.out.println("entra LoadInfoV33 Retenciones: "+ lineas[1].trim() + " : " + lineas[2].trim());
+			System.out.println("entra LoadInfoV33 Retenciones: "+ lin[1].trim() + " : " + lin[2].trim());
 //			tags.retencionImpuestoVal = lineas[1].trim();
 //			tags.retencionImporteVal = lineas[2].trim(); // Se comenta por que al parecer se recorro uno despues AMDA
 			break;
