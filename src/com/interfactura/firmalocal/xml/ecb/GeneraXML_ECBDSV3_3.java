@@ -1788,10 +1788,10 @@ public class GeneraXML_ECBDSV3_3 {
 			System.out.println("NAME: " + nodo.getNodeName());
 			System.out.println("NAME AMDA: " + nodo.getAttributes());
 			if(nodo instanceof Element && nodo.getNodeName().equals("cfdi:Emisor")){
-				strEmisorRFC = nodo.getAttributes().getNamedItem("RFC").getTextContent(); // Antes rfc, Version 3.3 AMDA
+				strEmisorRFC = nodo.getAttributes().getNamedItem("Rfc").getTextContent(); // Antes rfc, Version 3.3 AMDA
 			}
 			else if(nodo instanceof Element && nodo.getNodeName().equals("cfdi:Receptor")){
-				strReceptorRFC = nodo.getAttributes().getNamedItem("RFC").getTextContent(); // Antes rfc, Version 3.3 AMDA
+				strReceptorRFC = nodo.getAttributes().getNamedItem("Rfc").getTextContent(); // Antes rfc, Version 3.3 AMDA
 			}
 			else if(nodo instanceof Element && nodo.getNodeName().equals("cfdi:Complemento")){
 				NodeList hijosComplemento = nodo.getChildNodes();

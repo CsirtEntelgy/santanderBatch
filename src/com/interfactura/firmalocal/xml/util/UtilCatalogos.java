@@ -349,6 +349,7 @@ public class UtilCatalogos
 			Double importeTrasladoMul;
 			String nodocon = "";
 			System.out.println("findTraslados Inicio " + descCon);
+			System.out.println("findTraslados Inicio " + mapCatalogos.get("EquivalenciaConceptoImpuesto").size());
 			if(mapCatalogos.size() > 0 && descCon.trim().length() > 0){
 				
 				for(int i=0; i<mapCatalogos.get("EquivalenciaConceptoImpuesto").size(); i++){
@@ -373,11 +374,12 @@ public class UtilCatalogos
 						}catch(NumberFormatException e){
 							System.out.println("No es numero findTraslados: " + valTasa);
 						}
-						response = response + nodocon;
+//						response = response + nodocon;
 //						break;
 					}else{
 						response = "";
 					}
+					response = nodocon + nodocon;
 				}
 				
 //				for(int i=0; i<mapCatalogos.get(descCon).size(); i++){
@@ -454,7 +456,7 @@ public class UtilCatalogos
 					}else{
 						response = "";
 					}
-					response = response + nodocon;
+					response = nodocon + nodocon;
 				}
 				
 //				for(int i=0; i<mapCatalogos.get(descCon).size(); i++){

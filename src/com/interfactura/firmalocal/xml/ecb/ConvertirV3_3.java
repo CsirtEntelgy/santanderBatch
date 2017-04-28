@@ -258,7 +258,7 @@ public class ConvertirV3_3
 				}
 				
 			}
-			System.out.println("ZP " + map.get("codPostal").toString());
+//			System.out.println("ZP " + map.get("codPostal").toString());
 			
 			if (lineas.length >= 8) 
 			{
@@ -277,11 +277,11 @@ public class ConvertirV3_3
 							tags.SERIE_FISCAL_CFD.substring(0, 3).trim().equals("USD") || 
 							tags.SERIE_FISCAL_CFD.substring(0, 3).trim().equals("EUR") || 
 							tags.SERIE_FISCAL_CFD.substring(0, 3).trim().equals("UDI")){
-							concat.append(" serie=\"" + tags.SERIE_FISCAL_CFD + "\"");	
+							concat.append(" Serie=\"" + tags.SERIE_FISCAL_CFD + "\"");	
 							concat.append(" Moneda=\"" + tags.SERIE_FISCAL_CFD.substring(0, 3).trim() + "\"");	
 							tags.TIPO_MONEDA = tags.SERIE_FISCAL_CFD.substring(0, 3).trim();
 						}else if(tags.SERIE_FISCAL_CFD.substring(0, 3).trim().equals("BME") && fileNames.equals("CFDLFFONDOS")){
-							concat.append(" serie=\"" + tags.SERIE_FISCAL_CFD + "\"");	
+							concat.append(" Serie=\"" + tags.SERIE_FISCAL_CFD + "\"");	
 							concat.append(" Moneda=\"" + "MXN" + "\"");	
 							tags.TIPO_MONEDA = "MXN";
 						}else{
@@ -298,7 +298,7 @@ public class ConvertirV3_3
 							}
 						}
 					}else if(tags.SERIE_FISCAL_CFD.trim() == ""){
-						concat.append(" serie=\"" + tags.SERIE_FISCAL_CFD + "\"");	
+						concat.append(" Serie=\"" + tags.SERIE_FISCAL_CFD + "\"");	
 						concat.append(" Moneda=\"" + tags.SERIE_FISCAL_CFD + "\"");
 						tags.TIPO_MONEDA = tags.SERIE_FISCAL_CFD;
 					}else{
@@ -422,7 +422,7 @@ public class ConvertirV3_3
 				System.out.println("tags.EMISION_PERIODO " + tags.EMISION_PERIODO);
 				System.out.println("FECHA_CFD " + tags.FECHA_CFD);
 				//concat.append(" fecha=\"" + Util.convertirFecha(tags.EMISION_PERIODO, tags.FECHA_CFD) + "\"");
-				concat.append(" fecha=\"" + tags.FECHA_CFD + "\"");
+				concat.append(" Fecha=\"" + tags.FECHA_CFD + "\"");
 				
 				System.out.println("SubTotal : " + lineas[6].trim());
 				tags.SUBTOTAL_MN = lineas[6].trim();
@@ -553,14 +553,14 @@ public class ConvertirV3_3
 								"xsi:schemaLocation=\"http://www.sat.gob.mx/cfd/3 ",
 								"http://www.sat.gob.mx/sitio_internet/cfd/3/cfdv32.xsd ",
 								"http://www.santander.com.mx/addendaECB http://www.santander.com.mx/cfdi/addendaECB.xsd\" ",
-								"sello=\"", properties.getLabelSELLO(), "\" ",
-								"noCertificado=\"",
+								"Sello=\"", properties.getLabelSELLO(), "\" ",
+								"NoCertificado=\"",
 								properties.getLblNO_CERTIFICADO(), "\" ",
-								"certificado=\"", properties.getLblCERTIFICADO(), "\" ",
+								"Certificado=\"", properties.getLblCERTIFICADO(), "\" ",
 //								"formaDePago=\"" + "PAGO EN UNA SOLA EXHIBICION" + "\" ",
 //								"metodoDePago=\"" + properties.getLabelMetodoPago() + "\" ",
 								"LugarExpedicion=\"" + "01219" + "\" ", // antes properties.getLabelLugarExpedicion() AMDA
-								"NumCtaPago=\"" + properties.getlabelFormaPago() + "\" ",
+//								"NumCtaPago=\"" + properties.getlabelFormaPago() + "\" ",
 								"xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">")
 						.toString().getBytes("UTF-8");
 			} 
@@ -600,7 +600,7 @@ public class ConvertirV3_3
 //					" >", domicilioFiscal(campos22)); // ANTES AMDA Version 3.2
 //			System.out.println("Antes de Concat Emisor: "+tags("Emisor", pila));
 			StringBuffer emisorStr = Util
-					.conctatArguments(tags("Emisor", pila), "\n<cfdi:Emisor RFC=\"",
+					.conctatArguments(tags("Emisor", pila), "\n<cfdi:Emisor Rfc=\"",
 							tags.EMISION_RFC, "\"", getNameEntityFiscal(), domicilioFiscal(campos22),
 							" />");
 			try
@@ -654,7 +654,16 @@ public class ConvertirV3_3
 		else 
 		{
 			tags.isEntidadFiscal = true;
-			return " Nombre=\"" + Util.isNull(tags.fis.getFiscalName()) + "\"";
+			if(tags.fis.getFiscalName() != null){
+				String valNombre = tags.fis.getFiscalName().replaceAll("\\.", "");
+				valNombre = valNombre.replaceAll("\\(", "");
+				valNombre = valNombre.replaceAll("\\)", "");
+				System.out.println("Emisro Reg: "+valNombre );
+				return " Nombre=\"" +valNombre + "\"";
+			}else{
+				return " Nombre=\"" +"" + "\"";
+			}
+			
 		}
 	}
 
@@ -703,13 +712,13 @@ public class ConvertirV3_3
 			return Util
 					.conctatArguments(
 //							tags("Receptor", pila), // Veamos si coloca bien el cierre tag de Emisor
-							"\n<cfdi:Receptor RFC=\"",
+							"\n<cfdi:Receptor Rfc=\"",
 							Util.convierte(lineas[1].trim()),
 							"\"",
 							nombreReceptor, 
 							residenciaFiscalReceptor,
 							numRegIdTribReceptor,
-							usoCFDIReceptor, " >").toString().getBytes("UTF-8");
+							usoCFDIReceptor, " />").toString().getBytes("UTF-8");
 			/*return Util
 					.conctatArguments(
 							tags("Receptor", pila),
@@ -1306,12 +1315,14 @@ public class ConvertirV3_3
 			tags._Pais = " pais=\"" + lineas[9].trim() + "\" ";
 			tags._CodigoPostal = lineas.length >= 11 ? Util.isNullEmpity(
 					lineas[10].trim(), "codigoPostal") : "";
-			return Util
-					.conctatArguments("\n<cfdi:Domicilio ", tags._Calle,
-							tags._NoExterior, tags._NoInterior, tags._Colonia,
-							tags._Localidad, tags._Referencia, tags._Municipio,
-							tags._Estado, tags._Pais, tags._CodigoPostal,
-							" />", tags("", pila)).toString().getBytes("UTF-8");
+					tags("", pila).toString();
+//			return Util
+//					.conctatArguments("\n<cfdi:Domicilio ", tags._Calle,
+//							tags._NoExterior, tags._NoInterior, tags._Colonia,
+//							tags._Localidad, tags._Referencia, tags._Municipio,
+//							tags._Estado, tags._Pais, tags._CodigoPostal,
+//							" />", tags("", pila)).toString().getBytes("UTF-8");
+			return "".getBytes("UTF-8");
 		} 
 		else 
 		{	return formatECB(numberLine);	}

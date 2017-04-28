@@ -20,7 +20,7 @@ public class Properties
 	
 	private String uri =  "";
 
-	private String LblNO_CERTIFICADO = "NCERTIFICADOTEMPORAL";
+	private String LblNO_CERTIFICADO = "12345678901234567890";//"NCERTIFICADOTEMPORAL";
 	private String LblCERTIFICADO = "CERTIFICADOTEMPORAL";
 	private String LblFOLIOCFD="FOLIOTMP";
 	private String LblNUMEROAPROBACIONCFD="NUMEROATMP";
