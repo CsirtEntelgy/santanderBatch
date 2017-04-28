@@ -26,6 +26,7 @@ import com.interfactura.firmalocal.persistence.FolioRangeManager;
 import com.interfactura.firmalocal.xml.Properties;
 import com.interfactura.firmalocal.xml.TagsXML;
 import com.interfactura.firmalocal.xml.util.Util;
+import com.interfactura.firmalocal.xml.util.UtilCatalogos;
 
 /**
  * 
@@ -162,7 +163,28 @@ public class ConvertirImplV3_3
 
 			concat = new StringBuilder();
 			
-			concat.append(" TipoCambio=\"" + tags.TIPO_CAMBIO + "\"");
+			if(!tags.TIPO_MONEDA.equalsIgnoreCase("MXN") && !tags.TIPO_MONEDA.equalsIgnoreCase("XXX")){ //Validacion AMDA
+				Double valMinimo = 0.000001;
+				try{
+					
+					double value = Double.parseDouble(tags.TIPO_CAMBIO);
+				    if(value >= valMinimo){
+				       System.out.println("Tipo Cambio mayor");
+				       concat.append(" TipoCambio=\"" + tags.TIPO_CAMBIO + "\"");
+				    }else{
+				    	System.out.println("Tipo Cambio menor");
+				    	concat.append(" TipoCambioMinimoRequerido" + tags.TIPO_CAMBIO + "=\"" + tags.TIPO_CAMBIO + "\"");
+				    }
+					
+				}catch (NumberFormatException e){
+					concat.append(" TipoCambioIncorrecto" + tags.TIPO_CAMBIO + "=\"" + tags.TIPO_CAMBIO + "\"");
+				}
+				
+			}else{
+				concat.append(" TipoCambio=\"" + tags.TIPO_CAMBIO + "\"");
+			} // Termina Validacion AMDA
+			
+//			concat.append(" TipoCambio=\"" + tags.TIPO_CAMBIO + "\""); // Antes de V 3.3
 			concat.append(" Moneda=\"" + tags.TIPO_MONEDA + "\"");
 			
 			if (!isNullEmpty(tokens[3])) 
@@ -172,30 +194,54 @@ public class ConvertirImplV3_3
 			}
 			folio = null;
 			concat.append(" folio=\"" + properties.getLblFOLIOCFD() + "\"");
-			concat.append(" formaDePago=\"" + tokens[4] + "\"");
+			
 			tags.SUBTOTAL_MN = tokens[5];
-			concat.append(" subTotal=\"" + tokens[5] + "\"");
+			concat.append(" SubTotal=\"" + tokens[5] + "\"");
 			if (!isNullEmpty(tokens[6])) 
-			{	concat.append(" descuento=\"" + tokens[6] + "\"");	}
-			if (!isNullEmpty(tokens[7])) 
-			{	concat.append(" motivoDescuento=\"" + tokens[7] + "\"");	}
+			{	concat.append(" Descuento=\"" + tokens[6] + "\"");	} // Descuento pendiente Validación ADMA V 3.3
+//			if (!isNullEmpty(tokens[7])) 
+//			{	concat.append(" motivoDescuento=\"" + tokens[7] + "\"");	} // Al Parecer nova Motivo en V 3.3 AMDA
 
 			tags.TOTAL_MN = tokens[8];
-			concat.append(" total=\"" + tags.TOTAL_MN + "\"");
+			concat.append(" Total=\"" + tags.TOTAL_MN + "\"");
 
-			if (!isNullEmpty(tokens[9])) 
-			{	
-				tags.METODO_PAGO = tokens[9];
-				concat.append(" metodoDePago=\"" + tokens[9] + "\"");	
-			}
+//			if (!isNullEmpty(tokens[9])) } // Antes V 3.3 AMDA
+//			{	
+//				tags.METODO_PAGO = tokens[9];
+//				concat.append(" metodoDePago=\"" + tokens[9] + "\"");	
+//			}
 
 			tags.FECHA_CFD = Util.convertirFecha(date);
 			concat.append(" fecha=\"" + tags.FECHA_CFD + "\"");
-
-			if (tokens[1].equalsIgnoreCase("Nota de Credito")) 
-			{	concat.append(" tipoDeComprobante=\"egreso\"");		} 
-			else 
-			{	concat.append(" tipoDeComprobante=\"ingreso\"");	}
+			
+			String tipoComprobanteVal = "";
+			if (tokens[1].equalsIgnoreCase("Nota de Credito")) {
+				tipoComprobanteVal = UtilCatalogos.findTipoComprobanteByDescription(tags.mapCatalogos, "egreso");
+				concat.append("  TipoDeComprobante=\"" + tipoComprobanteVal + "\"");		
+				System.out.println("TIPO DE COMPROBANTE Factura Val AMDA: " + tipoComprobanteVal);
+			}else{	
+				tipoComprobanteVal = UtilCatalogos.findTipoComprobanteByDescription(tags.mapCatalogos, "ingreso");
+				concat.append("  TipoDeComprobante=\"" + tipoComprobanteVal + "\"");
+				
+			}
+			
+			// Validacion para el campo Forma de Pago y Metodo de Pago AMDA
+			if(!tipoComprobanteVal.trim().toUpperCase().equalsIgnoreCase("T") && !tipoComprobanteVal.trim().toUpperCase().equalsIgnoreCase("P")){ // Tipo de Comprobante Validacion AMDA V3.3
+				concat.append(" FormaDePago=\"" + "03" + "\""); // Antes tokens[4] en Version 3.3 se coloca fijo por el momento ADMA
+				
+				concat.append(" MetodoDePago=\"" + "PUE" + "\"");
+			}
+			// Validacion para el campo condicionesDePago AMDA
+			if(!tipoComprobanteVal.trim().toUpperCase().equalsIgnoreCase("T") && !tipoComprobanteVal.trim().toUpperCase().equalsIgnoreCase("P") && !tipoComprobanteVal.trim().toUpperCase().equalsIgnoreCase("N")){
+				String valorCondicionDePago = " "; // Valor fijo por el momento
+				if(valorCondicionDePago.length() <= 100){
+					concat.append(" CondicionesDePago=\""
+							+ valorCondicionDePago + "\" ");
+				}else{
+					concat.append(" CondicionesDePago=\""
+							+ "valorCondicionesDePagoIncorrecto" + valorCondicionDePago + "\" ");
+				}					
+			}
 
 			tags.FACTORAJE_HORA = tokens[10];
 			tags.FACTORAJE_TIPO = tokens[11];
@@ -210,7 +256,7 @@ public class ConvertirImplV3_3
 			
 			return Util
 					.conctatArguments(
-							"\n<cfdi:TipoDeComprobante version=\"3.3\" ",
+							"\n<cfdi:TipoDeComprobante Version=\"3.3\" ",
 							concat.toString(),
 							" xmlns:ecb=\"http://www.sat.gob.mx/ecb\" ",
 							" xmlns:cfdi=\"http://www.sat.gob.mx/cfd/3\"  ",
@@ -271,10 +317,14 @@ public class ConvertirImplV3_3
 				tags.FORMA_PAGO = null;
 			}			
 			
+//			return Util
+//					.conctatArguments(tags("Emisor", pila), "\n<cfdi:Emisor RFC=\"",
+//							tags.EMISION_RFC, "\"", getNameEntityFiscal().toString(), "> ",
+//							domicilioFiscal(campos22)).toString().getBytes("UTF-8");// Antes
 			return Util
-					.conctatArguments(tags("Emisor", pila), "\n<cfdi:Emisor rfc=\"",
-							tags.EMISION_RFC, "\"", getNameEntityFiscal().toString(), "> ",
-							domicilioFiscal(campos22)).toString().getBytes("UTF-8");
+					.conctatArguments(tags("Emisor", pila), "\n<cfdi:Emisor RFC=\"",
+							tags.EMISION_RFC, "\"", getNameEntityFiscal(), domicilioFiscal(campos22),
+							" />").toString().getBytes("UTF-8"); // Version 3.3 AMDA
 			
 		} 
 		else 
@@ -290,12 +340,12 @@ public class ConvertirImplV3_3
 		if (tags.fis == null) 
 		{
 			tags.isEntidadFiscal = false;
-			return " nombre=\"No existe la Entidad Fiscal\"";
+			return " Nombre=\"No existe la Entidad Fiscal\"";
 		} 
 		else 
 		{
 			tags.isEntidadFiscal = true;
-			return " nombre=\"" + Util.isNull(tags.fis.getFiscalName()) + "\"";
+			return " Nombre=\"" + Util.isNull(tags.fis.getFiscalName()) + "\"";
 		}
 	}
 
@@ -315,10 +365,10 @@ public class ConvertirImplV3_3
 			return Util
 					.conctatArguments(
 							tags("Receptor", pila),
-							"\n<cfdi:Receptor rfc=\"",
+							"\n<cfdi:Receptor RFC=\"",
 							tokens[1].trim(),
 							"\"",
-							tokens.length > 2 ? " nombre=\"" + convierte(tokens[2].trim())
+							tokens.length > 2 ? " Nombre=\"" + convierte(tokens[2].trim())
 									+ "\"" : "", " >").toString().getBytes("UTF-8");
 		} else {
 			return formatCFD(numberLine);
@@ -408,18 +458,20 @@ public class ConvertirImplV3_3
 				
 				regVal = (String) ((HashMap) campos22.get(tags.fis.getTaxID())).get("regimenFiscal");
 				tags.REGIMEN_FISCAL=regVal;
-				regimenStr = "\n<cfdi:RegimenFiscal Regimen=\"" + regVal + "\" />";
+//				regimenStr = "\n<cfdi:RegimenFiscal Regimen=\"" + regVal + "\" />";
+				regimenStr = " RegimenFiscal=\"" + UtilCatalogos.findRegFiscalCode(tags.mapCatalogos, regVal) + "\" "; // V 3.3 AMDA
 			}
 			
 		}catch(Throwable e){
 			e.printStackTrace();
 		}
 		
-		return Util.conctatArguments("\n<cfdi:DomicilioFiscal ", tags._Calle,
-				tags._NoExterior, tags._NoInterior, tags._Colonia,
-				tags._Localidad, tags._Referencia, tags._Municipio,
-				tags._Estado, tags._Pais, tags._CodigoPostal, " />" + regimenStr.toString(),
-				tags("", pila)).toString();
+//		return Util.conctatArguments("\n<cfdi:DomicilioFiscal ", tags._Calle,
+//				tags._NoExterior, tags._NoInterior, tags._Colonia,
+//				tags._Localidad, tags._Referencia, tags._Municipio,
+//				tags._Estado, tags._Pais, tags._CodigoPostal, " />" + regimenStr.toString(),
+//				tags("", pila)).toString();
+		return regimenStr; // Agregue este regreso solo de prueba version 3.3 AMDA
 	}
 
 	/**
@@ -725,6 +777,78 @@ public class ConvertirImplV3_3
 		}
 
 		return p_folioRange;
+	}
+	
+	public void loadInfoV33(int numElement, String linea) 
+	{
+		System.out.println("entra LoadInfoV33: "+linea);
+		System.out.println("entra LoadInfoV33 numElement: "+numElement);
+		String[] lin = linea.split("\\|");
+		switch (numElement) 
+		{
+		case 1:
+			// Set
+			break;
+		case 2:
+			// Comprobante
+			break;
+		case 3:
+			// Emisor
+			break;
+		case 4:
+			// Receptor
+			break;
+		case 5:
+			// Domicilio
+			tags.recepPais = lin[9].trim();
+			break;
+		case 6:
+			// Concepto
+			break;
+		case 7:
+			// Impuestos
+			break;
+		case 8:
+			// Retenciones
+			System.out.println("entra LoadInfoV33 Retenciones Back: "+ lin[1].trim() + " : " + lin[2].trim());
+//			tags.retencionImpuestoVal = lineas[1].trim();
+//			tags.retencionImporteVal = lineas[2].trim(); // Se comenta por que al parecer se recorro uno despues AMDA
+			break;
+		case 9:
+			// Traslados
+//			System.out.println("entra LoadInfoV33 Traslados: "+ lineas[1].trim() + " : " + lineas[2].trim() + " : " + lineas[3].trim());
+//			tags.trasladoImpuestoVal = lineas[1].trim();
+//			tags.trasladoTasaVal = lineas[2].trim();
+//			tags.trasladoImporteVal = lineas[3].trim(); // Se comenta por que al parecer se recorro uno despues AMDA
+			System.out.println("entra LoadInfoV33 Retenciones: "+ lin[1].trim() + " : " + lin[2].trim());
+			tags.retencionImpuestoVal = lin[1].trim();
+			
+			if(lin[3].trim().equalsIgnoreCase("0.00")){
+				tags.retencionImporteVal = "0.00";
+			}else{
+				tags.retencionImporteVal = lin[2].trim();
+			}
+			
+//			valImporteRetencion = lin[2].trim();
+			System.out.println("Sale LoadInfoV33 Retencion:" + tags.retencionImporteVal);
+			break;
+		case 10:
+			// -
+			System.out.println("entra LoadInfoV33 Traslados: "+ lin[1].trim() + " : " + lin[2].trim() + " : " + lin[3].trim());
+			tags.trasladoImpuestoVal = lin[1].trim();
+			tags.trasladoTasaVal = lin[2].trim();
+			if(lin[3].trim().equalsIgnoreCase("0.00")){
+				tags.trasladoImporteVal = "0.00";
+			}else{
+				tags.trasladoImporteVal = lin[3].trim();
+			}
+//			valImporteTraslado = lin[3].trim();
+			System.out.println("Sale LoadInfoV33 Traslados:" + tags.trasladoImporteVal);
+			break;
+		case 11:
+			// Movimiento
+			break;
+		}
 	}
 
 	public TagsXML getTags() 

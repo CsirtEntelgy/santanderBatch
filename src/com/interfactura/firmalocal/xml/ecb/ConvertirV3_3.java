@@ -137,7 +137,8 @@ public class ConvertirV3_3
 				System.out.println("Antes de leer Archivo XLS Convertir");
 				tags.mapCatalogos = Util.readXLSFile(properties.getUrlArchivoCatalogs());
 				System.out.println("Despues de leer Archivo XLS Convertir: "+ tags.mapCatalogos.size());
-							
+				tags.mapCatalogos = UtilCatalogos.arregloConceptos(tags.mapCatalogos);
+				System.out.println("Despues de Arrego Conceptos: "+ tags.mapCatalogos.size());
 				if ((lineas.length >= 10) && (lineas[9] != null) && (lineas[9].length() > 0) && (!lineas[9].trim().equals("temp"))){				
 					boolean fDigitOK = true;
 					String tipoCambio = lineas[9].trim();
@@ -257,7 +258,7 @@ public class ConvertirV3_3
 				tags.CFD_TYPE = lineas[1].trim().toUpperCase();
 				
 				tags.SERIE_FISCAL_CFD = lineas[3].trim();
-				
+				String valEqMoneda = ""; // AMDA Version 3.3
 				if (!Util.isNullEmpty(tags.SERIE_FISCAL_CFD)) 
 				{
 					
@@ -275,8 +276,16 @@ public class ConvertirV3_3
 							tags.TIPO_MONEDA = "MXN";
 						}else{
 							//tags.SERIE_FISCAL_CFD="MONEDA INCORRECTA " + tags.SERIE_FISCAL_CFD + "";
-							tags.TIPO_MONEDA = tags.SERIE_FISCAL_CFD;
-							concat.append(" MonedaIncorrecta" + tags.TIPO_MONEDA + "=\"" + tags.SERIE_FISCAL_CFD + "\"");
+							
+							if(tags.SERIE_FISCAL_CFD.trim() != ""){ // Validacion Moneda Equivalencia AMDA V 3.3
+								valEqMoneda = UtilCatalogos.findEquivalenciaMoneda(tags.mapCatalogos, tags.SERIE_FISCAL_CFD);
+								concat.append(" Moneda=\"" + valEqMoneda + "\"");
+								tags.TIPO_MONEDA = valEqMoneda;
+								
+							}else{
+								tags.TIPO_MONEDA = tags.SERIE_FISCAL_CFD;
+								concat.append(" MonedaIncorrecta" + tags.TIPO_MONEDA + "=\"" + tags.SERIE_FISCAL_CFD + "\"");
+							}
 						}
 					}else if(tags.SERIE_FISCAL_CFD.trim() == ""){
 						concat.append(" serie=\"" + tags.SERIE_FISCAL_CFD + "\"");	
@@ -284,8 +293,24 @@ public class ConvertirV3_3
 						tags.TIPO_MONEDA = tags.SERIE_FISCAL_CFD;
 					}else{
 						//tags.SERIE_FISCAL_CFD="MONEDA INCORRECTA " + tags.SERIE_FISCAL_CFD + "";
-						tags.TIPO_MONEDA = tags.SERIE_FISCAL_CFD;
-						concat.append(" MonedaIncorrecta" + tags.TIPO_MONEDA + "=\"" + tags.SERIE_FISCAL_CFD + "\"");
+						if(tags.SERIE_FISCAL_CFD.trim() != ""){ // Validacion Moneda Equivalencia AMDA V 3.3
+							valEqMoneda = UtilCatalogos.findEquivalenciaMoneda(tags.mapCatalogos, tags.SERIE_FISCAL_CFD);
+							concat.append(" Moneda=\"" + valEqMoneda + "\"");
+							tags.TIPO_MONEDA = valEqMoneda;
+						}else{
+							tags.TIPO_MONEDA = tags.SERIE_FISCAL_CFD;
+							concat.append(" MonedaIncorrecta" + tags.TIPO_MONEDA + "=\"" + tags.SERIE_FISCAL_CFD + "\"");
+						}
+					}
+					
+					// Validando decimales soportados por el tipo de moneda AMDA V 3.3
+					if(tags.TIPO_MONEDA.trim().length() > 0 ){
+						tags.decimalesMoneda = UtilCatalogos.findDecimalesMoneda(tags.mapCatalogos, tags.TIPO_MONEDA);
+						System.out.println("Decimales moneda: " + tags.decimalesMoneda);
+//						if(tags.decimalesMoneda.contains(".")){
+//							String deci[] = tags.decimalesMoneda.split("\\.");
+//							tags.decimalesMoneda = deci[1];
+//						}
 					}
 						
 					//Validando tipo de Cambio AMDA 
@@ -400,7 +425,16 @@ public class ConvertirV3_3
 				// Validacion de no ser negativo el total AMDA
 				if(lineas[7] != null){
 					if(lineas[1].trim().toUpperCase().equalsIgnoreCase("T") || lineas[1].trim().toUpperCase().equalsIgnoreCase("P")){
-						concat.append(" Total=\"" + "0.00" + "\"");
+						if(tags.decimalesMoneda == 0){
+							concat.append(" Total=\"" + "0" + "\"");
+						}else if(tags.decimalesMoneda == 2){
+							concat.append(" Total=\"" + "0.00" + "\"");
+						}else if(tags.decimalesMoneda == 3){
+							concat.append(" Total=\"" + "0.000" + "\"");
+						}else if(tags.decimalesMoneda == 4){
+							concat.append(" Total=\"" + "0.0000" + "\"");
+						}
+						
 					}else{
 						System.out.println("Total : " + lineas[7].trim());
 						try {
@@ -452,16 +486,16 @@ public class ConvertirV3_3
 				}
 				
 				// Validacion para el campo condicionesDePago AMDA
-				if(!lineas[1].trim().toUpperCase().equalsIgnoreCase("T") && !lineas[1].trim().toUpperCase().equalsIgnoreCase("P") && !lineas[1].trim().toUpperCase().equalsIgnoreCase("N")){
-					String valorCondicionDePago = " "; // Valor fijo por el momento
-					if(valorCondicionDePago.length() <= 100){
-						concat.append(" CondicionesDePago=\""
-								+ valorCondicionDePago + "\" ");
-					}else{
-						concat.append(" CondicionesDePago=\""
-								+ "valorCondicionesDePagoIncorrecto" + valorCondicionDePago + "\" ");
-					}					
-				}
+//				if(!lineas[1].trim().toUpperCase().equalsIgnoreCase("T") && !lineas[1].trim().toUpperCase().equalsIgnoreCase("P") && !lineas[1].trim().toUpperCase().equalsIgnoreCase("N")){
+//					String valorCondicionDePago = " "; // Valor fijo por el momento
+//					if(valorCondicionDePago.length() <= 100){
+//						concat.append(" CondicionesDePago=\""
+//								+ valorCondicionDePago + "\" ");
+//					}else{
+//						concat.append(" CondicionesDePago=\""
+//								+ "valorCondicionesDePagoIncorrecto" + valorCondicionDePago + "\" ");
+//					}					
+//				}
 				// Validacion para el campo descuento AMDA
 //				if(!lineas[1].trim().toUpperCase().equalsIgnoreCase("T") && !lineas[1].trim().toUpperCase().equalsIgnoreCase("P")){
 //					concat.append(" descuento=\""
@@ -469,9 +503,9 @@ public class ConvertirV3_3
 //				}
 				// Validacion para el campo Forma de Pago y Metodo de Pago AMDA
 				if(!lineas[1].trim().toUpperCase().equalsIgnoreCase("T") && !lineas[1].trim().toUpperCase().equalsIgnoreCase("P")){
-					concat.append(" FormaDePago=\""
+					concat.append(" FormaPago=\""
 							+ "03" + "\" "); // Antes PAGO EN UNA SOLA EXHIBICION AMDA V 3.3
-					concat.append(" MetodoDePago=\""
+					concat.append(" MetodoPago=\""
 							+  "PUE" + "\" "); // Antes properties.getLabelMetodoPago() AMDA V 3.3
 				}
 				
@@ -642,6 +676,10 @@ public class ConvertirV3_3
 			if(tags.recepPais.trim().length() > 0){
 				String valPais = UtilCatalogos.findValPais(tags.mapCatalogos, tags.recepPais);
 				System.out.println("Valor Abreviado Pais: " + valPais);
+				if(valPais.equalsIgnoreCase("vacio")){
+					valPais = UtilCatalogos.findEquivalenciaPais(tags.mapCatalogos, tags.recepPais);
+					System.out.println("Valor Equivalencia Abreviado Pais: " + valPais);
+				}
 				residenciaFiscalReceptor = " ResidenciaFiscal=\"" + valPais + "\"";
 			}
 			
@@ -806,14 +844,17 @@ public class ConvertirV3_3
 				}
 				
 			}
-			
+			// Base = ValImporte, Importe = Base por porcentajemas Base, descripcion mandar Util.convierte(lineas[1]).trim() 
+			String trasladoDoom = UtilCatalogos.findTraslados(tags.mapCatalogos, valImporte, Util.convierte(lineas[1]).trim());
+			System.out.println("TRASLADO NODOS AMDA : " + trasladoDoom);
 			String elementTraslado = "\n<cfdi:Traslados>" + 
-									 "\n<cfdi:Traslado Base=\"" + valorBase +
-									 "\" Impuesto=\"" + claveImp +
-									 "\" TipoFactor=\"" + valTipoFactor + // Por definir de donde tomar el valor AMDA
-									 tasaOCuotaStr +
-									 valImporteImpTras +
-									 " />" +
+//									 "\n<cfdi:Traslado Base=\"" + valorBase +
+//									 "\" Impuesto=\"" + claveImp +
+//									 "\" TipoFactor=\"" + valTipoFactor + // Por definir de donde tomar el valor AMDA
+//									 tasaOCuotaStr +
+//									 valImporteImpTras +
+//									 " />" +
+									 trasladoDoom +
 									 "\n</cfdi:Traslados>";
 			System.out.println("Elemento Traslado AMDA : " + elementTraslado);
 			
@@ -1261,7 +1302,7 @@ public class ConvertirV3_3
 		{	return formatECB(numberLine);	}
 	}
 	
-	public void loadInfoV33(int numElement, String linea) 
+	public void loadInfoV33(int numElement, String linea, HashMap campos22) 
 	{
 		System.out.println("entra LoadInfoV33: "+linea);
 		System.out.println("entra LoadInfoV33 numElement: "+numElement);
@@ -1276,6 +1317,7 @@ public class ConvertirV3_3
 			break;
 		case 3:
 			// Emisor
+			domicilioFiscal(campos22);
 			break;
 		case 4:
 			// Receptor
@@ -1381,7 +1423,6 @@ public class ConvertirV3_3
 	public void setValImporteTraslado(String valImporteTraslado) {
 		this.valImporteTraslado = valImporteTraslado;
 	}
-	
 	
 		
 }

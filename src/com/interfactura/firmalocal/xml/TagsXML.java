@@ -163,5 +163,6 @@ public class TagsXML {
 	public String trasladoImpuestoVal = "";
 	public String trasladoTasaVal = "";
 	public String trasladoImporteVal = "";
+	public Integer decimalesMoneda = 0;
 	
 }
