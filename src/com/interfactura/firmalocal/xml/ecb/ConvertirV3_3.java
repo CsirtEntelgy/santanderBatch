@@ -849,6 +849,7 @@ public class ConvertirV3_3
 				System.out.println("Validacion TasaOCuota Traslado AMDA : " + tags.trasladoImpuestoVal + " : " + valTipoFactor);
 				if(!tags.trasladoImpuestoVal.trim().equalsIgnoreCase("ISR")){
 					tasaOCuotaStr = "\" TasaOcuota=\""  + UtilCatalogos.findValMaxTasaOCuota(tags.mapCatalogos, tags.trasladoImpuestoVal, valTipoFactor);
+					tasaOCuotaStr = "\" TasaOCuota=\""  + UtilCatalogos.findValMaxTasaOCuota(tags.mapCatalogos, tags.trasladoImpuestoVal, valTipoFactor);
 				}
 				
 				System.out.println("Valor TasaOCuota Traslado AMDA : " + tasaOCuotaStr);
@@ -902,7 +903,7 @@ public class ConvertirV3_3
 			if(valTipoFactorRet.equalsIgnoreCase("Tasa") || valTipoFactorRet.equalsIgnoreCase("Cuota")){
 				System.out.println("Validacion TasaOCuota Ret AMDA : " + tags.retencionImpuestoVal + " : " + valTipoFactorRet);
 				if(!tags.retencionImpuestoVal.trim().equalsIgnoreCase("ISR")){
-					tasaOCuotaStrRet = "\" TasaOcuota=\""  + UtilCatalogos.findValMaxTasaOCuota(tags.mapCatalogos, tags.retencionImpuestoVal, valTipoFactorRet);
+					tasaOCuotaStrRet = "\" TasaOCuota=\""  + UtilCatalogos.findValMaxTasaOCuota(tags.mapCatalogos, tags.retencionImpuestoVal, valTipoFactorRet);
 				}
 				
 				System.out.println("Valor TasaOCuota Ret AMDA : " + tasaOCuotaStrRet);
@@ -1081,7 +1082,7 @@ public class ConvertirV3_3
 		if(valTipoFactor.equalsIgnoreCase("Tasa") || valTipoFactor.equalsIgnoreCase("Cuota")){
 			System.out.println("Validacion TasaOCuota Traslado AMDA : " + tags.trasladoImpuestoVal + " : " + valTipoFactor);
 			if(!tags.trasladoImpuestoVal.trim().equalsIgnoreCase("ISR")){
-				tasaOCuotaStr = "\" TasaOcuota=\""  + UtilCatalogos.findValMaxTasaOCuota(tags.mapCatalogos, tags.trasladoImpuestoVal, valTipoFactor);
+				tasaOCuotaStr = "\" TasaOCuota=\""  + UtilCatalogos.findValMaxTasaOCuota(tags.mapCatalogos, tags.trasladoImpuestoVal, valTipoFactor);
 			}
 						
 			System.out.println("Valor TasaOCuota Traslado AMDA : " + tasaOCuotaStr);
@@ -1132,9 +1133,9 @@ public class ConvertirV3_3
 		if (lineas.length >= 4) 
 		{
 			return Util
-					.conctatArguments("\n<cfdi:Traslado impuesto=\"",
-							lineas[1].trim(), "\" tasa=\"", lineas[2].trim(),
-							"\" importe=\"", lineas[3].trim(), "\"/>")
+					.conctatArguments("\n<cfdi:Traslado Impuesto=\"",
+							lineas[1].trim(), "\" Tasa=\"", lineas[2].trim(),
+							"\" Importe=\"", lineas[3].trim(), "\"/>")
 					.toString().getBytes("UTF-8");
 		} 
 		else 

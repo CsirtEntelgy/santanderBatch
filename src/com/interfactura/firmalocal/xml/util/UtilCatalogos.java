@@ -364,10 +364,10 @@ public class UtilCatalogos
 							importeTrasladoMul = (valTasaNum*importeConNum) + importeConNum;
 							System.out.println("Val Impor Traslado " + importeTrasladoMul);
 							
-							nodocon = "\n<cfdi:Traslado Base=\"" + importeCon +
+							nodocon +=  "\n<cfdi:Traslado Base=\"" + importeCon +
 									   "\" Impuesto=\"" + mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal1() +
 									   "\" TipoFactor=\"" + mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal2() +
-									   "\" TasaOcuota=\"" + valTasa +
+									   "\" TasaOCuota=\"" + valTasa +
 									   "\" Importe=\"" + importeTrasladoMul.toString() + "\" " +
 									   " />" ;
 							System.out.println("Val NodoCon Traslado " + nodocon);
@@ -379,7 +379,7 @@ public class UtilCatalogos
 					}else{
 						response = "";
 					}
-					response = nodocon + nodocon;
+					response = nodocon;
 				}
 				
 //				for(int i=0; i<mapCatalogos.get(descCon).size(); i++){
@@ -441,10 +441,10 @@ public class UtilCatalogos
 							importeTrasladoMul = (valTasaNum*importeConNum) + importeConNum;
 							System.out.println("Val Impor findRetencion " + importeTrasladoMul);
 							
-							nodocon = "\n<cfdi:Retencion Base=\"" + importeCon +
+							nodocon +=  "\n<cfdi:Retencion Base=\"" + importeCon +
 									   "\" Impuesto=\"" + mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal1() +
 									   "\" TipoFactor=\"" + mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal2() +
-									   "\" TasaOcuota=\"" + valTasa +
+									   "\" TasaOCuota=\"" + valTasa +
 									   "\" Importe=\"" + importeTrasladoMul.toString() + "\" " +
 									   " />" ;
 							System.out.println("Val NodoCon findRetencion " + nodocon);
@@ -456,7 +456,7 @@ public class UtilCatalogos
 					}else{
 						response = "";
 					}
-					response = nodocon + nodocon;
+					response = nodocon;
 				}
 				
 //				for(int i=0; i<mapCatalogos.get(descCon).size(); i++){
