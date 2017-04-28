@@ -848,7 +848,7 @@ public class ConvertirV3_3
 			if(valTipoFactor.equalsIgnoreCase("Tasa") || valTipoFactor.equalsIgnoreCase("Cuota")){
 				System.out.println("Validacion TasaOCuota Traslado AMDA : " + tags.trasladoImpuestoVal + " : " + valTipoFactor);
 				if(!tags.trasladoImpuestoVal.trim().equalsIgnoreCase("ISR")){
-					tasaOCuotaStr = "\" TasaOcuota=\""  + UtilCatalogos.findValMaxTasaOCuota(tags.mapCatalogos, tags.trasladoImpuestoVal, valTipoFactor);
+					tasaOCuotaStr = "\" TasaOcuota=\""  + Util.completeZeroDecimals(UtilCatalogos.findValMaxTasaOCuota(tags.mapCatalogos, tags.trasladoImpuestoVal, valTipoFactor), 6);
 				}
 				
 				System.out.println("Valor TasaOCuota Traslado AMDA : " + tasaOCuotaStr);
@@ -902,7 +902,7 @@ public class ConvertirV3_3
 			if(valTipoFactorRet.equalsIgnoreCase("Tasa") || valTipoFactorRet.equalsIgnoreCase("Cuota")){
 				System.out.println("Validacion TasaOCuota Ret AMDA : " + tags.retencionImpuestoVal + " : " + valTipoFactorRet);
 				if(!tags.retencionImpuestoVal.trim().equalsIgnoreCase("ISR")){
-					tasaOCuotaStrRet = "\" TasaOcuota=\""  + UtilCatalogos.findValMaxTasaOCuota(tags.mapCatalogos, tags.retencionImpuestoVal, valTipoFactorRet);
+					tasaOCuotaStrRet = "\" TasaOcuota=\""  + Util.completeZeroDecimals(UtilCatalogos.findValMaxTasaOCuota(tags.mapCatalogos, tags.retencionImpuestoVal, valTipoFactorRet), 6);
 				}
 				
 				System.out.println("Valor TasaOCuota Ret AMDA : " + tasaOCuotaStrRet);
@@ -1081,7 +1081,7 @@ public class ConvertirV3_3
 		if(valTipoFactor.equalsIgnoreCase("Tasa") || valTipoFactor.equalsIgnoreCase("Cuota")){
 			System.out.println("Validacion TasaOCuota Traslado AMDA : " + tags.trasladoImpuestoVal + " : " + valTipoFactor);
 			if(!tags.trasladoImpuestoVal.trim().equalsIgnoreCase("ISR")){
-				tasaOCuotaStr = "\" TasaOcuota=\""  + UtilCatalogos.findValMaxTasaOCuota(tags.mapCatalogos, tags.trasladoImpuestoVal, valTipoFactor);
+				tasaOCuotaStr = "\" TasaOcuota=\""  + Util.completeZeroDecimals(UtilCatalogos.findValMaxTasaOCuota(tags.mapCatalogos, tags.trasladoImpuestoVal, valTipoFactor), 6);
 			}
 						
 			System.out.println("Valor TasaOCuota Traslado AMDA : " + tasaOCuotaStr);
