@@ -848,7 +848,6 @@ public class ConvertirV3_3
 			if(valTipoFactor.equalsIgnoreCase("Tasa") || valTipoFactor.equalsIgnoreCase("Cuota")){
 				System.out.println("Validacion TasaOCuota Traslado AMDA : " + tags.trasladoImpuestoVal + " : " + valTipoFactor);
 				if(!tags.trasladoImpuestoVal.trim().equalsIgnoreCase("ISR")){
-					tasaOCuotaStr = "\" TasaOcuota=\""  + UtilCatalogos.findValMaxTasaOCuota(tags.mapCatalogos, tags.trasladoImpuestoVal, valTipoFactor);
 					tasaOCuotaStr = "\" TasaOCuota=\""  + UtilCatalogos.findValMaxTasaOCuota(tags.mapCatalogos, tags.trasladoImpuestoVal, valTipoFactor);
 				}
 				
