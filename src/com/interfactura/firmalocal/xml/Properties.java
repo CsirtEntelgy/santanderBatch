@@ -8,7 +8,7 @@ public class Properties
 {
 	@Value("${xml.name.factura}")
 	private String basePathFactura;
-	@Value("${xml.name.cadenaoriginal}")
+	@Value("${xml.name.cadenaoriginal33}")
 	private String pathFileSello;	
 	@Value("${xml.name.factura}")
 	private String nameFileXML;
@@ -58,7 +58,7 @@ public class Properties
 	private int longitud = 166;
 	@Value("${pdf.image}")
 	private String pathLogoPDF;
-	@Value("${xml.xsdCFD}")
+	@Value("${xml.xsdCFD33}")
 	private String pathFileValidation;
 	@Value("${xml.xsdECB}")
 	private String pathFileValidationECB;

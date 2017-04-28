@@ -2060,19 +2060,19 @@ public class GeneraXML_ECBDSV3_3 {
 									//logger.info("xmlFinal:" + xmlFinal.toString());
 									//Valida el XML sin Addenda
 									boolean fValidaXMLSinAddenda = true;
-//									try{ // Solo se comenta para pruebas AMDA
-//										xmlProcess.getValidator().valida(xmlFinal, this.validator); // Al Parecer Aqui Valida AMDA
-//									}catch(Exception ex){
-//										fValidaXMLSinAddenda = false;
-//										System.out.println(ex.getMessage());
-//										fileINCIDENCIA(ex.getMessage() + " ", "ERROR", 
-//												conver.getTags().EMISION_RFC, conver.getTags().NUM_CTE, conver.getTags().NUM_CTA, conver.getTags().EMISION_PERIODO, conver.getTags().NUM_TARJETA, conver.getTags().CFD_TYPE);
-//										
-//										//Generar Archivo de incidentes para Cifras (ERR...TXT)
-//										fileINCIDENCIACIFRAS(ex.getMessage() + " ", "ERROR", 
-//												conver.getTags().EMISION_RFC, conver.getTags().NUM_CTE, conver.getTags().NUM_CTA, conver.getTags().EMISION_PERIODO, conver.getTags().NUM_TARJETA, conver.getTags().CFD_TYPE,
-//												conver.getTags().SUBTOTAL_MN, conver.getTags().TOTAL_IMP_TRA, conver.getTags().TOTAL_IMP_RET, fileNames, conver.getTags().SERIE_FISCAL_CFD, numeroMalla);
-//									}
+									try{ // Solo se comenta para pruebas AMDA
+										xmlProcess.getValidator().valida(xmlFinal, this.validator); // Al Parecer Aqui Valida AMDA
+									}catch(Exception ex){
+										fValidaXMLSinAddenda = false;
+										System.out.println(ex.getMessage());
+										fileINCIDENCIA(ex.getMessage() + " ", "ERROR", 
+												conver.getTags().EMISION_RFC, conver.getTags().NUM_CTE, conver.getTags().NUM_CTA, conver.getTags().EMISION_PERIODO, conver.getTags().NUM_TARJETA, conver.getTags().CFD_TYPE);
+										
+										//Generar Archivo de incidentes para Cifras (ERR...TXT)
+										fileINCIDENCIACIFRAS(ex.getMessage() + " ", "ERROR", 
+												conver.getTags().EMISION_RFC, conver.getTags().NUM_CTE, conver.getTags().NUM_CTA, conver.getTags().EMISION_PERIODO, conver.getTags().NUM_TARJETA, conver.getTags().CFD_TYPE,
+												conver.getTags().SUBTOTAL_MN, conver.getTags().TOTAL_IMP_TRA, conver.getTags().TOTAL_IMP_RET, fileNames, conver.getTags().SERIE_FISCAL_CFD, numeroMalla);
+									}
 									
 									if(fValidaXMLSinAddenda){
 										conver.getTags().NUM_CERTIFICADO = certificate.getSerialNumber();
