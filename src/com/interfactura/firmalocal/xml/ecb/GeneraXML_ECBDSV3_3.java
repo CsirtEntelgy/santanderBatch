@@ -980,7 +980,7 @@ public class GeneraXML_ECBDSV3_3 {
 		catch (NumberFormatException numberEx) 
 		{	logger.error("No empieza con un numero " + linea);	} 
 		// Metodo Prueba AMDA Version 3.3
-		conver.loadInfoV33(numElement, linea);
+		conver.loadInfoV33(numElement, linea, campos22, lstFiscal);
 		System.out.println("GENERA XML Despues de LOADINFO AMDA: ");
 		switch (numElement) 
 		{

@@ -210,6 +210,11 @@ public class InvoiceController
 					valores22.put("regimenFiscal", obj2.getRegimenFiscal().getName());
 					valores22.put("regimenFiscalCode", obj2.getRegimenFiscal().getCode()); // Clave RegimenFiscal AMDA version 3.3
 					valores22.put("formaDePago", obj2.getFormaDePago());
+					if(obj2.getFiscalEntity() != null){ // Codigo Postal AMDA version 3.3
+						if(obj2.getFiscalEntity().getAddress() != null){
+							valores22.put("codPostal", obj2.getFiscalEntity().getAddress().getZipCode());
+						}
+					}
 					
 					System.out.println("Fiscal Entity ID a buscar: " + obj2.getFiscalEntity().getId() );
 					

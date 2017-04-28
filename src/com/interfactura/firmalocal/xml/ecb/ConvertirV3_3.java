@@ -249,6 +249,16 @@ public class ConvertirV3_3
 			lineas = linea.split("\\|");
 			System.out.println("linea " + linea);
 			//System.out.println("lineas[9]" + lineas[9]);
+			HashMap map = (HashMap) campos22.get(tags.EMISION_RFC);
+			if(map != null){
+				if(map.get("codPostal") != null){
+					tags._CodigoPostal = map.get("codPostal").toString();
+				}else{
+					tags._CodigoPostal = "01219";
+				}
+				
+			}
+			System.out.println("ZP " + map.get("codPostal").toString());
 			
 			if (lineas.length >= 8) 
 			{
@@ -549,7 +559,7 @@ public class ConvertirV3_3
 								"certificado=\"", properties.getLblCERTIFICADO(), "\" ",
 //								"formaDePago=\"" + "PAGO EN UNA SOLA EXHIBICION" + "\" ",
 //								"metodoDePago=\"" + properties.getLabelMetodoPago() + "\" ",
-								"LugarExpedicion=\"" + properties.getLabelLugarExpedicion() + "\" ",
+								"LugarExpedicion=\"" + "01219" + "\" ", // antes properties.getLabelLugarExpedicion() AMDA
 								"NumCtaPago=\"" + properties.getlabelFormaPago() + "\" ",
 								"xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">")
 						.toString().getBytes("UTF-8");
@@ -898,13 +908,15 @@ public class ConvertirV3_3
 				}
 			}
 			
+			String retencionDoom = UtilCatalogos.findRetencion(tags.mapCatalogos, valImporte, Util.convierte(lineas[1]).trim());
 			String elementRetencion = "\n<cfdi:Retenciones>" +
-					 				  "\n<cfdi:Retencion Base=\"" + valorBaseRet +
-					 				  "\" Impuesto=\"" + claveImpRet +
-					 				   "\" TipoFactor=\"" + valTipoFactorRet + // Por definir de donde tomar el valor AMDA
-					 				   tasaOCuotaStrRet +
-					 				   valImporteImpRet +
-					 				  "/>" +
+//					 				  "\n<cfdi:Retencion Base=\"" + valorBaseRet +
+//					 				  "\" Impuesto=\"" + claveImpRet +
+//					 				   "\" TipoFactor=\"" + valTipoFactorRet + // Por definir de donde tomar el valor AMDA
+//					 				   tasaOCuotaStrRet +
+//					 				   valImporteImpRet +
+//					 				  "/>" +
+									  retencionDoom +
 									  "\n</cfdi:Retenciones>";
 			
 			elementImpuestos = "\n<cfdi:Impuestos>" + 
@@ -999,6 +1011,9 @@ public class ConvertirV3_3
 		{	
 			tags.regimenFiscalCode = (String) map.get("regimenFiscalCode");
 			System.out.println("***Buscando campos cfd22 para Regimen Fiscal Code: " + map.get("regimenFiscalCode"));
+			System.out.println("***Buscando campos cfd22 para Regimen Fiscal Codigo: " + tags.fis.getAddress().getZipCode());
+			System.out.println("***Buscando campos cfd22 para Regimen Fiscal Codigo Postal: " + map.get("codPostal"));
+			tags._CodigoPostal = map.get("codPostal").toString();
 			String regVal = (String) map.get("regimenFiscal");
 //			regimenStr = "\n<cfdi:RegimenFiscal Regimen=\"" + regVal + "\" />";
 			regimenStr = " RegimenFiscal=\"" + UtilCatalogos.findRegFiscalCode(tags.mapCatalogos, regVal) + "\" "; // Agregue esto /> para cerrar el nodo de concepto al regresar AMDA
@@ -1302,7 +1317,7 @@ public class ConvertirV3_3
 		{	return formatECB(numberLine);	}
 	}
 	
-	public void loadInfoV33(int numElement, String linea, HashMap campos22) 
+	public void loadInfoV33(int numElement, String linea, HashMap campos22, HashMap<String, FiscalEntity> lstFiscal) 
 	{
 		System.out.println("entra LoadInfoV33: "+linea);
 		System.out.println("entra LoadInfoV33 numElement: "+numElement);
@@ -1317,7 +1332,18 @@ public class ConvertirV3_3
 			break;
 		case 3:
 			// Emisor
-			domicilioFiscal(campos22);
+			System.out.println("Emisor ? LoadInfoV33: "+lin[1].trim() + " : " + lin[2].trim());
+			if (lin.length >= 2) 
+			{
+				tags.EMISION_RFC = lin[1].trim();
+				if(tags.EMISION_RFC.trim().length() == 0){ // Validacion AMDA Version 3.3
+					tags.EMISION_RFC = "RFCNecesario";
+				}
+				tags.fis = null;
+				tags.fis = lstFiscal.get(tags.EMISION_RFC);
+				domicilioFiscal(campos22);
+			}
+			
 			break;
 		case 4:
 			// Receptor
