@@ -769,7 +769,7 @@ public class ConvertirV3_3
 			String nodoValorUnitarioStr = "";
 			try{
 				Double valUnit = Double.parseDouble(lineas[2].trim());
-				if(tags.tipoComprobante.trim().equalsIgnoreCase("Ingreso") || tags.tipoComprobante.trim().equalsIgnoreCase("Egreso") || tags.tipoComprobante.trim().equalsIgnoreCase("Nomina")){
+				if(tags.tipoComprobante.trim().equalsIgnoreCase("I") || tags.tipoComprobante.trim().equalsIgnoreCase("E") || tags.tipoComprobante.trim().equalsIgnoreCase("N")){
 					// Valor unitario debe ser mayor a 0
 					if(valUnit <= 0){
 						valorUnitarioStr = "valorUnitarioDebeSerMayorDeCero";
@@ -778,7 +778,7 @@ public class ConvertirV3_3
 						valorUnitarioStr = lineas[2].trim();
 						nodoValorUnitarioStr = "\" ValorUnitario=\"" + valorUnitarioStr ;
 					}
-				}else if(tags.tipoComprobante.trim().equalsIgnoreCase("Traslado")){
+				}else if(tags.tipoComprobante.trim().equalsIgnoreCase("T")){
 					// Valor unitario puede ser mayor o igual a 0
 					if(valUnit < 0){
 						valorUnitarioStr = "valorUnitarioDebeSerMenorDeCero";
@@ -787,7 +787,7 @@ public class ConvertirV3_3
 						valorUnitarioStr = lineas[2].trim();
 						nodoValorUnitarioStr = "\" ValorUnitario=\"" + valorUnitarioStr ;
 					}
-				}else if(tags.tipoComprobante.trim().equalsIgnoreCase("Pago")){
+				}else if(tags.tipoComprobante.trim().equalsIgnoreCase("P")){
 					// Valor unitario debe ser igual a 0
 					if(valUnit != 0){
 						valorUnitarioStr = "valorUnitarioDebeSerCero";
