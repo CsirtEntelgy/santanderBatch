@@ -272,15 +272,15 @@ public class GeneraXML_CFDV3_3
 			String[] tokens = linea.concat("|temp").split("\\|");
 			// aqui inicia el parseo del txt y la generacion del xml
 			//AMDA fucnion prueba
-			String lineUp = Util.convierte(linea).concat("|temp");
-			String tok = linea.substring(0, 2);
-			int numElement = 0;
-			try 
-			{	numElement = Integer.parseInt(tok);	} 
-			catch (NumberFormatException numberEx) 
-			{	logger.error("No empieza con un numero " + linea);	}
-			
-			conver.loadInfoV33(numElement, lineUp);
+//			String lineUp = Util.convierte(linea).concat("|temp");
+//			String tok = linea.substring(0, 2);
+//			int numElement = 0;
+//			try 
+//			{	numElement = Integer.parseInt(tok);	} 
+//			catch (NumberFormatException numberEx) 
+//			{	logger.error("No empieza con un numero " + linea);	}
+//			
+			conver.loadInfoV33(linea);
 			System.out.println("GENERA XML Despues de LOADINFO FACT AMDA: ");
 			// AMDA termina fucnion prueba
 

@@ -325,7 +325,7 @@ public class ConvertirV3_3
 					}
 						
 					//Validando tipo de Cambio AMDA 
-								
+					System.out.println("Tags tipo CAM : "+ tags.TIPO_CAMBIO);
 					if(fileNames.equals("CFDLFFONDOS")){
 						if(!tags.TIPO_CAMBIO.isEmpty()){//////condición de prueba"""""""""""""""
 							//HashMap<String, String> monedas = (HashMap<String, String>) tipoCambio.get(tags.EMISION_PERIODO);
@@ -392,11 +392,11 @@ public class ConvertirV3_3
 							//tags.TIPO_CAMBIO="TIPO_CAMBIO INCORRECTO " + tags.TIPO_CAMBIO + "";
 							concat.append(" TipoCambioIncorrecto" + tags.TIPO_CAMBIO + "=\"" + tags.TIPO_CAMBIO + "\"");
 						}
-						else
-						{
-							//tags.TIPO_CAMBIO="NO EXISTEN TIPOS DE CAMBIO PARA EL DIA " + tags.EMISION_PERIODO + "";
-							concat.append(" TipoCambioNoDefinido" + tags.TIPO_CAMBIO + "=\"" + tags.TIPO_CAMBIO + "\"");
-						}
+//						else
+//						{
+//							//tags.TIPO_CAMBIO="NO EXISTEN TIPOS DE CAMBIO PARA EL DIA " + tags.EMISION_PERIODO + "";
+//							concat.append(" TipoCambioNoDefinido" + tags.TIPO_CAMBIO + "=\"" + tags.TIPO_CAMBIO + "\"");
+//						}
 					}				
 				}
 				else

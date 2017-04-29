@@ -634,6 +634,7 @@ class Thread1 implements Runnable{
 			Transformer transf, ValidatorHandler val, String fileNames, String fecha, String idProceso, String urlWebService, String numeroMalla)
 	throws Exception
 	{
+		boolean versionTypo = true; // Tipo version AMDA
 		String[] fileNamesArr = fileNames.split(",");
 		for (int i=0; i < fileNamesArr.length; i++)
 		{	fileNamesArr[i] = fileNamesArr[i] + fecha + ".TXT"; }
@@ -659,31 +660,60 @@ class Thread1 implements Runnable{
 				logger.debug("Paso2.- El Archivo a procesar es: " + objF.getName());
 				if (isECB) 
 				{
-					logger.debug("Path de ECB: " + properties.getPathDirProECB());
-					xmlECB.setNombresApps(NombreAplicativo.cargaNombresApps());
-					xmlECB.setNameFile(objF.getName());
-					xmlECB.setLstFiscal(lstFiscal);
-					xmlECB.setLstSeal(lstSeal);
-					xmlECB.setTipoCambio(lstTipoCambio);
-					xmlECB.setCampos22(lstCampos22);
-					xmlECB.setTransf(transf);
-					xmlECB.setValidator(val);
-					xmlECB.convierte(idProceso, fecha, fileNames, numeroMalla);
+					if(!versionTypo){
+						logger.debug("Path de ECB: " + properties.getPathDirProECB());
+						xmlECB.setNombresApps(NombreAplicativo.cargaNombresApps());
+						xmlECB.setNameFile(objF.getName());
+						xmlECB.setLstFiscal(lstFiscal);
+						xmlECB.setLstSeal(lstSeal);
+						xmlECB.setTipoCambio(lstTipoCambio);
+						xmlECB.setCampos22(lstCampos22);
+						xmlECB.setTransf(transf);
+						xmlECB.setValidator(val);
+						xmlECB.convierte(idProceso, fecha, fileNames, numeroMalla);
+					}else{
+						logger.debug("Path de ECB V 3.3: " + properties.getPathDirProECB());
+						xmlECBV3.setNombresApps(NombreAplicativo.cargaNombresApps());
+						xmlECBV3.setNameFile(objF.getName());
+						xmlECBV3.setLstFiscal(lstFiscal);
+						xmlECBV3.setLstSeal(lstSeal);
+						xmlECBV3.setTipoCambio(lstTipoCambio);
+						xmlECBV3.setCampos22(lstCampos22);
+						xmlECBV3.setTransf(transf);
+						xmlECBV3.setValidator(val);
+						xmlECBV3.convierte(idProceso, fecha, fileNames, numeroMalla);
+					}
+					
 					
 				} 
 				else 
 				{
-					logger.debug("Paso 2.- Path de CFD: " + properties.getPathDirProCFD());
-					xmlCFD.setNombresApps(NombreAplicativo.cargaNombresApps());
-					xmlCFD.setLstFiscal(lstFiscal);
-					xmlCFD.setLstSeal(lstSeal);
-					xmlCFD.setLstIva(lstIva);
-					xmlCFD.setTipoCambio(lstTipoCambio);
-					xmlCFD.setCampos22(lstCampos22);
-					xmlCFD.setTransf(transf);
-					xmlCFD.setValidator(val);
-					xmlCFD.setUrlWebService(urlWebService);
-					xmlCFD.convierte(objF.getName());	
+					if(!versionTypo){
+						logger.debug("Paso 2.- Path de CFD: " + properties.getPathDirProCFD());
+						xmlCFD.setNombresApps(NombreAplicativo.cargaNombresApps());
+						xmlCFD.setLstFiscal(lstFiscal);
+						xmlCFD.setLstSeal(lstSeal);
+						xmlCFD.setLstIva(lstIva);
+						xmlCFD.setTipoCambio(lstTipoCambio);
+						xmlCFD.setCampos22(lstCampos22);
+						xmlCFD.setTransf(transf);
+						xmlCFD.setValidator(val);
+						xmlCFD.setUrlWebService(urlWebService);
+						xmlCFD.convierte(objF.getName());
+					}else{
+						logger.debug("Paso 2.- Path de CFD V 3.3: " + properties.getPathDirProCFD());
+						xmlCFDV3.setNombresApps(NombreAplicativo.cargaNombresApps());
+						xmlCFDV3.setLstFiscal(lstFiscal);
+						xmlCFDV3.setLstSeal(lstSeal);
+						xmlCFDV3.setLstIva(lstIva);
+						xmlCFDV3.setTipoCambio(lstTipoCambio);
+						xmlCFDV3.setCampos22(lstCampos22);
+						xmlCFDV3.setTransf(transf);
+						xmlCFDV3.setValidator(val);
+						xmlCFDV3.setUrlWebService(urlWebService);
+						xmlCFDV3.convierte(objF.getName());
+					}
+						
 					
 				}
 			}

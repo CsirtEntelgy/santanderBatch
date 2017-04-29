@@ -207,7 +207,7 @@ public class ConvertirImplV3_3
 			}
 			
 //			concat.append(" TipoCambio=\"" + tags.TIPO_CAMBIO + "\""); // Antes de V 3.3
-			concat.append(" Moneda=\"" + tags.TIPO_MONEDA + "\"");
+//			concat.append(" Moneda=\"" + tags.TIPO_MONEDA + "\""); // Verificando si no se usa aqui AMDA
 			
 			if (!isNullEmpty(tokens[3])) 
 			{
@@ -238,7 +238,7 @@ public class ConvertirImplV3_3
 			
 			String tipoComprobanteVal = "";
 			if (tokens[1].equalsIgnoreCase("Nota de Credito")) {
-				tipoComprobanteVal = UtilCatalogos.findTipoComprobanteByDescription(tags.mapCatalogos, "egreso");
+				tipoComprobanteVal = UtilCatalogos.findTipoComprobanteByDescription(tags.mapCatalogos, "E");
 				concat.append("  TipoDeComprobante=\"" + tipoComprobanteVal + "\"");	
 				tags.tipoComprobante = tipoComprobanteVal;
 				System.out.println("TIPO DE COMPROBANTE Factura Val AMDA: " + tipoComprobanteVal);
@@ -246,19 +246,19 @@ public class ConvertirImplV3_3
 				
 				// Se valida por medio de un catalogo AMDA
 				if(tokens[1].trim().length() == 1){
-					tipoComprobanteVal = UtilCatalogos.findTipoComprobanteByDescription(tags.mapCatalogos, tokens[1].trim());
+					tipoComprobanteVal = UtilCatalogos.findTipoComprobanteByDescription(tags.mapCatalogos, "I");
 					concat.append("  TipoDeComprobante=\"" + tipoComprobanteVal + "\"");
 					tags.tipoComprobante = tipoComprobanteVal;
 				}else{
-					if(UtilCatalogos.findTipoComprobante(tags.mapCatalogos, tokens[1].trim()).equals("tipoDeComprobanteIncorrecto")){
+					if(UtilCatalogos.findTipoComprobante(tags.mapCatalogos, "I").equals("tipoDeComprobanteIncorrecto")){
 						tags.tipoComprobante = "tipoDeComprobanteIncorrecto";
-						concat.append(" tipoDeComprobanteIncorrecto" + UtilCatalogos.findTipoComprobante(tags.mapCatalogos, tokens[1].trim()) + "=\"" + tokens[1].trim() + "\" ");
+						concat.append(" tipoDeComprobanteIncorrecto" + UtilCatalogos.findTipoComprobante(tags.mapCatalogos, "I") + "=\"" + tokens[1].trim() + "\" ");
 						tipoComprobanteVal = tags.tipoComprobante;
 					}else{
 						System.out.println("TIPO DE COMPROBANTE: " + tokens[1].trim());
-						tags.tipoComprobante = UtilCatalogos.findTipoComprobante(tags.mapCatalogos, tokens[1].trim());
+						tags.tipoComprobante = UtilCatalogos.findTipoComprobante(tags.mapCatalogos, "I");
 						concat.append(" TipoDeComprobante=\""
-								+ UtilCatalogos.findTipoComprobante(tags.mapCatalogos, tokens[1].trim()) + "\" ");
+								+ tags.tipoComprobante + "\" ");
 						tipoComprobanteVal = tags.tipoComprobante;
 					}
 				}
@@ -297,7 +297,7 @@ public class ConvertirImplV3_3
 			
 			return Util
 					.conctatArguments(
-							"\n<cfdi:TipoDeComprobante Version=\"3.3\" ",
+							"\n<cfdi:Comprobante Version=\"3.3\" ",
 							concat.toString(),
 							" xmlns:ecb=\"http://www.sat.gob.mx/ecb\" ",
 							" xmlns:cfdi=\"http://www.sat.gob.mx/cfd/3\"  ",
@@ -309,7 +309,7 @@ public class ConvertirImplV3_3
 							properties.getLblNO_CERTIFICADO(),
 							"\" " + " Certificado=\"",
 							properties.getLblCERTIFICADO(), "\" " + " ",														
-							"LugarExpedicion=\"" + properties.getLabelLugarExpedicion()  + "\" ",
+							"LugarExpedicion=\"" + "01219" + "\"",//properties.getLabelLugarExpedicion()  + "\" ",
 //							"NumCtaPago=\"" + properties.getlabelFormaPago()  + "\" ",
 							" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" >")
 					.toString().getBytes("UTF-8");
@@ -420,7 +420,10 @@ public class ConvertirImplV3_3
 			
 			if(tokens.length > 2){
 				if(!tokens[2].trim().equals("")){
-					nombreReceptor = " Nombre=\"" + Util.convierte(tokens[2].trim()) + "\"";
+					String valNombre = tokens[2].trim().replaceAll("\\.", "");
+					valNombre = valNombre.replaceAll("\\(", "");
+					valNombre = valNombre.replaceAll("\\)", "");
+					nombreReceptor = " Nombre=\"" + Util.convierte(valNombre) + "\"";
 				}				
 			}
 			
@@ -958,12 +961,14 @@ public class ConvertirImplV3_3
 			tags._Pais = " pais=\"" + convierte(tokens[9]) + "\"";
 			tags._CodigoPostal = tokens.length >= 11 ? isNullEmpity(tokens[10],
 					" codigoPostal") : "";
-			return Util
-					.conctatArguments("\n<cfdi:Domicilio ", tags._Calle,
-							tags._NoExterior, tags._NoInterior, tags._Colonia,
-							tags._Localidad, tags._Referencia, tags._Municipio,
-							tags._Estado, tags._Pais, tags._CodigoPostal, " />",
-							tags("", pila)).toString().getBytes("UTF-8");
+			tags("", pila).toString();
+//			return Util
+//					.conctatArguments("\n<cfdi:Domicilio ", tags._Calle,
+//							tags._NoExterior, tags._NoInterior, tags._Colonia,
+//							tags._Localidad, tags._Referencia, tags._Municipio,
+//							tags._Estado, tags._Pais, tags._CodigoPostal, " />",
+//							tags("", pila)).toString().getBytes("UTF-8");
+			return "".getBytes("UTF-8");
 		} 
 		else 
 		{	return formatCFD(numberLine);	}
@@ -1137,47 +1142,39 @@ public class ConvertirImplV3_3
 		return p_folioRange;
 	}
 	
-	public void loadInfoV33(int numElement, String linea) 
+	public void loadInfoV33(String linea) 
 	{
+		String[] tokens = linea.concat("|temp").split("\\|");
 		System.out.println("entra LoadInfoV33: "+linea);
-		System.out.println("entra LoadInfoV33 numElement: "+numElement);
+		System.out.println("entra LoadInfoV33 Element: "+tokens[0]);
 		String[] lin = linea.split("\\|");
-		switch (numElement) 
-		{
-		case 1:
+		if (tokens[0].equals(tags._CONTROLCFD)){
 			// Set
-			break;
-		case 2:
+
+		} else if (tokens[0].equals(tags._CFD)) {
 			// Comprobante
-			break;
-		case 3:
+
+		} else if (tokens[0].equals(tags._EMISOR)) {
 			// Emisor
-			break;
-		case 4:
+
+		} else if (tokens[0].equals(tags._RECEPTOR)) {
 			// Receptor
-			break;
-		case 5:
+
+		} else if (tokens[0].equals(tags._DOMICILIO)) {
 			// Domicilio
 			tags.recepPais = lin[9].trim();
-			break;
-		case 6:
+
+		} else if (tokens[0].equals(tags._CONCEPTO)) {
 			// Concepto
-			break;
-		case 7:
+
+		} else if (tokens[0].equals(tags._IMPUESTOS)) {
 			// Impuestos
-			break;
-		case 8:
+
+		} else if (tokens[0].equals(tags._RETENCION)) {
 			// Retenciones
 			System.out.println("entra LoadInfoV33 Retenciones Back: "+ lin[1].trim() + " : " + lin[2].trim());
 //			tags.retencionImpuestoVal = lineas[1].trim();
 //			tags.retencionImporteVal = lineas[2].trim(); // Se comenta por que al parecer se recorro uno despues AMDA
-			break;
-		case 9:
-			// Traslados
-//			System.out.println("entra LoadInfoV33 Traslados: "+ lineas[1].trim() + " : " + lineas[2].trim() + " : " + lineas[3].trim());
-//			tags.trasladoImpuestoVal = lineas[1].trim();
-//			tags.trasladoTasaVal = lineas[2].trim();
-//			tags.trasladoImporteVal = lineas[3].trim(); // Se comenta por que al parecer se recorro uno despues AMDA
 			System.out.println("entra LoadInfoV33 Retenciones: "+ lin[1].trim() + " : " + lin[2].trim());
 			tags.retencionImpuestoVal = lin[1].trim();
 			
@@ -1186,12 +1183,13 @@ public class ConvertirImplV3_3
 			}else{
 				tags.retencionImporteVal = lin[2].trim();
 			}
-			
-//			valImporteRetencion = lin[2].trim();
-			System.out.println("Sale LoadInfoV33 Retencion:" + tags.retencionImporteVal);
-			break;
-		case 10:
-			// -
+
+		} else if (tokens[0].equals(tags._TRASLADO)) {
+			// Traslados
+//			System.out.println("entra LoadInfoV33 Traslados: "+ lineas[1].trim() + " : " + lineas[2].trim() + " : " + lineas[3].trim());
+//			tags.trasladoImpuestoVal = lineas[1].trim();
+//			tags.trasladoTasaVal = lineas[2].trim();
+//			tags.trasladoImporteVal = lineas[3].trim(); // Se comenta por que al parecer se recorro uno despues AMDA
 			System.out.println("entra LoadInfoV33 Traslados: "+ lin[1].trim() + " : " + lin[2].trim() + " : " + lin[3].trim());
 			tags.trasladoImpuestoVal = lin[1].trim();
 			tags.trasladoTasaVal = lin[2].trim();
@@ -1201,11 +1199,23 @@ public class ConvertirImplV3_3
 				tags.trasladoImporteVal = lin[3].trim();
 			}
 //			valImporteTraslado = lin[3].trim();
-			System.out.println("Sale LoadInfoV33 Traslados:" + tags.trasladoImporteVal);
-			break;
-		case 11:
-			// Movimiento
-			break;
+			System.out.println("Sale LoadInfoV33 Traslados:" + tags.trasladoImporteVal);			
+			
+//			valImporteRetencion = lin[2].trim();
+			System.out.println("Sale LoadInfoV33 Retencion:" + tags.retencionImporteVal);
+
+		} else if (tokens[0].equals(tags._FACTORAJE)) {
+			// -
+//			System.out.println("entra LoadInfoV33 Traslados: "+ lin[1].trim() + " : " + lin[2].trim() + " : " + lin[3].trim());
+//			tags.trasladoImpuestoVal = lin[1].trim();
+//			tags.trasladoTasaVal = lin[2].trim();
+//			if(lin[3].trim().equalsIgnoreCase("0.00")){
+//				tags.trasladoImporteVal = "0.00";
+//			}else{
+//				tags.trasladoImporteVal = lin[3].trim();
+//			}
+////			valImporteTraslado = lin[3].trim();
+//			System.out.println("Sale LoadInfoV33 Traslados:" + tags.trasladoImporteVal);
 		}
 	}
 
