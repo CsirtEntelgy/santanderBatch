@@ -243,10 +243,8 @@ public class ConvertirV3_3
 	public byte[] fComprobante(String linea, long numberLine, HashMap<String, HashMap> tipoCambio, HashMap fiscalEntities, HashMap campos22, String fileNames) 
 		throws UnsupportedEncodingException 
 	{
-		
-			
-		
 			lineas = linea.split("\\|");
+			String monedaMexicana = "MXN";
 			System.out.println("linea " + linea);
 			//System.out.println("lineas[9]" + lineas[9]);
 			HashMap map = (HashMap) campos22.get(tags.EMISION_RFC);
@@ -268,6 +266,9 @@ public class ConvertirV3_3
 				tags.CFD_TYPE = lineas[1].trim().toUpperCase();
 				
 				tags.SERIE_FISCAL_CFD = lineas[3].trim();
+				if(tags.SERIE_FISCAL_CFD == null || "".equals(tags.SERIE_FISCAL_CFD.intern().trim())){
+					tags.SERIE_FISCAL_CFD = monedaMexicana.intern();
+				}
 				String valEqMoneda = ""; // AMDA Version 3.3
 				if (!Util.isNullEmpty(tags.SERIE_FISCAL_CFD)) 
 				{
@@ -282,8 +283,8 @@ public class ConvertirV3_3
 							tags.TIPO_MONEDA = tags.SERIE_FISCAL_CFD.substring(0, 3).trim();
 						}else if(tags.SERIE_FISCAL_CFD.substring(0, 3).trim().equals("BME") && fileNames.equals("CFDLFFONDOS")){
 							concat.append(" Serie=\"" + tags.SERIE_FISCAL_CFD + "\"");	
-							concat.append(" Moneda=\"" + "MXN" + "\"");	
-							tags.TIPO_MONEDA = "MXN";
+							concat.append(" Moneda=\"" + monedaMexicana.intern() + "\"");	
+							tags.TIPO_MONEDA = monedaMexicana.intern();
 						}else{
 							//tags.SERIE_FISCAL_CFD="MONEDA INCORRECTA " + tags.SERIE_FISCAL_CFD + "";
 							
