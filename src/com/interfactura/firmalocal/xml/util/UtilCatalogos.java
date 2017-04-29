@@ -246,7 +246,7 @@ public class UtilCatalogos
 			if(mapCatalogos.size() > 0 && value1.trim() != "" && value2.trim() != ""){
 				for(int i=0; i<mapCatalogos.get("TasaOCuota").size(); i++){
 					if(mapCatalogos.get("TasaOCuota").get(i).getVal4().equalsIgnoreCase(value1) && mapCatalogos.get("TasaOCuota").get(i).getVal5().equalsIgnoreCase(value2) ){
-						response = mapCatalogos.get("TasaOCuota").get(i).getVal1();
+						response = mapCatalogos.get("TasaOCuota").get(i).getVal3();
 						break;
 					}else{
 						response = "vacio";
@@ -342,12 +342,14 @@ public class UtilCatalogos
 		
 		//Encuentra los traslados en los catalogos de equivalencia AMDA
 		public static String findTraslados(Map<String, ArrayList<CatalogosDom>> mapCatalogos, String importeCon, String descCon){
+			Map<String, Object> responseMap = new LinkedHashMap<String, Object>();
 			String response = "";
 			String valTasa = "";
 			Double valTasaNum ;
 			Double importeConNum ;
 			Double importeTrasladoMul;
 			String nodocon = "";
+			Double sumTotal = 0.00 ;
 			System.out.println("findTraslados Inicio " + descCon);
 			System.out.println("findTraslados Inicio " + mapCatalogos.get("EquivalenciaConceptoImpuesto").size());
 			if(mapCatalogos.size() > 0 && descCon.trim().length() > 0){
@@ -367,9 +369,11 @@ public class UtilCatalogos
 							nodocon +=  "\n<cfdi:Traslado Base=\"" + importeCon +
 									   "\" Impuesto=\"" + mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal1() +
 									   "\" TipoFactor=\"" + mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal2() +
-									   "\" TasaOCuota=\"" + valTasa +
+									   "\" TasaOCuota=\"" + Util.completeZeroDecimals(valTasa, 6) +
 									   "\" Importe=\"" + importeTrasladoMul.toString() + "\" " +
 									   " />" ;
+							sumTotal += importeTrasladoMul;
+							System.out.println("Val Suma Total Traslado " + sumTotal);
 							System.out.println("Val NodoCon Traslado " + nodocon);
 						}catch(NumberFormatException e){
 							System.out.println("No es numero findTraslados: " + valTasa);
@@ -414,17 +418,22 @@ public class UtilCatalogos
 				response = "";
 			}
 			
+			responseMap.put("valNodoStr", response);
+			responseMap.put("sumaTotal", sumTotal.toString());
+			System.out.println("Response Get Traslado: " + responseMap.get("sumaTotal"));
 			return response;
 		}
 		
 		//Encuentra las retenciones en los catalogos de equivalencia AMDA
 		public static String findRetencion(Map<String, ArrayList<CatalogosDom>> mapCatalogos, String importeCon, String descCon){
+			Map<String, Object> responseMap = new LinkedHashMap<String, Object>();
 			String response = "";
 			String valTasa = "";
 			Double valTasaNum ;
 			Double importeConNum ;
 			Double importeTrasladoMul;
 			String nodocon = "";
+			Double sumTotal = 0.00 ;
 			System.out.println("findRetencion Inicio " + descCon);
 			System.out.println("findRetencion Inicio 2 " + mapCatalogos.get("EquivalenciaConceptoImpuesto").size());
 			if(mapCatalogos.size() > 0 && descCon.trim().length() > 0){
@@ -444,9 +453,11 @@ public class UtilCatalogos
 							nodocon +=  "\n<cfdi:Retencion Base=\"" + importeCon +
 									   "\" Impuesto=\"" + mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal1() +
 									   "\" TipoFactor=\"" + mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal2() +
-									   "\" TasaOCuota=\"" + valTasa +
+									   "\" TasaOCuota=\"" +  Util.completeZeroDecimals(valTasa, 6) +
 									   "\" Importe=\"" + importeTrasladoMul.toString() + "\" " +
 									   " />" ;
+							sumTotal += importeTrasladoMul;
+							System.out.println("Val Suma Total Retencion " + sumTotal);
 							System.out.println("Val NodoCon findRetencion " + nodocon);
 						}catch(NumberFormatException e){
 							System.out.println("No es numero findRetencion: " + valTasa);
@@ -490,7 +501,9 @@ public class UtilCatalogos
 			}else{
 				response = "";
 			}
-			
+			responseMap.put("valNodoStr", response);
+			responseMap.put("sumaTotal", sumTotal.toString());
+			System.out.println("Response Get Retencion: " + responseMap.get("sumaTotal"));
 			return response;
 		}
 	

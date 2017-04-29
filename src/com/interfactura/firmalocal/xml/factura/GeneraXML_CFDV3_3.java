@@ -281,7 +281,7 @@ public class GeneraXML_CFDV3_3
 			{	logger.error("No empieza con un numero " + linea);	}
 			
 			conver.loadInfoV33(numElement, lineUp);
-			System.out.println("GENERA XML Despues de LOADINFO AMDA: ");
+			System.out.println("GENERA XML Despues de LOADINFO FACT AMDA: ");
 			// AMDA termina fucnion prueba
 
 			if (tokens[0].equals(conver.getTags()._CONTROLCFD)) 
@@ -1375,15 +1375,15 @@ public class GeneraXML_CFDV3_3
 					            for(int i=0; i<hijosResultado.getLength(); i++){
 					            	Node nodo = hijosResultado.item(i);
 					            	if(nodo instanceof Element && nodo.getNodeName().equals("cfdi:Comprobante")){
-					            		strTotal = nodo.getAttributes().getNamedItem("total").getTextContent();
+					            		strTotal = nodo.getAttributes().getNamedItem("Total").getTextContent(); // AMDA Version 3.3
 					            		NodeList hijosComprobante = nodo.getChildNodes();
 					            		for(int j=0; j<hijosComprobante.getLength(); j++){
 					            			Node nodo2 = hijosComprobante.item(j);
 					            			if(nodo2 instanceof Element && nodo2.getNodeName().equals("cfdi:Emisor")){
-					            				strEmisorRFC = nodo2.getAttributes().getNamedItem("rfc").getTextContent();
+					            				strEmisorRFC = nodo2.getAttributes().getNamedItem("Rfc").getTextContent(); // AMDA Version 3.3
 					            			}
 					            			else if(nodo2 instanceof Element && nodo2.getNodeName().equals("cfdi:Receptor")){
-					            				strReceptorRFC = nodo2.getAttributes().getNamedItem("rfc").getTextContent();
+					            				strReceptorRFC = nodo2.getAttributes().getNamedItem("Rfc").getTextContent(); // AMDA Version 3.3
 					            			}
 					            			else if(nodo2 instanceof Element && nodo2.getNodeName().equals("cfdi:Complemento")){
 					            				NodeList hijosComplemento = nodo2.getChildNodes();

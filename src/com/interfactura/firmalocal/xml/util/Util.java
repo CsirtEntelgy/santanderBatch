@@ -978,6 +978,34 @@ public class Util
 		
 		return valor;
 	}
+	
+    public static String completeZeroDecimals(String val, int length) {
+        String decimals = "";
+        int numZeros = 6;
+        if (val != null && !val.equals("")) {
+            if (val.contains(".")) {
+                decimals = val.substring(val.indexOf(".") + 1);
+                if (decimals.length() > length) {
+                    decimals = decimals.substring(0, length);
+                }
+                val = val.substring(0, val.indexOf(".") + 1);
+            } else {
+                val += ".";
+            }
+        } else {
+            val = "0.";
+        }
+        numZeros = numZeros - decimals.length();
+        return val + completeWithCharacter(decimals, "0", numZeros);
+    }
+
+    public static String completeWithCharacter(String val, String character, int length) {
+        StringBuilder outputBuffer = new StringBuilder(val);
+        for (int i = 0; i < length; i++) {
+            outputBuffer.append(character);
+        }
+        return outputBuffer.toString();
+    }
 
 	public static boolean validaRFC(String rfc)
 			throws PatternSyntaxException

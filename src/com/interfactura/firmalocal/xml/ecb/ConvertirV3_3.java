@@ -848,7 +848,9 @@ public class ConvertirV3_3
 			if(valTipoFactor.equalsIgnoreCase("Tasa") || valTipoFactor.equalsIgnoreCase("Cuota")){
 				System.out.println("Validacion TasaOCuota Traslado AMDA : " + tags.trasladoImpuestoVal + " : " + valTipoFactor);
 				if(!tags.trasladoImpuestoVal.trim().equalsIgnoreCase("ISR")){
-					tasaOCuotaStr = "\" TasaOCuota=\""  + UtilCatalogos.findValMaxTasaOCuota(tags.mapCatalogos, tags.trasladoImpuestoVal, valTipoFactor);
+//					tasaOCuotaStr = "\" TasaOCuota=\""  + UtilCatalogos.findValMaxTasaOCuota(tags.mapCatalogos, tags.trasladoImpuestoVal, valTipoFactor);
+					tasaOCuotaStr = "\" TasaOCuota=\""  + Util.completeZeroDecimals(UtilCatalogos.findValMaxTasaOCuota(tags.mapCatalogos, tags.trasladoImpuestoVal, valTipoFactor), 6);
+
 				}
 				
 				System.out.println("Valor TasaOCuota Traslado AMDA : " + tasaOCuotaStr);
@@ -902,7 +904,9 @@ public class ConvertirV3_3
 			if(valTipoFactorRet.equalsIgnoreCase("Tasa") || valTipoFactorRet.equalsIgnoreCase("Cuota")){
 				System.out.println("Validacion TasaOCuota Ret AMDA : " + tags.retencionImpuestoVal + " : " + valTipoFactorRet);
 				if(!tags.retencionImpuestoVal.trim().equalsIgnoreCase("ISR")){
-					tasaOCuotaStrRet = "\" TasaOCuota=\""  + UtilCatalogos.findValMaxTasaOCuota(tags.mapCatalogos, tags.retencionImpuestoVal, valTipoFactorRet);
+
+					tasaOCuotaStrRet = "\" TasaOCuota=\""  + Util.completeZeroDecimals(UtilCatalogos.findValMaxTasaOCuota(tags.mapCatalogos, tags.retencionImpuestoVal, valTipoFactorRet), 6);
+
 				}
 				
 				System.out.println("Valor TasaOCuota Ret AMDA : " + tasaOCuotaStrRet);
@@ -1051,60 +1055,64 @@ public class ConvertirV3_3
 		tags.isImpuestos = true;
 		tags.isConceptos = false;
 		
-		// Elemento Retenciones V 3.3 AMDA
-		String claveImpRet = "";
-		if(tags.retencionImpuestoVal.trim().length() > 0){ // Validando el codigo del Impuesto
-			System.out.println("Valor Impuesto Ret AMDA : " + tags.retencionImpuestoVal);
-			claveImpRet = UtilCatalogos.findValClaveImpuesto(tags.mapCatalogos, tags.retencionImpuestoVal);
-			System.out.println("Valor Clave Impuesto Ret AMDA : " + claveImpRet);
-		}
+//		// Elemento Retenciones V 3.3 AMDA
+//		String claveImpRet = "";
+//		if(tags.retencionImpuestoVal.trim().length() > 0){ // Validando el codigo del Impuesto
+//			System.out.println("Valor Impuesto Ret AMDA : " + tags.retencionImpuestoVal);
+//			claveImpRet = UtilCatalogos.findValClaveImpuesto(tags.mapCatalogos, tags.retencionImpuestoVal);
+//			System.out.println("Valor Clave Impuesto Ret AMDA : " + claveImpRet);
+//		}
+//		
+//		String elementRetencion = "\n<cfdi:Retenciones>" +
+//				  				  "\n<cfdi:Retencion Impuesto=\"" + claveImpRet +
+//				  				  "\" Importe=\"" + tags.retencionImporteVal + "\"" +
+//				  "/>" +
+//				  "\n</cfdi:Retenciones>";
+//		System.out.println("Elemento Retenciones Impuestos AMDA : " + elementRetencion);
 		
-		String elementRetencion = "\n<cfdi:Retenciones>" +
-				  				  "\n<cfdi:Retencion Impuesto=\"" + claveImpRet +
-				  				  "\" Importe=\"" + tags.retencionImporteVal + "\"" +
-				  "/>" +
-				  "\n</cfdi:Retenciones>";
-		System.out.println("Elemento Retenciones Impuestos AMDA : " + elementRetencion);
-		
-		// Elemento Traslados V3.3 AMDA
-		String claveImp = "";
-		String valTipoFactor = "Tasa"; // Por definir de donde tomar el valor AMDA
-		String tasaOCuotaStr = "";
-		String valImporteImpTras = "";
-					
-		if(tags.trasladoImpuestoVal.trim().length() > 0){ // Validando el codigo del Impuesto
-			System.out.println("Valor Impuesto Traslado AMDA : " + tags.trasladoImpuestoVal);
-			claveImp = UtilCatalogos.findValClaveImpuesto(tags.mapCatalogos, tags.trasladoImpuestoVal);
-			System.out.println("Valor Clave Impuesto Traslado AMDA : " + claveImp);
-		}
-					
-		if(valTipoFactor.equalsIgnoreCase("Tasa") || valTipoFactor.equalsIgnoreCase("Cuota")){
-			System.out.println("Validacion TasaOCuota Traslado AMDA : " + tags.trasladoImpuestoVal + " : " + valTipoFactor);
-			if(!tags.trasladoImpuestoVal.trim().equalsIgnoreCase("ISR")){
-				tasaOCuotaStr = "\" TasaOCuota=\""  + UtilCatalogos.findValMaxTasaOCuota(tags.mapCatalogos, tags.trasladoImpuestoVal, valTipoFactor);
-			}
-						
-			System.out.println("Valor TasaOCuota Traslado AMDA : " + tasaOCuotaStr);
-		}
-					
-		if(valTipoFactor.equalsIgnoreCase("Tasa") || valTipoFactor.equalsIgnoreCase("Cuota")){
-			System.out.println("Valor Importe AMDA T : " + tags.trasladoImporteVal + " : " + valImporteTraslado);
-			if(tags.trasladoImporteVal.trim().length() > 0){
-				valImporteImpTras = "\" Importe=\"" +tags.trasladoImporteVal.trim() + "\"";
-			}else{
-				valImporteImpTras = "\" Importe=\"" + "0.00" + "\"";
-			}
-			
-		}
-					
-		String elementTraslado = "\n<cfdi:Traslados>" + 
-								 "\n<cfdi:Traslado Impuesto=\"" + claveImp +
-								 "\" TipoFactor=\"" + valTipoFactor + // Por definir de donde tomar el valor AMDA
-								 tasaOCuotaStr +
-								 valImporteImpTras + // Por definir como se relaciona el importe 
-								 " />" +
-								 "\n</cfdi:Traslados>";
-		System.out.println("Elemento Traslado Impuestos AMDA : " + elementTraslado);
+//		// Elemento Traslados V3.3 AMDA
+//		String claveImp = "";
+//		String valTipoFactor = "Tasa"; // Por definir de donde tomar el valor AMDA
+//		String tasaOCuotaStr = "";
+//		String valImporteImpTras = "";
+//					
+//		if(tags.trasladoImpuestoVal.trim().length() > 0){ // Validando el codigo del Impuesto
+//			System.out.println("Valor Impuesto Traslado AMDA : " + tags.trasladoImpuestoVal);
+//			claveImp = UtilCatalogos.findValClaveImpuesto(tags.mapCatalogos, tags.trasladoImpuestoVal);
+//			System.out.println("Valor Clave Impuesto Traslado AMDA : " + claveImp);
+//		}
+//					
+//		if(valTipoFactor.equalsIgnoreCase("Tasa") || valTipoFactor.equalsIgnoreCase("Cuota")){
+//			System.out.println("Validacion TasaOCuota Traslado AMDA : " + tags.trasladoImpuestoVal + " : " + valTipoFactor);
+//			if(!tags.trasladoImpuestoVal.trim().equalsIgnoreCase("ISR")){
+//
+////				tasaOCuotaStr = "\" TasaOCuota=\""  + UtilCatalogos.findValMaxTasaOCuota(tags.mapCatalogos, tags.trasladoImpuestoVal, valTipoFactor);
+//
+//				tasaOCuotaStr = "\" TasaOCuota=\""  + Util.completeZeroDecimals(UtilCatalogos.findValMaxTasaOCuota(tags.mapCatalogos, tags.trasladoImpuestoVal, valTipoFactor), 6);
+//
+//			}
+//						
+//			System.out.println("Valor TasaOCuota Traslado AMDA : " + tasaOCuotaStr);
+//		}
+//					
+//		if(valTipoFactor.equalsIgnoreCase("Tasa") || valTipoFactor.equalsIgnoreCase("Cuota")){
+//			System.out.println("Valor Importe AMDA T : " + tags.trasladoImporteVal + " : " + valImporteTraslado);
+//			if(tags.trasladoImporteVal.trim().length() > 0){
+//				valImporteImpTras = "\" Importe=\"" +tags.trasladoImporteVal.trim() + "\"";
+//			}else{
+//				valImporteImpTras = "\" Importe=\"" + "0.00" + "\"";
+//			}
+//			
+//		}
+//					
+//		String elementTraslado = "\n<cfdi:Traslados>" + 
+//								 "\n<cfdi:Traslado Impuesto=\"" + claveImp +
+//								 "\" TipoFactor=\"" + valTipoFactor + // Por definir de donde tomar el valor AMDA
+//								 tasaOCuotaStr +
+//								 valImporteImpTras + // Por definir como se relaciona el importe 
+//								 " />" +
+//								 "\n</cfdi:Traslados>";
+//		System.out.println("Elemento Traslado Impuestos AMDA : " + elementTraslado);
 		
 		if (lineas.length >= 3) 
 		{
@@ -1116,9 +1124,9 @@ public class ConvertirV3_3
 							"\n<cfdi:Impuestos  ",
 							isNullEmpity(lineas[1], "TotalImpuestosRetenidos"),
 							isNullEmpity(lineas[2], "TotalImpuestosTrasladados"),
-							">",
-							elementRetencion,
-							elementTraslado,
+//							">",
+//							elementRetencion,
+//							elementTraslado,
 							">").toString().getBytes("UTF-8");
 		} 
 		else 
@@ -1131,11 +1139,66 @@ public class ConvertirV3_3
 		lineas = linea.split("\\|");
 		if (lineas.length >= 4) 
 		{
+			
+			// Elemento Traslados V3.3 AMDA
+			String claveImp = "";
+			String valTipoFactor = "Tasa"; // Por definir de donde tomar el valor AMDA
+			String tasaOCuotaStr = "";
+			String valImporteImpTras = "";
+						
+			if(lineas[1].trim().length() > 0){ // Validando el codigo del Impuesto
+				System.out.println("Valor Impuesto Traslado AMDA : " + lineas[1].trim());
+				claveImp = UtilCatalogos.findValClaveImpuesto(tags.mapCatalogos, lineas[1].trim());
+				System.out.println("Valor Clave Impuesto Traslado AMDA : " + claveImp);
+			}
+						
+			if(valTipoFactor.equalsIgnoreCase("Tasa") || valTipoFactor.equalsIgnoreCase("Cuota")){
+				System.out.println("Validacion TasaOCuota Traslado AMDA : " +lineas[1].trim() + " : " + valTipoFactor);
+				if(!lineas[1].trim().equalsIgnoreCase("ISR")){
+
+//					tasaOCuotaStr = "\" TasaOCuota=\""  + UtilCatalogos.findValMaxTasaOCuota(tags.mapCatalogos, tags.trasladoImpuestoVal, valTipoFactor);
+
+					tasaOCuotaStr = "\" TasaOCuota=\""  + Util.completeZeroDecimals(UtilCatalogos.findValMaxTasaOCuota(tags.mapCatalogos, lineas[1].trim(), valTipoFactor), 6);
+
+				}
+							
+				System.out.println("Valor TasaOCuota Traslado AMDA : " + tasaOCuotaStr);
+			}
+						
+			if(valTipoFactor.equalsIgnoreCase("Tasa") || valTipoFactor.equalsIgnoreCase("Cuota")){
+				System.out.println("Valor Importe AMDA T : " + lineas[3].trim() + " : " + valImporteTraslado);
+				if(lineas[3].trim().length() > 0){
+					valImporteImpTras = "\" Importe=\"" +lineas[3].trim() + "\"";
+				}else{
+					valImporteImpTras = "\" Importe=\"" + "0.00" + "\"";
+				}
+				
+			}
+			
+			String elementTraslado = "\n<cfdi:Traslados>" + 
+					 "\n<cfdi:Traslado Impuesto=\"" + claveImp +
+					 "\" TipoFactor=\"" + valTipoFactor + // Por definir de donde tomar el valor AMDA
+					 tasaOCuotaStr +
+					 valImporteImpTras + // Por definir como se relaciona el importe 
+					 " />" +
+					 "\n</cfdi:Traslados>";
+			System.out.println("Elemento Traslado Impuestos AMDA : " + elementTraslado);
+			
 			return Util
-					.conctatArguments("\n<cfdi:Traslado Impuesto=\"",
-							lineas[1].trim(), "\" Tasa=\"", lineas[2].trim(),
-							"\" Importe=\"", lineas[3].trim(), "\"/>")
+					.conctatArguments(//"\n<cfdi:Traslados>" , 
+							 "\n<cfdi:Traslado Impuesto=\"" , claveImp ,
+							 "\" TipoFactor=\"" , valTipoFactor , // Por definir de donde tomar el valor AMDA
+							 tasaOCuotaStr ,
+							 valImporteImpTras , // Por definir como se relaciona el importe 
+							 " />" )
 					.toString().getBytes("UTF-8");
+			
+//			return Util
+//					.conctatArguments("\n<cfdi:Traslado Impuesto=\"",
+//							lineas[1].trim(), "\" Tasa=\"", lineas[2].trim(),
+//							"\" Importe=\"", lineas[3].trim(), 
+//							"\"/>")
+//					.toString().getBytes("UTF-8");
 		} 
 		else 
 		{	return formatECB(numberLine);	}
@@ -1154,9 +1217,26 @@ public class ConvertirV3_3
 		lineas = linea.split("\\|");
 		if (lineas.length >= 3) 
 		{
+			
+			// Elemento Retenciones V 3.3 AMDA
+			String claveImpRet = "";
+			if(lineas[1].trim().length() > 0){ // Validando el codigo del Impuesto
+				System.out.println("Valor Impuesto Ret AMDA : " + lineas[1].trim());
+				claveImpRet = UtilCatalogos.findValClaveImpuesto(tags.mapCatalogos, lineas[1].trim());
+				System.out.println("Valor Clave Impuesto Ret AMDA : " + claveImpRet);
+			}
+			
+//			String elementRetencion = "\n<cfdi:Retenciones>" +
+//					  				  "\n<cfdi:Retencion Impuesto=\"" + claveImpRet +
+//					  				  "\" Importe=\"" + lineas[2].trim() + "\"" +
+//					  "/>" +
+//					  "\n</cfdi:Retenciones>";
+//			System.out.println("Elemento Retenciones Impuestos AMDA : " + elementRetencion);
+			
+			
 			return Util
-					.conctatArguments("\n<cfdi:Retencion impuesto=\"",
-							lineas[1].trim(), "\" importe=\"",
+					.conctatArguments("\n<cfdi:Retencion Impuesto=\"",
+							claveImpRet, "\" Importe=\"",
 							lineas[2].trim(), "\"/>").toString().getBytes("UTF-8");
 		} 
 		else 
@@ -1371,7 +1451,7 @@ public class ConvertirV3_3
 			break;
 		case 8:
 			// Retenciones
-			System.out.println("entra LoadInfoV33 Retenciones: "+ lin[1].trim() + " : " + lin[2].trim());
+//			System.out.println("entra LoadInfoV33 Retenciones: "+ lin[1].trim() + " : " + lin[2].trim());
 //			tags.retencionImpuestoVal = lineas[1].trim();
 //			tags.retencionImporteVal = lineas[2].trim(); // Se comenta por que al parecer se recorro uno despues AMDA
 			break;
