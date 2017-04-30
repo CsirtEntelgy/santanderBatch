@@ -68,6 +68,6 @@
 	<classpathentry kind="lib" path="lib/comprobanteschema.jar"/>
 	<classpathentry kind="lib" path="lib/commons-lang3-3.3.jar"/>
 	<classpathentry kind="lib" path="lib/commons-lang3-3.3-javadoc.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Vanja/Documents/workspace-vanja/Santander-emisionMasivaCifrasControl/lib/iText-5.0.4.jar"/>
+	<classpathentry kind="lib" path="lib/iText-5.0.4.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

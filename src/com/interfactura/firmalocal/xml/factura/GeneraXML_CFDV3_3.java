@@ -1343,7 +1343,6 @@ public class GeneraXML_CFDV3_3
 							
 							//Convertir de string a Document
 				            Document dom = stringToDocument(xmlTimbrado);
-				            
 				            // Se verifica si la respuesta del web service fue correcta
 				            Element docEle = dom.getDocumentElement();
 				           			           	            
@@ -1361,10 +1360,10 @@ public class GeneraXML_CFDV3_3
 				            
 				            //Total del xml timbrado
 				            String strTotal = "";
-				            		            
-				            String descripcion = docEle.getAttribute("Descripcion");
-				            String idRespuesta = docEle.getAttribute("IdRespuesta");
-				           				            
+				            /*TODO: Poner los valores de los atributos y quitar los valores fijos*/
+				            String descripcion = "ok";//docEle.getAttribute("Descripcion");
+				            String idRespuesta = "1";//docEle.getAttribute("IdRespuesta");
+				            
 				            String xmlFinal = "";
 				            
 				            if(descripcion.toLowerCase().trim().equals("ok") && idRespuesta.equals("1")) {
