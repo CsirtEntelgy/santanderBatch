@@ -199,6 +199,26 @@ public class UtilCatalogos
 			return response;
 		}
 		
+		//Validacion Encuentra Valor del Patron del RFC expresado en el catalogo de Pais AMDA
+		public static String findPatternRFCPais(Map<String, ArrayList<CatalogosDom>> mapCatalogos, String value){
+			String response = "";
+			
+			if(mapCatalogos.size() > 0 && value.trim() != ""){
+				for(int i=0; i<mapCatalogos.get("Pais").size(); i++){
+					if(mapCatalogos.get("Pais").get(i).getVal1().equalsIgnoreCase(value)){
+						response = mapCatalogos.get("Pais").get(i).getVal4();
+						break;
+					}else{
+						response = "vacio";
+					}
+				}
+			}else{
+				response = "vacio";
+			}
+			
+			return response;
+		}
+		
 		//Validacion Encuentra Valor Clave de la Unidad AMDA
 		public static String findValClaveUnidad(Map<String, ArrayList<CatalogosDom>> mapCatalogos, String value){
 			String response = "";
@@ -266,7 +286,27 @@ public class UtilCatalogos
 			if(mapCatalogos.size() > 0 && value.trim() != ""){
 				for(int i=0; i<mapCatalogos.get("EquivalenciaMoneda").size(); i++){
 					if(mapCatalogos.get("EquivalenciaMoneda").get(i).getVal2().equalsIgnoreCase(value)){
-						response = mapCatalogos.get("EquivalenciaMoneda").get(i).getVal1();
+						response = mapCatalogos.get("EquivalenciaMoneda").get(i).getVal1();	
+						break;
+					}else{
+						response = "vacio";
+					}
+				}
+			}else{
+				response = "vacio";
+			}
+			
+			return response;
+		}
+		
+		//Validacion Encuentra Valor Tipo cambio a travez de moneda AMDA
+		public static String findTipoCambioByMoneda(Map<String, ArrayList<CatalogosDom>> mapCatalogos, String value){
+			String response = "";
+			
+			if(mapCatalogos.size() > 0 && value.trim() != ""){
+				for(int i=0; i<mapCatalogos.get("EquivalenciaTipoCambio").size(); i++){
+					if(mapCatalogos.get("EquivalenciaTipoCambio").get(i).getVal1().equalsIgnoreCase(value)){
+						response = mapCatalogos.get("EquivalenciaTipoCambio").get(i).getVal3();
 						break;
 					}else{
 						response = "vacio";
