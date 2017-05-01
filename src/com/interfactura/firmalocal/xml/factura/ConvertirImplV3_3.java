@@ -468,32 +468,42 @@ public class ConvertirImplV3_3
 			}
 						
 			if(!tags.RECEPCION_RFC.equalsIgnoreCase("RFCNecesario")){
-				System.out.println("RFC PARA NUMREGIDTRIB: " + tags.RECEPCION_RFC);
-				String valRegIdTrib = UtilCatalogos.findNumRegIdTrib(tags.mapCatalogos, tags.RECEPCION_RFC);
-				if(!valRegIdTrib.equalsIgnoreCase("vacio")){
-					numRegIdTribReceptor = " NumRegIdTrib=\"" + UtilCatalogos.findNumRegIdTrib(tags.mapCatalogos, tags.RECEPCION_RFC) + "\"";
-					String patternReg = "";
-					if(!valPais.trim().equalsIgnoreCase("vacio") && valPais.trim().length() > 0){
-						patternReg = UtilCatalogos.findPatternRFCPais(tags.mapCatalogos, valPais);
-						System.out.println("PATTERN REGEX:  " + patternReg);
-						if(!patternReg.trim().equalsIgnoreCase("vacio") && patternReg.trim().length() > 0){
-							System.out.println("Validando PATTERN REGEX");
-							Pattern p = Pattern.compile(patternReg);
-							 Matcher m = p.matcher(tags.RECEPCION_RFC);
-						     
-						     if(!m.find()){
-						    	 //RFC no valido
-						    	 numRegIdTribReceptor = " ElValorRFCNoCumpleConElPatronCorrespondienteDelNumRegIdTrib=\"" + UtilCatalogos.findNumRegIdTrib(tags.mapCatalogos, tags.RECEPCION_RFC) + "\"";
-						     }
-							
-						}
+				
+				if(tags.RECEPCION_RFC.equalsIgnoreCase("XEXX010101000") || tags.RECEPCION_RFC.equalsIgnoreCase("XAXX010101000") || tags.RECEPCION_RFC.equalsIgnoreCase("XEXE010101000") || tags.RECEPCION_RFC.equalsIgnoreCase("XEXX010101000") ){
+					String valRegIdTrib = UtilCatalogos.findNumRegIdTrib(tags.mapCatalogos, tags.RECEPCION_RFC);
+					if(!valRegIdTrib.equalsIgnoreCase("vacio")){
+						numRegIdTribReceptor = " NumRegIdTrib=\"" + UtilCatalogos.findNumRegIdTrib(tags.mapCatalogos, tags.RECEPCION_RFC) + "\"";
+					}else{
+						numRegIdTribReceptor = " NoSeHaEncontradoElRFCDelReceptorRelacionadoConNumRegIdTrib=\"" + tags.RECEPCION_RFC + "\"";
 					}
-					
-				}else{
-					numRegIdTribReceptor = " NoSeHaEncontradoElRFCDelReceptorRelacionadoConNumRegIdTrib=\"" + tags.RECEPCION_RFC + "\"";
 				}
 				
-				System.out.println("Valor NumRegIdTrib: " + valRegIdTrib);
+//				System.out.println("RFC PARA NUMREGIDTRIB: " + tags.RECEPCION_RFC);
+//				String valRegIdTrib = UtilCatalogos.findNumRegIdTrib(tags.mapCatalogos, tags.RECEPCION_RFC);
+//				if(!valRegIdTrib.equalsIgnoreCase("vacio")){
+//					numRegIdTribReceptor = " NumRegIdTrib=\"" + UtilCatalogos.findNumRegIdTrib(tags.mapCatalogos, tags.RECEPCION_RFC) + "\"";
+//					String patternReg = "";
+//					if(!valPais.trim().equalsIgnoreCase("vacio") && valPais.trim().length() > 0){
+//						patternReg = UtilCatalogos.findPatternRFCPais(tags.mapCatalogos, valPais);
+//						System.out.println("PATTERN REGEX:  " + patternReg);
+//						if(!patternReg.trim().equalsIgnoreCase("vacio") && patternReg.trim().length() > 0){
+//							System.out.println("Validando PATTERN REGEX");
+//							Pattern p = Pattern.compile(patternReg);
+//							 Matcher m = p.matcher(tags.RECEPCION_RFC);
+//						     
+//						     if(!m.find()){
+//						    	 //RFC no valido
+//						    	 numRegIdTribReceptor = " ElValorRFCNoCumpleConElPatronCorrespondienteDelNumRegIdTrib=\"" + UtilCatalogos.findNumRegIdTrib(tags.mapCatalogos, tags.RECEPCION_RFC) + "\"";
+//						     }
+//							
+//						}
+//					}
+//					
+//				}else{
+//					numRegIdTribReceptor = " NoSeHaEncontradoElRFCDelReceptorRelacionadoConNumRegIdTrib=\"" + tags.RECEPCION_RFC + "\"";
+//				}
+				
+//				System.out.println("Valor NumRegIdTrib: " + valRegIdTrib);
 			}
 			
 			System.out.println("Saliendo de Receptor: ");
@@ -1225,9 +1235,10 @@ public class ConvertirImplV3_3
 
 		} else if (tokens[0].equals(tags._RECEPTOR)) {
 			// Receptor
-
+			System.out.println("entra LoadInfoV33 Receptor:" + lin[1].trim() );
 		} else if (tokens[0].equals(tags._DOMICILIO)) {
 			// Domicilio
+			System.out.println("entra LoadInfoV33 Domicilio:" + lin[9].trim() );
 			tags.recepPais = lin[9].trim();
 
 		} else if (tokens[0].equals(tags._CONCEPTO)) {

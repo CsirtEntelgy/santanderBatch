@@ -317,8 +317,9 @@ public class GeneraXML_CFDV3_3
 				//out.write(conver.emisor(tokens, lstFiscal, numberLineCFD, getCampos22()));
 				out.write(arrayEmisor);
 			} else if (tokens[0].equals(conver.getTags()._RECEPTOR)) {
-				out.write(conver.receptor(tokens, numberLineCFD));
+//				out.write(conver.receptor(tokens, numberLineCFD));
 			} else if (tokens[0].equals(conver.getTags()._DOMICILIO)) {
+				out.write(conver.receptor(conver.getTags().lineaAnteriorTokens, conver.getTags().contCFDAnterior));
 				out.write(conver.domicilio(tokens, numberLineCFD));
 				this.beginCONCEPTOS(out);
 			} else if (tokens[0].equals(conver.getTags()._CONCEPTO)) {
@@ -343,6 +344,9 @@ public class GeneraXML_CFDV3_3
 			} else if (tokens[0].equals(conver.getTags()._FACTORAJE)) {
 				this.lstFactoraje.add(conver.factoraje(tokens, numberLineCFD));
 			}
+			
+			conver.getTags().lineaAnteriorTokens = tokens;
+			conver.getTags().contCFDAnterior = numberLineCFD;
 		} 
 		catch (Exception e) 
 		{

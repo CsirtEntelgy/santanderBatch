@@ -164,5 +164,8 @@ public class TagsXML {
 	public String trasladoTasaVal = "";
 	public String trasladoImporteVal = "";
 	public Integer decimalesMoneda = 0;
+	public String lineaAnterior = "";
+	public String[] lineaAnteriorTokens;
+	public long contCFDAnterior = 0L;
 	
 }

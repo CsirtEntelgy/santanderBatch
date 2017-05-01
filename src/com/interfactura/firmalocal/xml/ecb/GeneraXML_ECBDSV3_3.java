@@ -1030,10 +1030,11 @@ public class GeneraXML_ECBDSV3_3 {
 			break;
 		case 4:
 			System.out.println("case4");
-			out.write(conver.receptor(linea, contCFD));
+			//out.write(conver.receptor(linea, contCFD));
 			System.out.println("Out: Case 4 " + out);
 			break;
 		case 5:
+			out.write(conver.receptor(conver.getTags().lineaAnterior, conver.getTags().contCFDAnterior));
 			System.out.println("case5");
 			out.write(conver.domicilio(linea, contCFD));
 			System.out.println("Out: Case 5 " + out);
@@ -1098,6 +1099,9 @@ public class GeneraXML_ECBDSV3_3 {
 			System.out.println("caseBreak");
 			break;
 		}
+
+		conver.getTags().lineaAnterior = linea;
+		conver.getTags().contCFDAnterior = contCFD;
 	}
 
 	/**
