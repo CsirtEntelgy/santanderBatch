@@ -241,15 +241,16 @@ public class ConvertirImplV3_3
 			folio = null;
 			concat.append(" Folio=\"" + properties.getLblFOLIOCFD() + "\"");
 			
-			tags.SUBTOTAL_MN = tokens[5];
-			concat.append(" SubTotal=\"" + tokens[5] + "\"");
+//			tags.SUBTOTAL_MN = tokens[5];
+//			concat.append(" SubTotal=\"" + tokens[5] + "\"");
+			
 			if (!isNullEmpty(tokens[6])) 
 			{	concat.append(" Descuento=\"" + tokens[6] + "\"");	} // Descuento pendiente Validación ADMA V 3.3
 //			if (!isNullEmpty(tokens[7])) 
 //			{	concat.append(" motivoDescuento=\"" + tokens[7] + "\"");	} // Al Parecer nova Motivo en V 3.3 AMDA
 
-			tags.TOTAL_MN = tokens[8];
-			concat.append(" Total=\"" + tags.TOTAL_MN + "\"");
+//			tags.TOTAL_MN = tokens[8];
+//			concat.append(" Total=\"" + tags.TOTAL_MN + "\"");
 
 //			if (!isNullEmpty(tokens[9])) } // Antes V 3.3 AMDA
 //			{	
@@ -307,6 +308,65 @@ public class ConvertirImplV3_3
 //							+ "valorCondicionesDePagoIncorrecto" + valorCondicionDePago + "\" ");
 //				}					
 //			}
+			
+			tags.SUBTOTAL_MN = tokens[5];
+			if(tipoComprobanteVal.equalsIgnoreCase("T") && tipoComprobanteVal.equalsIgnoreCase("P")){
+				if(tags.decimalesMoneda == 0){
+					concat.append(" SubTotal=\"" + "0" + "\"");
+				}else if(tags.decimalesMoneda == 2){
+					concat.append(" SubTotal=\"" + "0.00" + "\"");
+				}else if(tags.decimalesMoneda == 3){
+					concat.append(" SubTotal=\"" + "0.000" + "\"");
+				}else if(tags.decimalesMoneda == 4){
+					concat.append(" SubTotal=\"" + "0.0000" + "\"");
+				}
+//				concat.append(" SubTotal=\"" + "0" + "\"");
+			}else{
+				System.out.println("SubTotal agregando decimales : " + tags.decimalesMoneda + " : " + tags.SUBTOTAL_MN);
+				concat.append(" SubTotal=\"" + UtilCatalogos.decimales(tags.SUBTOTAL_MN, tags.decimalesMoneda ) + "\"");
+			}
+			
+			tags.TOTAL_MN = tokens[8];
+				if(tipoComprobanteVal.equalsIgnoreCase("T") || tipoComprobanteVal.equalsIgnoreCase("P")){
+					if(tags.decimalesMoneda == 0){
+						concat.append(" Total=\"" + "0" + "\"");
+					}else if(tags.decimalesMoneda == 2){
+						concat.append(" Total=\"" + "0.00" + "\"");
+					}else if(tags.decimalesMoneda == 3){
+						concat.append(" Total=\"" + "0.000" + "\"");
+					}else if(tags.decimalesMoneda == 4){
+						concat.append(" Total=\"" + "0.0000" + "\"");
+					}
+					
+				}else{
+					System.out.println("Total : " + tags.TOTAL_MN);
+					try {
+					    double valTotal = Double.parseDouble(tags.TOTAL_MN);
+					    if(valTotal<0){
+					       System.out.println("Total: " + " es negativo");
+					    	concat.append(" totalIncorrecto"+ valTotal + "=\"" + tags.TOTAL_MN + "\"");
+					    }else{
+					       System.out.println("Total: " + " es positivo");
+					       System.out.println("Total agregando decimales : " + tags.decimalesMoneda + " : " + tags.TOTAL_MN);
+					       concat.append(" Total=\"" + UtilCatalogos.decimales(tags.TOTAL_MN, tags.decimalesMoneda ) + "\"");
+					       
+					       //Validando Monto Maximo
+					       try{
+					    	   double valMaximo = Double.parseDouble(UtilCatalogos.findTipoComprobante(tags.mapCatalogos, tags.TOTAL_MN));
+					    	   if(valTotal > valMaximo){
+					    		   // Se debe mostrar campo Confirmacion, no se sabe si aplica para Estados de Cuenta o Factoraje, esta por definir por parte de Santander
+					    	   }
+					       }catch (NumberFormatException e){
+					    	   System.out.println("No se encontro Valor Maximo en Catalogo TipoComprobante ");
+					       }
+					      
+					       
+					    }
+					} catch (NumberFormatException e) {
+					    System.out.println("Total: "+  "No es un numero");
+					    concat.append(" totalIncorrecto"+  "=\"" + tags.TOTAL_MN + "\"");
+					}
+				}
 
 			tags.FACTORAJE_HORA = tokens[10];
 			tags.FACTORAJE_TIPO = tokens[11];
@@ -476,6 +536,25 @@ public class ConvertirImplV3_3
 					}else{
 						numRegIdTribReceptor = " NoSeHaEncontradoElRFCDelReceptorRelacionadoConNumRegIdTrib=\"" + tags.RECEPCION_RFC + "\"";
 					}
+					
+					//Valida Num RegIdTrib
+					String patternReg = "";
+					if(!valPais.trim().equalsIgnoreCase("vacio") && valPais.trim().length() > 0){
+						patternReg = UtilCatalogos.findPatternRFCPais(tags.mapCatalogos, valPais);
+						System.out.println("PATTERN REGEX:  " + patternReg);
+						if(!patternReg.trim().equalsIgnoreCase("vacio") && patternReg.trim().length() > 0){
+							System.out.println("Validando PATTERN REGEX");
+							Pattern p = Pattern.compile(patternReg);
+							 Matcher m = p.matcher(valRegIdTrib);
+						     
+						     if(!m.find()){
+						    	 //RFC no valido
+						    	 numRegIdTribReceptor = " ElValorRegistroIdAtributarioNoCumpleConElPatronCorrespondiente=\"" + valRegIdTrib + "\"";
+						     }
+							
+						}
+					}
+					
 				}
 				
 //				System.out.println("RFC PARA NUMREGIDTRIB: " + tags.RECEPCION_RFC);
@@ -658,7 +737,7 @@ public class ConvertirImplV3_3
 				
 			}
 			// Base = ValImporte, Importe = Base por porcentajemas Base, descripcion mandar Util.convierte(lineas[1]).trim() 
-			String trasladoDoom = UtilCatalogos.findTraslados(tags.mapCatalogos, valImporte, Util.convierte(convierte(tokens[4])).trim());
+			String trasladoDoom = UtilCatalogos.findTraslados(tags.mapCatalogos, valImporte, Util.convierte(convierte(tokens[4])).trim(), tags.decimalesMoneda);
 			System.out.println("TRASLADO NODOS AMDA : " + trasladoDoom);
 			String elementTraslado = "\n<cfdi:Traslados>" + 
 //									 "\n<cfdi:Traslado Base=\"" + valorBase +
@@ -721,7 +800,7 @@ public class ConvertirImplV3_3
 				}
 			}
 			
-			String retencionDoom = UtilCatalogos.findRetencion(tags.mapCatalogos, valImporte, Util.convierte(convierte(tokens[4])).trim());
+			String retencionDoom = UtilCatalogos.findRetencion(tags.mapCatalogos, valImporte, Util.convierte(convierte(tokens[4])).trim(), tags.decimalesMoneda);
 			String elementRetencion = "\n<cfdi:Retenciones>" +
 //					 				  "\n<cfdi:Retencion Base=\"" + valorBaseRet +
 //					 				  "\" Impuesto=\"" + claveImpRet +

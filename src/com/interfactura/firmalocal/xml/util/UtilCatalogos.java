@@ -185,7 +185,7 @@ public class UtilCatalogos
 			
 			if(mapCatalogos.size() > 0 && value.trim() != ""){
 				for(int i=0; i<mapCatalogos.get("NumRegIdTrib").size(); i++){
-					if(mapCatalogos.get("NumRegIdTrib").get(i).getVal2().equalsIgnoreCase(value)){
+					if(mapCatalogos.get("NumRegIdTrib").get(i).getVal3().equalsIgnoreCase(value)){
 						response = mapCatalogos.get("NumRegIdTrib").get(i).getVal1();
 						break;
 					}else{
@@ -265,7 +265,7 @@ public class UtilCatalogos
 			System.out.println("Validacion findValMaxTasaOCuota AMDA : " + value1 + " : " + value2);
 			if(mapCatalogos.size() > 0 && value1.trim() != "" && value2.trim() != ""){
 				for(int i=0; i<mapCatalogos.get("TasaOCuota").size(); i++){
-					if(mapCatalogos.get("TasaOCuota").get(i).getVal4().equalsIgnoreCase(value1) && mapCatalogos.get("TasaOCuota").get(i).getVal5().equalsIgnoreCase(value2) ){
+					if(mapCatalogos.get("TasaOCuota").get(i).getVal4().equalsIgnoreCase(value1) && mapCatalogos.get("TasaOCuota").get(i).getVal5().equalsIgnoreCase(value2)){
 						response = mapCatalogos.get("TasaOCuota").get(i).getVal3();
 						break;
 					}else{
@@ -276,6 +276,26 @@ public class UtilCatalogos
 				response = "vacio";
 			}
 			
+			return response;
+		}
+		
+		//Validacion Encuentra Valor Maximo de Tasa o Cuota del catalogo TasaOCuota para Traslado AMDA
+		public static String findValMaxTasaOCuotaTraslado(Map<String, ArrayList<CatalogosDom>> mapCatalogos, String value1, String value2){
+			String response = "";
+			System.out.println("Validacion findValMaxTasaOCuotaTraslado AMDA : " + value1 + " : " + value2);
+			if(mapCatalogos.size() > 0 && value1.trim() != "" && value2.trim() != ""){
+				for(int i=0; i<mapCatalogos.get("TasaOCuota").size(); i++){
+					if(mapCatalogos.get("TasaOCuota").get(i).getVal4().equalsIgnoreCase(value1) && mapCatalogos.get("TasaOCuota").get(i).getVal5().equalsIgnoreCase(value2) && mapCatalogos.get("TasaOCuota").get(i).getVal3().equalsIgnoreCase("0.16")){
+						response = mapCatalogos.get("TasaOCuota").get(i).getVal3();
+						break;
+					}else{
+						response = "vacio";
+					}
+				}
+			}else{
+				response = "vacio";
+			}
+			System.out.println("Validacion findValMaxTasaOCuotaTraslado AMDA Saliendo : " + response);
 			return response;
 		}
 		
@@ -381,7 +401,7 @@ public class UtilCatalogos
 		}
 		
 		//Encuentra los traslados en los catalogos de equivalencia AMDA
-		public static String findTraslados(Map<String, ArrayList<CatalogosDom>> mapCatalogos, String importeCon, String descCon){
+		public static String findTraslados(Map<String, ArrayList<CatalogosDom>> mapCatalogos, String importeCon, String descCon, Integer decimalesMoneda){
 			Map<String, Object> responseMap = new LinkedHashMap<String, Object>();
 			String response = "";
 			String valTasa = "";
@@ -410,7 +430,7 @@ public class UtilCatalogos
 									   "\" Impuesto=\"" + mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal1() +
 									   "\" TipoFactor=\"" + mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal2() +
 									   "\" TasaOCuota=\"" + Util.completeZeroDecimals(valTasa, 6) +
-									   "\" Importe=\"" + importeTrasladoMul.toString() + "\" " +
+									   "\" Importe=\"" + decimales(importeTrasladoMul.toString(), decimalesMoneda) + "\" " +
 									   " />" ;
 							sumTotal += importeTrasladoMul;
 							System.out.println("Val Suma Total Traslado " + sumTotal);
@@ -457,15 +477,15 @@ public class UtilCatalogos
 			}else{
 				response = "";
 			}
-			
+
 			responseMap.put("valNodoStr", response);
-			responseMap.put("sumaTotal", sumTotal.toString());
+			responseMap.put("sumaTotal", decimales(sumTotal.toString(), decimalesMoneda));
 			System.out.println("Response Get Traslado: " + responseMap.get("sumaTotal"));
 			return response;
 		}
 		
 		//Encuentra las retenciones en los catalogos de equivalencia AMDA
-		public static String findRetencion(Map<String, ArrayList<CatalogosDom>> mapCatalogos, String importeCon, String descCon){
+		public static String findRetencion(Map<String, ArrayList<CatalogosDom>> mapCatalogos, String importeCon, String descCon, Integer decimalesMoneda){
 			Map<String, Object> responseMap = new LinkedHashMap<String, Object>();
 			String response = "";
 			String valTasa = "";
@@ -494,7 +514,7 @@ public class UtilCatalogos
 									   "\" Impuesto=\"" + mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal1() +
 									   "\" TipoFactor=\"" + mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal2() +
 									   "\" TasaOCuota=\"" +  Util.completeZeroDecimals(valTasa, 6) +
-									   "\" Importe=\"" + importeTrasladoMul.toString() + "\" " +
+									   "\" Importe=\"" + decimales(importeTrasladoMul.toString(), decimalesMoneda) + "\" " +
 									   " />" ;
 							sumTotal += importeTrasladoMul;
 							System.out.println("Val Suma Total Retencion " + sumTotal);
@@ -542,8 +562,27 @@ public class UtilCatalogos
 				response = "";
 			}
 			responseMap.put("valNodoStr", response);
-			responseMap.put("sumaTotal", sumTotal.toString());
+			responseMap.put("sumaTotal", decimales(sumTotal.toString(), decimalesMoneda));
 			System.out.println("Response Get Retencion: " + responseMap.get("sumaTotal"));
+			return response;
+		}
+		
+		
+		public static String decimales(String importeval, Integer decimalesMoneda){
+			String response = "";
+			System.out.println("Entrando funcion Decimales: " + importeval + " : " + decimalesMoneda);
+			if(importeval.contains(".")){
+				String deci[] = importeval.split("\\.");
+				importeval = deci[1];
+				if(decimalesMoneda > 0){
+					if(importeval.length() > decimalesMoneda){
+						response = importeval.substring(0,decimalesMoneda);
+					}
+				}else{
+					response = importeval.substring(0,2);
+				}
+			}
+			System.out.println("Regreso Importe Substring: " + response);
 			return response;
 		}
 	

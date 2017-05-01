@@ -498,9 +498,19 @@ public class ConvertirV3_3
 				System.out.println("SubTotal : " + lineas[6].trim());
 				tags.SUBTOTAL_MN = lineas[6].trim();
 				if(lineas[1].trim().toUpperCase().equalsIgnoreCase("T") && lineas[1].trim().toUpperCase().equalsIgnoreCase("P")){
-					concat.append(" SubTotal=\"" + "0" + "\"");
+					if(tags.decimalesMoneda == 0){
+						concat.append(" SubTotal=\"" + "0" + "\"");
+					}else if(tags.decimalesMoneda == 2){
+						concat.append(" SubTotal=\"" + "0.00" + "\"");
+					}else if(tags.decimalesMoneda == 3){
+						concat.append(" SubTotal=\"" + "0.000" + "\"");
+					}else if(tags.decimalesMoneda == 4){
+						concat.append(" SubTotal=\"" + "0.0000" + "\"");
+					}
+//					concat.append(" SubTotal=\"" + "0" + "\"");
 				}else{
-					concat.append(" SubTotal=\"" + tags.SUBTOTAL_MN + "\"");
+					System.out.println("SubTotal agregando decimales : " + tags.decimalesMoneda + " : " + tags.SUBTOTAL_MN);
+					concat.append(" SubTotal=\"" + UtilCatalogos.decimales(tags.SUBTOTAL_MN, tags.decimalesMoneda ) + "\"");
 				}
 				
 				// Validacion de no ser negativo el total AMDA
@@ -525,7 +535,8 @@ public class ConvertirV3_3
 						    	concat.append(" totalIncorrecto"+ valTotal + "=\"" + lineas[7].trim() + "\"");
 						    }else{
 						       System.out.println("Total: " + " es positivo");
-						       concat.append(" Total=\"" + lineas[7].trim() + "\"");
+						       System.out.println("Total agregando decimales : " + tags.decimalesMoneda + " : " + lineas[7].trim());
+						       concat.append(" Total=\"" + UtilCatalogos.decimales(lineas[7].trim(), tags.decimalesMoneda ) + "\"");
 						       
 						       //Validando Monto Maximo
 						       try{
@@ -778,34 +789,38 @@ public class ConvertirV3_3
 				residenciaFiscalReceptor = " ResidenciaFiscal=\"" + valPais + "\"";
 			}
 			
-			//Valida RFC}
-			String patternReg = "";
-			if(!valPais.trim().equalsIgnoreCase("vacio") && valPais.trim().length() > 0){
-				patternReg = UtilCatalogos.findPatternRFCPais(tags.mapCatalogos, valPais);
-				System.out.println("PATTERN REGEX:  " + patternReg);
-				if(!patternReg.trim().equalsIgnoreCase("vacio") && patternReg.trim().length() > 0){
-					System.out.println("Validando PATTERN REGEX");
-					Pattern p = Pattern.compile(patternReg);
-					 Matcher m = p.matcher(tags.RECEPCION_RFC);
-				     
-				     if(!m.find()){
-				    	 //RFC no valido
-				    	 numRegIdTribReceptor = " ElValorRFCNoCumpleConElPatronCorrespondienteDelNumRegIdTrib=\"" + UtilCatalogos.findNumRegIdTrib(tags.mapCatalogos, tags.RECEPCION_RFC) + "\"";
-				     }
-					
-				}
-			}
-			
+			// Validando RFC si es RFC Generico
 			if(!tags.RECEPCION_RFC.equalsIgnoreCase("RFCNecesario")){
 				
 				if(tags.RECEPCION_RFC.equalsIgnoreCase("XEXX010101000") || tags.RECEPCION_RFC.equalsIgnoreCase("XAXX010101000") || tags.RECEPCION_RFC.equalsIgnoreCase("XEXE010101000") || tags.RECEPCION_RFC.equalsIgnoreCase("XEXX010101000") ){
-					String valRegIdTrib = UtilCatalogos.findNumRegIdTrib(tags.mapCatalogos, tags.RECEPCION_RFC);
+					String valRegIdTrib = UtilCatalogos.findNumRegIdTrib(tags.mapCatalogos, lineas[2].trim()); //
 					if(!valRegIdTrib.equalsIgnoreCase("vacio")){
-						numRegIdTribReceptor = " NumRegIdTrib=\"" + UtilCatalogos.findNumRegIdTrib(tags.mapCatalogos, tags.RECEPCION_RFC) + "\"";
+						numRegIdTribReceptor = " NumRegIdTrib=\"" + valRegIdTrib + "\"";
 					}else{
-						numRegIdTribReceptor = " NoSeHaEncontradoElRFCDelReceptorRelacionadoConNumRegIdTrib=\"" + tags.RECEPCION_RFC + "\"";
+						numRegIdTribReceptor = " NoSeHaEncontradoElReceptorRelacionadoConNumRegIdTrib=\"" + lineas[2].trim() + "\"";
 					}
+					
+					//Valida Num RegIdTrib
+					String patternReg = "";
+					if(!valPais.trim().equalsIgnoreCase("vacio") && valPais.trim().length() > 0){
+						patternReg = UtilCatalogos.findPatternRFCPais(tags.mapCatalogos, valPais);
+						System.out.println("PATTERN REGEX:  " + patternReg);
+						if(!patternReg.trim().equalsIgnoreCase("vacio") && patternReg.trim().length() > 0){
+							System.out.println("Validando PATTERN REGEX");
+							Pattern p = Pattern.compile(patternReg);
+							 Matcher m = p.matcher(valRegIdTrib);
+						     
+						     if(!m.find()){
+						    	 //RFC no valido
+						    	 numRegIdTribReceptor = " ElValorRegistroIdAtributarioNoCumpleConElPatronCorrespondiente=\"" + valRegIdTrib + "\"";
+						     }
+							
+						}
+					}
+					
 				}
+
+			
 				
 //				System.out.println("RFC PARA NUMREGIDTRIB: " + tags.RECEPCION_RFC);
 //				String valRegIdTrib = UtilCatalogos.findNumRegIdTrib(tags.mapCatalogos, tags.RECEPCION_RFC);
@@ -1005,7 +1020,7 @@ public class ConvertirV3_3
 				
 			}
 			// Base = ValImporte, Importe = Base por porcentajemas Base, descripcion mandar Util.convierte(lineas[1]).trim() 
-			String trasladoDoom = UtilCatalogos.findTraslados(tags.mapCatalogos, valImporte, Util.convierte(lineas[1]).trim());
+			String trasladoDoom = UtilCatalogos.findTraslados(tags.mapCatalogos, valImporte, Util.convierte(lineas[1]).trim(), tags.decimalesMoneda);
 			System.out.println("TRASLADO NODOS AMDA : " + trasladoDoom);
 			String elementTraslado = "\n<cfdi:Traslados>" + 
 //									 "\n<cfdi:Traslado Base=\"" + valorBase +
@@ -1066,7 +1081,7 @@ public class ConvertirV3_3
 				}
 			}
 			
-			String retencionDoom = UtilCatalogos.findRetencion(tags.mapCatalogos, valImporte, Util.convierte(lineas[1]).trim());
+			String retencionDoom = UtilCatalogos.findRetencion(tags.mapCatalogos, valImporte, Util.convierte(lineas[1]).trim(), tags.decimalesMoneda);
 			String elementRetencion = "\n<cfdi:Retenciones>" +
 //					 				  "\n<cfdi:Retencion Base=\"" + valorBaseRet +
 //					 				  "\" Impuesto=\"" + claveImpRet +
@@ -1303,7 +1318,7 @@ public class ConvertirV3_3
 
 //					tasaOCuotaStr = "\" TasaOCuota=\""  + UtilCatalogos.findValMaxTasaOCuota(tags.mapCatalogos, tags.trasladoImpuestoVal, valTipoFactor);
 
-					tasaOCuotaStr = "\" TasaOCuota=\""  + Util.completeZeroDecimals(UtilCatalogos.findValMaxTasaOCuota(tags.mapCatalogos, lineas[1].trim(), valTipoFactor), 6);
+					tasaOCuotaStr = "\" TasaOCuota=\""  + Util.completeZeroDecimals(UtilCatalogos.findValMaxTasaOCuotaTraslado(tags.mapCatalogos, lineas[1].trim(), valTipoFactor), 6);
 
 				}
 							
@@ -1552,6 +1567,7 @@ public class ConvertirV3_3
 		else 
 		{	return formatECB(numberLine);	}
 	}
+	
 	
 	public void loadInfoV33(int numElement, String linea, HashMap campos22, HashMap<String, FiscalEntity> lstFiscal) 
 	{
