@@ -618,7 +618,7 @@ public class ConvertirV3_3
 //					tags.TIPO_MONEDA="";
 				}
 					
-				UtilCatalogos.findTipoCambioPorcentaje(tags.mapCatalogos, tags.TIPO_MONEDA, tags.TIPO_CAMBIO.trim());
+//				UtilCatalogos.findTipoCambioPorcentaje(tags.mapCatalogos, tags.TIPO_MONEDA, tags.TIPO_CAMBIO.trim());
 				
 				if(!isNotNumeric(lineas[4].trim()) && lineas[4].trim().length() <= 40){	
 					tags.FOLIO_FISCAL_CFD=lineas[4].trim();
