@@ -542,7 +542,7 @@ public class ConvertirV3_3
 						    	 try{
 										valueTipoCambioDoubl = Double.parseDouble(tags.TIPO_CAMBIO);
 									}catch (NumberFormatException e){
-										concat.append(" TipoCambioIncorrecto" + tags.TIPO_CAMBIO + "=\"" + tags.TIPO_CAMBIO + "\"");
+										concat.append(" TipoCambioIncorrectoNoEsUnValorNumerico" + tags.TIPO_CAMBIO + "=\"" + tags.TIPO_CAMBIO + "\"");
 									}
 						    	 
 									if(!tags.TIPO_MONEDA.equalsIgnoreCase("MXN") && !tags.TIPO_MONEDA.equalsIgnoreCase("XXX")){ //Validacion AMDA
