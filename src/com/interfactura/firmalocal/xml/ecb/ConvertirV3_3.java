@@ -293,13 +293,13 @@ public class ConvertirV3_3
 								System.out.println("Consultando catalogo para monmeda: " + tags.SERIE_FISCAL_CFD);
 								valEqMoneda = UtilCatalogos.findMonedaCatalogo(tags.mapCatalogos, tags.SERIE_FISCAL_CFD);
 								if(valEqMoneda.equalsIgnoreCase("vacio")){
-									valEqMoneda = UtilCatalogos.findEquivalenciaMoneda(tags.mapCatalogos, tags.SERIE_FISCAL_CFD);
-									if(!valEqMoneda.equalsIgnoreCase("vacio")){
-										concat.append(" Moneda=\"" + valEqMoneda + "\"");
+//									valEqMoneda = UtilCatalogos.findEquivalenciaMoneda(tags.mapCatalogos, tags.SERIE_FISCAL_CFD);
+//									if(!valEqMoneda.equalsIgnoreCase("vacio")){
+//										concat.append(" Moneda=\"" + valEqMoneda + "\"");
 										tags.TIPO_MONEDA = valEqMoneda;
-									}else{
+//									}else{
 										concat.append(" ElCampoMonedaNoContieneUnValorDelCatalogoc_Moneda=\"" + valEqMoneda + "\"");
-									}
+//									}
 								}else{
 									concat.append(" Moneda=\"" + valEqMoneda + "\"");
 									tags.TIPO_MONEDA = valEqMoneda;
@@ -428,7 +428,8 @@ public class ConvertirV3_3
 						if(!tags.TIPO_MONEDA.equalsIgnoreCase("MXN") && !tags.TIPO_MONEDA.equalsIgnoreCase("XXX")){ //Validacion AMDA
 							if(tags.TIPO_CAMBIO.trim().length() > 0){
 								
-								String monedaValEq= UtilCatalogos.findTipoCambioByMoneda(tags.mapCatalogos, tags.TIPO_MONEDA);
+//								String monedaValEq= UtilCatalogos.findTipoCambioByMoneda(tags.mapCatalogos, tags.TIPO_MONEDA);
+								String monedaValEq= UtilCatalogos.findTipoCambioPorcentaje(tags.mapCatalogos, tags.TIPO_MONEDA, tags.TIPO_CAMBIO.trim());
 								if(monedaValEq.trim().length() > 0 && !monedaValEq.trim().equalsIgnoreCase("vacio")){
 									concat.append(" TipoCambio=\"" + monedaValEq + "\"");
 								}else{

@@ -366,15 +366,24 @@ public class UtilCatalogos
 		//Validacion Encuentra Valor de la Moneda AMDA
 		public static String findEquivalenciaMoneda(Map<String, ArrayList<CatalogosDom>> mapCatalogos, String value){
 			String response = "";
-			
+			System.out.println("Equivalencia Moneda A Buscar : " + value);
+			System.out.println("Mapa Contenido EquivalenciaMoneda : " + mapCatalogos.get("EquivalenciaMoneda").size());
 			if(mapCatalogos.size() > 0 && value.trim() != ""){
+				System.out.println("Dentro If Equivalencia Moneda A Buscar : " + value);
 				for(int i=0; i<mapCatalogos.get("EquivalenciaMoneda").size(); i++){
-					if(mapCatalogos.get("EquivalenciaMoneda").get(i).getVal2().equalsIgnoreCase(value)){
-						response = mapCatalogos.get("EquivalenciaMoneda").get(i).getVal1();	
-						break;
+					System.out.println("Dentro For Equivalencia Moneda A Buscar : " + value);
+					if(mapCatalogos.get("EquivalenciaMoneda").get(i).getVal2() != null){
+						System.out.println("Dentro no null Equivalencia Moneda A Buscar : " + value);
+						if(mapCatalogos.get("EquivalenciaMoneda").get(i).getVal2().equalsIgnoreCase(value)){
+							response = mapCatalogos.get("EquivalenciaMoneda").get(i).getVal1();	
+							break;
+						}else{
+							response = "vacio";
+						}
 					}else{
 						response = "vacio";
 					}
+
 				}
 			}else{
 				response = "vacio";
@@ -424,13 +433,43 @@ public class UtilCatalogos
 		}
 		
 		//Validacion Encuentra Valor Porcentaje de catalogo moneda AMDA
-		public static String findTipoCambioPorcentaje(Map<String, ArrayList<CatalogosDom>> mapCatalogos, String value){
+		public static String findTipoCambioPorcentaje(Map<String, ArrayList<CatalogosDom>> mapCatalogos, String value, String tipoCam){
 			String response = "";
+			String porcentaje = "";
+			String tipoCamCatalog = "";
+			double porcentajeDoub = 0.00;
+			double tipoCamDoub = 0.00;
+			double tipoCamCatalogDoub = 0.00;
+			double total = 0.00;
 			
 			if(mapCatalogos.size() > 0 && value.trim() != ""){
-				for(int i=0; i<mapCatalogos.get("EquivalenciaTipoCambio").size(); i++){
-					if(mapCatalogos.get("EquivalenciaTipoCambio").get(i).getVal1().equalsIgnoreCase(value)){
-						response = mapCatalogos.get("EquivalenciaTipoCambio").get(i).getVal3();
+				for(int i=0; i<mapCatalogos.get("Moneda").size(); i++){
+					if(mapCatalogos.get("Moneda").get(i).getVal1().equalsIgnoreCase(value)){
+						response = mapCatalogos.get("Moneda").get(i).getVal3();
+						porcentaje = mapCatalogos.get("Moneda").get(i).getVal4();
+						tipoCamCatalog = mapCatalogos.get("Moneda").get(i).getVal5();
+						System.out.println("Porcentaje AMDA: " + porcentaje);
+						System.out.println("Tipo Cambio AMDA: " + tipoCam);
+						System.out.println("Tipo Cambio Catalogo AMDA: " + tipoCamCatalog);
+//						total = 120*(50.0f/100.0f); // 50% de 120
+						
+						
+						try{
+							porcentajeDoub = Double.parseDouble(porcentaje);
+							System.out.println("Porcentaje Double AMDA: " + porcentajeDoub);
+							tipoCamDoub = Double.parseDouble(tipoCam);
+							System.out.println("Tipo Cambio Double AMDA: " + tipoCamDoub);
+							tipoCamCatalogDoub = Double.parseDouble(tipoCamCatalog);
+							System.out.println("Tipo Cambio Catalogo Double AMDA: " + tipoCamCatalogDoub);
+							
+							total = tipoCamCatalogDoub*(porcentajeDoub/100.0);
+							System.out.println("Total AMDA PORCENTAJE: " + total);
+
+							System.out.println("Decimales moneda Conversion numerico: " + response);
+						}catch(NumberFormatException e){
+							System.out.println("Problema al convertir datos de tipoCambio: ");
+						}
+						
 						break;
 					}else{
 						response = "vacio";
