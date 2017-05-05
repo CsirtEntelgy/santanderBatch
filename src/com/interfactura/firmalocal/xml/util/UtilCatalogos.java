@@ -441,6 +441,8 @@ public class UtilCatalogos
 			double tipoCamDoub = 0.00;
 			double tipoCamCatalogDoub = 0.00;
 			double total = 0.00;
+			double totalArriba = 0.00;
+			double totalAbajo = 0.00;
 			
 			if(mapCatalogos.size() > 0 && value.trim() != ""){
 				for(int i=0; i<mapCatalogos.get("Moneda").size(); i++){
@@ -464,10 +466,22 @@ public class UtilCatalogos
 							
 							total = tipoCamCatalogDoub*(porcentajeDoub/100.0);
 							System.out.println("Total AMDA PORCENTAJE: " + total);
+							
+							totalArriba = tipoCamCatalogDoub+total;
+							System.out.println("TotalArriba AMDA PORCENTAJE: " + totalArriba);
+							totalAbajo = tipoCamCatalogDoub-total;
+							System.out.println("TotalAbajo AMDA PORCENTAJE: " + totalAbajo);
+							
+							if(tipoCamDoub >= totalAbajo && tipoCamDoub <= totalArriba ){
+								response = "OK";
+							}else{
+								response = "vacio";
+							}
 
 							System.out.println("Decimales moneda Conversion numerico: " + response);
 						}catch(NumberFormatException e){
 							System.out.println("Problema al convertir datos de tipoCambio: ");
+							response = "vacio";
 						}
 						
 						break;
