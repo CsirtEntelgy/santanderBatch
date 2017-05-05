@@ -351,11 +351,11 @@ public class ConvertirV3_3
 //							tags.decimalesMoneda = deci[1];
 //						}
 						
-//						if(!tags.TIPO_MONEDA.trim().equalsIgnoreCase("MXN")){
-//							
-//						}else{
-//							tags.TIPO_CAMBIO = "1";
-//						}
+						if(!tags.TIPO_MONEDA.trim().equalsIgnoreCase("MXN")){ // Si la moneda es MXN automaticamente se debe de colocar el tipo cambio cambio es 1
+							
+						}else{
+							tags.TIPO_CAMBIO = "1";
+						}
 						
 					}
 					
