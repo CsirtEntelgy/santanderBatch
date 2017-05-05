@@ -611,8 +611,9 @@ public class GeneraXML_ECBDSV3_3 {
 				
 				t1 = System.currentTimeMillis();
 				timbrados = "";
+				System.out.println("Lo que se manda a Timbrado:" + sbXmlATimbrar.toString());
 				timbrados = this.servicePort.generaTimbre(sbXmlATimbrar.toString(), false, this.urlWebService, properties, this.nameFile, Integer.parseInt(idProceso), 0, sbPeriodos.toString(), sbNombresAplicativo.toString());
-				
+				System.out.println("Respuesta Timbrado:" + timbrados);
 				t2 = t1- System.currentTimeMillis();
 				System.out.println("TIME: Timbrado:" + t2 + " ms - contador: " + lstObjECBs.size());
 				System.out.println("Timbrado del bloque " + cont + " terminado.");

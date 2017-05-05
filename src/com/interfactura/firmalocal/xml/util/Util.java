@@ -1062,7 +1062,7 @@ public class Util
 		                while (cellIterator.hasNext()) {
 		                    Cell cell = cellIterator.next();
 //		                    System.out.println("CELL Value Num : "+ cell.getColumnIndex() );
-		                    
+		                    cell.setCellType(Cell.CELL_TYPE_STRING); // Prueba
 		                    if(cell.getColumnIndex() == 0){
 		                    	switch (cell.getCellType()) {
 			                    case Cell.CELL_TYPE_NUMERIC:
