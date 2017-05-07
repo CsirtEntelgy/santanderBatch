@@ -1506,6 +1506,10 @@ public class GeneraXML_ECBDSV3_3 {
 		return fNotNumber;		
 	}
 	
+	private void validateNodes() throws Exception {
+
+	}
+	
 	
 	private Document removeMovimientoECB(Document dom) throws Exception{		
 		this.fAttMovIncorrect = false;
@@ -1941,6 +1945,10 @@ public class GeneraXML_ECBDSV3_3 {
 					}
 					throw new Exception("Estructura Incorrecta " + numberLines.toString());
 				}
+				/*Validaciones 3.3*/
+				Document dom = byteArrayOutputStreamToDocument(out);33
+				/*Fin Validaciones 3.3*/
+				
 				long t2 = t1- System.currentTimeMillis();
 				System.out.println("TIME: getDescriptionFormat:" + t2 + " ms");
 				System.out.println("EntidadFiscal AMDA despues de GetDescriptionFormat:" + conver.getTags().isEntidadFiscal);

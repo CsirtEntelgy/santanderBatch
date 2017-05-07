@@ -327,7 +327,7 @@ public class ConvertirV3_3
 									concat.append(" Moneda=\"" + valEqMoneda + "\"");
 									tags.TIPO_MONEDA = valEqMoneda;
 								}else{
-									concat.append(" ElCampoMonedaNoContieneUnValorDelCatalogoc_Moneda=\"" + valEqMoneda + "\"");
+									concat.append(" ErrCompMoneda=\"" + valEqMoneda + "\"");
 								}
 							}else{
 								concat.append(" Moneda=\"" + valEqMoneda + "\"");
@@ -338,7 +338,7 @@ public class ConvertirV3_3
 							
 						}else{
 							tags.TIPO_MONEDA = tags.SERIE_FISCAL_CFD;
-							concat.append(" ElCampoMonedaNoContieneUnValorDelCatalogoc_Moneda" + "=\"" + tags.SERIE_FISCAL_CFD + "\"");
+							concat.append(" ErrCompMoneda" + "=\"" + tags.SERIE_FISCAL_CFD + "\"");
 						}
 					}
 					System.out.println("Tipo Moneda AMDA: " + tags.TIPO_MONEDA);
@@ -677,20 +677,20 @@ public class ConvertirV3_3
 				    double valSubTotal = Double.parseDouble(tags.SUBTOTAL_MN.trim());
 				    if(valSubTotal<0){
 				       System.out.println("SubTotal: " + " es negativo");
-				    	concat.append(" NoSePermitenValoresNegativosEnSubTotal"+ valSubTotal + "=\"" + tags.SUBTOTAL_MN.trim() + "\"");
+				    	concat.append(" ErrCompSubTotal001" + "=\"" + tags.SUBTOTAL_MN.trim() + "\"");
 				    }else{
 				       System.out.println("SubTotal: " + " es positivo");
 				       System.out.println("SubTotal agregando decimales : " + tags.decimalesMoneda + " : " + tags.SUBTOTAL_MN.trim());
 				       System.out.println("SubTotal: " + " es positivo" + tags.tipoComprobante);
 				       if(tags.tipoComprobante.equalsIgnoreCase("T") ||tags.tipoComprobante.equalsIgnoreCase("P")){
 				    	   if(valSubTotal > 0 || valSubTotal < 0){
-				    		   concat.append(" ElTipoDeComprobanteEsToPyElImporteNoEsIgualA0oCeroConDecimales=\"" + UtilCatalogos.decimales(tags.SUBTOTAL_MN.trim(), tags.decimalesMoneda) + "\"");
+				    		   concat.append(" ErrCompSubTotal002=\"" + UtilCatalogos.decimales(tags.SUBTOTAL_MN.trim(), tags.decimalesMoneda) + "\"");
 				    	   }else{
 				    		   if(UtilCatalogos.decimalesValidationMsj(tags.SUBTOTAL_MN.trim(), tags.decimalesMoneda)){
 //					    		   concat.append(" SubTotal=\"" + UtilCatalogos.decimales(tags.SUBTOTAL_MN.trim(), tags.decimalesMoneda ) + "\"");
 					    		   concat.append(" SubTotal=\"" + tags.SUBTOTAL_MN.trim() + "\"");
 				    		   }else{
-				    			   concat.append(" ElValorDelCampoSubTotalExcedeLaCantidadDeDecimalesQueSoportaLaMoneda=\"" + tags.SUBTOTAL_MN.trim() + "\"");
+				    			   concat.append(" ErrCompSubTotal003=\"" + tags.SUBTOTAL_MN.trim() + "\"");
 				    		   }
 
 				    	   }
@@ -699,7 +699,7 @@ public class ConvertirV3_3
 //				    		   concat.append(" SubTotal=\"" + UtilCatalogos.decimales(tags.SUBTOTAL_MN.trim(), tags.decimalesMoneda ) + "\"");
 				    		   concat.append(" SubTotal=\"" + tags.SUBTOTAL_MN.trim() + "\"");
 			    		   }else{
-			    			   concat.append(" ElValorDelCampoSubTotalExcedeLaCantidadDeDecimalesQueSoportaLaMoneda=\"" + tags.SUBTOTAL_MN.trim() + "\"");
+			    			   concat.append(" ErrCompSubTotal003=\"" + tags.SUBTOTAL_MN.trim() + "\"");
 			    		   }
 				       }
 				       
@@ -725,7 +725,7 @@ public class ConvertirV3_3
 				    }
 				} catch (NumberFormatException e) {
 				    System.out.println("SubTotal: "+  "No es un numero");
-				    concat.append(" SubTotallIncorrectoVieneVacioONoEsUnNumero"+  "=\"" + lineas[7].trim() + "\"");
+				    concat.append(" ErrCompSubTotal004"+  "=\"" + lineas[7].trim() + "\"");
 				}
 				
 				
