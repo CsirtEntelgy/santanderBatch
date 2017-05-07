@@ -51,6 +51,7 @@ import com.interfactura.firmalocal.xml.WebServiceCliente;
 import com.interfactura.firmalocal.xml.file.XMLProcess;
 import com.interfactura.firmalocal.xml.util.Util;
 import com.interfactura.firmalocal.xml.util.NombreAplicativo;
+import com.interfactura.firmalocal.xml.util.UtilCatalogos;
 
 @Component
 public class GeneraXML_ECBDSV3_3 {
@@ -1917,6 +1918,36 @@ public class GeneraXML_ECBDSV3_3 {
 				
 		return domResultado;
 	}
+
+	private static void evaluateAddError(String item) {
+		String err = UtilCatalogos.errorMessage.get(item);
+		if (err != null && !err.isEmpty()) {
+			UtilCatalogos.lstErrors.append("\n\t").append(err);
+		}
+	}
+	public static void EvaluateNodesError(Element docEle) {
+		if (docEle != null) {
+			NodeList nl = docEle.getChildNodes();
+			// System.out.println("Root element :" + docEle.getNodeName());
+			evaluateAddError(docEle.getNodeName());
+			NamedNodeMap attributes = docEle.getAttributes();
+			for (int idxAttr = 0; idxAttr < attributes.getLength(); idxAttr++) {
+				Attr attr = (Attr) attributes.item(idxAttr);
+				evaluateAddError(attr.getNodeName());
+				// String attrName = attr.getNodeName();
+				// String attrValue = attr.getNodeValue();
+				// System.out.println("\t" + attrName + " : " + attrValue);
+			}
+			if (nl != null) {
+				for (int i = 0; i < nl.getLength(); i++) {
+					attributes = docEle.getAttributes();
+					if (nl.item(i).getNodeType() == Node.ELEMENT_NODE) {
+						EvaluateNodesError((Element) nl.item(i));
+					}
+				}
+			}
+		}
+	}
 			
 	/**
 	 * Finaliza la creacion del ECB
@@ -1946,7 +1977,13 @@ public class GeneraXML_ECBDSV3_3 {
 					throw new Exception("Estructura Incorrecta " + numberLines.toString());
 				}
 				/*Validaciones 3.3*/
-				Document dom = byteArrayOutputStreamToDocument(out);33
+				UtilCatalogos.lstErrors = new StringBuffer();
+				Document doc = byteArrayOutputStreamToDocument(out);
+				Element root = doc.getDocumentElement();
+	            EvaluateNodesError(root);
+				if(!UtilCatalogos.lstErrors.toString().isEmpty()){
+					throw new Exception(UtilCatalogos.lstErrors.toString());
+				}
 				/*Fin Validaciones 3.3*/
 				
 				long t2 = t1- System.currentTimeMillis();
