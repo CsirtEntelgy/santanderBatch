@@ -167,5 +167,7 @@ public class TagsXML {
 	public String lineaAnterior = "";
 	public String[] lineaAnteriorTokens;
 	public long contCFDAnterior = 0L;
+	public boolean atributoTotalImpuestosReten = false;
+	public boolean atributoTotalImpuestosTras = false;
 	
 }

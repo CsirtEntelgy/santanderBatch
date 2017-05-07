@@ -1175,11 +1175,43 @@ public class ConvertirImplV3_3
 			tags.TOTAL_IMP_RET = tokens[1].trim();
 			tags.TOTAL_IMP_TRA = tokens[2].trim();
 			
+			String totalImpRetLine = "";
+			if(!Util.isNullEmpty(tokens[1].trim())){
+				if(UtilCatalogos.decimalesValidationMsj(tags.TOTAL_IMP_RET, tags.decimalesMoneda)){
+					totalImpRetLine = "\" TotalImpuestosRetenidos=\"" + tags.TOTAL_IMP_RET + "\" ";
+					tags.atributoTotalImpuestosReten = true;
+				}else{
+					totalImpRetLine = "\" ElValorDelCampoTotalImpuestosRetenidosDebeTenerHastaLaCantidadDeDecimalesQueSoporteLaMoneda=\"" + tags.TOTAL_IMP_RET + "\" ";
+					tags.atributoTotalImpuestosReten = false;
+				}
+			}else{
+				tags.atributoTotalImpuestosReten = false;
+			}
+			
+			String totalImpTraLine = "";
+			if(!Util.isNullEmpty(tokens[2].trim())){
+				if(UtilCatalogos.decimalesValidationMsj(tags.TOTAL_IMP_TRA, tags.decimalesMoneda)){
+					totalImpTraLine = "\" TotalImpuestosTrasladados=\"" + tags.TOTAL_IMP_TRA + "\" ";
+					tags.atributoTotalImpuestosTras = true;
+				}else{
+					totalImpTraLine = "\" ElValorDelCampoTotalImpuestosTrasladadosDebeTenerHastaLaCantidadDeDecimalesQueSoporteLaMoneda=\"" + tags.TOTAL_IMP_TRA + "\" ";
+					tags.atributoTotalImpuestosTras = false;
+				}
+			}else{
+				tags.atributoTotalImpuestosTras = false;
+			}
+			
 			return Util
 					.conctatArguments(tmp, "\n<cfdi:Impuestos ",
-							isNullEmpity(tokens[1], "TotalImpuestosRetenidos"),
-							isNullEmpity(tokens[2], "TotalImpuestosTrasladados"),
+							totalImpRetLine,
+							totalImpTraLine,
 							">").toString().getBytes("UTF-8");
+			
+//			return Util
+//					.conctatArguments(tmp, "\n<cfdi:Impuestos ",
+//							isNullEmpity(tokens[1], "TotalImpuestosRetenidos"),
+//							isNullEmpity(tokens[2], "TotalImpuestosTrasladados"),
+//							">").toString().getBytes("UTF-8");
 		} 
 		else 
 		{	return formatCFD(numberLine);	}
@@ -1226,20 +1258,38 @@ public class ConvertirImplV3_3
 			String valTipoFactor = "Tasa"; // Por definir de donde tomar el valor AMDA
 			String tasaOCuotaStr = "";
 			String valImporteImpTras = "";
+			String impuestoLine = "";
 						
 			if(tokens[1].trim().length() > 0){ // Validando el codigo del Impuesto
 				System.out.println("Valor Impuesto Traslado AMDA : " + tokens[1].trim());
 				claveImp = UtilCatalogos.findValClaveImpuesto(tags.mapCatalogos, tokens[1].trim());
 				System.out.println("Valor Clave Impuesto Traslado AMDA : " + claveImp);
+				if(tags.atributoTotalImpuestosTras){
+					if(!claveImp.equalsIgnoreCase("vacio")){
+						impuestoLine = " Impuesto=\"" + claveImp;
+					}else{
+						impuestoLine = " ElCampoImpuestoDeRetencionNoContieneUnValorDelCatalogoc_Impuesto=\"" + claveImp;
+					}
+				}else{
+					impuestoLine = " DebeExistirElCampoTotalImpuestosTraslados=\"" + claveImp;
+				}
 			}
 						
+			String tasaOCuotaResult = "";
 			if(valTipoFactor.equalsIgnoreCase("Tasa") || valTipoFactor.equalsIgnoreCase("Cuota")){
 				System.out.println("Validacion TasaOCuota Traslado AMDA : " +tokens[1].trim() + " : " + valTipoFactor);
 				if(!tokens[1].trim().equalsIgnoreCase("ISR")){
 
 //					tasaOCuotaStr = "\" TasaOCuota=\""  + UtilCatalogos.findValMaxTasaOCuota(tags.mapCatalogos, tags.trasladoImpuestoVal, valTipoFactor);
 
-					tasaOCuotaStr = "\" TasaOCuota=\""  + Util.completeZeroDecimals(UtilCatalogos.findValMaxTasaOCuota(tags.mapCatalogos, tokens[1].trim(), valTipoFactor), 6);
+//					tasaOCuotaStr = "\" TasaOCuota=\""  + Util.completeZeroDecimals(UtilCatalogos.findValMaxTasaOCuota(tags.mapCatalogos, tokens[1].trim(), valTipoFactor), 6);
+					
+					tasaOCuotaResult = UtilCatalogos.findValMaxTasaOCuotaTraslado(tags.mapCatalogos, tokens[1].trim(), valTipoFactor);
+					if(!tasaOCuotaResult.equalsIgnoreCase("vacio")){
+						tasaOCuotaStr = "\" TasaOCuota=\""  + Util.completeZeroDecimals(tasaOCuotaResult, 6);
+					}else{
+						tasaOCuotaStr = "\" ElValorSeleccionadoDebeCorresponderAUnValorDelCatalogoDondeLaColumnaImpuestoCorrespondaConElCampoImpuestoYLaColoumnaFactorCorrespondaAlCampoTipoFactor=\""  + tasaOCuotaResult;
+					}
 
 				}
 							
@@ -1249,30 +1299,44 @@ public class ConvertirImplV3_3
 			if(valTipoFactor.equalsIgnoreCase("Tasa") || valTipoFactor.equalsIgnoreCase("Cuota")){
 				System.out.println("Valor Importe AMDA T : " + tokens[3].trim() );
 				if(tokens[3].trim().length() > 0){
-					valImporteImpTras = "\" Importe=\"" +tokens[3].trim() + "\"";
+					if(UtilCatalogos.decimalesValidationMsj(tokens[3].trim(), tags.decimalesMoneda)){
+						valImporteImpTras = "\" Importe=\"" +tokens[3].trim() + "\"";
+					}else{
+						valImporteImpTras = "\" ElValorDelCampoImporteCorrespondienteATrasladoDebeTenerLaCantidadDeDecimalesQueSoportaLaMoneda=\"" +tokens[3].trim() + "\"";
+					}
+					
 				}else{
-					valImporteImpTras = "\" Importe=\"" + "0.00" + "\"";
+					valImporteImpTras = "\"  ElValorDelCampoImporteCorrespondienteATrasladoDebeTenerLaCantidadDeDecimalesQueSoportaLaMoneda=\"" + tokens[3].trim() + "\"";
 				}
 				
 			}
 			
-			String elementTraslado = "\n<cfdi:Traslados>" + 
-					 "\n<cfdi:Traslado Impuesto=\"" + claveImp +
-					 "\" TipoFactor=\"" + valTipoFactor + // Por definir de donde tomar el valor AMDA
-					 tasaOCuotaStr +
-					 valImporteImpTras + // Por definir como se relaciona el importe 
-					 " />" +
-					 "\n</cfdi:Traslados>";
-			System.out.println("Elemento Traslado Impuestos AMDA : " + elementTraslado);
+//			String elementTraslado = "\n<cfdi:Traslados>" + 
+//					 "\n<cfdi:Traslado Impuesto=\"" + claveImp +
+//					 "\" TipoFactor=\"" + valTipoFactor + // Por definir de donde tomar el valor AMDA
+//					 tasaOCuotaStr +
+//					 valImporteImpTras + // Por definir como se relaciona el importe 
+//					 " />" +
+//					 "\n</cfdi:Traslados>";
+//			System.out.println("Elemento Traslado Impuestos AMDA : " + elementTraslado);
 			
 			return Util
 					.conctatArguments(//"\n<cfdi:Traslados>" , 
-							 "\n<cfdi:Traslado Impuesto=\"" , claveImp ,
+							 "\n<cfdi:Traslado", impuestoLine ,
 							 "\" TipoFactor=\"" , valTipoFactor , // Por definir de donde tomar el valor AMDA
 							 tasaOCuotaStr ,
 							 valImporteImpTras , // Por definir como se relaciona el importe 
 							 " />" )
 					.toString().getBytes("UTF-8");
+			
+//			return Util
+//					.conctatArguments(//"\n<cfdi:Traslados>" , 
+//							 "\n<cfdi:Traslado Impuesto=\"" , claveImp ,
+//							 "\" TipoFactor=\"" , valTipoFactor , // Por definir de donde tomar el valor AMDA
+//							 tasaOCuotaStr ,
+//							 valImporteImpTras , // Por definir como se relaciona el importe 
+//							 " />" )
+//					.toString().getBytes("UTF-8");
 			
 //			return Util
 //					.conctatArguments("\n<cfdi:Traslado impuesto=\"", tokens[1],
@@ -1298,16 +1362,42 @@ public class ConvertirImplV3_3
 			
 			// Elemento Retenciones V 3.3 AMDA
 			String claveImpRet = "";
+			String impuestoLine = "";
 			if(tokens[1].trim().length() > 0){ // Validando el codigo del Impuesto
 				System.out.println("Valor Impuesto Ret AMDA : " + tokens[1].trim());
 				claveImpRet = UtilCatalogos.findValClaveImpuesto(tags.mapCatalogos, tokens[1].trim());
 				System.out.println("Valor Clave Impuesto Ret AMDA : " + claveImpRet);
+				if(!claveImpRet.equalsIgnoreCase("vacio")){
+					impuestoLine = " Impuesto=\"" + claveImpRet;
+				}else{
+					impuestoLine = " ElCampoImpuestoDeRetencionNoContieneUnValorDelCatalogoc_Impuesto=\"" + claveImpRet;
+				}
+			}
+			
+			String importeLine = "";
+			if(tags.atributoTotalImpuestosReten){
+				if(tokens[2].trim().length() > 0){
+					if(UtilCatalogos.decimalesValidationMsj(tokens[2].trim(), tags.decimalesMoneda)){
+						importeLine = "\" Importe=\"" + tokens[2].trim();
+					}else{
+						importeLine = "\" ElValorDelCampoImporteCorrespondienteARetencionDebeTenerLaCantidadDeDecimalesQueSoportaLaMoneda=\"" + tokens[2].trim();
+					}
+				}else{
+					importeLine = "\" ElValorDelCampoImporteCorrespondienteARetencionDebeTenerLaCantidadDeDecimalesQueSoportaLaMoneda=\"" + tokens[2].trim();
+				}
+
+			}else{
+				importeLine = "\" DebeExistirElAtributoTotalImpuestosRetenidos=\"" + tokens[2].trim();
 			}
 			
 			return Util
-					.conctatArguments("\n<cfdi:Retencion Impuesto=\"",
-							claveImpRet, "\" Importe=\"",
-							tokens[2].trim(), "\"/>").toString().getBytes("UTF-8");
+					.conctatArguments("\n<cfdi:Retencion", impuestoLine, 
+							importeLine, "\"/>").toString().getBytes("UTF-8");
+			
+//			return Util
+//					.conctatArguments("\n<cfdi:Retencion Impuesto=\"",
+//							claveImpRet, "\" Importe=\"",
+//							tokens[2].trim(), "\"/>").toString().getBytes("UTF-8");
 			
 //			return Util
 //					.conctatArguments("\n<cfdi:Retencion impuesto=\"", tokens[1],
