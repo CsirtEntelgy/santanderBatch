@@ -31,6 +31,7 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.validation.ValidatorHandler;
 
 import org.apache.log4j.Logger;
+import org.apache.openjpa.lib.log.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.FileCopyUtils;
@@ -2835,11 +2836,14 @@ public class GeneraXML_ECBDSV3_3 {
 			+ "|" + "\r\n";
 		incidencia.write(temp.getBytes());
 		incidencia.write("Se presentaron los siguientes errores al validar la estructura del comprobante: \r\n".getBytes());
+		logger.info("mLlovera: typeIncidence:"+typeIncidence);
+		logger.info("mLlovera: error:"+e);
 		if(typeIncidence.equals("ERROR"))
 		{	temp = "Error: " + e + "\r\n";	} 
 		else 
 		{	temp = "Warning: " + e + "\r\n";	}
 		temp += "Inicio de CFD: " + startLine + "\r\n";
+		logger.info("mLlovera: temp:"+temp);
 		incidencia.write(temp.getBytes("UTF-8"));
 		temp = null;
 		long t2 = t1- System.currentTimeMillis();
