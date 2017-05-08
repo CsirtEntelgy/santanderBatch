@@ -169,5 +169,13 @@ public class TagsXML {
 	public long contCFDAnterior = 0L;
 	public boolean atributoTotalImpuestosReten = false;
 	public boolean atributoTotalImpuestosTras = false;
+	public String sumTotalImpuestosReten = "";
+	public String sumTotalImpuestosTras = "";
+	public String sumRetTotalIsr = "";
+	public String sumRetTotalIva = "";
+	public String sumRetTotalIeps = "";
+	public String sumTraTotalIsr = "";
+	public String sumTraTotalIva = "";
+	public String sumTraTotalIeps = "";
 	
 }

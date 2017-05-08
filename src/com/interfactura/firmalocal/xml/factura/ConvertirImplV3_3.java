@@ -957,6 +957,12 @@ public class ConvertirImplV3_3
 									 trasladoDoom.get("valNodoStr") +
 									 "\n</cfdi:Traslados>";
 			System.out.println("Elemento Traslado AMDA : " + elementTraslado);
+			System.out.println("TRASLADO NODOS AMDA SumISR : " + trasladoDoom.get("sumTotalIsr"));
+			tags.sumTraTotalIsr = trasladoDoom.get("sumTotalIsr").toString();
+			System.out.println("TRASLADO NODOS AMDA SumIVA : " + trasladoDoom.get("sumTotalIva"));
+			tags.sumTraTotalIva = trasladoDoom.get("sumTotalIva").toString();
+			System.out.println("TRASLADO NODOS AMDA SumIEPS : " + trasladoDoom.get("sumTotalIeps"));
+			tags.sumTraTotalIeps = trasladoDoom.get("sumTotalIeps").toString();
 			
 			
 			// Elemento Retenciones V3.3 AMDA
@@ -1018,6 +1024,13 @@ public class ConvertirImplV3_3
 //					 				  "/>" +
 									  retencionDoom.get("valNodoStr") +
 									  "\n</cfdi:Retenciones>";
+			
+			System.out.println("RETENCION NODOS AMDA SumISR : " + retencionDoom.get("sumTotalIsr"));
+			tags.sumRetTotalIsr = retencionDoom.get("sumTotalIsr").toString();
+			System.out.println("RETENCION NODOS AMDA SumIVA : " + retencionDoom.get("sumTotalIva"));
+			tags.sumRetTotalIva = retencionDoom.get("sumTotalIva").toString();
+			System.out.println("RETENCION NODOS AMDA SumIEPS : " + retencionDoom.get("sumTotalIeps"));
+			tags.sumRetTotalIeps = retencionDoom.get("sumTotalIeps").toString();
 			
 			String claveProdServVal = ""; // Fijo por el momento AMDA
 			if(!UtilCatalogos.findClaveProdServbyDesc(tags.mapCatalogos, "Instituciones bancarias").equalsIgnoreCase("vacio")){

@@ -576,6 +576,9 @@ public class UtilCatalogos
 			Double importeTrasladoMul = 0.00;
 			String nodocon = "";
 			Double sumTotal = 0.00 ;
+			Double sumTotalIva = 0.00;
+			Double sumTotalIsr= 0.00;
+			Double sumTotalIeps = 0.00;
 			System.out.println("findTraslados Inicio " + descCon);
 			System.out.println("findTraslados Inicio " + mapCatalogos.get("EquivalenciaConceptoImpuesto").size());
 			if(mapCatalogos.size() > 0 && descCon.trim().length() > 0){
@@ -609,10 +612,16 @@ public class UtilCatalogos
 							System.out.println("Val Impor Traslado " + importeTrasladoMul);
 							if(mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal1().equalsIgnoreCase("001")){
 								responseMap.put("ISR", true);
+								sumTotalIsr += sumTotalIsr;
+								System.out.println("Val sumTotalIsr Traslado " + sumTotalIsr);
 							}else if(mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal1().equalsIgnoreCase("002")){
 								responseMap.put("IVA", true);
+								sumTotalIva += sumTotalIva;
+								System.out.println("Val sumTotalIva Traslado " + sumTotalIva);
 							}else if(mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal1().equalsIgnoreCase("003")){
 								responseMap.put("IEPS", true);
+								sumTotalIeps += sumTotalIeps;
+								System.out.println("Val sumTotalIeps Traslado " + sumTotalIeps);
 							}
 							
 							String baseCamp = "";
@@ -731,7 +740,13 @@ public class UtilCatalogos
 
 			responseMap.put("valNodoStr", response);
 			responseMap.put("sumaTotal", decimales(sumTotal.toString(), decimalesMoneda));
+			responseMap.put("sumTotalIsr", decimales(sumTotalIsr.toString(), decimalesMoneda));
+			responseMap.put("sumTotalIva", decimales(sumTotalIva.toString(), decimalesMoneda));
+			responseMap.put("sumTotalIeps", decimales(sumTotalIeps.toString(), decimalesMoneda));
 			System.out.println("Response Get Traslado: " + responseMap.get("sumaTotal"));
+			System.out.println("Response Get Traslado sumTotalIsr: " + responseMap.get("sumTotalIsr"));
+			System.out.println("Response Get Traslado sumTotalIva: " + responseMap.get("sumTotalIva"));
+			System.out.println("Response Get Traslado sumTotalIeps: " + responseMap.get("sumTotalIeps"));
 			return responseMap;
 		}
 		
@@ -745,6 +760,9 @@ public class UtilCatalogos
 			Double importeTrasladoMul;
 			String nodocon = "";
 			Double sumTotal = 0.00 ;
+			Double sumTotalIva = 0.00;
+			Double sumTotalIsr= 0.00;
+			Double sumTotalIeps = 0.00;
 			System.out.println("findRetencion Inicio " + descCon);
 			System.out.println("findRetencion Inicio 2 " + mapCatalogos.get("EquivalenciaConceptoImpuesto").size());
 			if(mapCatalogos.size() > 0 && descCon.trim().length() > 0){
@@ -779,10 +797,16 @@ public class UtilCatalogos
 							System.out.println("Val Impor Retencion " + importeTrasladoMul);
 							if(mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal1().equalsIgnoreCase("001")){
 								responseMap.put("ISR", true);
+								sumTotalIsr += sumTotalIsr;
+								System.out.println("Val sumTotalIsr Retencion " + sumTotalIsr);
 							}else if(mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal1().equalsIgnoreCase("002")){
 								responseMap.put("IVA", true);
+								sumTotalIva += sumTotalIva;
+								System.out.println("Val sumTotalIva Retencion " + sumTotalIva);
 							}else if(mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal1().equalsIgnoreCase("003")){
 								responseMap.put("IEPS", true);
+								sumTotalIeps += sumTotalIeps;
+								System.out.println("Val sumTotalIeps Retencion " + sumTotalIeps);
 							}
 							
 							String baseCamp = "";
@@ -909,7 +933,13 @@ public class UtilCatalogos
 			}
 			responseMap.put("valNodoStr", response);
 			responseMap.put("sumaTotal", decimales(sumTotal.toString(), decimalesMoneda));
-			System.out.println("Response Get Retencion: " + responseMap.get("sumaTotal"));
+			responseMap.put("sumTotalIsr", decimales(sumTotalIsr.toString(), decimalesMoneda));
+			responseMap.put("sumTotalIva", decimales(sumTotalIva.toString(), decimalesMoneda));
+			responseMap.put("sumTotalIeps", decimales(sumTotalIeps.toString(), decimalesMoneda));
+			System.out.println("Response Get Retencion sumaTotal: " + responseMap.get("sumaTotal"));
+			System.out.println("Response Get Retencion sumTotalIsr: " + responseMap.get("sumTotalIsr"));
+			System.out.println("Response Get Retencion sumTotalIva: " + responseMap.get("sumTotalIva"));
+			System.out.println("Response Get Retencion sumTotalIeps: " + responseMap.get("sumTotalIeps"));
 			return responseMap;
 		}
 		
