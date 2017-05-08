@@ -1684,10 +1684,10 @@ public class ConvertirV3_3
 //					
 //				}
 				if(UtilCatalogos.decimalesValidationMsj(tags.TOTAL_IMP_RET, tags.decimalesMoneda)){
-					totalImpRetLine = "\" TotalImpuestosRetenidos=\"" + tags.TOTAL_IMP_RET + "\" ";
+					totalImpRetLine = " TotalImpuestosRetenidos=\"" + tags.TOTAL_IMP_RET + "\" ";
 					tags.atributoTotalImpuestosReten = true;
 				}else{
-					totalImpRetLine = "\" ElValorDelCampoTotalImpuestosRetenidosDebeTenerHastaLaCantidadDeDecimalesQueSoporteLaMoneda=\"" + tags.TOTAL_IMP_RET + "\" ";
+					totalImpRetLine = " ElValorDelCampoTotalImpuestosRetenidosDebeTenerHastaLaCantidadDeDecimalesQueSoporteLaMoneda=\"" + tags.TOTAL_IMP_RET + "\" ";
 					tags.atributoTotalImpuestosReten = false;
 				}
 			}else{
@@ -1698,10 +1698,10 @@ public class ConvertirV3_3
 			Double totalImpTra = 0.00;
 			if(!Util.isNullEmpty(lineas[2].trim())){
 				if(UtilCatalogos.decimalesValidationMsj(tags.TOTAL_IMP_TRA, tags.decimalesMoneda)){
-					totalImpTraLine = "\" TotalImpuestosTrasladados=\"" + tags.TOTAL_IMP_TRA + "\" ";
+					totalImpTraLine = " TotalImpuestosTrasladados=\"" + tags.TOTAL_IMP_TRA + "\" ";
 					tags.atributoTotalImpuestosTras = true;
 				}else{
-					totalImpTraLine = "\" ElValorDelCampoTotalImpuestosTrasladadosDebeTenerHastaLaCantidadDeDecimalesQueSoporteLaMoneda=\"" + tags.TOTAL_IMP_TRA + "\" ";
+					totalImpTraLine = " ElValorDelCampoTotalImpuestosTrasladadosDebeTenerHastaLaCantidadDeDecimalesQueSoporteLaMoneda=\"" + tags.TOTAL_IMP_TRA + "\" ";
 					tags.atributoTotalImpuestosTras = false;
 				}
 			}else{
@@ -1712,7 +1712,7 @@ public class ConvertirV3_3
 			return Util
 					.conctatArguments(
 							tags("", pila),
-							"\n<cfdi:Impuestos  ",
+							"\n<cfdi:Impuestos ",
 							totalImpRetLine,
 							totalImpTraLine,
 //							">",
@@ -1797,22 +1797,22 @@ public class ConvertirV3_3
 						totImpTra = Double.parseDouble(tags.TOTAL_IMP_TRA);
 						importeDou = Double.parseDouble(lineas[3].trim());
 						if(totImpTra > importeDou || totImpTra < importeDou){
-							valImporteImpTras = "\" ElValorDelCampoTotalImpuestosTrasladoNoEsIgualALaSumaDeLosImportesRegistradosEnElElementoHijoTraslado=\"" + lineas[3].trim();
+							valImporteImpTras = "\" ElValorDelCampoTotalImpuestosTrasladoNoEsIgualALaSumaDeLosImportesRegistradosEnElElementoHijoTraslado=\"" + lineas[3].trim()+ "\" ";
 						}else{
 							if(UtilCatalogos.decimalesValidationMsj(lineas[3].trim(), tags.decimalesMoneda)){
-								valImporteImpTras = "\" Importe=\"" + lineas[3].trim();
+								valImporteImpTras = "\" Importe=\"" + lineas[3].trim()+ "\" ";
 							}else{
-								valImporteImpTras = "\" ElValorDelCampoImporteCorrespondienteATrasladoDebeTenerLaCantidadDeDecimalesQueSoportaLaMoneda=\"" + lineas[3].trim();
+								valImporteImpTras = "\" ElValorDelCampoImporteCorrespondienteATrasladoDebeTenerLaCantidadDeDecimalesQueSoportaLaMoneda=\"" + lineas[3].trim() + "\" ";
 							}
 						}
 						
 					}catch(NumberFormatException e){
 						System.out.println("Total Importe Traslado Validando total AMDA T Error en Convertido a numerico : " + tags.TOTAL_IMP_TRA);
-						valImporteImpTras = "\" ElValorDelCampoTotalImpuestosTrasladoNoEsIgualALaSumaDeLosImportesRegistradosEnElElementoHijoTraslado=\"" + lineas[3].trim();
+						valImporteImpTras = "\" ElValorDelCampoTotalImpuestosTrasladoNoEsIgualALaSumaDeLosImportesRegistradosEnElElementoHijoTraslado=\"" + lineas[3].trim() + "\" ";
 					}
 					
 				}else{
-					valImporteImpTras = "\" ElValorDelCampoImporteCorrespondienteATrasladoDebeTenerLaCantidadDeDecimalesQueSoportaLaMoneda=\"" + lineas[3].trim() + "\"";
+					valImporteImpTras = "\" ElValorDelCampoImporteCorrespondienteATrasladoDebeTenerLaCantidadDeDecimalesQueSoportaLaMoneda=\"" + lineas[3].trim() + "\" ";
 				}
 			}
 			
@@ -1901,7 +1901,7 @@ public class ConvertirV3_3
 							importeLine = "\" ElValorDelCampoTotalImpuestosRetenidosDebeSerIgualALaSumaDeLosImportesRegistradosEnElElementoHijoRetencion=\"" + lineas[2].trim();
 						}else{
 							if(UtilCatalogos.decimalesValidationMsj(lineas[2].trim(), tags.decimalesMoneda)){
-								importeLine = "\" Importe=\"" + lineas[2].trim();
+								importeLine = "\" Importe=\"" + lineas[2].trim() ;
 							}else{
 								importeLine = "\" ElValorDelCampoImporteCorrespondienteARetencionDebeTenerLaCantidadDeDecimalesQueSoportaLaMoneda=\"" + lineas[2].trim();
 							}
