@@ -1923,7 +1923,7 @@ public class GeneraXML_ECBDSV3_3 {
 	private static void evaluateAddError(String item) {
 		String err = UtilCatalogos.errorMessage.get(item);
 		if (err != null && !err.isEmpty()) {
-			UtilCatalogos.lstErrors.append("\n\t").append(err);
+			UtilCatalogos.lstErrors.append(err).append("\n\t");
 		}
 	}
 	public static void EvaluateNodesError(Element docEle) {
@@ -2839,11 +2839,12 @@ public class GeneraXML_ECBDSV3_3 {
 		logger.info("mLlovera: typeIncidence:"+typeIncidence);
 		logger.info("mLlovera: error:"+e);
 		if(typeIncidence.equals("ERROR"))
-		{	temp = "Error: " + e + "\r\n";	} 
+		{	temp = "Error: ".concat(e).concat("\r\n");	} 
 		else 
-		{	temp = "Warning: " + e + "\r\n";	}
-		temp += "Inicio de CFD: " + startLine + "\r\n";
+		{	temp = "Warning: ".concat(e).concat("\r\n");	}
+		temp = temp.concat("Inicio de CFD: ").concat(startLine).concat("\r\n");
 		logger.info("mLlovera: temp:"+temp);
+		//temp = temp.replace("\n", System.getProperty("line.separator"));
 		incidencia.write(temp.getBytes("UTF-8"));
 		temp = null;
 		long t2 = t1- System.currentTimeMillis();
