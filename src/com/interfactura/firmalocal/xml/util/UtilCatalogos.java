@@ -607,7 +607,8 @@ public class UtilCatalogos
 							System.out.println("Val Impor Conce Antes " + importeCon);
 							importeConNum = Double.parseDouble(importeCon);
 							System.out.println("Val Impor Conce " + valTasaNum);
-							importeTrasladoMul = (valTasaNum*importeConNum) + importeConNum;
+//							importeTrasladoMul = (valTasaNum*importeConNum) + importeConNum;
+							importeTrasladoMul = (valTasaNum*importeConNum);
 							System.out.println("Val Impor Traslado " + importeTrasladoMul);
 							if(mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal1().equalsIgnoreCase("001")){
 								responseMap.put("ISR", true);
@@ -792,7 +793,8 @@ public class UtilCatalogos
 							System.out.println("Val Impor Conce Antes Reten " + importeCon);
 							importeConNum = Double.parseDouble(importeCon);
 							System.out.println("Val Impor Conce Reten " + valTasaNum);
-							importeTrasladoMul = (valTasaNum*importeConNum) + importeConNum;
+//							importeTrasladoMul = (valTasaNum*importeConNum) + importeConNum;
+							importeTrasladoMul = (valTasaNum*importeConNum);
 							System.out.println("Val Impor Retencion " + importeTrasladoMul);
 							if(mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal1().equalsIgnoreCase("001")){
 								responseMap.put("ISR", true);
