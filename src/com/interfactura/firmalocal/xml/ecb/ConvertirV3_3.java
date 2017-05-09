@@ -1104,7 +1104,8 @@ public class ConvertirV3_3
 							     if(!m.find()){
 							    	 //RFC no valido
 							    	 System.out.println("PATTERN REGEX NO ES Valido el RegIdTrib:  " + valRegIdTrib + " : " + valPais + " : " + patternReg);
-							    	 numRegIdTribReceptor = " ElValorRegistroIdAtributarioNoCumpleConElPatronCorrespondiente=\"" + valRegIdTrib + "\"";
+//							    	 numRegIdTribReceptor = " ErrReceNumRegIdTrib001=\"" + valRegIdTrib + "\"";
+							    	 numRegIdTribReceptor = " ErrReceNumRegIdTrib001=\"" + " " + "\"";
 							     }else{
 							    	 numRegIdTribReceptor = " NumRegIdTrib=\"" + valRegIdTrib + "\"";
 							     }
@@ -1113,7 +1114,8 @@ public class ConvertirV3_3
 						}
 						
 					}else{
-						numRegIdTribReceptor = " NoSeHaEncontradoElReceptorRelacionadoConNumRegIdTribElRFCDelReceptorDebeDeSerUnGenericoExtranjero=\"" + tags.RECEPCION_RFC + "\"";
+//						numRegIdTribReceptor = " ErrReceNumRegIdTrib002=\"" + tags.RECEPCION_RFC + "\"";
+						numRegIdTribReceptor = " ErrReceNumRegIdTrib002=\"" + " " + "\"";
 					}
 				}
 
