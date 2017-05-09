@@ -1896,6 +1896,25 @@ public class ConvertirV3_3
 					
 					Double totImpTra = 0.00;
 					Double importeDou = 0.00;
+					Double valConepto = 0.00;
+					
+					if(claveImpRet.equalsIgnoreCase("001")){
+						System.out.println("Valor Suma Impuesto Retencion ISR AMDA : " + tags.sumRetTotalIsr);
+						if(tags.sumRetTotalIsr.trim().length() > 0){
+							valConepto = Double.parseDouble(tags.sumRetTotalIsr);
+						}
+					}else if(claveImpRet.equalsIgnoreCase("002")){
+						System.out.println("Valor Suma Impuesto Retencion IVA AMDA : " + tags.sumRetTotalIva);
+						if(tags.sumRetTotalIva.trim().length() > 0){
+							valConepto = Double.parseDouble(tags.sumRetTotalIva);
+						}
+					}else if(claveImpRet.equalsIgnoreCase("003")){
+						System.out.println("Valor Suma Impuesto Retencion IEPS AMDA : " + tags.sumRetTotalIeps);
+						if(tags.sumRetTotalIeps.trim().length() > 0){
+							valConepto = Double.parseDouble(tags.sumRetTotalIeps);
+						}
+					}
+					
 					try{
 						totImpTra = Double.parseDouble(tags.TOTAL_IMP_RET);
 						importeDou = Double.parseDouble(lineas[2].trim());

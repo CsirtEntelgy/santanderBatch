@@ -590,7 +590,12 @@ public class UtilCatalogos
 						
 						if(mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal3() != null){
 							System.out.println("Val Tasa No nulo");
-							valTasa = mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal3();
+							if(mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal3().length() > 0){
+								valTasa = mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal3();
+							}else{
+								System.out.println("Val Tasa vacio length");
+								valTasa = "vacio";
+							}
 						}else{
 							System.out.println("Val Tasa nulo");
 							valTasa = "vacio";
@@ -614,15 +619,15 @@ public class UtilCatalogos
 							System.out.println("Val Impor Traslado " + importeTrasladoMul);
 							if(mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal1().equalsIgnoreCase("001")){
 								responseMap.put("ISR", true);
-								sumTotalIsr += sumTotalIsr;
+								sumTotalIsr = sumTotalIsr + importeTrasladoMul;
 								System.out.println("Val sumTotalIsr Traslado " + sumTotalIsr);
 							}else if(mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal1().equalsIgnoreCase("002")){
 								responseMap.put("IVA", true);
-								sumTotalIva += sumTotalIva;
+								sumTotalIva = sumTotalIva + importeTrasladoMul;
 								System.out.println("Val sumTotalIva Traslado " + sumTotalIva);
 							}else if(mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal1().equalsIgnoreCase("003")){
 								responseMap.put("IEPS", true);
-								sumTotalIeps += sumTotalIeps;
+								sumTotalIeps = sumTotalIeps + importeTrasladoMul;
 								System.out.println("Val sumTotalIeps Traslado " + sumTotalIeps);
 							}
 							
@@ -776,7 +781,13 @@ public class UtilCatalogos
 						
 						if(mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal3() != null){
 							System.out.println("Val Tasa No nulo Reten");
-							valTasa = mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal3();
+							if(mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal3().length() > 0){
+								valTasa = mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal3();
+							}else{
+								System.out.println("Val Tasa vacio length Reten");
+								valTasa = "vacio";
+							}
+							
 						}else{
 							System.out.println("Val Tasa nulo Reten");
 							valTasa = "vacio";
@@ -800,15 +811,15 @@ public class UtilCatalogos
 							System.out.println("Val Impor Retencion " + importeTrasladoMul);
 							if(mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal1().equalsIgnoreCase("001")){
 								responseMap.put("ISR", true);
-								sumTotalIsr += sumTotalIsr;
+								sumTotalIsr = sumTotalIsr + importeTrasladoMul;
 								System.out.println("Val sumTotalIsr Retencion " + sumTotalIsr);
 							}else if(mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal1().equalsIgnoreCase("002")){
 								responseMap.put("IVA", true);
-								sumTotalIva += sumTotalIva;
+								sumTotalIva = sumTotalIva + importeTrasladoMul;
 								System.out.println("Val sumTotalIva Retencion " + sumTotalIva);
 							}else if(mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal1().equalsIgnoreCase("003")){
 								responseMap.put("IEPS", true);
-								sumTotalIeps += sumTotalIeps;
+								sumTotalIeps = sumTotalIeps + importeTrasladoMul;
 								System.out.println("Val sumTotalIeps Retencion " + sumTotalIeps);
 							}
 							
