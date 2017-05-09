@@ -44,14 +44,13 @@ public class UtilCatalogos
 {
 	public static final Map<String, String> errorMessage = new HashMap<String, String>();
 	public static StringBuffer lstErrors = new StringBuffer();
-	static{
-		errorMessage.put("ErrCompMoneda", "El valor de este campo SubTotal excede la cantidad de decimales que soporta la moneda.");
-		errorMessage.put("ErrCompSubTotal001", "Clave=\"ErrCompSubTotal001\" Mensaje=\"No se permiten campos negativos en el campo Subtotal\"");
-		errorMessage.put("ErrCompSubTotal002", "Clave=\"ErrCompSubTotal002\" Mensaje=\"El TipoDeComprobante es T o P y el importe no es igual a 0, o cero con decimales.\"");
-		errorMessage.put("ErrCompSubTotal003", "Clave=\"ErrCompSubTotal003\" Mensaje=\"El valor de este campo SubTotal excede la cantidad de decimales que soporta la moneda.\"");
-		errorMessage.put("ErrCompSubTotal004", "Clave=\"ErrCompSubTotal004\" Mensaje=\"El valor del campo SubTotal viene vacio o no es numerico.\"");
-	}
-	
+	static {
+        errorMessage.put("ErrCompMoneda", "El valor de este campo SubTotal excede la cantidad de decimales que soporta la moneda.");
+        errorMessage.put("ErrCompSubTotal001", "Clave=\"ErrCompSubTotal001\" Nodo=\"Comprobante\" Mensaje=\"No se permiten campos negativos en el campo Subtotal\"");
+        errorMessage.put("ErrCompSubTotal002", "Clave=\"ErrCompSubTotal002\" Nodo=\"Comprobante\"  Mensaje=\"El TipoDeComprobante es T o P y el importe no es igual a 0, o cero con decimales.\"");
+        errorMessage.put("ErrCompSubTotal003", "Clave=\"ErrCompSubTotal003\" Nodo=\"Comprobante\"  Mensaje=\"El valor de este campo SubTotal excede la cantidad de decimales que soporta la moneda.\"");
+        errorMessage.put("ErrCompSubTotal004", "Clave=\"ErrCompSubTotal004\" Nodo=\"Comprobante\"  Mensaje=\"El valor del campo SubTotal viene vacio o no es numerico.\"");
+    }
 	// Validacion Tipo de comprobante AMDA
 		public static String findTipoComprobante(Map<String, ArrayList<CatalogosDom>> mapCatalogos, String value){
 			
