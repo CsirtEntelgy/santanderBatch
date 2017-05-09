@@ -12,6 +12,7 @@ import java.io.RandomAccessFile;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -29,9 +30,13 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.validation.ValidatorHandler;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 
 import org.apache.log4j.Logger;
-import org.apache.openjpa.lib.log.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.FileCopyUtils;
@@ -50,8 +55,8 @@ import com.interfactura.firmalocal.domain.entities.SealCertificate;
 import com.interfactura.firmalocal.xml.Properties;
 import com.interfactura.firmalocal.xml.WebServiceCliente;
 import com.interfactura.firmalocal.xml.file.XMLProcess;
-import com.interfactura.firmalocal.xml.util.Util;
 import com.interfactura.firmalocal.xml.util.NombreAplicativo;
+import com.interfactura.firmalocal.xml.util.Util;
 import com.interfactura.firmalocal.xml.util.UtilCatalogos;
 
 @Component
@@ -1923,7 +1928,8 @@ public class GeneraXML_ECBDSV3_3 {
 	private static void evaluateAddError(String item) {
 		String err = UtilCatalogos.errorMessage.get(item);
 		if (err != null && !err.isEmpty()) {
-			UtilCatalogos.lstErrors.append(err).append("\n\t");
+			UtilCatalogos.lstErrors.append("\t*").append(err)
+					.append(System.getProperty("line.separator"));
 		}
 	}
 	public static void EvaluateNodesError(Element docEle) {
@@ -1949,6 +1955,45 @@ public class GeneraXML_ECBDSV3_3 {
 			}
 		}
 	}
+	
+	private static NodeList getNodesByExpression(Document doc, String expression) throws XPathExpressionException {
+        XPathFactory xPathfactory = XPathFactory.newInstance();
+        XPath xpath = xPathfactory.newXPath();
+        XPathExpression expr = xpath.compile(expression);
+        NodeList nl = (NodeList) expr.evaluate(doc, XPathConstants.NODESET);
+        return nl;
+    }
+    
+    private static Double getDoubleByExpression(Document doc, String expression) throws XPathExpressionException {
+        XPathFactory xPathfactory = XPathFactory.newInstance();
+        XPath xpath = xPathfactory.newXPath();
+        XPathExpression expr = xpath.compile(expression);
+        Double nl = (Double) expr.evaluate(doc, XPathConstants.NUMBER);
+        return nl;
+    }
+    
+    private static void evaluateCalulation(Document doc) throws XPathExpressionException, Exception {
+        BigDecimal compTotal = BigDecimal.valueOf(getDoubleByExpression(doc, "//Comprobante/@Total"));
+        StringBuilder sb = new StringBuilder("sum(//Comprobante/Conceptos/Concepto/@Importe)");
+        sb.append("+sum(//Comprobante/Conceptos/Concepto/Impuestos/Traslados/Traslado/@Importe)");
+        BigDecimal traslados = BigDecimal.valueOf(getDoubleByExpression(doc, sb.toString()));
+        sb = new StringBuilder("sum(//Comprobante/Conceptos/Concepto/Impuestos/Retenciones/Retencion/@Importe)");
+        BigDecimal retenciones = BigDecimal.valueOf(getDoubleByExpression(doc, sb.toString()));
+        System.out.println("traslados=" + traslados);
+        System.out.println("retenciones=" + retenciones);
+        BigDecimal totalOper = traslados.add(retenciones.multiply(BigDecimal.valueOf(-1)));
+        System.out.println("compTotal:" + compTotal);
+        System.out.println("totalOper:" + totalOper);
+        if (compTotal.equals(totalOper)) {
+
+        } else {
+            throw new Exception("El campo Total no corresponde con la suma del subtotal, menos los descuentos aplicables, más las contribuciones recibidas (impuestos trasladados - federales o locales, derechos, productos, aprovechamientos, aportaciones de seguridad social, contribuciones de mejoras) menos los impuestos retenidos.");
+        }
+
+        System.out.println("totalOper=" + totalOper);
+        System.out.println("compTotal=" + compTotal);
+        System.out.println("Comptaracion=" + compTotal.equals(totalOper));
+    }
 			
 	/**
 	 * Finaliza la creacion del ECB
@@ -1985,6 +2030,7 @@ public class GeneraXML_ECBDSV3_3 {
 				if(!UtilCatalogos.lstErrors.toString().isEmpty()){
 					throw new Exception(UtilCatalogos.lstErrors.toString());
 				}
+				evaluateCalulation(doc);
 				/*Fin Validaciones 3.3*/
 				
 				long t2 = t1- System.currentTimeMillis();

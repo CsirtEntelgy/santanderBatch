@@ -38,6 +38,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 
+
 import com.interfactura.firmalocal.xml.CatalogosDom;
 
 public class UtilCatalogos 
