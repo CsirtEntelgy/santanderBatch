@@ -2425,9 +2425,15 @@ public class GeneraXML_ECBDSV3_3 {
 				"||" + strVersion + "|" + strUUID + "|" + strFechaTimbrado + "|" + objECB.getSeal() + "|" + strNoCertificadoSAT + "||", 
 				"CADENA_TIMBRE",
 				Integer.parseInt(objECB.getTagLONGITUD())));	
-		
-		temp = "COD_B|?re=" + strEmisorRFC + "&rr=" + strReceptorRFC  + "&tt=" + strTotalZeros + "&id=" + strUUID + "\r\n";
-		this.salida.write(temp.getBytes("UTF-8"));
+		StringBuffer sbConcat = new StringBuffer("https://verificacfdi.facturaelectronica.sat.gob.mx/default.aspx");
+		sbConcat.append("&id=").append(strUUID);
+		sbConcat.append("&re=").append(strEmisorRFC);
+		sbConcat.append("&rr=").append(strReceptorRFC);
+		sbConcat.append("&tt=").append(strTotalZeros);
+		sbConcat.append("&fe=").append(strSelloSAT.substring(strSelloSAT.length() - 8));
+		//temp = "COD_B|https://verificacfdi.facturaelectronica.sat.gob.mx/default.aspx&?re=" + strEmisorRFC + "&rr=" + strReceptorRFC  + "&tt=" + strTotalZeros + "&id=" + strUUID + "\r\n";
+		this.salida.write(Util.selloCadena(sbConcat.toString(), "COD_B", Integer.parseInt(objECB.getTagLONGITUD())));
+		//this.salida.write(temp.getBytes("UTF-8"));
 		
 		
 		if(!fileNames.trim().equals("CFDREPROCESOECB"))

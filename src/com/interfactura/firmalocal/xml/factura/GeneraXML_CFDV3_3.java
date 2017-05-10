@@ -1344,8 +1344,8 @@ public class GeneraXML_CFDV3_3
 							String xmlTimbrado = xmlTimbradoConPipe.substring(0, xmlTimbradoConPipe.length()-1);
 							
 							logger.info("XML Timbrado: " + xmlTimbrado);
-							
-							//Convertir de string a Document
+							xmlTimbrado = xmlTimbrado.replace("IdRespuesta=\"1\"><?xml version=\"1.0\" encoding=\"UTF-8\"?>", "IdRespuesta=\"1\">");
+				            //Convertir de string a Document
 				            Document dom = stringToDocument(xmlTimbrado);
 				            // Se verifica si la respuesta del web service fue correcta
 				            Element docEle = dom.getDocumentElement();
