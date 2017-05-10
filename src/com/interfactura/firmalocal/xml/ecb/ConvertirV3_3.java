@@ -1710,6 +1710,11 @@ public class ConvertirV3_3
 				tags.atributoTotalImpuestosTras = false;
 			}
 
+//			if(tags.tipoComprobante.equalsIgnoreCase("T") || tags.tipoComprobante.equalsIgnoreCase("P")){
+//				
+//			}else{
+//				
+//			}
 			
 			return Util
 					.conctatArguments(
@@ -1824,12 +1829,18 @@ public class ConvertirV3_3
 							}
 						}
 					}
-					
+					boolean valid = false;
 					try{
 						totImpTra = Double.parseDouble(tags.TOTAL_IMP_TRA);
 						importeDou = Double.parseDouble(lineas[3].trim());
+						if(!(valConepto > importeDou) && !(valConepto < importeDou) ){
+							valid = true;
+							System.out.println("Importes TRUE TASLADOS : ");
+						}
 						if(totImpTra > importeDou || totImpTra < importeDou){
 							valImporteImpTras = "\" ElValorDelCampoTotalImpuestosTrasladoNoEsIgualALaSumaDeLosImportesRegistradosEnElElementoHijoTraslado=\"" + lineas[3].trim()+ "\" ";
+						}else if(!valid){
+							valImporteImpTras = "\" ErrImpTraImporte001=\"" + lineas[3].trim();
 						}else{
 							if(UtilCatalogos.decimalesValidationMsj(lineas[3].trim(), tags.decimalesMoneda)){
 								valImporteImpTras = "\" Importe=\"" + lineas[3].trim()+ "\" ";
@@ -1912,6 +1923,8 @@ public class ConvertirV3_3
 				}else{
 					impuestoLine = " ElCampoImpuestoDeRetencionNoContieneUnValorDelCatalogoc_Impuesto=\"" + claveImpRet;
 				}
+			}else{
+				impuestoLine = " ElCampoImpuestoDeRetencionNoContieneUnValorDelCatalogoc_Impuesto=\"" + "";
 			}
 			
 //			String elementRetencion = "\n<cfdi:Retenciones>" +
@@ -1962,14 +1975,14 @@ public class ConvertirV3_3
 						totImpRet = Double.parseDouble(tags.TOTAL_IMP_RET);
 						System.out.println("Valor Imp Retenidoss : " + lineas[2].trim());
 						importeDou = Double.parseDouble(lineas[2].trim());
-						if(valConepto == totImpRet ){
+						if(!(valConepto > importeDou) && !(valConepto < importeDou) ){
 							valid = true;
 							System.out.println("Importes TRUE RETENCIONES : ");
 						}
 						if(totImpRet > importeDou || totImpRet < importeDou){
 							importeLine = "\" ElValorDelCampoTotalImpuestosRetenidosDebeSerIgualALaSumaDeLosImportesRegistradosEnElElementoHijoRetencion=\"" + lineas[2].trim();
-//						}else if(!valid){
-//							importeLine = "\" ElCampoImporteCorrespondienteARetenciónNoEsIgualALaSumaDeLosImportesDeLosImpuestosRetenidosRegistradosEnLosConceptosDondeElImpuestoSeaIgualAlCampoImpuestoDeEsteElemento=\"" + lineas[2].trim();
+						}else if(!valid){
+							importeLine = "\" ErrImpRetImporte001=\"" + lineas[2].trim();
 						}else{
 							if(UtilCatalogos.decimalesValidationMsj(lineas[2].trim(), tags.decimalesMoneda)){
 								importeLine = "\" Importe=\"" + lineas[2].trim() ;

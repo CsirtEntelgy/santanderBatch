@@ -73,6 +73,10 @@ public class UtilCatalogos
         errorMessage.put("ErrCompResidenciaFiscal003", "Clave=\"ErrCompResidenciaFiscal003\" Nodo=\"Receptor\" Mensaje=\"El valor del campo ResidenciaFiscal no puede ser MEX\"");
         errorMessage.put("ErrCompResidenciaFiscal004", "Clave=\"ErrCompResidenciaFiscal004\" Nodo=\"Receptor\" Mensaje=\"El valor del campo ResidenciaFiscal no puede ser MEX\"");
         
+        errorMessage.put("ErrImpTraImporte001", "Clave=\"ErrImpTraImporte001\" Nodo=\"Impuestos\" Mensaje=\"El Campo Importe Correspondiente A Traslados No Es Igual A La Suma De Los Importes De Los Impuestos Traslados Registrados En Los Conceptos Donde El Impuesto Sea Igual Al Campo Impuesto De Este Elemento\"");
+        errorMessage.put("ErrImpRetImporte001", "Clave=\"ErrImpRetImporte001\" Nodo=\"Impuestos\" Mensaje=\"El Campo Importe Correspondiente A Retención No Es Igual A La Suma De Los Importes De Los Impuestos Retenidos Registrados En Los Conceptos Donde El Impuesto Sea Igual Al Campo Impuesto De Este Elemento\"");
+        
+        
         
         }
 	// Validacion Tipo de comprobante AMDA
@@ -724,13 +728,13 @@ public class UtilCatalogos
 //						break;
 					}else{
 						// La tasaOCuota no se encontro en el catalogo
-//						response = "\n<cfdi:Traslado Base=\"" + "0.00" +
-//								   "\" Impuesto=\"" + "001" +
-//								   "\" TipoFactor=\"" + "Tasa" +
-//								   "\" ElValorDelCampoTasaOCuotaQueCorrespondeATrasladoNoContieneUnValorDelCatalogoc_TasaOCuota=\"" + "0.000" +
-//								   "\" Importe=\"" + "0.00" + "\" " +
-//								   " />" ;
-						response = "";
+						response = "\n<cfdi:Traslado Base=\"" + "0.00" +
+								   "\" Impuesto=\"" + "001" +
+								   "\" TipoFactor=\"" + "Tasa" +
+								   "\" ElValorDelCampoTasaOCuotaQueCorrespondeATrasladoNoContieneUnValorDelCatalogoc_TasaOCuota=\"" + "0.000" +
+								   "\" Importe=\"" + "0.00" + "\" " +
+								   " />" ;
+//						response = "";
 					}
 					response = nodocon;
 				}
@@ -927,13 +931,13 @@ public class UtilCatalogos
 //						response = response + nodocon;
 //						break;
 					}else{
-//						response = "\n<cfdi:Retencion Base=\"" + "0.00" +
-//								   "\" Impuesto=\"" + "001" +
-//								   "\" TipoFactor=\"" + "Tasa" +
-//								   "\" ElValorDelCampoTasaOCuotaQueCorrespondeARetencionNoContieneUnValorDelCatalogoc_TasaOCuota=\"" + "0.000" +
-//								   "\" Importe=\"" + "0.00" + "\" " +
-//								   " />" ;
-						response = "";
+						response = "\n<cfdi:Retencion Base=\"" + "0.00" +
+								   "\" Impuesto=\"" + "001" +
+								   "\" TipoFactor=\"" + "Tasa" +
+								   "\" ElValorDelCampoTasaOCuotaQueCorrespondeARetencionNoContieneUnValorDelCatalogoc_TasaOCuota=\"" + "0.000" +
+								   "\" Importe=\"" + "0.00" + "\" " +
+								   " />" ;
+//						response = "";
 					}
 					response = nodocon;
 				}
