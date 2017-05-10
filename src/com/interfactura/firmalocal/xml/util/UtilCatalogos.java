@@ -873,7 +873,9 @@ public class UtilCatalogos
 							String tasaOCutoaLine = "";
 							String importeLine = "";
 							if(mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal2() != null){
+								System.out.println("Antes BuscarTipoFactor : " + mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal2());
 								tipoFactorValue= findValTipoFactorByDescRet(mapCatalogos, mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal2());
+								System.out.println("Despues BuscarTipoFactor : " + tipoFactorValue);
 								if(!tipoFactorValue.equalsIgnoreCase("vacio")){
 									tipoFactorLine = "\" TipoFactor=\"" + tipoFactorValue;
 									
@@ -900,7 +902,7 @@ public class UtilCatalogos
 									tipoFactorLine = "\" ElValorDelCampoTipoFactorQueCorrespondeARetencionNoContieneUnValorDelCatalogoc_TipoFactor=\"" + tipoFactorValue;
 								}
 							}else{
-								tipoFactorLine = "\" ElValorDelCampoTipoFactorQueCorrespondeARetencionNoContieneUnValorDelCatalogoc_TipoFactor=\"" + mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal2();
+								tipoFactorLine = "\" ElValorTipoFactorQueCorrespondeARetencionNoContieneUnValorDelCatalogoc_TipoFactor=\"" + mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal2();
 							}
 							
 							nodocon +=  "\n<cfdi:Retencion " + baseCamp +
