@@ -1795,6 +1795,36 @@ public class ConvertirV3_3
 //					valImporteImpTras = "\" Importe=\"" +lineas[3].trim() + "\"";
 					Double totImpTra = 0.00;
 					Double importeDou = 0.00;
+					Double valConepto = 0.00;
+					if(claveImp.equalsIgnoreCase("001")){
+						System.out.println("Valor Suma Impuesto Traslado ISR AMDA : " + tags.sumTraTotalIsr);
+						if(tags.sumTraTotalIsr.trim().length() > 0){
+							try{
+								valConepto = Double.parseDouble(tags.sumTraTotalIsr);
+							}catch(NumberFormatException e){
+								System.out.println("Valor Suma Impuesto Traslado ISR no es numerico al parecer AMDA : " + tags.sumTraTotalIsr);
+							}
+						}
+					}else if(claveImp.equalsIgnoreCase("002")){
+						System.out.println("Valor Suma Impuesto Traslado IVA AMDA : " + tags.sumTraTotalIva);
+						if(tags.sumTraTotalIva.trim().length() > 0){
+							try{
+								valConepto = Double.parseDouble(tags.sumTraTotalIva);
+							}catch(NumberFormatException e){
+								System.out.println("Valor Suma Impuesto Traslado IVA no es numerico al parecer AMDA : " + tags.sumTraTotalIva);
+							}
+						}
+					}else if(claveImp.equalsIgnoreCase("003")){
+						System.out.println("Valor Suma Impuesto Traslado IEPS AMDA : " + tags.sumTraTotalIeps);
+						if(tags.sumTraTotalIeps.trim().length() > 0){
+							try{
+								valConepto = Double.parseDouble(tags.sumTraTotalIeps);
+							}catch(NumberFormatException e){
+								System.out.println("Valor Suma Impuesto Traslado IEPS no es numerico al parecer AMDA : " + tags.sumTraTotalIeps);
+							}
+						}
+					}
+					
 					try{
 						totImpTra = Double.parseDouble(tags.TOTAL_IMP_TRA);
 						importeDou = Double.parseDouble(lineas[3].trim());

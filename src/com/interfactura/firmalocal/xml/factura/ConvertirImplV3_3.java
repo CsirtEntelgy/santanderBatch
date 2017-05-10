@@ -1312,10 +1312,60 @@ public class ConvertirImplV3_3
 			if(valTipoFactor.equalsIgnoreCase("Tasa") || valTipoFactor.equalsIgnoreCase("Cuota")){
 				System.out.println("Valor Importe AMDA T : " + tokens[3].trim() );
 				if(tokens[3].trim().length() > 0){
-					if(UtilCatalogos.decimalesValidationMsj(tokens[3].trim(), tags.decimalesMoneda)){
-						valImporteImpTras = "\" Importe=\"" +tokens[3].trim() + "\"";
-					}else{
-						valImporteImpTras = "\" ElValorDelCampoImporteCorrespondienteATrasladoDebeTenerLaCantidadDeDecimalesQueSoportaLaMoneda=\"" +tokens[3].trim() + "\"";
+					Double totImpTra = 0.00;
+					Double importeDou = 0.00;
+					Double valConepto = 0.00;
+					if(claveImp.equalsIgnoreCase("001")){
+						System.out.println("Valor Suma Impuesto Traslado ISR AMDA : " + tags.sumTraTotalIsr);
+						if(tags.sumTraTotalIsr.trim().length() > 0){
+							try{
+								valConepto = Double.parseDouble(tags.sumTraTotalIsr);
+							}catch(NumberFormatException e){
+								System.out.println("Valor Suma Impuesto Traslado ISR no es numerico al parecer AMDA : " + tags.sumTraTotalIsr);
+							}
+						}
+					}else if(claveImp.equalsIgnoreCase("002")){
+						System.out.println("Valor Suma Impuesto Traslado IVA AMDA : " + tags.sumTraTotalIva);
+						if(tags.sumTraTotalIva.trim().length() > 0){
+							try{
+								valConepto = Double.parseDouble(tags.sumTraTotalIva);
+							}catch(NumberFormatException e){
+								System.out.println("Valor Suma Impuesto Traslado IVA no es numerico al parecer AMDA : " + tags.sumTraTotalIva);
+							}
+						}
+					}else if(claveImp.equalsIgnoreCase("003")){
+						System.out.println("Valor Suma Impuesto Traslado IEPS AMDA : " + tags.sumTraTotalIeps);
+						if(tags.sumTraTotalIeps.trim().length() > 0){
+							try{
+								valConepto = Double.parseDouble(tags.sumTraTotalIeps);
+							}catch(NumberFormatException e){
+								System.out.println("Valor Suma Impuesto Traslado IEPS no es numerico al parecer AMDA : " + tags.sumTraTotalIeps);
+							}
+						}
+					}
+					
+//					if(UtilCatalogos.decimalesValidationMsj(tokens[3].trim(), tags.decimalesMoneda)){
+//						valImporteImpTras = "\" Importe=\"" +tokens[3].trim() + "\"";
+//					}else{
+//						valImporteImpTras = "\" ElValorDelCampoImporteCorrespondienteATrasladoDebeTenerLaCantidadDeDecimalesQueSoportaLaMoneda=\"" +tokens[3].trim() + "\"";
+//					}
+					
+					try{
+						totImpTra = Double.parseDouble(tags.TOTAL_IMP_TRA);
+						importeDou = Double.parseDouble(tokens[3].trim());
+						if(totImpTra > importeDou || totImpTra < importeDou){
+							valImporteImpTras = "\" ElValorDelCampoTotalImpuestosTrasladoNoEsIgualALaSumaDeLosImportesRegistradosEnElElementoHijoTraslado=\"" + tokens[3].trim()+ "\" ";
+						}else{
+							if(UtilCatalogos.decimalesValidationMsj(tokens[3].trim(), tags.decimalesMoneda)){
+								valImporteImpTras = "\" Importe=\"" + tokens[3].trim()+ "\" ";
+							}else{
+								valImporteImpTras = "\" ElValorDelCampoImporteCorrespondienteATrasladoDebeTenerLaCantidadDeDecimalesQueSoportaLaMoneda=\"" + tokens[3].trim() + "\" ";
+							}
+						}
+						
+					}catch(NumberFormatException e){
+						System.out.println("Total Importe Traslado Validando total AMDA T Error en Convertido a numerico : " + tags.TOTAL_IMP_TRA);
+						valImporteImpTras = "\" ElValorDelCampoTotalImpuestosTrasladoNoEsIgualALaSumaDeLosImportesRegistradosEnElElementoHijoTraslado=\"" + tokens[3].trim() + "\" ";
 					}
 					
 				}else{
@@ -1390,11 +1440,71 @@ public class ConvertirImplV3_3
 			String importeLine = "";
 			if(tags.atributoTotalImpuestosReten){
 				if(tokens[2].trim().length() > 0){
-					if(UtilCatalogos.decimalesValidationMsj(tokens[2].trim(), tags.decimalesMoneda)){
-						importeLine = "\" Importe=\"" + tokens[2].trim();
-					}else{
-						importeLine = "\" ElValorDelCampoImporteCorrespondienteARetencionDebeTenerLaCantidadDeDecimalesQueSoportaLaMoneda=\"" + tokens[2].trim();
+//					if(UtilCatalogos.decimalesValidationMsj(tokens[2].trim(), tags.decimalesMoneda)){
+//						importeLine = "\" Importe=\"" + tokens[2].trim();
+//					}else{
+//						importeLine = "\" ElValorDelCampoImporteCorrespondienteARetencionDebeTenerLaCantidadDeDecimalesQueSoportaLaMoneda=\"" + tokens[2].trim();
+//					}
+					
+					Double totImpRet = 0.00;
+					Double importeDou = 0.00;
+					Double valConepto = 0.00;
+					
+					if(claveImpRet.equalsIgnoreCase("001")){
+						System.out.println("Valor Suma Impuesto Retencion ISR AMDA : " + tags.sumRetTotalIsr);
+						if(tags.sumRetTotalIsr.trim().length() > 0){
+							try{
+								valConepto = Double.parseDouble(tags.sumRetTotalIsr);
+							}catch(NumberFormatException e){
+								System.out.println("Valor Suma Impuesto Retencion ISR no es numerico al parecer AMDA : " + tags.sumRetTotalIsr);
+							}
+						}
+					}else if(claveImpRet.equalsIgnoreCase("002")){
+						System.out.println("Valor Suma Impuesto Retencion IVA AMDA : " + tags.sumRetTotalIva);
+						if(tags.sumRetTotalIva.trim().length() > 0){
+							try{
+								valConepto = Double.parseDouble(tags.sumRetTotalIva);
+							}catch(NumberFormatException e){
+								System.out.println("Valor Suma Impuesto Retencion IVA no es numerico al parecer AMDA : " + tags.sumRetTotalIva);
+							}
+						}
+					}else if(claveImpRet.equalsIgnoreCase("003")){
+						System.out.println("Valor Suma Impuesto Retencion IEPS AMDA : " + tags.sumRetTotalIeps);
+						if(tags.sumRetTotalIeps.trim().length() > 0){
+							try{
+								valConepto = Double.parseDouble(tags.sumRetTotalIeps);
+							}catch(NumberFormatException e){
+								System.out.println("Valor Suma Impuesto Retencion IEPS no es numerico al parecer AMDA : " + tags.sumRetTotalIeps);
+							}
+						}
 					}
+					boolean valid = false;
+					try{
+						System.out.println("Valor Total Imp Retenidoss : " + tags.TOTAL_IMP_RET);
+						totImpRet = Double.parseDouble(tags.TOTAL_IMP_RET);
+						System.out.println("Valor Imp Retenidoss : " + tokens[2].trim());
+						importeDou = Double.parseDouble(tokens[2].trim());
+						if(valConepto == totImpRet ){
+							valid = true;
+							System.out.println("Importes TRUE RETENCIONES : ");
+						}
+						if(totImpRet > importeDou || totImpRet < importeDou){
+							importeLine = "\" ElValorDelCampoTotalImpuestosRetenidosDebeSerIgualALaSumaDeLosImportesRegistradosEnElElementoHijoRetencion=\"" + tokens[2].trim();
+//						}else if(!valid){
+//							importeLine = "\" ElCampoImporteCorrespondienteARetenciónNoEsIgualALaSumaDeLosImportesDeLosImpuestosRetenidosRegistradosEnLosConceptosDondeElImpuestoSeaIgualAlCampoImpuestoDeEsteElemento=\"" + lineas[2].trim();
+						}else{
+							if(UtilCatalogos.decimalesValidationMsj(tokens[2].trim(), tags.decimalesMoneda)){
+								importeLine = "\" Importe=\"" + tokens[2].trim() ;
+							}else{
+								importeLine = "\" ElValorDelCampoImporteCorrespondienteARetencionDebeTenerLaCantidadDeDecimalesQueSoportaLaMoneda=\"" + tokens[2].trim();
+							}
+						}
+						
+					}catch(NumberFormatException e){
+						System.out.println("Total Importe Traslado Validando total AMDA T Error en Convertido a numerico : " + tags.TOTAL_IMP_RET);
+						importeLine = "\" ElValorDelCampoTotalImpuestosRetenidosDebeSerIgualALaSumaDeLosImportesRegistradosEnElElementoHijoRetencion=\"" + tokens[2].trim();
+					}
+					
 				}else{
 					importeLine = "\" ElValorDelCampoImporteCorrespondienteARetencionDebeTenerLaCantidadDeDecimalesQueSoportaLaMoneda=\"" + tokens[2].trim();
 				}
