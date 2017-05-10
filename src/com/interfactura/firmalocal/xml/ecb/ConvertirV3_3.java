@@ -1894,32 +1894,52 @@ public class ConvertirV3_3
 			if(tags.atributoTotalImpuestosReten){
 				if(lineas[2].trim().length() > 0){
 					
-					Double totImpTra = 0.00;
+					Double totImpRet = 0.00;
 					Double importeDou = 0.00;
 					Double valConepto = 0.00;
 					
 					if(claveImpRet.equalsIgnoreCase("001")){
 						System.out.println("Valor Suma Impuesto Retencion ISR AMDA : " + tags.sumRetTotalIsr);
 						if(tags.sumRetTotalIsr.trim().length() > 0){
-							valConepto = Double.parseDouble(tags.sumRetTotalIsr);
+							try{
+								valConepto = Double.parseDouble(tags.sumRetTotalIsr);
+							}catch(NumberFormatException e){
+								System.out.println("Valor Suma Impuesto Retencion ISR no es numerico al parecer AMDA : " + tags.sumRetTotalIsr);
+							}
 						}
 					}else if(claveImpRet.equalsIgnoreCase("002")){
 						System.out.println("Valor Suma Impuesto Retencion IVA AMDA : " + tags.sumRetTotalIva);
 						if(tags.sumRetTotalIva.trim().length() > 0){
-							valConepto = Double.parseDouble(tags.sumRetTotalIva);
+							try{
+								valConepto = Double.parseDouble(tags.sumRetTotalIva);
+							}catch(NumberFormatException e){
+								System.out.println("Valor Suma Impuesto Retencion IVA no es numerico al parecer AMDA : " + tags.sumRetTotalIva);
+							}
 						}
 					}else if(claveImpRet.equalsIgnoreCase("003")){
 						System.out.println("Valor Suma Impuesto Retencion IEPS AMDA : " + tags.sumRetTotalIeps);
 						if(tags.sumRetTotalIeps.trim().length() > 0){
-							valConepto = Double.parseDouble(tags.sumRetTotalIeps);
+							try{
+								valConepto = Double.parseDouble(tags.sumRetTotalIeps);
+							}catch(NumberFormatException e){
+								System.out.println("Valor Suma Impuesto Retencion IEPS no es numerico al parecer AMDA : " + tags.sumRetTotalIeps);
+							}
 						}
 					}
-					
+					boolean valid = false;
 					try{
-						totImpTra = Double.parseDouble(tags.TOTAL_IMP_RET);
+						System.out.println("Valor Total Imp Retenidoss : " + tags.TOTAL_IMP_RET);
+						totImpRet = Double.parseDouble(tags.TOTAL_IMP_RET);
+						System.out.println("Valor Imp Retenidoss : " + lineas[2].trim());
 						importeDou = Double.parseDouble(lineas[2].trim());
-						if(totImpTra > importeDou || totImpTra < importeDou){
+						if(valConepto == totImpRet ){
+							valid = true;
+							System.out.println("Importes TRUE RETENCIONES : ");
+						}
+						if(totImpRet > importeDou || totImpRet < importeDou){
 							importeLine = "\" ElValorDelCampoTotalImpuestosRetenidosDebeSerIgualALaSumaDeLosImportesRegistradosEnElElementoHijoRetencion=\"" + lineas[2].trim();
+//						}else if(!valid){
+//							importeLine = "\" ElCampoImporteCorrespondienteARetenciónNoEsIgualALaSumaDeLosImportesDeLosImpuestosRetenidosRegistradosEnLosConceptosDondeElImpuestoSeaIgualAlCampoImpuestoDeEsteElemento=\"" + lineas[2].trim();
 						}else{
 							if(UtilCatalogos.decimalesValidationMsj(lineas[2].trim(), tags.decimalesMoneda)){
 								importeLine = "\" Importe=\"" + lineas[2].trim() ;

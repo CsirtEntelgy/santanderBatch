@@ -1034,9 +1034,9 @@ public class ConvertirImplV3_3
 			
 			String claveProdServVal = ""; // Fijo por el momento AMDA
 			if(!UtilCatalogos.findClaveProdServbyDesc(tags.mapCatalogos, "Instituciones bancarias").equalsIgnoreCase("vacio")){
-				claveProdServVal = "ClaveProdServ=\"" +UtilCatalogos.findClaveProdServbyDesc(tags.mapCatalogos, "Instituciones bancarias"); // Fijo 84121500 AMDA
+				claveProdServVal = " ClaveProdServ=\"" +UtilCatalogos.findClaveProdServbyDesc(tags.mapCatalogos, "Instituciones bancarias"); // Fijo 84121500 AMDA
 			}else{
-				claveProdServVal = "ElCampoClaveProdServNoContieneUnValorDelCatalogoc_ClaveProdServ=\"" + "vacio"; // Fijo 84121500 AMDA
+				claveProdServVal = " ElCampoClaveProdServNoContieneUnValorDelCatalogoc_ClaveProdServ=\"" + "vacio"; // Fijo 84121500 AMDA
 			}
 			
 			if(elementTraslado.length() > 35 && elementRetencion.length() > 39){
@@ -1191,10 +1191,10 @@ public class ConvertirImplV3_3
 			String totalImpRetLine = "";
 			if(!Util.isNullEmpty(tokens[1].trim())){
 				if(UtilCatalogos.decimalesValidationMsj(tags.TOTAL_IMP_RET, tags.decimalesMoneda)){
-					totalImpRetLine = "\" TotalImpuestosRetenidos=\"" + tags.TOTAL_IMP_RET + "\" ";
+					totalImpRetLine = " TotalImpuestosRetenidos=\"" + tags.TOTAL_IMP_RET + "\" ";
 					tags.atributoTotalImpuestosReten = true;
 				}else{
-					totalImpRetLine = "\" ElValorDelCampoTotalImpuestosRetenidosDebeTenerHastaLaCantidadDeDecimalesQueSoporteLaMoneda=\"" + tags.TOTAL_IMP_RET + "\" ";
+					totalImpRetLine = " ElValorDelCampoTotalImpuestosRetenidosDebeTenerHastaLaCantidadDeDecimalesQueSoporteLaMoneda=\"" + tags.TOTAL_IMP_RET + "\" ";
 					tags.atributoTotalImpuestosReten = false;
 				}
 			}else{
@@ -1204,10 +1204,10 @@ public class ConvertirImplV3_3
 			String totalImpTraLine = "";
 			if(!Util.isNullEmpty(tokens[2].trim())){
 				if(UtilCatalogos.decimalesValidationMsj(tags.TOTAL_IMP_TRA, tags.decimalesMoneda)){
-					totalImpTraLine = "\" TotalImpuestosTrasladados=\"" + tags.TOTAL_IMP_TRA + "\" ";
+					totalImpTraLine = " TotalImpuestosTrasladados=\"" + tags.TOTAL_IMP_TRA + "\" ";
 					tags.atributoTotalImpuestosTras = true;
 				}else{
-					totalImpTraLine = "\" ElValorDelCampoTotalImpuestosTrasladadosDebeTenerHastaLaCantidadDeDecimalesQueSoporteLaMoneda=\"" + tags.TOTAL_IMP_TRA + "\" ";
+					totalImpTraLine = " ElValorDelCampoTotalImpuestosTrasladadosDebeTenerHastaLaCantidadDeDecimalesQueSoporteLaMoneda=\"" + tags.TOTAL_IMP_TRA + "\" ";
 					tags.atributoTotalImpuestosTras = false;
 				}
 			}else{
