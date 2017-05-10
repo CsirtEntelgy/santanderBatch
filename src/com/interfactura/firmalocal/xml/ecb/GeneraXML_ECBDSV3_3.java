@@ -1827,6 +1827,12 @@ public class GeneraXML_ECBDSV3_3 {
 						strSelloCFD = nodo2.getAttributes().getNamedItem("selloCFD").getTextContent().trim();
 						strSelloSAT = nodo2.getAttributes().getNamedItem("selloSAT").getTextContent().trim();
 						strVersion = nodo2.getAttributes().getNamedItem("Version").getTextContent().trim(); // Antes version, Version 3.3 AMDA
+						logger.info("strFechaTimbrado:" + strFechaTimbrado
+								+ ", strUUID:" + strUUID
+								+ ", strNoCertificadoSAT:" + strNoCertificadoSAT
+								+ ", strSelloCFD:" + strSelloCFD
+								+ ", strSelloSAT:" + strSelloSAT
+								+ ", strVersion:" + strVersion);
 					}
 				}				
 			}else if(nodo instanceof Element && nodo.getNodeName().equals("cfdi:Addenda")){
@@ -1935,7 +1941,7 @@ public class GeneraXML_ECBDSV3_3 {
 	private static void evaluateAddError(String item) {
 		String err = UtilCatalogos.errorMessage.get(item);
 		if (err != null && !err.isEmpty()) {
-			UtilCatalogos.lstErrors.append("\t*").append(err)
+			UtilCatalogos.lstErrors.append(err)
 					.append(System.getProperty("line.separator"));
 		}
 	}
@@ -2425,7 +2431,12 @@ public class GeneraXML_ECBDSV3_3 {
 		temp = null;
 		//System.out.println("LONGITUD: " + Integer.parseInt(objECB.getTagLONGITUD()));
 		this.salida.write(Util.selloCadena(objECB.getSeal(), "SELLO", Integer.parseInt(objECB.getTagLONGITUD())));
-						
+		logger.info("strSelloSAT:" + strSelloSAT);
+		String fe = "SIN_SELLO";
+		if (strSelloSAT.length() > 0) {
+			fe = strSelloSAT.substring((strSelloSAT.length() - 8));
+		}
+		
 		this.salida.write(Util.selloCadena(strSelloSAT, "SELLO_SAT", Integer.parseInt(objECB.getTagLONGITUD())));
 		
 		this.salida.write(Util.selloCadena(
@@ -2437,7 +2448,7 @@ public class GeneraXML_ECBDSV3_3 {
 		sbConcat.append("&re=").append(strEmisorRFC);
 		sbConcat.append("&rr=").append(strReceptorRFC);
 		sbConcat.append("&tt=").append(strTotalZeros);
-		sbConcat.append("&fe=").append(strSelloSAT.substring(strSelloSAT.length() - 8));
+		sbConcat.append("&fe=").append(fe);
 		//temp = "COD_B|https://verificacfdi.facturaelectronica.sat.gob.mx/default.aspx&?re=" + strEmisorRFC + "&rr=" + strReceptorRFC  + "&tt=" + strTotalZeros + "&id=" + strUUID + "\r\n";
 		this.salida.write(Util.selloCadena(sbConcat.toString(), "COD_B", Integer.parseInt(objECB.getTagLONGITUD())));
 		//this.salida.write(temp.getBytes("UTF-8"));

@@ -6,15 +6,12 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-
 import java.io.FileOutputStream;
-
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
-
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -24,7 +21,6 @@ import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
@@ -33,6 +29,8 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.validation.ValidatorHandler;
 
 //import oracle.net.ano.Service;
+
+
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,10 +46,8 @@ import com.interfactura.firmalocal.domain.CfdBean;
 import com.interfactura.firmalocal.domain.entities.CFDIssued;
 import com.interfactura.firmalocal.domain.entities.CFDIssuedIn;
 import com.interfactura.firmalocal.domain.entities.FiscalEntity;
-
 import com.interfactura.firmalocal.domain.entities.Iva;
 import com.interfactura.firmalocal.domain.entities.OpenJpa;
-
 import com.interfactura.firmalocal.domain.entities.SealCertificate;
 import com.interfactura.firmalocal.persistence.CFDIssuedIncidenceManager;
 import com.interfactura.firmalocal.persistence.CFDIssuedManager;
@@ -836,8 +832,15 @@ public class GeneraXML_CFDV3_3
 		salida.write(Util.selloCadena("||" + strVersion + "|" + cfdIssued.getFolioSAT() + "|" + strFechaTimbrado + "|" + strSelloSAT + "|" + strNoCertificadoSAT + "||", "CADENA_TIMBRE",
 				(int) Double.parseDouble(cfdBean.getLengthString())));
 		
-		tempLinea = "CODIGO_BIDIMENSIONAL|?re=" + strEmisorRFC + "&rr=" + strReceptorRFC  + "&tt=" + strTotalZeros + "&id=" + cfdIssued.getFolioSAT() + "\r\n";
-		salida.write(tempLinea.getBytes("UTF-8"));
+		//tempLinea = "CODIGO_BIDIMENSIONAL|?re=" + strEmisorRFC + "&rr=" + strReceptorRFC  + "&tt=" + strTotalZeros + "&id=" + cfdIssued.getFolioSAT() + "\r\n";
+		//salida.write(tempLinea.getBytes("UTF-8"));
+		StringBuffer sbConcat = new StringBuffer("https://verificacfdi.facturaelectronica.sat.gob.mx/default.aspx");
+		sbConcat.append("&id=").append(cfdIssued.getFolioSAT());
+		sbConcat.append("&re=").append(strEmisorRFC);
+		sbConcat.append("&rr=").append(strReceptorRFC);
+		sbConcat.append("&tt=").append(strTotalZeros);
+		sbConcat.append("&fe=").append(strSelloSAT.substring(strSelloSAT.length() - 8));
+		salida.write(Util.selloCadena(sbConcat.toString(), "CODIGO_BIDIMENSIONAL", (int) Double.parseDouble(cfdBean.getLengthString())));
 		tempLinea = null;	
 	}
 	/**
