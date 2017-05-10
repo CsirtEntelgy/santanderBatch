@@ -308,8 +308,14 @@ public class ConvertirImplV3_3
 //			tags.SUBTOTAL_MN = tokens[5];
 //			concat.append(" SubTotal=\"" + tokens[5] + "\"");
 			
-			if (!isNullEmpty(tokens[6])) 
-			{	concat.append(" Descuento=\"" + tokens[6] + "\"");	} // Descuento pendiente Validación ADMA V 3.3
+//			if (!isNullEmpty(tokens[6])){	
+//				if(UtilCatalogos.decimalesValidationMsj(tokens[6], tags.decimalesMoneda)){
+//					concat.append(" Descuento=\"" + tokens[6] + "\"");
+//				}else{
+//					concat.append(" ElValorDelCampoDescuentoDebeTenerHastaLaCantidadDeDecimalesQueSoporteLaMoneda=\"" + tokens[6] + "\"");
+//				}
+//					
+//			} // Descuento pendiente Validación ADMA V 3.3
 //			if (!isNullEmpty(tokens[7])) 
 //			{	concat.append(" motivoDescuento=\"" + tokens[7] + "\"");	} // Al Parecer nova Motivo en V 3.3 AMDA
 
@@ -323,7 +329,18 @@ public class ConvertirImplV3_3
 //			}
 
 			tags.FECHA_CFD = Util.convertirFecha(date);
-			concat.append(" Fecha=\"" + tags.FECHA_CFD + "\"");
+			Pattern p = Pattern.compile("[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])T(([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9])");
+			 Matcher m = p.matcher(tags.FECHA_CFD);
+		     
+		     if(!m.find()){
+		    	 //RFC no valido
+		    	 System.out.println("PATTERN REGEX NO ES Valido FECHA:  " + tags.FECHA_CFD);
+//		    	 numRegIdTribReceptor = " ErrReceNumRegIdTrib001=\"" + valRegIdTrib + "\"";
+		    	 concat.append(" ElCampoFechaNoCumpleConElPatronRequerido=\"" + tags.FECHA_CFD + "\"");
+		     }else{
+		    	 concat.append(" Fecha=\"" + tags.FECHA_CFD + "\"");
+		     }
+//			concat.append(" Fecha=\"" + tags.FECHA_CFD + "\"");
 			
 			String tipoComprobanteVal = "";
 			if (tokens[1].equalsIgnoreCase("Nota de Credito")) {
@@ -464,7 +481,7 @@ public class ConvertirImplV3_3
 			    System.out.println("SubTotal: "+  "No es un numero");
 			    concat.append(" SubTotallIncorrectoVieneVacioONoEsUnNumero"+  "=\"" + tags.SUBTOTAL_MN + "\"");
 			}
-			
+			double valTotal = 0.00;
 			tags.TOTAL_MN = tokens[8];
 				if(tipoComprobanteVal.equalsIgnoreCase("T") || tipoComprobanteVal.equalsIgnoreCase("P")){
 					if(tags.decimalesMoneda == 0){
@@ -480,7 +497,7 @@ public class ConvertirImplV3_3
 				}else{
 					System.out.println("Total : " + tags.TOTAL_MN);
 					try {
-					    double valTotal = Double.parseDouble(tags.TOTAL_MN);
+					    valTotal = Double.parseDouble(tags.TOTAL_MN);
 					    if(valTotal<0){
 					       System.out.println("Total: " + " es negativo");
 					    	concat.append(" totalIncorrecto"+ valTotal + "=\"" + tags.TOTAL_MN + "\"");
@@ -506,6 +523,24 @@ public class ConvertirImplV3_3
 					    concat.append(" totalIncorrecto"+  "=\"" + tags.TOTAL_MN + "\"");
 					}
 				}
+				
+				if (!isNullEmpty(tokens[6])){	
+					if(UtilCatalogos.decimalesValidationMsj(tokens[6], tags.decimalesMoneda)){
+						try{
+							double valDesc = Double.parseDouble(tokens[6]);
+							if(valDesc > valTotal){
+								concat.append(" ElValorDelCampoDescuentoEsMayorQueElCampoImporte=\"" + tokens[6] + "\"");
+							}else{
+								concat.append(" Descuento=\"" + tokens[6] + "\"");
+							}
+						}catch(NumberFormatException e){
+							concat.append(" ElCampoImporteEsIncorrectoParaCalcularDescuento=\"" + tokens[6] + "\"");
+						}						
+					}else{
+						concat.append(" ElValorDelCampoDescuentoDebeTenerHastaLaCantidadDeDecimalesQueSoporteLaMoneda=\"" + tokens[6] + "\"");
+					}
+						
+				} // Descuento pendiente Validación ADMA V 3.3
 
 			tags.FACTORAJE_HORA = tokens[10];
 			tags.FACTORAJE_TIPO = tokens[11];
@@ -1349,12 +1384,18 @@ public class ConvertirImplV3_3
 //					}else{
 //						valImporteImpTras = "\" ElValorDelCampoImporteCorrespondienteATrasladoDebeTenerLaCantidadDeDecimalesQueSoportaLaMoneda=\"" +tokens[3].trim() + "\"";
 //					}
-					
+					boolean valid = false;
 					try{
 						totImpTra = Double.parseDouble(tags.TOTAL_IMP_TRA);
 						importeDou = Double.parseDouble(tokens[3].trim());
+						if(!(valConepto > importeDou) && !(valConepto < importeDou) ){
+							valid = true;
+							System.out.println("Importes TRUE TASLADOS : ");
+						}
 						if(totImpTra > importeDou || totImpTra < importeDou){
 							valImporteImpTras = "\" ElValorDelCampoTotalImpuestosTrasladoNoEsIgualALaSumaDeLosImportesRegistradosEnElElementoHijoTraslado=\"" + tokens[3].trim()+ "\" ";
+						}else if(!valid){
+							valImporteImpTras = "\" ErrImpTraImporte001=\"" + tokens[3].trim() + "\" ";
 						}else{
 							if(UtilCatalogos.decimalesValidationMsj(tokens[3].trim(), tags.decimalesMoneda)){
 								valImporteImpTras = "\" Importe=\"" + tokens[3].trim()+ "\" ";
@@ -1484,14 +1525,14 @@ public class ConvertirImplV3_3
 						totImpRet = Double.parseDouble(tags.TOTAL_IMP_RET);
 						System.out.println("Valor Imp Retenidoss : " + tokens[2].trim());
 						importeDou = Double.parseDouble(tokens[2].trim());
-						if(valConepto == totImpRet ){
+						if(totImpRet > importeDou || totImpRet < importeDou){
 							valid = true;
 							System.out.println("Importes TRUE RETENCIONES : ");
 						}
 						if(totImpRet > importeDou || totImpRet < importeDou){
 							importeLine = "\" ElValorDelCampoTotalImpuestosRetenidosDebeSerIgualALaSumaDeLosImportesRegistradosEnElElementoHijoRetencion=\"" + tokens[2].trim();
-//						}else if(!valid){
-//							importeLine = "\" ElCampoImporteCorrespondienteARetenciónNoEsIgualALaSumaDeLosImportesDeLosImpuestosRetenidosRegistradosEnLosConceptosDondeElImpuestoSeaIgualAlCampoImpuestoDeEsteElemento=\"" + lineas[2].trim();
+						}else if(!valid){
+							importeLine = "\" ErrImpRetImporte001=\"" + tokens[2].trim();
 						}else{
 							if(UtilCatalogos.decimalesValidationMsj(tokens[2].trim(), tags.decimalesMoneda)){
 								importeLine = "\" Importe=\"" + tokens[2].trim() ;

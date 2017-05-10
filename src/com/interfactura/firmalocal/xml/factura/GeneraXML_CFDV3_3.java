@@ -329,14 +329,20 @@ public class GeneraXML_CFDV3_3
 			} else if (tokens[0].equals(conver.getTags()._CCONCEPTO)) {
 				out.write(conver.complementoConcepto(tokens, numberLineCFD));
 			} else if (tokens[0].equals(conver.getTags()._IMPUESTOS)) {
-				out.write(conver.impuestos(tokens, numberLineCFD));
+				if(!conver.getTags().tipoComprobante.equalsIgnoreCase("T") || !conver.getTags().tipoComprobante.equalsIgnoreCase("P")){
+					out.write(conver.impuestos(tokens, numberLineCFD));
+				}
 			} else if (tokens[0].equals(conver.getTags()._RETENCION)) {
-				this.beginRETENCIONES(out);
-				out.write(conver.retenciones(tokens, numberLineCFD));
+				if(!conver.getTags().tipoComprobante.equalsIgnoreCase("T") || !conver.getTags().tipoComprobante.equalsIgnoreCase("P")){
+					this.beginRETENCIONES(out);
+					out.write(conver.retenciones(tokens, numberLineCFD));
+				}
 			} else if (tokens[0].equals(conver.getTags()._TRASLADO)) {
-				this.endRETENCIONES(out);
-				this.beginTRASLADOS(out);
-				out.write(conver.traslados(tokens, this.lstIva, numberLineCFD));
+				if(!conver.getTags().tipoComprobante.equalsIgnoreCase("T") || !conver.getTags().tipoComprobante.equalsIgnoreCase("P")){
+					this.endRETENCIONES(out);
+					this.beginTRASLADOS(out);
+					out.write(conver.traslados(tokens, this.lstIva, numberLineCFD));
+				}
 			} else if (tokens[0].equals(conver.getTags()._FACTORAJE)) {
 				this.lstFactoraje.add(conver.factoraje(tokens, numberLineCFD));
 			}

@@ -75,7 +75,7 @@ public class UtilCatalogos
         
         errorMessage.put("ErrImpTraImporte001", "Clave=\"ErrImpTraImporte001\" Nodo=\"Impuestos\" Mensaje=\"El Campo Importe Correspondiente A Traslados No Es Igual A La Suma De Los Importes De Los Impuestos Traslados Registrados En Los Conceptos Donde El Impuesto Sea Igual Al Campo Impuesto De Este Elemento\"");
         errorMessage.put("ErrImpRetImporte001", "Clave=\"ErrImpRetImporte001\" Nodo=\"Impuestos\" Mensaje=\"El Campo Importe Correspondiente A Retención No Es Igual A La Suma De Los Importes De Los Impuestos Retenidos Registrados En Los Conceptos Donde El Impuesto Sea Igual Al Campo Impuesto De Este Elemento\"");
-        
+        errorMessage.put("ErrImpRetConImporte001", "Clave=\"ErrImpRetConImporte001\" Nodo=\"Impuestos\" Mensaje=\"El Valor Del Campo Tipo Factor Que Corresponde A Retencion Debe Ser Distinto De Exento\"");
         
         
         }
@@ -319,6 +319,26 @@ public class UtilCatalogos
 			return response;
 		}
 		
+		//Validacion Encuentra Descripcion del Impuesto por Clave AMDA
+		public static String findDescImpuestoByClave(Map<String, ArrayList<CatalogosDom>> mapCatalogos, String value){
+			String response = "";
+			
+			if(mapCatalogos.size() > 0 && value.trim() != ""){
+				for(int i=0; i<mapCatalogos.get("Impuesto").size(); i++){
+					if(mapCatalogos.get("Impuesto").get(i).getVal1().equalsIgnoreCase(value)){
+						response = mapCatalogos.get("Impuesto").get(i).getVal2();
+						break;
+					}else{
+						response = "vacio";
+					}
+				}
+			}else{
+				response = "vacio";
+			}
+			
+			return response;
+		}
+		
 		//Validacion Encuentra Valor del TipoFactor por descripcion AMDA
 		public static String findValTipoFactorByDesc(Map<String, ArrayList<CatalogosDom>> mapCatalogos, String value){
 			String response = "";
@@ -345,7 +365,8 @@ public class UtilCatalogos
 			
 			if(mapCatalogos.size() > 0 && value.trim() != ""){
 				for(int i=0; i<mapCatalogos.get("TipoFactor").size(); i++){
-					if(mapCatalogos.get("TipoFactor").get(i).getVal1().equalsIgnoreCase(value) && !mapCatalogos.get("TipoFactor").get(i).getVal1().equalsIgnoreCase("Exento")){
+//					if(mapCatalogos.get("TipoFactor").get(i).getVal1().equalsIgnoreCase(value) && !mapCatalogos.get("TipoFactor").get(i).getVal1().equalsIgnoreCase("Exento")){
+					if(mapCatalogos.get("TipoFactor").get(i).getVal1().equalsIgnoreCase(value)){
 						response = mapCatalogos.get("TipoFactor").get(i).getVal1();
 						break;
 					}else{
@@ -689,7 +710,10 @@ public class UtilCatalogos
 								if(!tipoFactorValue.equalsIgnoreCase("vacio")){
 									tipoFactorLine = "\" TipoFactor=\"" + tipoFactorValue;
 									
-									if(!tipoFactorValue.equalsIgnoreCase("Exento")){
+//									if(!tipoFactorValue.equalsIgnoreCase("Exento")){
+										// Descripcion(Tasa, Cuota O Exento), valor de la tasa, descripcion(Traslado O retencion)
+										//Buscando TasaOcuotaCatalogo findTasaOcuotaVal(mapCatalogos, mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal2(), valTasa, mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal4())
+										
 										if(!valTasa.equalsIgnoreCase("vacio")){
 											tasaOCutoaLine = "\" TasaOCuota=\"" + Util.completeZeroDecimals(valTasa, 6);
 										}else{
@@ -697,7 +721,7 @@ public class UtilCatalogos
 										}
 										
 										importeLine = "\" Importe=\"" + decimales(importeTrasladoMul.toString(), decimalesMoneda);
-									}
+//									}
 									
 								}else{
 									tipoFactorLine = "\" ElValorDelCampoTipoFactorQueCorrespondeATrasladoNoContieneUnValorDelCatalogoc_TipoFactor=\"" + tipoFactorValue;
@@ -899,7 +923,7 @@ public class UtilCatalogos
 										}
 										importeLine = "\" Importe=\"" + decimales(importeTrasladoMul.toString(), decimalesMoneda);
 										
-										tipoFactorLine = "\" ElValorDelCampoTipoFactorQueCorrespondeARetencionDebeSerDistintoDeExento=\"" + tipoFactorValue;
+										tipoFactorLine = "\" ErrImpRetConImporte001=\"" + tipoFactorValue;
 									}
 									
 								}else{

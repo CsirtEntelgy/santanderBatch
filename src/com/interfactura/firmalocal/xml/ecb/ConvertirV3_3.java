@@ -690,7 +690,19 @@ public class ConvertirV3_3
 				System.out.println("tags.EMISION_PERIODO " + tags.EMISION_PERIODO);
 				System.out.println("FECHA_CFD " + tags.FECHA_CFD);
 				//concat.append(" fecha=\"" + Util.convertirFecha(tags.EMISION_PERIODO, tags.FECHA_CFD) + "\"");
-				concat.append(" Fecha=\"" + tags.FECHA_CFD + "\"");
+				System.out.println("Validando PATTERN REGEX");
+				Pattern p = Pattern.compile("[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])T(([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9])");
+				 Matcher m = p.matcher(tags.FECHA_CFD);
+			     
+			     if(!m.find()){
+			    	 //RFC no valido
+			    	 System.out.println("PATTERN REGEX NO ES Valido FECHA:  " + tags.FECHA_CFD);
+//			    	 numRegIdTribReceptor = " ErrReceNumRegIdTrib001=\"" + valRegIdTrib + "\"";
+			    	 concat.append(" ElCampoFechaNoCumpleConElPatronRequerido=\"" + tags.FECHA_CFD + "\"");
+			     }else{
+			    	 concat.append(" Fecha=\"" + tags.FECHA_CFD + "\"");
+			     }
+//				concat.append(" Fecha=\"" + tags.FECHA_CFD + "\"");
 				
 				//Doble Sellado
 				System.out.println("TIPO DE COMPROBANTE PRUEBA: " + lineas[1].trim().toUpperCase());
@@ -1840,10 +1852,10 @@ public class ConvertirV3_3
 						if(totImpTra > importeDou || totImpTra < importeDou){
 							valImporteImpTras = "\" ElValorDelCampoTotalImpuestosTrasladoNoEsIgualALaSumaDeLosImportesRegistradosEnElElementoHijoTraslado=\"" + lineas[3].trim()+ "\" ";
 						}else if(!valid){
-							valImporteImpTras = "\" ErrImpTraImporte001=\"" + lineas[3].trim();
+							valImporteImpTras = "\" ErrImpTraImporte001=\"" + lineas[3].trim() + "\" ";
 						}else{
 							if(UtilCatalogos.decimalesValidationMsj(lineas[3].trim(), tags.decimalesMoneda)){
-								valImporteImpTras = "\" Importe=\"" + lineas[3].trim()+ "\" ";
+								valImporteImpTras = "\" Importe=\"" + lineas[3].trim() + "\" ";
 							}else{
 								valImporteImpTras = "\" ElValorDelCampoImporteCorrespondienteATrasladoDebeTenerLaCantidadDeDecimalesQueSoportaLaMoneda=\"" + lineas[3].trim() + "\" ";
 							}
