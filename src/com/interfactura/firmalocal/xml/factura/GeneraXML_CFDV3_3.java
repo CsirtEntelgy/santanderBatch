@@ -1343,7 +1343,7 @@ public class GeneraXML_CFDV3_3
 							// Al parecer aqui se hace el timbrado, AMDA v 3.3 verificar las mayusculas tambien 
 							String xmlTimbrado = xmlTimbradoConPipe.substring(0, xmlTimbradoConPipe.length()-1);
 							
-							System.out.println("XML Timbrado: " + xmlTimbrado);
+							logger.info("XML Timbrado: " + xmlTimbrado);
 							
 							//Convertir de string a Document
 				            Document dom = stringToDocument(xmlTimbrado);
@@ -1365,8 +1365,8 @@ public class GeneraXML_CFDV3_3
 				            //Total del xml timbrado
 				            String strTotal = "";
 				            /*TODO: Poner los valores de los atributos y quitar los valores fijos*/
-				            String descripcion = "ok";//docEle.getAttribute("Descripcion");
-				            String idRespuesta = "1";//docEle.getAttribute("IdRespuesta");
+				            String descripcion = docEle.getAttribute("Descripcion");
+				            String idRespuesta = docEle.getAttribute("IdRespuesta");
 				            
 				            String xmlFinal = "";
 				            

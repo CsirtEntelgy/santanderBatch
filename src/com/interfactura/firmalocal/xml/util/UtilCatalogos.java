@@ -46,14 +46,35 @@ public class UtilCatalogos
 	public static final Map<String, String> errorMessage = new HashMap<String, String>();
 	public static StringBuffer lstErrors = new StringBuffer();
 	static {
-        errorMessage.put("ErrCompMoneda", "El valor de este campo SubTotal excede la cantidad de decimales que soporta la moneda.");
+        errorMessage.put("ErrCompMoneda001", "Clave=\"ErrCompSubTotal001\" Nodo=\"Comprobante\" Mensaje=\"El campo Moneda no contiene un valor del catálogo c_Moneda.\"");
+        errorMessage.put("ErrCompMoneda002", "Clave=\"ErrCompSubTotal002\" Nodo=\"Comprobante\" Mensaje=\"El valor de este campo Moneda excede la cantidad de decimales que soporta la moneda.\"");
+        errorMessage.put("ErrCompTipoCambio001", "Clave=\"ErrCompTipoCambio001\" Nodo=\"Comprobante\" Mensaje=\"El campo TipoCambio no cumple con el patrón requerido.\"");
+        errorMessage.put("ErrCompTipoCambio002", "Clave=\"ErrCompTipoCambio002\" Nodo=\"Comprobante\" Mensaje=\"El campo TipoCambio no esta dentro de los límites establecidos\"");
+        errorMessage.put("ErrCompTipoCambio003", "Clave=\"ErrCompTipoCambio003\" Nodo=\"Comprobante\" Mensaje=\"No se econtro TipoCambio para la moneda relacionada\"");
+        errorMessage.put("ErrCompTipoCambio004", "Clave=\"ErrCompTipoCambio004\" Nodo=\"Comprobante\" Mensaje=\"El campo TipoCambio no tiene el valor \"1\" y la moneda indicada es MXN.\"");
+        errorMessage.put("ErrCompTipoCambio005", "Clave=\"ErrCompTipoCambio005\" Nodo=\"Comprobante\" Mensaje=\"El campo TipoCambio se debe registrar cuando el campo Moneda tiene un valor distinto de MXN y XXX.\"");
+        errorMessage.put("ErrCompTipoCambio006", "Clave=\"ErrCompTipoCambio006\" Nodo=\"Comprobante\" Mensaje=\"El campo TipoCambio no es un valor númerico\"");
+        errorMessage.put("ErrCompTipoComprobante001", "Clave=\"ErrCompTipoComprobante001\" Nodo=\"Comprobante\" Mensaje=\"El campo TipoDeComprobante, no contiene un valor del catálogo c_TipoDeComprobante.\"");
+        errorMessage.put("ErrCompTotal001", "Clave=\"ErrCompTotal001\" Nodo=\"Comprobante\" Mensaje=\"El campo Total no debe ser negativo.\"");
+        errorMessage.put("ErrCompTotal002", "Clave=\"ErrCompTotal002\" Nodo=\"Comprobante\" Mensaje=\"El campo Total no es númerico.\"");
         errorMessage.put("ErrCompSubTotal001", "Clave=\"ErrCompSubTotal001\" Nodo=\"Comprobante\" Mensaje=\"No se permiten campos negativos en el campo Subtotal\"");
         errorMessage.put("ErrCompSubTotal002", "Clave=\"ErrCompSubTotal002\" Nodo=\"Comprobante\"  Mensaje=\"El TipoDeComprobante es T o P y el importe no es igual a 0, o cero con decimales.\"");
         errorMessage.put("ErrCompSubTotal003", "Clave=\"ErrCompSubTotal003\" Nodo=\"Comprobante\"  Mensaje=\"El valor de este campo SubTotal excede la cantidad de decimales que soporta la moneda.\"");
         errorMessage.put("ErrCompSubTotal004", "Clave=\"ErrCompSubTotal004\" Nodo=\"Comprobante\"  Mensaje=\"El valor del campo SubTotal viene vacio o no es numerico.\"");
         errorMessage.put("ErrReceNumRegIdTrib001", "Clave=\"ErrReceNumRegIdTrib001\" Nodo=\"Receptor\"  Mensaje=\"El Valor RegistroIdAtributario No Cumple Con El Patron Correspondiente.\"");
         errorMessage.put("ErrReceNumRegIdTrib002", "Clave=\"ErrReceNumRegIdTrib002\" Nodo=\"Receptor\"  Mensaje=\"No Se Ha Encontrado El Receptor Relacionado Con NumRegIdTrib El RFC Del Receptor Debe De Ser Un Generico Extranjero.\"");
-    }
+        errorMessage.put("ErrCompFormaPago001", "Clave=\"ErrCompFormaPago001\" Nodo=\"Comprobante\" Mensaje=\"El campo FormaPago no contiene un valor del catálogo c_FormaPago. \"");
+        errorMessage.put("ErrCompMetodoPago001", "Clave=\"ErrCompMetodoPago001\" Nodo=\"Comprobante\" Mensaje=\"El campo MetodoPago, no contiene un valor del catálogo c_MetodoPago.\"");
+        
+        errorMessage.put("ErrCompUsoCFDI001", "Clave=\"ErrCompUsoCFDI001\" Nodo=\"Receptor\" Mensaje=\"El campo UsoCFDI, no contiene un valor del catálogo c_UsoCFDI.\"");
+        errorMessage.put("ErrCompResidenciaFiscal001", "Clave=\"ErrCompResidenciaFiscal001\" Nodo=\"Receptor\" Mensaje=\"El valor del campo ResidenciaFiscal no puede ser MEX\"");
+        errorMessage.put("ErrCompResidenciaFiscal002", "Clave=\"ErrCompResidenciaFiscal002\" Nodo=\"Receptor\" Mensaje=\"El campo ResidenciaFiscal, no contiene un valor del catálogo c_Pais\"");
+        
+        errorMessage.put("ErrCompResidenciaFiscal003", "Clave=\"ErrCompResidenciaFiscal003\" Nodo=\"Receptor\" Mensaje=\"El valor del campo ResidenciaFiscal no puede ser MEX\"");
+        errorMessage.put("ErrCompResidenciaFiscal004", "Clave=\"ErrCompResidenciaFiscal004\" Nodo=\"Receptor\" Mensaje=\"El valor del campo ResidenciaFiscal no puede ser MEX\"");
+        
+        
+        }
 	// Validacion Tipo de comprobante AMDA
 		public static String findTipoComprobante(Map<String, ArrayList<CatalogosDom>> mapCatalogos, String value){
 			

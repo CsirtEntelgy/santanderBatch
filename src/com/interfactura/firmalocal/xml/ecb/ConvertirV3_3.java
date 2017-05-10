@@ -298,7 +298,7 @@ public class ConvertirV3_3
 //										concat.append(" Moneda=\"" + valEqMoneda + "\"");
 										tags.TIPO_MONEDA = valEqMoneda;
 //									}else{
-										concat.append(" ElCampoMonedaNoContieneUnValorDelCatalogoc_Moneda=\"" + valEqMoneda + "\"");
+										concat.append(" ErrCompMoneda001=\"" + valEqMoneda + "\"");
 //									}
 								}else{
 									concat.append(" Moneda=\"" + valEqMoneda + "\"");
@@ -309,7 +309,7 @@ public class ConvertirV3_3
 								
 							}else{
 								tags.TIPO_MONEDA = tags.SERIE_FISCAL_CFD;
-								concat.append(" ElCampoMonedaNoContieneUnValorDelCatalogoc_Moneda" + "=\"" + tags.SERIE_FISCAL_CFD + "\"");
+								concat.append(" ErrCompMoneda001" + "=\"" + tags.SERIE_FISCAL_CFD + "\"");
 							}
 						}
 //					}else if(tags.SERIE_FISCAL_CFD.trim() == ""){
@@ -327,7 +327,7 @@ public class ConvertirV3_3
 									concat.append(" Moneda=\"" + valEqMoneda + "\"");
 									tags.TIPO_MONEDA = valEqMoneda;
 								}else{
-									concat.append(" ErrCompMoneda=\"" + valEqMoneda + "\"");
+									concat.append(" ErrCompMoneda002=\"" + valEqMoneda + "\"");
 								}
 							}else{
 								concat.append(" Moneda=\"" + valEqMoneda + "\"");
@@ -338,7 +338,7 @@ public class ConvertirV3_3
 							
 						}else{
 							tags.TIPO_MONEDA = tags.SERIE_FISCAL_CFD;
-							concat.append(" ErrCompMoneda" + "=\"" + tags.SERIE_FISCAL_CFD + "\"");
+							concat.append(" ErrCompMoneda002" + "=\"" + tags.SERIE_FISCAL_CFD + "\"");
 						}
 					}
 					System.out.println("Tipo Moneda AMDA: " + tags.TIPO_MONEDA);
@@ -377,7 +377,7 @@ public class ConvertirV3_3
 							     if(!m.find()){
 							    	 //TipoComprobante no valido
 							    	 System.out.println("PATTERN REGEX NO ES Valido el tipo de Cambio:  " + tags.TIPO_CAMBIO + " : " + patternReg);
-							    	 concat.append(" ElCampoTipoCambioNoCumpleConElPatronRequerido" + tags.TIPO_CAMBIO + "=\"" + tags.TIPO_CAMBIO + "\"");
+							    	 concat.append(" ErrCompTipoCambio001" + tags.TIPO_CAMBIO + "=\"" + tags.TIPO_CAMBIO + "\"");
 							     }else{
 							    	 
 							    	 if(!tags.TIPO_CAMBIO.isEmpty()){//////condición de prueba"""""""""""""""
@@ -400,7 +400,7 @@ public class ConvertirV3_3
 											       concat.append(" TipoCambio=\"" + tags.TIPO_CAMBIO + "\"");
 											    }else{
 											    	System.out.println("Tipo Cambio No dentro de limites");
-											    	concat.append(" ElCampoTipoCambioNoEstaDentroDeLosLimitesPara" + tags.TIPO_MONEDA + "=\"" + tags.TIPO_CAMBIO + "\"");
+											    	concat.append(" ErrCompTipoCambio002" + tags.TIPO_MONEDA + "=\"" + tags.TIPO_CAMBIO + "\"");
 											    }
 												
 												
@@ -426,7 +426,7 @@ public class ConvertirV3_3
 												 if(!tipocambioVal.equalsIgnoreCase("vacio")){
 														concat.append(" TipoCambio=\"" + tipocambioVal + "\"");
 												 }else{
-														concat.append(" NoSeEncontroTipoCambioRelacionadoALaMoneda=\"" + UtilCatalogos.findTipoCambioByMoneda(tags.mapCatalogos, tags.TIPO_MONEDA) + "\"");
+														concat.append(" ErrCompTipoCambio003=\"" + UtilCatalogos.findTipoCambioByMoneda(tags.mapCatalogos, tags.TIPO_MONEDA) + "\"");
 												 }
 
 											}else if(tags.TIPO_MONEDA.equalsIgnoreCase("XXX")){
@@ -441,9 +441,9 @@ public class ConvertirV3_3
 							     }
 							}
 						}else if(tags.TIPO_MONEDA.equalsIgnoreCase("MXN")){
-							 concat.append(" ElCampoTipoCambioNoTieneElValor1YLaMonedaIndicadaEsMXN" + "=\"" + tags.TIPO_CAMBIO + "\"");
+							 concat.append(" ErrCompTipoCambio004" + "=\"" + tags.TIPO_CAMBIO + "\"");
 						}else if(!tags.TIPO_MONEDA.equalsIgnoreCase("MXN") && !tags.TIPO_MONEDA.equalsIgnoreCase("XXX")){
-							concat.append(" ElCampoTipoCambioSeDeberegistrarCuandoElCampoMonedaTieneUnValorDistintoDeMXNYXXX" + "=\"" + tags.TIPO_CAMBIO + "\"");
+							concat.append(" ErrCompTipoCambio005" + "=\"" + tags.TIPO_CAMBIO + "\"");
 						}
 						
 						
@@ -473,7 +473,7 @@ public class ConvertirV3_3
 							     if(!m.find()){
 							    	 //TipoComprobante no valido
 							    	 System.out.println("PATTERN REGEX NO ES Valido el tipo de Cambio:  " + tags.TIPO_CAMBIO + " : " + patternReg);
-							    	 concat.append(" ElCampoTipoCambioNoCumpleConElPatronRequerido" + tags.TIPO_CAMBIO + "=\"" + tags.TIPO_CAMBIO + "\"");
+							    	 concat.append(" ErrCompTipoCambio001" + tags.TIPO_CAMBIO + "=\"" + tags.TIPO_CAMBIO + "\"");
 							     }else{
 							    	 
 							    	 if(!tags.TIPO_MONEDA.equalsIgnoreCase("MXN") && !tags.TIPO_MONEDA.equalsIgnoreCase("XXX")){ //Validacion AMDA
@@ -493,11 +493,11 @@ public class ConvertirV3_3
 											       concat.append(" TipoCambio=\"" + tags.TIPO_CAMBIO + "\"");
 											    }else{
 											    	System.out.println("Tipo Cambio No dentro de limites");
-											    	concat.append(" ElCampoTipoCambioNoEstaDentroDeLosLimitesPara" + tags.TIPO_MONEDA + "=\"" + tags.TIPO_CAMBIO + "\"");
+											    	concat.append(" ErrCompTipoCambio002" + tags.TIPO_MONEDA + "=\"" + tags.TIPO_CAMBIO + "\"");
 											    }
 												
 											}else{
-												concat.append(" ElCampoTipoCambioSeDebeRegistrarCuandoElCampoMonedaTieneUnValordistintoDeMXNyXXX=\"" + tags.TIPO_CAMBIO + tags.TIPO_MONEDA + "\"");
+												concat.append(" ErrCompTipoCambio005=\"" + tags.TIPO_CAMBIO + tags.TIPO_MONEDA + "\"");
 											}
 
 											
@@ -525,13 +525,13 @@ public class ConvertirV3_3
 												try{
 													double tipoCamDou = Double.parseDouble(tags.TIPO_CAMBIO);
 													if(tipoCamDou > 1 || tipoCamDou < 1){
-														concat.append(" ElCampoTipoCambioNoTieneValorA1YLaMonedaIndicadaEsMXN=\"" + tags.TIPO_CAMBIO + "\"");
+														concat.append(" ErrCompTipoCambio004=\"" + tags.TIPO_CAMBIO + "\"");
 													}else{
 														concat.append(" TipoCambio=\"" + tags.TIPO_CAMBIO + "\"");
 													}
 												}catch(NumberFormatException e){
 													System.out.println("Cuendo es MXN La Moneda AMDA 2 no viene vacio No numerico" + tags.TIPO_CAMBIO);
-													concat.append(" ElTipoCambioNoEsUnValorNumerico=\"" + tags.TIPO_CAMBIO + "\"");
+													concat.append(" ErrCompTipoCambio006=\"" + tags.TIPO_CAMBIO + "\"");
 												}
 											}else{
 //												System.out.println("Cuendo es MXN La Moneda AMDA 2 no viene vacio " + tags.TIPO_CAMBIO);
@@ -554,9 +554,9 @@ public class ConvertirV3_3
 							     }
 							}
 						}else if(tags.TIPO_MONEDA.equalsIgnoreCase("MXN")){
-							 concat.append(" ElCampoTipoCambioNoTieneElValor1YLaMonedaIndicadaEsMXN" + "=\"" + tags.TIPO_CAMBIO + "\"");
+							 concat.append(" ErrCompTipoCambio004" + "=\"" + tags.TIPO_CAMBIO + "\"");
 						}else if(!tags.TIPO_MONEDA.equalsIgnoreCase("MXN") && !tags.TIPO_MONEDA.equalsIgnoreCase("XXX")){
-							concat.append(" ElCampoTipoCambioSeDeberegistrarCuandoElCampoMonedaTieneUnValorDistintoDeMXNYXXX" + "=\"" + tags.TIPO_CAMBIO + "\"");
+							concat.append(" ErrCompTipoCambio005" + "=\"" + tags.TIPO_CAMBIO + "\"");
 						}
 						
 											
@@ -588,13 +588,13 @@ public class ConvertirV3_3
 						     if(!m.find()){
 						    	 //TipoComprobante no valido
 						    	 System.out.println("PATTERN REGEX NO ES Valido el tipo de Cambio:  " + tags.TIPO_CAMBIO + " : " + patternReg);
-						    	 concat.append(" ElCampoTipoCambioNoCumpleConElPatronRequerido" + tags.TIPO_CAMBIO + "=\"" + tags.TIPO_CAMBIO + "\"");
+						    	 concat.append(" ErrCompTipoCambio001" + tags.TIPO_CAMBIO + "=\"" + tags.TIPO_CAMBIO + "\"");
 						     }else{
 						    	 
 						    	 try{
 										valueTipoCambioDoubl = Double.parseDouble(tags.TIPO_CAMBIO);
 									}catch (NumberFormatException e){
-										concat.append(" TipoCambioIncorrectoNoEsUnValorNumerico" + tags.TIPO_CAMBIO + "=\"" + tags.TIPO_CAMBIO + "\"");
+										concat.append(" ErrCompTipoCambio006" + tags.TIPO_CAMBIO + "=\"" + tags.TIPO_CAMBIO + "\"");
 									}
 						    	 
 									if(!tags.TIPO_MONEDA.equalsIgnoreCase("MXN") && !tags.TIPO_MONEDA.equalsIgnoreCase("XXX")){ //Validacion AMDA
@@ -613,13 +613,13 @@ public class ConvertirV3_3
 									       concat.append(" TipoCambio=\"" + tags.TIPO_CAMBIO + "\"");
 									    }else{
 									    	System.out.println("Tipo Cambio No dentro de limites");
-									    	concat.append(" ElCampoTipoCambioNoEstaDentroDeLosLimitesPara" + tags.TIPO_MONEDA + "=\"" + tags.TIPO_CAMBIO + "\"");
+									    	concat.append(" ErrCompTipoCambio002=\"" + tags.TIPO_CAMBIO + "\"");
 									    }
 
 									}else if(tags.TIPO_MONEDA.equalsIgnoreCase("MXN")){
 										 System.out.println("Cuendo es MXN La Moneda AMDA" + valueTipoCambioDoubl + " : " + tags.TIPO_CAMBIO);
 										 if(valueTipoCambioDoubl > 1 || valueTipoCambioDoubl < 1){
-												concat.append(" ElCampoTipoCambioNoTieneElValor1YLaMonedaIndicadaEsMXN=\"" + tags.TIPO_CAMBIO + "\"");
+												concat.append(" ErrCompTipoCambio004=\"" + tags.TIPO_CAMBIO + "\"");
 										 }else{
 												concat.append(" TipoCambio=\"" + tags.TIPO_CAMBIO + "\""); 
 										 }
@@ -634,9 +634,9 @@ public class ConvertirV3_3
 							
 						}
 					}else if(tags.TIPO_MONEDA.equalsIgnoreCase("MXN")){
-						 concat.append(" ElCampoTipoCambioNoTieneElValor1YLaMonedaIndicadaEsMXN" + "=\"" + tags.TIPO_CAMBIO + "\"");
+						 concat.append(" ErrCompTipoCambio004" + "=\"" + tags.TIPO_CAMBIO + "\"");
 					}else if(!tags.TIPO_MONEDA.equalsIgnoreCase("MXN") && !tags.TIPO_MONEDA.equalsIgnoreCase("XXX")){
-						concat.append(" ElCampoTipoCambioSeDeberegistrarCuandoElCampoMonedaTieneUnValorDistintoDeMXNYXXX" + "=\"" + tags.TIPO_CAMBIO + "\"");
+						concat.append(" ErrCompTipoCambio005" + "=\"" + tags.TIPO_CAMBIO + "\"");
 					}
 					
 //					if(!tags.TIPO_MONEDA.equalsIgnoreCase("MXN") && !tags.TIPO_MONEDA.equalsIgnoreCase("XXX")){ //Validacion AMDA
@@ -699,7 +699,7 @@ public class ConvertirV3_3
 				// Se valida por medio de un catalogo AMDA
 				if(UtilCatalogos.findTipoComprobante(tags.mapCatalogos, lineas[1].trim().toUpperCase()).equals("tipoDeComprobanteIncorrecto")){
 					tags.tipoComprobante = "tipoDeComprobanteIncorrecto";
-					concat.append(" ElCampoTipoDeComprobanteNoContieneUnValorDelCatalogoc_TipoDeComprobante" + "=\"" + lineas[1].trim().toUpperCase() + "\" ");
+					concat.append(" ErrCompTipoComprobante001" + "=\"" + lineas[1].trim().toUpperCase() + "\" ");
 				}else{
 					System.out.println("TIPO DE COMPROBANTE: " + lineas[1].trim().toUpperCase());
 					tags.tipoComprobante = UtilCatalogos.findTipoComprobante(tags.mapCatalogos, lineas[1].trim().toUpperCase());
@@ -800,7 +800,7 @@ public class ConvertirV3_3
 						    double valTotal = Double.parseDouble(lineas[7].trim());
 						    if(valTotal<0){
 						       System.out.println("Total: " + " es negativo");
-						    	concat.append(" totalIncorrecto"+ valTotal + "=\"" + lineas[7].trim() + "\" ");
+						    	concat.append(" ErrCompTotal001"+ valTotal + "=\"" + lineas[7].trim() + "\" ");
 						    }else{
 						       System.out.println("Total: " + " es positivo");
 						       System.out.println("Total agregando decimales : " + tags.decimalesMoneda + " : " + lineas[7].trim());
@@ -820,13 +820,13 @@ public class ConvertirV3_3
 						    }
 						} catch (NumberFormatException e) {
 						    System.out.println("Total: "+  "No es un numero");
-						    concat.append(" totalIncorrecto"+  "=\"" + lineas[7].trim() + "\" ");
+						    concat.append(" ErrCompTotal002"+  "=\"" + lineas[7].trim() + "\" ");
 						}
 //					}
 					
 //					concat.append(" total=\"" + lineas[7].trim() + "\"");
 				}else{
-					concat.append(" totalIncorrecto"+  "=\"" + lineas[7].trim() + "\" ");
+					concat.append(" ErrCompTotal002"+  "=\"" + lineas[7].trim() + "\" ");
 				}
 				
 				
@@ -856,7 +856,7 @@ public class ConvertirV3_3
 						concat.append(" FormaPago=\""
 								+ formaPagoVal + "\" "); // Antes PAGO EN UNA SOLA EXHIBICION AMDA V 3.3
 					}else{
-						concat.append(" ElCampoFormaPagoNoContieneUnValorDelCatalogoC_FormaPago=\""
+						concat.append(" ErrCompFormaPago001=\""
 								+ formaPagoVal + "\" "); // Antes PAGO EN UNA SOLA EXHIBICION AMDA V 3.3
 					}
 					
@@ -866,7 +866,7 @@ public class ConvertirV3_3
 						concat.append(" MetodoPago=\""
 								+  metodoPagoVal + "\" "); // Antes properties.getLabelMetodoPago() AMDA V 3.3
 					}else{
-						concat.append(" ElCampoMetodoPagoNoContieneUnValorDelCatalogoC_FormaPago=\""
+						concat.append(" ErrCompMetodoPago001=\""
 								+  formaPagoVal + "\" "); // Antes properties.getLabelMetodoPago() AMDA V 3.3
 					}
 
@@ -1055,7 +1055,7 @@ public class ConvertirV3_3
 			if(!UtilCatalogos.findUsoCfdi(tags.mapCatalogos, "Por definir").equalsIgnoreCase("vacio")){ // Fijo por el momento
 				usoCFDIReceptor = " UsoCFDI=\"" + UtilCatalogos.findUsoCfdi(tags.mapCatalogos, "Por definir") + "\"";
 			}else{
-				usoCFDIReceptor = " ElCampoUsoCFDINoContieneUnValorDelCatalogoc_UsoCFDI=\"" + UtilCatalogos.findUsoCfdi(tags.mapCatalogos, "Por definir") + "\"";
+				usoCFDIReceptor = " ErrCompUsoCFDI001=\"" + UtilCatalogos.findUsoCfdi(tags.mapCatalogos, "Por definir") + "\"";
 			}
 			
 			System.out.println("Receptor recepPais: " + tags.recepPais);
@@ -1070,12 +1070,12 @@ public class ConvertirV3_3
 						if(!valPais.equalsIgnoreCase("vacio")){
 							residenciaFiscalReceptor = " ResidenciaFiscal=\"" + valPais + "\"";
 						}else if(valPais.equalsIgnoreCase("MEX")){
-							residenciaFiscalReceptor = " ElValorDelCampoResidenciaFiscalNoPuedeSerMEX=\"" + tags.recepPais + "\"";
+							residenciaFiscalReceptor = " ErrCompResidenciaFiscal001=\"" + tags.recepPais + "\"";
 						}else{
-							residenciaFiscalReceptor = " ElCampoResidenciaFiscalNoContieneUnValorDelCatalogoc_Pais=\"" + tags.recepPais + "\"";
+							residenciaFiscalReceptor = " ErrCompResidenciaFiscal002=\"" + tags.recepPais + "\"";
 						}
 					}else if(valPais.equalsIgnoreCase("MEX")){
-						residenciaFiscalReceptor = " ElValorDelCampoResidenciaFiscalNoPuedeSerMEX=\"" + valPais + "\"";
+						residenciaFiscalReceptor = " ErrCompResidenciaFiscal001=\"" + valPais + "\"";
 					}else{
 						residenciaFiscalReceptor = " ResidenciaFiscal=\"" + valPais + "\"";
 					}
