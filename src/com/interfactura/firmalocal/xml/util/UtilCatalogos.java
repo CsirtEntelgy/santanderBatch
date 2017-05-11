@@ -400,6 +400,27 @@ public class UtilCatalogos
 			return response;
 		}
 		
+		// descImp(Iva, IEPS, ISR), Descripcion(Tasa, Cuota O Exento), valor de la tasa, descripcion(Traslado O retencion)
+		//Validacion Si se Encuentra un Valor de Tasa o Cuota del catalogo TasaOCuota AMDA
+		public static String findTasaOCuotaExist(Map<String, ArrayList<CatalogosDom>> mapCatalogos, String descImp, String desc, String valorTasa, String descTraORet){
+			String response = "";
+			System.out.println("Validacion findTasaOCuotaExist AMDA : " + descImp + " : " + desc + " : " + valorTasa + " : " + descTraORet);
+			if(mapCatalogos.size() > 0 && descImp.trim() != "" && desc.trim() != "" && valorTasa.trim() != "" && descTraORet.trim() != ""){
+				for(int i=0; i<mapCatalogos.get("TasaOCuota").size(); i++){
+					if(mapCatalogos.get("TasaOCuota").get(i).getVal4().equalsIgnoreCase(descImp) && mapCatalogos.get("TasaOCuota").get(i).getVal5().equalsIgnoreCase(desc) && mapCatalogos.get("TasaOCuota").get(i).getVal3().equalsIgnoreCase(valorTasa)){
+						response = mapCatalogos.get("TasaOCuota").get(i).getVal3();
+						break;
+					}else{
+						response = "vacio";
+					}
+				}
+			}else{
+				response = "vacio";
+			}
+			
+			return response;
+		}
+		
 		//Validacion Encuentra Valor Maximo de Tasa o Cuota del catalogo TasaOCuota para Traslado AMDA
 		public static String findValMaxTasaOCuotaTraslado(Map<String, ArrayList<CatalogosDom>> mapCatalogos, String value1, String value2){
 			String response = "";
@@ -709,12 +730,16 @@ public class UtilCatalogos
 								tipoFactorValue= findValTipoFactorByDesc(mapCatalogos, mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal2());
 								if(!tipoFactorValue.equalsIgnoreCase("vacio")){
 									tipoFactorLine = "\" TipoFactor=\"" + tipoFactorValue;
-									
+									String descImp = findDescImpuestoByClave(mapCatalogos, mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal1());
 //									if(!tipoFactorValue.equalsIgnoreCase("Exento")){
-										// Descripcion(Tasa, Cuota O Exento), valor de la tasa, descripcion(Traslado O retencion)
-										//Buscando TasaOcuotaCatalogo findTasaOcuotaVal(mapCatalogos, mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal2(), valTasa, mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal4())
-										
-										if(!valTasa.equalsIgnoreCase("vacio")){
+										// descImp(Iva, IEPS, ISR), Descripcion(Tasa, Cuota O Exento), valor de la tasa, descripcion(Traslado O retencion)
+										//Buscando TasaOcuotaCatalogo findTasaOcuotaVal(mapCatalogos, descImp, mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal2(), valTasa, mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal4())
+									System.out.println("Antes de Validacion findTasaOCuotaExist AMDA : " + descImp);
+									System.out.println("Antes de Validacion findTasaOCuotaExist AMDA : " + mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal2());
+									System.out.println("Antes de Validacion findTasaOCuotaExist AMDA : " + valTasa);
+									System.out.println("Antes de Validacion findTasaOCuotaExist AMDA : " + mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal4());
+									String findValTasa = findTasaOCuotaExist(mapCatalogos, descImp, mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal2(), valTasa, mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal4());
+										if(!findValTasa.equalsIgnoreCase("vacio")){
 											tasaOCutoaLine = "\" TasaOCuota=\"" + Util.completeZeroDecimals(valTasa, 6);
 										}else{
 											tasaOCutoaLine = "\" ElValorDelCampoTasaOCuotaQueCorrespondeATrasladoNoContieneUnValorDelCatalogoc_TasaOCuota=\"" + Util.completeZeroDecimals(valTasa, 6);
@@ -906,9 +931,14 @@ public class UtilCatalogos
 								System.out.println("Despues BuscarTipoFactor : " + tipoFactorValue);
 								if(!tipoFactorValue.equalsIgnoreCase("vacio")){
 									tipoFactorLine = "\" TipoFactor=\"" + tipoFactorValue;
-									
+									String descImp = findDescImpuestoByClave(mapCatalogos, mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal1());
 									if(!tipoFactorValue.equalsIgnoreCase("Exento")){
-										if(!valTasa.equalsIgnoreCase("vacio")){
+										System.out.println("Antes de Validacion findTasaOCuotaExist RET AMDA : " + descImp);
+										System.out.println("Antes de Validacion findTasaOCuotaExist RET AMDA : " + mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal2());
+										System.out.println("Antes de Validacion findTasaOCuotaExist RET AMDA : " + valTasa);
+										System.out.println("Antes de Validacion findTasaOCuotaExist RET AMDA : " + mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal4());
+										String findValTasa = findTasaOCuotaExist(mapCatalogos, descImp, mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal2(), valTasa, mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal4());
+										if(!findValTasa.equalsIgnoreCase("vacio")){
 											tasaOCutoaLine = "\" TasaOCuota=\"" + Util.completeZeroDecimals(valTasa, 6);
 										}else{
 											tasaOCutoaLine = "\" TasaOCuota=\"" + "ElValorDelCampoTasaOCuotaQueCorrespondeARetencionNoContieneUnValorDelCatalogoc_TasaOCuota";
