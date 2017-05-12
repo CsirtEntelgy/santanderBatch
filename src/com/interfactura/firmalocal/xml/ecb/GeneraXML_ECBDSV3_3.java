@@ -1826,7 +1826,7 @@ public class GeneraXML_ECBDSV3_3 {
 						strNoCertificadoSAT = nodo2.getAttributes().getNamedItem("noCertificadoSAT").getTextContent().trim();
 						strSelloCFD = nodo2.getAttributes().getNamedItem("selloCFD").getTextContent().trim();
 						strSelloSAT = nodo2.getAttributes().getNamedItem("selloSAT").getTextContent().trim();
-						strVersion = nodo2.getAttributes().getNamedItem("Version").getTextContent().trim(); // Antes version, Version 3.3 AMDA
+						strVersion = nodo2.getAttributes().getNamedItem("version").getTextContent().trim(); // Antes version, Version 3.3 AMDA
 						logger.info("strFechaTimbrado:" + strFechaTimbrado
 								+ ", strUUID:" + strUUID
 								+ ", strNoCertificadoSAT:" + strNoCertificadoSAT

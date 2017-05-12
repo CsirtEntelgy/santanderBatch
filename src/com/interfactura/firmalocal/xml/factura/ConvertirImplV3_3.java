@@ -980,7 +980,7 @@ public class ConvertirImplV3_3
 				
 			}
 			// Base = ValImporte, Importe = Base por porcentajemas Base, descripcion mandar Util.convierte(lineas[1]).trim() 
-			Map<String, Object> trasladoDoom = UtilCatalogos.findTraslados(tags.mapCatalogos, valImporte, valDescConcep, tags.decimalesMoneda);
+			Map<String, Object> trasladoDoom = UtilCatalogos.findTraslados(tags.mapCatalogos, valImporte, valDescConcep, tags.decimalesMoneda, tags.tipoComprobante);
 			System.out.println("TRASLADO NODOS AMDA : " + trasladoDoom);
 			String elementTraslado = "\n<cfdi:Traslados>" + 
 //									 "\n<cfdi:Traslado Base=\"" + valorBase +
@@ -999,6 +999,26 @@ public class ConvertirImplV3_3
 			System.out.println("TRASLADO NODOS AMDA SumIEPS : " + trasladoDoom.get("sumTotalIeps"));
 			tags.sumTraTotalIeps = trasladoDoom.get("sumTotalIeps").toString();
 			
+			try{
+				Double sumTotalIsrDo = Double.parseDouble(tags.sumTraTotalIsr);
+				tags.sumTraTotalIsrDou = tags.sumTraTotalIsrDou + sumTotalIsrDo;
+				tags.sumTraTotalIsr = tags.sumTraTotalIsrDou.toString();
+//				System.out.println("TRASLADO NODOS AMDA SumISR Double : " + tags.sumTraTotalIsrDou);
+				Double sumTraTotalIvaDou = Double.parseDouble(tags.sumTraTotalIva);
+				tags.sumTraTotalIvaDou = tags.sumTraTotalIvaDou + sumTraTotalIvaDou;
+				tags.sumTraTotalIva = tags.sumTraTotalIvaDou.toString();
+//				System.out.println("TRASLADO NODOS AMDA SumIVA Double : " + tags.sumTraTotalIvaDou);
+				Double sumTraTotalIepsDou = Double.parseDouble(tags.sumTraTotalIeps);
+				tags.sumTraTotalIepsDou = tags.sumTraTotalIepsDou + sumTraTotalIepsDou;
+				tags.sumTraTotalIeps = tags.sumTraTotalIepsDou.toString();
+//				System.out.println("TRASLADO NODOS AMDA SumIEPS Double : " + tags.sumTraTotalIepsDou);
+			}catch(NumberFormatException e){
+				System.out.println("Calculando TRASLADO Sumas AMDA Error Numerico");
+			}
+			
+			System.out.println("TRASLADO NODOS AMDA SumISR Double : " + tags.sumTraTotalIsrDou);
+			System.out.println("TRASLADO NODOS AMDA SumIVA Double : " + tags.sumTraTotalIvaDou);
+			System.out.println("TRASLADO NODOS AMDA SumIEPS Double : " + tags.sumTraTotalIepsDou);
 			
 			// Elemento Retenciones V3.3 AMDA
 			String valorBaseRet = "";
@@ -1049,7 +1069,7 @@ public class ConvertirImplV3_3
 				}
 			}
 			
-			Map<String, Object> retencionDoom = UtilCatalogos.findRetencion(tags.mapCatalogos, valImporte, valDescConcep, tags.decimalesMoneda);
+			Map<String, Object> retencionDoom = UtilCatalogos.findRetencion(tags.mapCatalogos, valImporte, valDescConcep, tags.decimalesMoneda, tags.tipoComprobante);
 			String elementRetencion = "\n<cfdi:Retenciones>" +
 //					 				  "\n<cfdi:Retencion Base=\"" + valorBaseRet +
 //					 				  "\" Impuesto=\"" + claveImpRet +
@@ -1067,18 +1087,53 @@ public class ConvertirImplV3_3
 			System.out.println("RETENCION NODOS AMDA SumIEPS : " + retencionDoom.get("sumTotalIeps"));
 			tags.sumRetTotalIeps = retencionDoom.get("sumTotalIeps").toString();
 			
+			try{
+				Double sumTotalIsrDo = Double.parseDouble(tags.sumTraTotalIsr);
+				tags.sumRetTotalIsrDou = tags.sumRetTotalIsrDou + sumTotalIsrDo;
+				tags.sumRetTotalIsr = tags.sumRetTotalIsrDou.toString();
+//				System.out.println("TRASLADO NODOS AMDA SumISR Double : " + tags.sumTraTotalIsrDou);
+				Double sumRetTotalIvaDou = Double.parseDouble(tags.sumRetTotalIva);
+				tags.sumRetTotalIvaDou = tags.sumRetTotalIvaDou + sumRetTotalIvaDou;
+				tags.sumRetTotalIva = tags.sumRetTotalIvaDou.toString();
+//				System.out.println("TRASLADO NODOS AMDA SumIVA Double : " + tags.sumTraTotalIvaDou);
+				Double sumRetTotalIepsDou = Double.parseDouble(tags.sumRetTotalIeps);
+				tags.sumRetTotalIepsDou = tags.sumRetTotalIepsDou + sumRetTotalIepsDou;
+				tags.sumRetTotalIeps = tags.sumRetTotalIepsDou.toString();
+//				System.out.println("TRASLADO NODOS AMDA SumIEPS Double : " + tags.sumTraTotalIepsDou);
+			}catch(NumberFormatException e){
+				System.out.println("Calculando Retencion Sumas AMDA Error Numerico");
+			}
+			
+			System.out.println("TRASLADO NODOS AMDA SumISR Double : " + tags.sumRetTotalIsrDou);
+			System.out.println("TRASLADO NODOS AMDA SumIVA Double : " + tags.sumRetTotalIvaDou);
+			System.out.println("TRASLADO NODOS AMDA SumIEPS Double : " + tags.sumRetTotalIepsDou);
+			
 			String claveProdServVal = ""; // Fijo por el momento AMDA
 			if(!UtilCatalogos.findClaveProdServbyDesc(tags.mapCatalogos, "Instituciones bancarias").equalsIgnoreCase("vacio")){
 				claveProdServVal = " ClaveProdServ=\"" +UtilCatalogos.findClaveProdServbyDesc(tags.mapCatalogos, "Instituciones bancarias"); // Fijo 84121500 AMDA
 			}else{
 				claveProdServVal = " ElCampoClaveProdServNoContieneUnValorDelCatalogoc_ClaveProdServ=\"" + "vacio"; // Fijo 84121500 AMDA
 			}
-			
+			boolean paint = false;
 			if(elementTraslado.length() > 35 && elementRetencion.length() > 39){
 				elementImpuestos = "\n<cfdi:Impuestos>" + 
 			   			elementTraslado +
 			   			elementRetencion +
 			   			"\n</cfdi:Impuestos>";
+				paint = true;
+				System.out.println("ENTRO UNO: " + elementImpuestos);
+			}else if(elementRetencion.length() > 39 && !paint){
+				elementImpuestos = "\n<cfdi:Impuestos>" + 
+//			   			elementTraslado +
+			   			elementRetencion +
+			   			"\n</cfdi:Impuestos>";
+				System.out.println("ENTRO DOS: " + elementImpuestos);
+			}else if(elementTraslado.length() > 35 && !paint){
+				elementImpuestos = "\n<cfdi:Impuestos>" + 
+			   			elementTraslado +
+//			   			elementRetencion +
+			   			"\n</cfdi:Impuestos>";
+				System.out.println("ENTRO TRES: " + elementImpuestos);
 			}
 			System.out.println("Elemento Impuestos AMDA : " + elementImpuestos);
 			
@@ -1354,7 +1409,7 @@ public class ConvertirImplV3_3
 						System.out.println("Valor Suma Impuesto Traslado ISR AMDA : " + tags.sumTraTotalIsr);
 						if(tags.sumTraTotalIsr.trim().length() > 0){
 							try{
-								valConepto = Double.parseDouble(tags.sumTraTotalIsr);
+								valConepto = valConepto + Double.parseDouble(tags.sumTraTotalIsr);
 							}catch(NumberFormatException e){
 								System.out.println("Valor Suma Impuesto Traslado ISR no es numerico al parecer AMDA : " + tags.sumTraTotalIsr);
 							}
@@ -1363,7 +1418,7 @@ public class ConvertirImplV3_3
 						System.out.println("Valor Suma Impuesto Traslado IVA AMDA : " + tags.sumTraTotalIva);
 						if(tags.sumTraTotalIva.trim().length() > 0){
 							try{
-								valConepto = Double.parseDouble(tags.sumTraTotalIva);
+								valConepto = valConepto + Double.parseDouble(tags.sumTraTotalIva);
 							}catch(NumberFormatException e){
 								System.out.println("Valor Suma Impuesto Traslado IVA no es numerico al parecer AMDA : " + tags.sumTraTotalIva);
 							}
@@ -1372,7 +1427,7 @@ public class ConvertirImplV3_3
 						System.out.println("Valor Suma Impuesto Traslado IEPS AMDA : " + tags.sumTraTotalIeps);
 						if(tags.sumTraTotalIeps.trim().length() > 0){
 							try{
-								valConepto = Double.parseDouble(tags.sumTraTotalIeps);
+								valConepto = valConepto + Double.parseDouble(tags.sumTraTotalIeps);
 							}catch(NumberFormatException e){
 								System.out.println("Valor Suma Impuesto Traslado IEPS no es numerico al parecer AMDA : " + tags.sumTraTotalIeps);
 							}
@@ -1388,7 +1443,9 @@ public class ConvertirImplV3_3
 					try{
 						totImpTra = Double.parseDouble(tags.TOTAL_IMP_TRA);
 						importeDou = Double.parseDouble(tokens[3].trim());
-						if(!(valConepto > importeDou) && !(valConepto < importeDou) ){
+						System.out.println("ValConcepto LLL: " + valConepto);
+						System.out.println("importeDou LLL: " + importeDou);
+						if(valConepto > importeDou || valConepto < importeDou ){ //!(valConepto > importeDou) && !(valConepto < importeDou)
 							valid = true;
 							System.out.println("Importes TRUE TASLADOS : ");
 						}
@@ -1495,7 +1552,7 @@ public class ConvertirImplV3_3
 						System.out.println("Valor Suma Impuesto Retencion ISR AMDA : " + tags.sumRetTotalIsr);
 						if(tags.sumRetTotalIsr.trim().length() > 0){
 							try{
-								valConepto = Double.parseDouble(tags.sumRetTotalIsr);
+								valConepto = valConepto + Double.parseDouble(tags.sumRetTotalIsr);
 							}catch(NumberFormatException e){
 								System.out.println("Valor Suma Impuesto Retencion ISR no es numerico al parecer AMDA : " + tags.sumRetTotalIsr);
 							}
@@ -1504,7 +1561,7 @@ public class ConvertirImplV3_3
 						System.out.println("Valor Suma Impuesto Retencion IVA AMDA : " + tags.sumRetTotalIva);
 						if(tags.sumRetTotalIva.trim().length() > 0){
 							try{
-								valConepto = Double.parseDouble(tags.sumRetTotalIva);
+								valConepto = valConepto + Double.parseDouble(tags.sumRetTotalIva);
 							}catch(NumberFormatException e){
 								System.out.println("Valor Suma Impuesto Retencion IVA no es numerico al parecer AMDA : " + tags.sumRetTotalIva);
 							}
@@ -1513,7 +1570,7 @@ public class ConvertirImplV3_3
 						System.out.println("Valor Suma Impuesto Retencion IEPS AMDA : " + tags.sumRetTotalIeps);
 						if(tags.sumRetTotalIeps.trim().length() > 0){
 							try{
-								valConepto = Double.parseDouble(tags.sumRetTotalIeps);
+								valConepto = valConepto + Double.parseDouble(tags.sumRetTotalIeps);
 							}catch(NumberFormatException e){
 								System.out.println("Valor Suma Impuesto Retencion IEPS no es numerico al parecer AMDA : " + tags.sumRetTotalIeps);
 							}
@@ -1525,7 +1582,8 @@ public class ConvertirImplV3_3
 						totImpRet = Double.parseDouble(tags.TOTAL_IMP_RET);
 						System.out.println("Valor Imp Retenidoss : " + tokens[2].trim());
 						importeDou = Double.parseDouble(tokens[2].trim());
-						if(totImpRet > importeDou || totImpRet < importeDou){
+						System.out.println("Valor Imp Retenidoss : " + valConepto);
+						if(valConepto > importeDou || valConepto < importeDou){ //(totImpRet > importeDou || totImpRet < importeDou)
 							valid = true;
 							System.out.println("Importes TRUE RETENCIONES : ");
 						}

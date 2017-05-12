@@ -178,4 +178,11 @@ public class TagsXML {
 	public String sumTraTotalIva = "";
 	public String sumTraTotalIeps = "";
 	
+	public Double sumRetTotalIsrDou = 0.00;
+	public Double sumRetTotalIvaDou = 0.00;
+	public Double sumRetTotalIepsDou = 0.00;
+	public Double sumTraTotalIsrDou = 0.00;
+	public Double sumTraTotalIvaDou = 0.00;
+	public Double sumTraTotalIepsDou = 0.00;
+	
 }
