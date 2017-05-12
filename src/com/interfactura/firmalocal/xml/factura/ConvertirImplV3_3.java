@@ -1337,6 +1337,7 @@ public class ConvertirImplV3_3
 			{
 				tags.DESCRIPTION_TASA = "";
 				Integer tasa = new Integer(Util.getTASA(tokens[2]));
+//				Double tasa = new Integer(Util.getTASA(tokens[2]));
 				Iva iva = null;
 				for (Iva obj : lstIva) 
 				{

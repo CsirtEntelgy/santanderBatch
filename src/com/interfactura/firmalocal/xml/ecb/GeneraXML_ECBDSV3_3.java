@@ -1055,14 +1055,16 @@ public class GeneraXML_ECBDSV3_3 {
 		case 7:
 			System.out.println("case7");
 			System.out.println("Conver Tags Tipo Comprobante: " + conver.getTags().tipoComprobante);
-			if(!conver.getTags().tipoComprobante.equalsIgnoreCase("T") || !conver.getTags().tipoComprobante.equalsIgnoreCase("P")){
+			if(!conver.getTags().tipoComprobante.equalsIgnoreCase("T") && !conver.getTags().tipoComprobante.equalsIgnoreCase("P")){
+				System.out.println("Conver Tags Tipo Comprobante DEntro De Impuestos: " + conver.getTags().tipoComprobante);
 				out.write(conver.impuestos(linea, contCFD));
 			}
 			System.out.println("Out: Case 7 " + out);
 			break;
 		case 8:
 			System.out.println("case8");
-			if(!conver.getTags().tipoComprobante.equalsIgnoreCase("T") || !conver.getTags().tipoComprobante.equalsIgnoreCase("P")){
+			if(!conver.getTags().tipoComprobante.equalsIgnoreCase("T") && !conver.getTags().tipoComprobante.equalsIgnoreCase("P")){
+				System.out.println("Conver Tags Tipo Comprobante DEntro De retencion: " + conver.getTags().tipoComprobante);
 				this.beginRETENCIONES();
 				System.out.println("Out: Case 8 " + out);
 				out.write(conver.retenciones(linea, contCFD));
@@ -1072,7 +1074,8 @@ public class GeneraXML_ECBDSV3_3 {
 		case 9:
 			System.out.println("case9");
 			System.out.println("Out: Case 9 " + out);
-			if(!conver.getTags().tipoComprobante.equalsIgnoreCase("T") || !conver.getTags().tipoComprobante.equalsIgnoreCase("P")){
+			if(!conver.getTags().tipoComprobante.equalsIgnoreCase("T") && !conver.getTags().tipoComprobante.equalsIgnoreCase("P")){
+				System.out.println("Conver Tags Tipo Comprobante DEntro De Ret y Tra: " + conver.getTags().tipoComprobante);
 				this.endRETENCIONES();
 				System.out.println("Out: Case 9-1 " + out);
 				this.beginTRASLADOS();
