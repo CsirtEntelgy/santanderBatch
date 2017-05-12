@@ -674,7 +674,6 @@ public class GeneraXML_ECBDSV3_3 {
 						//Obtenemos la etiqueta raiz (Comprobante)								
 						//Element docEleComprobante = domComprobante.getDocumentElement();
 						Element docEleComprobante = (Element) docEleResultado.getFirstChild();
-						System.out.println("Bloque AMDA : " + docEleComprobante.toString());
 						//Atributos TimbreFiscalDigital
 			            this.strFechaTimbrado = "";this.strUUID = "";this.strNoCertificadoSAT = "";this.strSelloCFD = "";this.strSelloSAT = "";this.strVersion = "";  
 			            
@@ -692,7 +691,6 @@ public class GeneraXML_ECBDSV3_3 {
 			            
 						//Concatenar foliosSAT
 						sbFoliosSAT.append(this.strUUID + "||");
-						System.out.println("Bloque AMDA 2 : " + sbFoliosSAT);
 						
 						//Transformar el hijo del nodo Resultado (document Comprobante) a StringResult								
 						//StreamResult resultComprobanteTimbrado = this.documentToStreamResult(domComprobante);
@@ -1808,8 +1806,6 @@ public class GeneraXML_ECBDSV3_3 {
 		NodeList hijosComprobante = docEleComprobante.getChildNodes();
 		for(int i=0; i<hijosComprobante.getLength(); i++){
 			Node nodo = hijosComprobante.item(i);								
-			System.out.println("NAME: " + nodo.getNodeName());
-			System.out.println("NAME AMDA: " + nodo.getAttributes());
 			if(nodo instanceof Element && nodo.getNodeName().equals("cfdi:Emisor")){
 				strEmisorRFC = nodo.getAttributes().getNamedItem("Rfc").getTextContent(); // Antes rfc, Version 3.3 AMDA
 			}
@@ -1827,12 +1823,6 @@ public class GeneraXML_ECBDSV3_3 {
 						strSelloCFD = nodo2.getAttributes().getNamedItem("selloCFD").getTextContent().trim();
 						strSelloSAT = nodo2.getAttributes().getNamedItem("selloSAT").getTextContent().trim();
 						strVersion = nodo2.getAttributes().getNamedItem("version").getTextContent().trim(); // Antes version, Version 3.3 AMDA
-						logger.info("strFechaTimbrado:" + strFechaTimbrado
-								+ ", strUUID:" + strUUID
-								+ ", strNoCertificadoSAT:" + strNoCertificadoSAT
-								+ ", strSelloCFD:" + strSelloCFD
-								+ ", strSelloSAT:" + strSelloSAT
-								+ ", strVersion:" + strVersion);
 					}
 				}				
 			}else if(nodo instanceof Element && nodo.getNodeName().equals("cfdi:Addenda")){
@@ -1992,20 +1982,16 @@ public class GeneraXML_ECBDSV3_3 {
         BigDecimal traslados = BigDecimal.valueOf(getDoubleByExpression(doc, sb.toString()));
         sb = new StringBuilder("sum(//Comprobante/Conceptos/Concepto/Impuestos/Retenciones/Retencion/@Importe)");
         BigDecimal retenciones = BigDecimal.valueOf(getDoubleByExpression(doc, sb.toString()));
-        System.out.println("traslados=" + traslados);
-        System.out.println("retenciones=" + retenciones);
         BigDecimal totalOper = traslados.add(retenciones.multiply(BigDecimal.valueOf(-1)));
-        System.out.println("compTotal:" + compTotal);
-        System.out.println("totalOper:" + totalOper);
         if (compTotal.equals(totalOper)) {
 
-        } else {
-            throw new Exception("El campo Total no corresponde con la suma del subtotal, menos los descuentos aplicables, más las contribuciones recibidas (impuestos trasladados - federales o locales, derechos, productos, aprovechamientos, aportaciones de seguridad social, contribuciones de mejoras) menos los impuestos retenidos.");
-        }
-
-        System.out.println("totalOper=" + totalOper);
-        System.out.println("compTotal=" + compTotal);
-        System.out.println("Comptaracion=" + compTotal.equals(totalOper));
+		} else {
+			System.out.println("totalOper=" + totalOper);
+			System.out.println("compTotal=" + compTotal);
+			System.out.println("Comptaracion=" + compTotal.equals(totalOper));
+			throw new Exception(
+					"El campo Total no corresponde con la suma del subtotal, menos los descuentos aplicables, más las contribuciones recibidas (impuestos trasladados - federales o locales, derechos, productos, aprovechamientos, aportaciones de seguridad social, contribuciones de mejoras) menos los impuestos retenidos.");
+		}
     }
 			
 	/**
@@ -2018,7 +2004,6 @@ public class GeneraXML_ECBDSV3_3 {
 	{
 		if (conver.getTags().isComprobante) 
 		{
-			System.out.println("OUT FIRST PRINT AMDA : " + out.toString());
 			out.write("\n</cfdi:Comprobante>".getBytes("UTF-8"));
 			conver.getTags().isComprobante = false;
 			try 
@@ -2047,9 +2032,6 @@ public class GeneraXML_ECBDSV3_3 {
 				/*Fin Validaciones 3.3*/
 				
 				long t2 = t1- System.currentTimeMillis();
-				System.out.println("TIME: getDescriptionFormat:" + t2 + " ms");
-				System.out.println("EntidadFiscal AMDA despues de GetDescriptionFormat:" + conver.getTags().isEntidadFiscal);
-				System.out.println("lstSeal AMDA :" + lstSeal.size());
 				if (conver.getTags().isEntidadFiscal) 
 				{	
 					t1 = System.currentTimeMillis();
@@ -2072,7 +2054,6 @@ public class GeneraXML_ECBDSV3_3 {
 					}
 					
 					t2 = t1- System.currentTimeMillis();
-					System.out.println("TIME: SealCertificate:" + t2 + " ms");
 					
 					if (certificate == null) 
 					{
@@ -2103,14 +2084,11 @@ public class GeneraXML_ECBDSV3_3 {
 						 
 						 */
 						out = Util.enconding(out);
-						System.out.println("OUT PRINT AMDA : " + out.toString());
-						logger.info(out.toString());
 						 
 						try{
 														
 							//if(lstObjECBs.size()<26643 ){
 								t1 = System.currentTimeMillis();
-								System.out.println("Dentro del TRY AMDA Genera " );
 								//En caso de ser CFDREPROCESOECB, validar que el nombre de aplicativo informado en cada comprobante, sea correcto
 								/*if(fileNames.trim().equals("CFDREPROCESOECB") && ! NombreAplicativo.validaNombreApp(getNombresApps(), conver.getTags().NOMBRE_APP_REPECB))
 									throw new Exception(
@@ -2132,16 +2110,10 @@ public class GeneraXML_ECBDSV3_3 {
 								//Manipular con Document el xml obtenido de la variable out					
 								Document dom = this.removeMovimientoECB(byteArrayOutputStreamToDocument(out));
 								//Fin - Quitar todos los movimientos no fiscales del XML almacenado en la variable out
-								System.out.println("fAttMovIncorrect AMDA Genera " + this.fAttMovIncorrect );
-								System.out.println("fnombreCliente AMDA Genera " + this.fnombreCliente );
-								System.out.println("fnumeroCuenta AMDA Genera " + this.fnumeroCuenta );
-								System.out.println("fperiodo AMDA Genera " + this.fperiodo );
-								System.out.println("fsucursal AMDA Genera " + this.fsucursal );
 								//System.out.println("flags: fAttMovIncorrect:" + this.fAttMovIncorrect + " fnombreCliente:" + this.fnombreCliente + " fnumeroCuenta:" + this.fnumeroCuenta + " fperiodo:" + this.fperiodo + " fsucursal:" + this.fsucursal);
 								if(!this.fAttMovIncorrect && !this.fnombreCliente && !this.fnumeroCuenta && !this.fperiodo && !this.fsucursal){
 									objEcbActual.setLstMovimientosECB(this.lstMovimientosECB);
 									objEcbActual.setEstadoDeCuentaBancario(this.estadoDeCuentaBancario);
-									System.out.println("Dentro del IF donde esta el TRUE DE VALIDACION " );								
 									//Convertir de Document a StringWriter
 									StringWriter sw2 = documentToStringWriter(dom);									
 												
@@ -2174,7 +2146,7 @@ public class GeneraXML_ECBDSV3_3 {
 										xmlProcess.getValidator().valida(xmlFinal, this.validator); // Al Parecer Aqui Valida AMDA
 									}catch(Exception ex){
 										fValidaXMLSinAddenda = false;
-										System.out.println(ex.getMessage());
+										logger.error(ex);
 										fileINCIDENCIA(ex.getMessage() + " ", "ERROR", 
 												conver.getTags().EMISION_RFC, conver.getTags().NUM_CTE, conver.getTags().NUM_CTA, conver.getTags().EMISION_PERIODO, conver.getTags().NUM_TARJETA, conver.getTags().CFD_TYPE);
 										
@@ -2278,7 +2250,7 @@ public class GeneraXML_ECBDSV3_3 {
 									}else{
 										strMsgError = "Informacion no valida dentro de Santander:Movimientos";										
 									}
-									System.out.println("ERROR: " + strMsgError);
+									logger.error("ERROR: " + strMsgError);
 									fileINCIDENCIA(strMsgError, "ERROR", 
 											conver.getTags().EMISION_RFC, conver.getTags().NUM_CTE, conver.getTags().NUM_CTA, conver.getTags().EMISION_PERIODO, conver.getTags().NUM_TARJETA, conver.getTags().CFD_TYPE);
 									
@@ -2292,7 +2264,7 @@ public class GeneraXML_ECBDSV3_3 {
 																				
 						}catch(Exception e){							
 							e.printStackTrace();
-							System.out.println("Antes Catch AMDA: "+e.getMessage());							
+							logger.error(e);
 							fileINCIDENCIA(e.getMessage() + " ", "ERROR", 
 									conver.getTags().EMISION_RFC, conver.getTags().NUM_CTE, conver.getTags().NUM_CTA, conver.getTags().EMISION_PERIODO, conver.getTags().NUM_TARJETA, conver.getTags().CFD_TYPE);
 							
@@ -2308,7 +2280,8 @@ public class GeneraXML_ECBDSV3_3 {
 			} 
 			catch (Exception ex) 
 			{
-				System.out.println("Catch AMDA: " +ex.getMessage());	
+				logger.info(out.toString());
+				logger.error(ex);
 				msgError = ex.getMessage();	
 				String typeIncidence="ERROR";
 				if(msgError!=null && msgError.contains("The transaction has been rolled back"))
