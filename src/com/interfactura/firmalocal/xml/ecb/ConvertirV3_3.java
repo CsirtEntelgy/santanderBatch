@@ -1342,11 +1342,11 @@ public class ConvertirV3_3
 //							tasaOCuotaStr = "\" TasaOCuota=\""  + UtilCatalogos.findValMaxTasaOCuota(tags.mapCatalogos, tags.trasladoImpuestoVal, valTipoFactor);
 							tasaOCuotaStr = "\" TasaOCuota=\""  + Util.completeZeroDecimals(UtilCatalogos.findValMaxTasaOCuota(tags.mapCatalogos, tags.trasladoImpuestoVal, valTipoFactor), 6);
 						}else{
-							tasaOCuotaStr = "\" ErrConcImpuet001=\""  + Util.completeZeroDecimals(UtilCatalogos.findValMaxTasaOCuota(tags.mapCatalogos, tags.trasladoImpuestoVal, valTipoFactor), 6);
+							tasaOCuotaStr = "\" ErrConcImpueTra001=\""  + Util.completeZeroDecimals(UtilCatalogos.findValMaxTasaOCuota(tags.mapCatalogos, tags.trasladoImpuestoVal, valTipoFactor), 6);
 						}
 					}
 				}else{
-					tasaOCuotaStr = "\" ElCampoNoContieneUnValorDelCatalogoImpuestoParaTasaOCuotaTraslado=\""  + tags.trasladoImpuestoVal;
+					tasaOCuotaStr = "\" ErrConcImpueTra002=\""  + tags.trasladoImpuestoVal;
 				}
 
 				
@@ -1404,7 +1404,7 @@ public class ConvertirV3_3
 				
 			}else{
 				elementTraslado = "\n<cfdi:Traslados>" + 
-						 "\n<cfdi:Traslado NoSeEncontroUnConceptoTrasladosParaBuscar=\"" + lineas[1].trim() + "\"" +
+						 "\n<cfdi:Traslado ErrConConcepTra001=\"" + lineas[1].trim() + "\"" +
 						 " />" +
 						 "\n</cfdi:Traslados>";	
 			}
@@ -1444,11 +1444,11 @@ public class ConvertirV3_3
 						if(tags.trasladoImpuestoVal.trim().length() > 0){
 							tasaOCuotaStrRet = "\" TasaOCuota=\""  + Util.completeZeroDecimals(UtilCatalogos.findValMaxTasaOCuota(tags.mapCatalogos, tags.retencionImpuestoVal, valTipoFactorRet), 6);
 						}else{
-							tasaOCuotaStrRet = "\" ElCampoNoContieneUnValorDelCatalogoImpuestoParaTasaOCuotaRetencion=\""  + Util.completeZeroDecimals(UtilCatalogos.findValMaxTasaOCuota(tags.mapCatalogos, tags.retencionImpuestoVal, valTipoFactorRet), 6);
+							tasaOCuotaStrRet = "\" ErrConImpRet001=\""  + Util.completeZeroDecimals(UtilCatalogos.findValMaxTasaOCuota(tags.mapCatalogos, tags.retencionImpuestoVal, valTipoFactorRet), 6);
 						}
 					}
 				}else{
-					tasaOCuotaStrRet = "\" ElCampoNoContieneUnValorDelCatalogoImpuestoParaTasaOCuotaRetencion=\"" + tags.retencionImpuestoVal ;
+					tasaOCuotaStrRet = "\" ErrConImpRet001=\"" + tags.retencionImpuestoVal ;
 				}
 				
 				System.out.println("Valor TasaOCuota Ret AMDA : " + tasaOCuotaStrRet);
