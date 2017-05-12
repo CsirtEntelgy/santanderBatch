@@ -1927,72 +1927,6 @@ public class GeneraXML_ECBDSV3_3 {
 				
 		return domResultado;
 	}
-
-	private static void evaluateAddError(String item) {
-		String err = UtilCatalogos.errorMessage.get(item);
-		if (err != null && !err.isEmpty()) {
-			UtilCatalogos.lstErrors.append(err)
-					.append(System.getProperty("line.separator"));
-		}
-	}
-	public static void EvaluateNodesError(Element docEle) {
-		if (docEle != null) {
-			NodeList nl = docEle.getChildNodes();
-			// System.out.println("Root element :" + docEle.getNodeName());
-			evaluateAddError(docEle.getNodeName());
-			NamedNodeMap attributes = docEle.getAttributes();
-			for (int idxAttr = 0; idxAttr < attributes.getLength(); idxAttr++) {
-				Attr attr = (Attr) attributes.item(idxAttr);
-				evaluateAddError(attr.getNodeName());
-				// String attrName = attr.getNodeName();
-				// String attrValue = attr.getNodeValue();
-				// System.out.println("\t" + attrName + " : " + attrValue);
-			}
-			if (nl != null) {
-				for (int i = 0; i < nl.getLength(); i++) {
-					attributes = docEle.getAttributes();
-					if (nl.item(i).getNodeType() == Node.ELEMENT_NODE) {
-						EvaluateNodesError((Element) nl.item(i));
-					}
-				}
-			}
-		}
-	}
-	
-	private static NodeList getNodesByExpression(Document doc, String expression) throws XPathExpressionException {
-        XPathFactory xPathfactory = XPathFactory.newInstance();
-        XPath xpath = xPathfactory.newXPath();
-        XPathExpression expr = xpath.compile(expression);
-        NodeList nl = (NodeList) expr.evaluate(doc, XPathConstants.NODESET);
-        return nl;
-    }
-    
-    private static Double getDoubleByExpression(Document doc, String expression) throws XPathExpressionException {
-        XPathFactory xPathfactory = XPathFactory.newInstance();
-        XPath xpath = xPathfactory.newXPath();
-        XPathExpression expr = xpath.compile(expression);
-        Double nl = (Double) expr.evaluate(doc, XPathConstants.NUMBER);
-        return nl;
-    }
-    
-    private static void evaluateCalulation(Document doc) throws XPathExpressionException, Exception {
-        BigDecimal compTotal = BigDecimal.valueOf(getDoubleByExpression(doc, "//Comprobante/@Total"));
-        StringBuilder sb = new StringBuilder("sum(//Comprobante/Conceptos/Concepto/@Importe)");
-        sb.append("+sum(//Comprobante/Conceptos/Concepto/Impuestos/Traslados/Traslado/@Importe)");
-        BigDecimal traslados = BigDecimal.valueOf(getDoubleByExpression(doc, sb.toString()));
-        sb = new StringBuilder("sum(//Comprobante/Conceptos/Concepto/Impuestos/Retenciones/Retencion/@Importe)");
-        BigDecimal retenciones = BigDecimal.valueOf(getDoubleByExpression(doc, sb.toString()));
-        BigDecimal totalOper = traslados.add(retenciones.multiply(BigDecimal.valueOf(-1)));
-        if (compTotal.equals(totalOper)) {
-
-		} else {
-			System.out.println("totalOper=" + totalOper);
-			System.out.println("compTotal=" + compTotal);
-			System.out.println("Comptaracion=" + compTotal.equals(totalOper));
-			throw new Exception(
-					"El campo Total no corresponde con la suma del subtotal, menos los descuentos aplicables, más las contribuciones recibidas (impuestos trasladados - federales o locales, derechos, productos, aprovechamientos, aportaciones de seguridad social, contribuciones de mejoras) menos los impuestos retenidos.");
-		}
-    }
 			
 	/**
 	 * Finaliza la creacion del ECB
@@ -2024,11 +1958,11 @@ public class GeneraXML_ECBDSV3_3 {
 				UtilCatalogos.lstErrors = new StringBuffer();
 				Document doc = byteArrayOutputStreamToDocument(out);
 				Element root = doc.getDocumentElement();
-	            EvaluateNodesError(root);
+				UtilCatalogos.evaluateNodesError(root);
 				if(!UtilCatalogos.lstErrors.toString().isEmpty()){
 					throw new Exception(UtilCatalogos.lstErrors.toString());
 				}
-				evaluateCalulation(doc);
+				UtilCatalogos.evaluateCalulation(doc);
 				/*Fin Validaciones 3.3*/
 				
 				long t2 = t1- System.currentTimeMillis();
@@ -2876,16 +2810,22 @@ public class GeneraXML_ECBDSV3_3 {
 			+ "|" + strTagEMISION_PERIODO
 			+ "|" + strTagNUM_TARJETA
 			+ "|" + strCFD_TYPE
-			+ "|" + "\r\n";
-		incidencia.write(temp.getBytes());
-		incidencia.write("Se presentaron los siguientes errores al validar la estructura del comprobante: \r\n".getBytes());
+			+ "|" + "\r\n".intern();
+		incidencia.write(temp.getBytes("UTF-8".intern()));
+		incidencia.write("Se presentaron los siguientes errores al validar la estructura del comprobante: \r\n".getBytes("UTF-8".intern()));
 		logger.info("mLlovera: typeIncidence:"+typeIncidence);
 		logger.info("mLlovera: error:"+e);
 		if(typeIncidence.equals("ERROR"))
-		{	temp = "Error: ".concat(e).concat("\r\n");	} 
+		{	temp = "Error: ".concat("\r\n".intern());	} 
 		else 
-		{	temp = "Warning: ".concat(e).concat("\r\n");	}
-		temp = temp.concat("Inicio de CFD: ").concat(startLine).concat("\r\n");
+		{	temp = "Warning: ".concat("\r\n".intern());	}
+		if(e!= null && !e.isEmpty()){
+			incidencia.write(temp.getBytes("UTF-8".intern()));
+			for(String err : e.split("@@-@@".intern())){
+				incidencia.write(err.concat("\r\n".intern()).getBytes("UTF-8".intern()));
+			}			
+		}
+		temp = "Inicio de CFD: ".concat(startLine).concat("\r\n");
 		logger.info("mLlovera: temp:"+temp);
 		//temp = temp.replace("\n", System.getProperty("line.separator"));
 		incidencia.write(temp.getBytes("UTF-8"));

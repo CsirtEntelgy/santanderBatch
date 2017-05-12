@@ -13,6 +13,7 @@ import java.io.OutputStreamWriter;
 import java.io.SequenceInputStream;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.NumberFormat;
 import java.text.ParseException;
@@ -30,13 +31,26 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+
 import org.apache.log4j.Logger;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
+import org.w3c.dom.Attr;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
+
 
 
 import com.interfactura.firmalocal.xml.CatalogosDom;
@@ -1261,5 +1275,71 @@ public class UtilCatalogos
 			
 			return response;
 		}
-	
+
+
+		public static void evaluateAddError(String item) {
+			String err = UtilCatalogos.errorMessage.get(item);
+			if (err != null && !err.isEmpty()) {
+				UtilCatalogos.lstErrors.append(err)
+						.append("@@-@@".intern());
+			}
+		}
+		public static void evaluateNodesError(Element docEle) {
+			if (docEle != null) {
+				NodeList nl = docEle.getChildNodes();
+				// System.out.println("Root element :" + docEle.getNodeName());
+				evaluateAddError(docEle.getNodeName());
+				NamedNodeMap attributes = docEle.getAttributes();
+				for (int idxAttr = 0; idxAttr < attributes.getLength(); idxAttr++) {
+					Attr attr = (Attr) attributes.item(idxAttr);
+					evaluateAddError(attr.getNodeName());
+					// String attrName = attr.getNodeName();
+					// String attrValue = attr.getNodeValue();
+					// System.out.println("\t" + attrName + " : " + attrValue);
+				}
+				if (nl != null) {
+					for (int i = 0; i < nl.getLength(); i++) {
+						attributes = docEle.getAttributes();
+						if (nl.item(i).getNodeType() == Node.ELEMENT_NODE) {
+							evaluateNodesError((Element) nl.item(i));
+						}
+					}
+				}
+			}
+		}
+		
+		public static NodeList getNodesByExpression(Document doc, String expression) throws XPathExpressionException {
+	        XPathFactory xPathfactory = XPathFactory.newInstance();
+	        XPath xpath = xPathfactory.newXPath();
+	        XPathExpression expr = xpath.compile(expression);
+	        NodeList nl = (NodeList) expr.evaluate(doc, XPathConstants.NODESET);
+	        return nl;
+	    }
+	    
+		public static Double getDoubleByExpression(Document doc, String expression) throws XPathExpressionException {
+	        XPathFactory xPathfactory = XPathFactory.newInstance();
+	        XPath xpath = xPathfactory.newXPath();
+	        XPathExpression expr = xpath.compile(expression);
+	        Double nl = (Double) expr.evaluate(doc, XPathConstants.NUMBER);
+	        return nl;
+	    }
+	    
+	    public static void evaluateCalulation(Document doc) throws XPathExpressionException, Exception {
+	        BigDecimal compTotal = BigDecimal.valueOf(getDoubleByExpression(doc, "//Comprobante/@Total"));
+	        StringBuilder sb = new StringBuilder("sum(//Comprobante/Conceptos/Concepto/@Importe)");
+	        sb.append("+sum(//Comprobante/Conceptos/Concepto/Impuestos/Traslados/Traslado/@Importe)");
+	        BigDecimal traslados = BigDecimal.valueOf(getDoubleByExpression(doc, sb.toString()));
+	        sb = new StringBuilder("sum(//Comprobante/Conceptos/Concepto/Impuestos/Retenciones/Retencion/@Importe)");
+	        BigDecimal retenciones = BigDecimal.valueOf(getDoubleByExpression(doc, sb.toString()));
+	        BigDecimal totalOper = traslados.add(retenciones.multiply(BigDecimal.valueOf(-1)));
+	        if (compTotal.equals(totalOper)) {
+
+			} else {
+				System.out.println("totalOper=" + totalOper);
+				System.out.println("compTotal=" + compTotal);
+				System.out.println("Comptaracion=" + compTotal.equals(totalOper));
+				throw new Exception(
+						"El campo Total no corresponde con la suma del subtotal, menos los descuentos aplicables, más las contribuciones recibidas (impuestos trasladados - federales o locales, derechos, productos, aprovechamientos, aportaciones de seguridad social, contribuciones de mejoras) menos los impuestos retenidos.");
+			}
+	    }
 }

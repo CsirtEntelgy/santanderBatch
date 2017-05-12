@@ -32,6 +32,7 @@ import javax.xml.validation.ValidatorHandler;
 
 
 
+
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -58,6 +59,7 @@ import com.interfactura.firmalocal.xml.WebServiceCliente;
 import com.interfactura.firmalocal.xml.file.XMLProcess;
 import com.interfactura.firmalocal.xml.util.Util;
 import com.interfactura.firmalocal.xml.util.NombreAplicativo;
+import com.interfactura.firmalocal.xml.util.UtilCatalogos;
 
 /**
  * Procesamiento Masivo Genera el XML para una Factura
@@ -628,6 +630,17 @@ public class GeneraXML_CFDV3_3
 				throw new Exception("Estructura Incorrecta "
 						+ numberLines.toString());
 			}
+
+			/*Validaciones 3.3*/
+			UtilCatalogos.lstErrors = new StringBuffer();
+			Document doc = stringToDocument(out.toString());
+			Element root = doc.getDocumentElement();
+			UtilCatalogos.evaluateNodesError(root);
+			if(!UtilCatalogos.lstErrors.toString().isEmpty()){
+				throw new Exception(UtilCatalogos.lstErrors.toString());
+			}
+			UtilCatalogos.evaluateCalulation(doc);
+			/*Fin Validaciones 3.3*/
 			
 			// si no existe la entidad fiscal ya no valida y no lo checa
 			if (!conver.getTags().isEntidadFiscal) 
