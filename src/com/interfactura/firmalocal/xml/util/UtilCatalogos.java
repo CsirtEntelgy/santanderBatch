@@ -84,7 +84,13 @@ public class UtilCatalogos
         errorMessage.put("ErrCompValUni003", "Clave=\"ErrCompValUni003\" Nodo=\"Concepto\" Mensaje=\"El valor valor del campo ValorUnitario debe ser mayor que cero (0) cuando el tipo de comprobante es Traslado.\"");
         errorMessage.put("ErrCompValUni004", "Clave=\"ErrCompValUni004\" Nodo=\"Concepto\" Mensaje=\"El Valor Del Campo Valor Unitario Debe Ser Mayor Que Cero Cuando El Tipo De Comprobante Es Pago.\"");
         errorMessage.put("ErrConcImport001", "Clave=\"ErrConcImport001\" Nodo=\"Concepto\" Mensaje=\"El Valor Del Campo Importe Debe Tener Hasta La Cantidad De Decimales Que Soporta La Moneda.\"");
-        errorMessage.put("ErrConcImpuet001", "Clave=\"ErrConcImpuet001\" Nodo=\"Concepto\" Mensaje=\"El Campo No Contiene Un Valor Del Catalogo Impuesto Para TasaOCuota Traslado.\"");
+        errorMessage.put("ErrConcImpueTra001", "Clave=\"ErrConcImpueTra001\" Nodo=\"Concepto\" Mensaje=\"El Campo No Contiene Un Valor Del Catalogo Impuesto Para TasaOCuota Traslado.\"");
+        errorMessage.put("ErrConcImpueTra002", "Clave=\"ErrConcImpueTra002\" Nodo=\"Concepto\" Mensaje=\"El Campo No Contiene Un Valor Del Catalogo Impuesto Para TasaOCuota Traslado\"");
+        errorMessage.put("ErrConConcepTra001", "Clave=\"ErrConConcepTra001\" Nodo=\"Concepto\" Mensaje=\"No Se Encontro Un Concepto Traslados Para Buscar\"");
+        errorMessage.put("ErrConImpRet001", "Clave=\"ErrConImpRet001\" Nodo=\"Concepto\" Mensaje=\"El Campo No Contiene Un Valor Del Catalogo Impuesto Para TasaOCuota Retencion\"");
+        
+        
+        
         
         
         }
