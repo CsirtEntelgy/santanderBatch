@@ -1448,7 +1448,7 @@ public class ConvertirImplV3_3
 						System.out.println("importeDou LLL: " + importeDou);
 						double sumtotalTraDou = tags.sumTraTotalIepsDou + tags.sumTraTotalIvaDou + tags.sumTraTotalIsrDou;
 						System.out.println("Valor SUMMMM1 Traslados : " + sumtotalTraDou);
-						if(sumtotalTraDou > importeDou || sumtotalTraDou < importeDou ){ //!(valConepto > importeDou) && !(valConepto < importeDou)
+						if(!(sumtotalTraDou > importeDou) && !(sumtotalTraDou < importeDou) ){ //!(valConepto > importeDou) && !(valConepto < importeDou)
 							valid = true;
 							System.out.println("Importes TRUE TASLADOS : ");
 						}
