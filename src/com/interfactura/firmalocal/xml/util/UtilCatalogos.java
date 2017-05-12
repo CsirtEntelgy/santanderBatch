@@ -78,7 +78,13 @@ public class UtilCatalogos
         errorMessage.put("ErrImpRetConImporte001", "Clave=\"ErrImpRetConImporte001\" Nodo=\"Impuestos\" Mensaje=\"El Valor Del Campo Tipo Factor Que Corresponde A Retencion Debe Ser Distinto De Exento\"");
         errorMessage.put("ErrImpTraConTasaOCuota001", "Clave=\"ErrImpTratConTasaOCuota001\" Nodo=\"Impuestos\" Mensaje=\"El Valor Del Campo TasaOCuota Que Corresponde A Traslado No Contiene Un Valor Del Catalogo c_TasaOCuota\"");
         errorMessage.put("ErrImpRetConTasaOCuota001", "Clave=\"ErrImpRetConTasaOCuota001\" Nodo=\"Impuestos\" Mensaje=\"ElValorDelCampoTasaOCuotaQueCorrespondeARetencionNoContieneUnValorDelCatalogoc_TasaOCuota\"");
-        
+        errorMessage.put("ErrCompFecha001", "Clave=\"ErrCompFecha001\" Nodo=\"Comprobante\" Mensaje=\"El Campo Fecha No Cumple Con El Patron Requerido.\"");
+        errorMessage.put("ErrCompValUni001", "Clave=\"ErrCompValUni001\" Nodo=\"Concepto\" Mensaje=\"El Valor Del Campo Valor Unitario Debe Ser Mayor Que Cero (0) Cuando El Tipo De Comprobante Es Ingreso, Egreso O Nomina.\"");
+        errorMessage.put("ErrCompValUni002", "Clave=\"ErrCompValUni002\" Nodo=\"Concepto\" Mensaje=\"El Valor Del Campo Valor Unitario Debe Tener Hasta La Cantidad De Decimales Que Soporte La Moneda.\"");
+        errorMessage.put("ErrCompValUni003", "Clave=\"ErrCompValUni003\" Nodo=\"Concepto\" Mensaje=\"El valor valor del campo ValorUnitario debe ser mayor que cero (0) cuando el tipo de comprobante es Traslado.\"");
+        errorMessage.put("ErrCompValUni004", "Clave=\"ErrCompValUni004\" Nodo=\"Concepto\" Mensaje=\"El Valor Del Campo Valor Unitario Debe Ser Mayor Que Cero Cuando El Tipo De Comprobante Es Pago.\"");
+        errorMessage.put("ErrConcImport001", "Clave=\"ErrConcImport001\" Nodo=\"Concepto\" Mensaje=\"El Valor Del Campo Importe Debe Tener Hasta La Cantidad De Decimales Que Soporta La Moneda.\"");
+        errorMessage.put("ErrConcImpuet001", "Clave=\"ErrConcImpuet001\" Nodo=\"Concepto\" Mensaje=\"El Campo No Contiene Un Valor Del Catalogo Impuesto Para TasaOCuota Traslado.\"");
         
         
         }
