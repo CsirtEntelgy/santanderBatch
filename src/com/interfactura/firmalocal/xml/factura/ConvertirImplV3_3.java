@@ -1336,8 +1336,8 @@ public class ConvertirImplV3_3
 			if (tokens[1].trim().toUpperCase().equals("IVA")) 
 			{
 				tags.DESCRIPTION_TASA = "";
-				Integer tasa = new Integer(Util.getTASA(tokens[2]));
-//				Double tasa = new Integer(Util.getTASA(tokens[2]));
+//				Integer tasa = new Integer(Util.getTASA(tokens[2]));
+				Double tasa = Double.parseDouble(Util.getTASA(tokens[2]));
 				Iva iva = null;
 				for (Iva obj : lstIva) 
 				{
