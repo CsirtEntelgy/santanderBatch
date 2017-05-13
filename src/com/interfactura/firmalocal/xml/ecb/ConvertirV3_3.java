@@ -1636,6 +1636,7 @@ public class ConvertirV3_3
 			System.out.println("***Buscando campos cfd22 para Regimen Fiscal Code: " + map.get("regimenFiscalCode"));
 			System.out.println("***Buscando campos cfd22 para Regimen Fiscal Codigo: " + tags.fis.getAddress().getZipCode());
 			System.out.println("***Buscando campos cfd22 para Regimen Fiscal Codigo Postal: " + map.get("codPostal"));
+			System.out.println("***Buscando campos cfd22 para Regimen Fiscal tags._CodigoPostal: " + tags._CodigoPostal);
 			tags._CodigoPostal = map.get("codPostal").toString();
 			String regVal = (String) map.get("regimenFiscal");
 //			regimenStr = "\n<cfdi:RegimenFiscal Regimen=\"" + regVal + "\" />";

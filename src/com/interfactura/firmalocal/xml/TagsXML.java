@@ -184,5 +184,7 @@ public class TagsXML {
 	public Double sumTraTotalIsrDou = 0.00;
 	public Double sumTraTotalIvaDou = 0.00;
 	public Double sumTraTotalIepsDou = 0.00;
+	public Double descuentoFactValDou = 0.00;
+	public Integer numeroConceptosFac = 0;
 	
 }
