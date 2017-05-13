@@ -1612,14 +1612,15 @@ public class ConvertirImplV3_3
 						totImpRet = Double.parseDouble(tags.TOTAL_IMP_RET);
 						System.out.println("Valor Imp Retenidoss : " + tokens[2].trim());
 						importeDou = Double.parseDouble(tokens[2].trim());
-						System.out.println("Valor Imp Retenidoss : " + valConepto);
+						System.out.println("Valor Imp Retenidoss importeDou : " + importeDou);
+						System.out.println("Valor Imp Retenidoss valCon : " + valConepto);
 						if(valConepto > importeDou || valConepto < importeDou){ //(totImpRet > importeDou || totImpRet < importeDou)
 							valid = true;
 							System.out.println("Importes TRUE RETENCIONES : ");
 						}
 						if(totImpRet > importeDou || totImpRet < importeDou){
 							importeLine = " ElValorDelCampoTotalImpuestosRetenidosDebeSerIgualALaSumaDeLosImportesRegistradosEnElElementoHijoRetencion=\"" + tokens[2].trim();
-						}else if(!valid){
+						}else if(valid){
 							importeLine = " ErrImpRetImporte001=\"" + tokens[2].trim();
 						}else{
 							if(UtilCatalogos.decimalesValidationMsj(tokens[2].trim(), tags.decimalesMoneda)){
