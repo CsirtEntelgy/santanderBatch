@@ -34,6 +34,7 @@ import javax.xml.validation.ValidatorHandler;
 
 
 
+
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -1070,15 +1071,14 @@ public class GeneraXML_CFDV3_3
 					.write("Se presentaron los siguientes errores al validar la estructura del comprobante: \r\n"
 							.getBytes("UTF-8"));
 			if(typeIncidence.equals("ERROR"))
-			{	temp = "Error: ".concat("\r\n".intern());	} 
+			{	temp = "Error: ".concat("\n".intern());	} 
 			else 
-			{	temp = "Warning: ".concat("\r\n".intern());	}
+			{	temp = "Warning: ".concat("\n".intern());	}
 			if (e != null && !e.isEmpty()) {
-				incidencia.write(temp.getBytes("UTF-8".intern()));
-				logger.info("mLlovera: incident:"+e);
+				logger.info("mLlovera: incident:" + e);
 				for (String err : e.split("@@-@@".intern())) {
-					logger.info("mLlovera: incidentList:"+err);
-					incidencia.write(err.concat("\r\n".intern()).getBytes(
+					logger.info("mLlovera: incidentList:" + err);
+					incidencia.write(err.concat("\n".intern()).getBytes(
 							"UTF-8".intern()));
 				}
 			}

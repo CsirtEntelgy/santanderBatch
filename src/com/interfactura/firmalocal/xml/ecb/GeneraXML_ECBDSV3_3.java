@@ -2819,18 +2819,18 @@ public class GeneraXML_ECBDSV3_3 {
 		logger.info("mLlovera: typeIncidence:"+typeIncidence);
 		logger.info("mLlovera: error:"+e);
 		if(typeIncidence.equals("ERROR"))
-		{	temp = "Error: ".concat("\r\n".intern());	} 
+		{	temp = "Error: ".concat("\n".intern());	} 
 		else 
-		{	temp = "Warning: ".concat("\r\n".intern());	}
+		{	temp = "Warning: ".concat("\n".intern());	}
 		if(e!= null && !e.isEmpty()){
 			logger.info("mLlovera: incident:"+e);
 			for (String err : e.split("@@-@@".intern())) {
 				logger.info("mLlovera: incidentList:"+err);
-				incidencia.write(err.concat("\r\n".intern()).getBytes(
+				incidencia.write(err.concat("\n".intern()).getBytes(
 						"UTF-8".intern()));
 			}		
 		}
-		temp = "Inicio de CFD: ".concat(startLine).concat("\r\n");
+		temp = "Inicio de CFD: ".concat(startLine).concat("\n");
 		logger.info("mLlovera: temp:"+temp);
 		//temp = temp.replace("\n", System.getProperty("line.separator"));
 		incidencia.write(temp.getBytes("UTF-8"));
