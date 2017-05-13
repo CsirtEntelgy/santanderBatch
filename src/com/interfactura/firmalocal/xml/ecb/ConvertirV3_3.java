@@ -1832,7 +1832,7 @@ public class ConvertirV3_3
 					if(!claveImp.equalsIgnoreCase("vacio")){
 						impuestoLine = " Impuesto=\"" + claveImp;
 					}else{
-						impuestoLine = " ElCampoImpuestoDeRetencionNoContieneUnValorDelCatalogoc_Impuesto=\"" + claveImp;
+						impuestoLine = " ErrTraImp001=\"" + claveImp;
 					}
 				}else{
 					impuestoLine = " DebeExistirElCampoTotalImpuestosTraslados=\"" + claveImp;
@@ -1853,7 +1853,7 @@ public class ConvertirV3_3
 					if(!tasaOCuotaResult.equalsIgnoreCase("vacio")){
 						tasaOCuotaStr = "\" TasaOCuota=\""  + Util.completeZeroDecimals(tasaOCuotaResult, 6);
 					}else{
-						tasaOCuotaStr = "\" ElValorSeleccionadoDebeCorresponderAUnValorDelCatalogoDondeLaColumnaImpuestoCorrespondaConElCampoImpuestoYLaColoumnaFactorCorrespondaAlCampoTipoFactor=\""  + tasaOCuotaResult;
+						tasaOCuotaStr = "\" ErrTraImp002=\""  + tasaOCuotaResult;
 					}
 
 				}
@@ -1910,24 +1910,24 @@ public class ConvertirV3_3
 							System.out.println("Importes TRUE TASLADOS : ");
 						}
 						if(totImpTra > importeDou || totImpTra < importeDou){
-							valImporteImpTras = "\" ElValorDelCampoTotalImpuestosTrasladoNoEsIgualALaSumaDeLosImportesRegistradosEnElElementoHijoTraslado=\"" + lineas[3].trim()+ "\" ";
+							valImporteImpTras = "\" ErrTraImp003=\"" + lineas[3].trim()+ "\" ";
 						}else if(!valid){
 							valImporteImpTras = "\" ErrImpTraImporte001=\"" + lineas[3].trim() + "\" ";
 						}else{
 							if(UtilCatalogos.decimalesValidationMsj(lineas[3].trim(), tags.decimalesMoneda)){
 								valImporteImpTras = "\" Importe=\"" + lineas[3].trim() + "\" ";
 							}else{
-								valImporteImpTras = "\" ElValorDelCampoImporteCorrespondienteATrasladoDebeTenerLaCantidadDeDecimalesQueSoportaLaMoneda=\"" + lineas[3].trim() + "\" ";
+								valImporteImpTras = "\" ErrTraImp004=\"" + lineas[3].trim() + "\" ";
 							}
 						}
 						
 					}catch(NumberFormatException e){
 						System.out.println("Total Importe Traslado Validando total AMDA T Error en Convertido a numerico : " + tags.TOTAL_IMP_TRA);
-						valImporteImpTras = "\" ElValorDelCampoTotalImpuestosTrasladoNoEsIgualALaSumaDeLosImportesRegistradosEnElElementoHijoTraslado=\"" + lineas[3].trim() + "\" ";
+						valImporteImpTras = "\" ErrTraImp003=\"" + lineas[3].trim() + "\" ";
 					}
 					
 				}else{
-					valImporteImpTras = "\" ElValorDelCampoImporteCorrespondienteATrasladoDebeTenerLaCantidadDeDecimalesQueSoportaLaMoneda=\"" + lineas[3].trim() + "\" ";
+					valImporteImpTras = "\" ErrTraImp004=\"" + lineas[3].trim() + "\" ";
 				}
 			}
 			
@@ -1993,10 +1993,10 @@ public class ConvertirV3_3
 				if(!claveImpRet.equalsIgnoreCase("vacio")){
 					impuestoLine = " Impuesto=\"" + claveImpRet;
 				}else{
-					impuestoLine = " ElCampoImpuestoDeRetencionNoContieneUnValorDelCatalogoc_Impuesto=\"" + claveImpRet;
+					impuestoLine = " ErrRetImp002=\"" + claveImpRet;
 				}
 			}else{
-				impuestoLine = " ElCampoImpuestoDeRetencionNoContieneUnValorDelCatalogoc_Impuesto=\"" + "";
+				impuestoLine = " ErrRetImp002=\"" + "";
 			}
 			
 //			String elementRetencion = "\n<cfdi:Retenciones>" +
@@ -2053,7 +2053,7 @@ public class ConvertirV3_3
 							System.out.println("Importes TRUE RETENCIONES : ");
 						}
 						if(totImpRet > importeDou || totImpRet < importeDou){
-							importeLine = "\" ElValorDelCampoTotalImpuestosRetenidosDebeSerIgualALaSumaDeLosImportesRegistradosEnElElementoHijoRetencion=\"" + lineas[2].trim();
+							importeLine = "\" ErrRetImp001=\"" + lineas[2].trim();
 						}else if(!valid){
 							importeLine = "\" ErrImpRetImporte001=\"" + lineas[2].trim();
 						}else{

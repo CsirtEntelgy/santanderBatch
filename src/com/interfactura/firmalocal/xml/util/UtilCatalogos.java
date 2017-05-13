@@ -102,6 +102,12 @@ public class UtilCatalogos
         errorMessage.put("ErrConcImpueTra002", "Clave=\"ErrConcImpueTra002\" Nodo=\"Concepto\" Mensaje=\"El Campo No Contiene Un Valor Del Catalogo Impuesto Para TasaOCuota Traslado\"");
         errorMessage.put("ErrConConcepTra001", "Clave=\"ErrConConcepTra001\" Nodo=\"Concepto\" Mensaje=\"No Se Encontro Un Concepto Traslados Para Buscar\"");
         errorMessage.put("ErrConImpRet001", "Clave=\"ErrConImpRet001\" Nodo=\"Concepto\" Mensaje=\"El Campo No Contiene Un Valor Del Catalogo Impuesto Para TasaOCuota Retencion\"");
+        errorMessage.put("ErrTraImp001", "Clave=\"ErrTraImp001\" Nodo=\"Traslados\" Mensaje=\"El Campo Impuesto De Traslado No Contiene Un Valor Del Catalogo c_Impuesto\"");
+        errorMessage.put("ErrRetImp001", "Clave=\"ErrRetImp001\" Nodo=\"Retencion\" Mensaje=\"El Valor Del Campo Total Impuestos Retenidos Debe Ser Igual A La Suma De Los Importes Registrados En El Elemento Hijo Retencion\"");
+        errorMessage.put("ErrRetImp002", "Clave=\"ErrRetImp002\" Nodo=\"Retencion\" Mensaje=\"El Campo Impuesto De Retencion No Contiene Un Valor Del Catalogo c_Impuesto\"");
+        errorMessage.put("ErrTraImp002", "Clave=\"ErrTraImp002\" Nodo=\"Traslados\" Mensaje=\"El Valor Seleccionado Debe Corresponder A Un Valor Del Catalogo Donde La Columna Impuesto Corresponda Con El Campo Impuesto Y La Coloumna Factor Corresponda Al Campo TipoFactor (Traslados)\"");
+        errorMessage.put("ErrTraImp003", "Clave=\"ErrTraImp003\" Nodo=\"Traslados\" Mensaje=\"El Valor Del Campo Total Impuestos Traslado No Es Igual A La Suma De Los Importes Registrados En El Elemento Hijo Traslado\"");
+        errorMessage.put("ErrTraImp004", "Clave=\"ErrTraImp004\" Nodo=\"Traslados\" Mensaje=\"El Valor Del Campo Importe Correspondiente A Traslado Debe Tener La Cantidad De Decimales Que Soporta La Moneda\"");
         
         
         
