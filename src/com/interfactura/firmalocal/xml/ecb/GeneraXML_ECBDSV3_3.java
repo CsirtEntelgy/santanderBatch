@@ -2813,11 +2813,12 @@ public class GeneraXML_ECBDSV3_3 {
 			+ "|" + strTagEMISION_PERIODO
 			+ "|" + strTagNUM_TARJETA
 			+ "|" + strCFD_TYPE
-			+ "|" + "\r\n".intern();
-		incidencia.write(temp.getBytes("UTF-8".intern()));
-		incidencia.write("Se presentaron los siguientes errores al validar la estructura del comprobante: \r\n".getBytes("UTF-8".intern()));
+			+ "|" + "\r\n";
+		incidencia.write(temp.getBytes("UTF-8"));
+		incidencia.write("Se presentaron los siguientes errores al validar la estructura del comprobante: \r\n".getBytes("UTF-8"));
 		logger.info("mLlovera: typeIncidence:"+typeIncidence);
-		logger.info("mLlovera: error:"+e);
+		logger.info("mLlovera: error:"+incidencia.toString());
+		logger.info("mLlovera: Incident:"+e);
 		if(typeIncidence.equals("ERROR"))
 		{	temp = "Error: \n";	} 
 		else 

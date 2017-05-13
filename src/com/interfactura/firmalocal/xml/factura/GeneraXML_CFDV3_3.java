@@ -1070,6 +1070,7 @@ public class GeneraXML_CFDV3_3
 			incidencia
 					.write("Se presentaron los siguientes errores al validar la estructura del comprobante: \r\n"
 							.getBytes("UTF-8"));
+			logger.info("mLlovera: error:"+incidencia.toString());
 			if(typeIncidence.equals("ERROR"))
 			{	temp = "Error: \n";	} 
 			else 

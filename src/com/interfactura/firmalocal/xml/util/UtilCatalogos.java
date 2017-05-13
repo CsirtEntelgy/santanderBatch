@@ -1366,15 +1366,15 @@ public class UtilCatalogos
 	        sb = new StringBuilder("(//Comprobante/Conceptos/Concepto/Impuestos/Retenciones/Retencion/@Importe)");
 	        BigDecimal retenciones = getBigDecimalByNodeExpression(doc, sb.toString());
 	        
-			System.out.println("traslados=" + traslados);
 	        BigDecimal totalOper = retenciones.equals(BigDecimal.valueOf(0)) ? traslados : traslados.add(retenciones.multiply(BigDecimal.valueOf(-1)));
-	        if (compTotal.equals(totalOper)) {
+	        if (compTotal.doubleValue() == totalOper.doubleValue()) {
 
 			} else {
 				System.out.println("totalOper=" + totalOper);
 				System.out.println("compTotal=" + compTotal);
 				System.out.println("retenciones=" + retenciones);
-				System.out.println("Comptaracion=" + compTotal.equals(totalOper));
+				System.out.println("traslados=" + traslados);
+				System.out.println("Comptaracion=" + (compTotal.doubleValue() == totalOper.doubleValue()));
 				throw new Exception(
 						"El campo Total no corresponde con la suma del subtotal, menos los descuentos aplicables, más las contribuciones recibidas (impuestos trasladados - federales o locales, derechos, productos, aprovechamientos, aportaciones de seguridad social, contribuciones de mejoras) menos los impuestos retenidos.");
 			}
