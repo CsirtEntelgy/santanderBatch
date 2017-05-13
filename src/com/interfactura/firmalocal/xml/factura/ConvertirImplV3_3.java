@@ -524,20 +524,44 @@ public class ConvertirImplV3_3
 					}
 				}
 				
+//				if (!isNullEmpty(tokens[6])){	
+//					if(UtilCatalogos.decimalesValidationMsj(tokens[6], tags.decimalesMoneda)){
+//						try{
+//							double valDesc = Double.parseDouble(tokens[6]);
+//							if(valDesc > valTotal){
+//								concat.append(" ElValorDelCampoDescuentoEsMayorQueElCampoImporte=\"" + tokens[6] + "\"");
+//							}else{
+//								concat.append(" Descuento=\"" + tokens[6] + "\"");
+//							}
+//						}catch(NumberFormatException e){
+//							concat.append(" ElCampoImporteEsIncorrectoParaCalcularDescuento=\"" + tokens[6] + "\"");
+//						}						
+//					}else{
+//						concat.append(" ElValorDelCampoDescuentoDebeTenerHastaLaCantidadDeDecimalesQueSoporteLaMoneda=\"" + tokens[6] + "\"");
+//					}
+//						
+//				} // Descuento pendiente Validación ADMA V 3.3
+				
 				if (!isNullEmpty(tokens[6])){	
 					if(UtilCatalogos.decimalesValidationMsj(tokens[6], tags.decimalesMoneda)){
 						try{
 							double valDesc = Double.parseDouble(tokens[6]);
-							if(valDesc > valTotal){
-								concat.append(" ElValorDelCampoDescuentoEsMayorQueElCampoImporte=\"" + tokens[6] + "\"");
+							System.out.println("Valor Descuento: "+  valDesc);
+							tags.descuentoFactValDou = valDesc;
+							System.out.println("Valor descuentoFactValDou: "+  tags.descuentoFactValDou);
+							System.out.println("Valor SubTotal Antes: "+  tags.SUBTOTAL_MN);
+							double valSubTotal = Double.parseDouble(tags.SUBTOTAL_MN.trim());
+							System.out.println("Valor SubTotal: "+  valSubTotal);
+							if(valDesc > valSubTotal){
+								concat.append(" ElValorRegistradoEnElCampoDescuentoNoEsMenorOIgualQueElCampoSubTotal=\"" + tokens[6] + "\"");
 							}else{
 								concat.append(" Descuento=\"" + tokens[6] + "\"");
 							}
 						}catch(NumberFormatException e){
-							concat.append(" ElCampoImporteEsIncorrectoParaCalcularDescuento=\"" + tokens[6] + "\"");
+							concat.append(" ElCampoSubtotalODescuentoEsIncorrectoParaCalcularDescuento=\"" + tokens[6] + "\"");
 						}						
 					}else{
-						concat.append(" ElValorDelCampoDescuentoDebeTenerHastaLaCantidadDeDecimalesQueSoporteLaMoneda=\"" + tokens[6] + "\"");
+						concat.append(" ElValorDelCampoDescuentoExcedeLaCantidadDeDecimalesQueSoporteLaMoneda=\"" + tokens[6] + "\"");
 					}
 						
 				} // Descuento pendiente Validación ADMA V 3.3
@@ -836,7 +860,9 @@ public class ConvertirImplV3_3
 		if (tokens.length >= 8) 
 		{
 			tags.UNIDAD_MEDIDA=tokens[2];
-			
+			System.out.println("Asignando Numero De Conceptos: " + tags.numeroConceptosFac);
+			tags.numeroConceptosFac = tags.numeroConceptosFac+1;
+			System.out.println("Asignando Numero De Conceptos Despues: " + tags.numeroConceptosFac);
 			String valDescConcep = "";
 			if(tokens[4].trim().length() > 0){
 				valDescConcep = Util.convierte(tokens[4]).trim();
@@ -1446,6 +1472,7 @@ public class ConvertirImplV3_3
 						importeDou = Double.parseDouble(tokens[3].trim());
 						System.out.println("ValConcepto LLL: " + valConepto);
 						System.out.println("importeDou LLL: " + importeDou);
+						System.out.println("totImpTra LLL: " + totImpTra);
 						double sumtotalTraDou = tags.sumTraTotalIepsDou + tags.sumTraTotalIvaDou + tags.sumTraTotalIsrDou;
 						System.out.println("Valor SUMMMM1 Traslados : " + sumtotalTraDou);
 						if(!(sumtotalTraDou > importeDou) && !(sumtotalTraDou < importeDou) ){ //!(valConepto > importeDou) && !(valConepto < importeDou)
@@ -1841,7 +1868,7 @@ public class ConvertirImplV3_3
 	{
 		String[] tokens = linea.concat("|temp").split("\\|");
 		System.out.println("entra LoadInfoV33: "+linea);
-		System.out.println("entra LoadInfoV33 Element: "+tokens[0]);
+//		System.out.println("entra LoadInfoV33 Element: "+tokens[0]);
 		String[] lin = linea.split("\\|");
 		if (tokens[0].equals(tags._CONTROLCFD)){
 			// Set

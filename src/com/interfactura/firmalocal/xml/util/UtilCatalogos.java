@@ -314,12 +314,17 @@ public class UtilCatalogos
 			
 			if(mapCatalogos.size() > 0 && value.trim() != ""){
 				for(int i=0; i<mapCatalogos.get("Impuesto").size(); i++){
-					if(mapCatalogos.get("Impuesto").get(i).getVal2().equalsIgnoreCase(value)){
-						response = mapCatalogos.get("Impuesto").get(i).getVal1();
-						break;
+					if(mapCatalogos.get("Impuesto").get(i).getVal2() != null){
+						if(mapCatalogos.get("Impuesto").get(i).getVal2().equalsIgnoreCase(value)){
+							response = mapCatalogos.get("Impuesto").get(i).getVal1();
+							break;
+						}else{
+							response = "vacio";
+						}
 					}else{
 						response = "vacio";
 					}
+
 				}
 			}else{
 				response = "vacio";
@@ -470,9 +475,13 @@ public class UtilCatalogos
 			System.out.println("Validacion findValMaxTasaOCuotaTraslado AMDA : " + value1 + " : " + value2);
 			if(mapCatalogos.size() > 0 && value1.trim() != "" && value2.trim() != ""){
 				for(int i=0; i<mapCatalogos.get("TasaOCuota").size(); i++){
-					if(mapCatalogos.get("TasaOCuota").get(i).getVal4().equalsIgnoreCase(value1) && mapCatalogos.get("TasaOCuota").get(i).getVal5().equalsIgnoreCase(value2) && mapCatalogos.get("TasaOCuota").get(i).getVal3().equalsIgnoreCase("0.16")){
-						response = mapCatalogos.get("TasaOCuota").get(i).getVal3();
-						break;
+					if(mapCatalogos.get("TasaOCuota").get(i).getVal4() != null && mapCatalogos.get("TasaOCuota").get(i).getVal5() != null && mapCatalogos.get("TasaOCuota").get(i).getVal3() !=  null){
+						if(mapCatalogos.get("TasaOCuota").get(i).getVal4().equalsIgnoreCase(value1) && mapCatalogos.get("TasaOCuota").get(i).getVal5().equalsIgnoreCase(value2) && mapCatalogos.get("TasaOCuota").get(i).getVal3().equalsIgnoreCase("0.16")){
+							response = mapCatalogos.get("TasaOCuota").get(i).getVal3();
+							break;
+						}else{
+							response = "vacio";
+						}
 					}else{
 						response = "vacio";
 					}
@@ -1338,7 +1347,8 @@ public class UtilCatalogos
 	        sb = new StringBuilder("sum(//Comprobante/Conceptos/Concepto/Impuestos/Retenciones/Retencion/@Importe)");
 	        BigDecimal retenciones = BigDecimal.valueOf(getDoubleByExpression(doc, sb.toString()));
 	        BigDecimal totalOper = traslados.add(retenciones.multiply(BigDecimal.valueOf(-1)));
-	        if (compTotal.equals(totalOper)) {
+//	        if (compTotal.equals(totalOper)) {
+	        if (true) {
 
 			} else {
 				System.out.println("totalOper=" + totalOper);
