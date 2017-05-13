@@ -1903,7 +1903,7 @@ public class ConvertirImplV3_3
 				System.out.println("entra LoadInfoV33 Retenciones: "+ lin[1].trim() + " : " + lin[2].trim());
 				tags.retencionImpuestoVal = lin[1].trim();
 				
-				if(lin[3].trim().equalsIgnoreCase("0.00")){
+				if(lin[2].trim().equalsIgnoreCase("0.00")){
 					tags.retencionImporteVal = "0.00";
 				}else{
 					tags.retencionImporteVal = lin[2].trim();
