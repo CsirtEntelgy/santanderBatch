@@ -1618,28 +1618,28 @@ public class ConvertirImplV3_3
 							System.out.println("Importes TRUE RETENCIONES : ");
 						}
 						if(totImpRet > importeDou || totImpRet < importeDou){
-							importeLine = "\" ElValorDelCampoTotalImpuestosRetenidosDebeSerIgualALaSumaDeLosImportesRegistradosEnElElementoHijoRetencion=\"" + tokens[2].trim();
+							importeLine = " ElValorDelCampoTotalImpuestosRetenidosDebeSerIgualALaSumaDeLosImportesRegistradosEnElElementoHijoRetencion=\"" + tokens[2].trim();
 						}else if(!valid){
-							importeLine = "\" ErrImpRetImporte001=\"" + tokens[2].trim();
+							importeLine = " ErrImpRetImporte001=\"" + tokens[2].trim();
 						}else{
 							if(UtilCatalogos.decimalesValidationMsj(tokens[2].trim(), tags.decimalesMoneda)){
-								importeLine = "\" Importe=\"" + tokens[2].trim() ;
+								importeLine = " Importe=\"" + tokens[2].trim() ;
 							}else{
-								importeLine = "\" ElValorDelCampoImporteCorrespondienteARetencionDebeTenerLaCantidadDeDecimalesQueSoportaLaMoneda=\"" + tokens[2].trim();
+								importeLine = " ElValorDelCampoImporteCorrespondienteARetencionDebeTenerLaCantidadDeDecimalesQueSoportaLaMoneda=\"" + tokens[2].trim();
 							}
 						}
 						
 					}catch(NumberFormatException e){
 						System.out.println("Total Importe Traslado Validando total AMDA T Error en Convertido a numerico : " + tags.TOTAL_IMP_RET);
-						importeLine = "\" ElValorDelCampoTotalImpuestosRetenidosDebeSerIgualALaSumaDeLosImportesRegistradosEnElElementoHijoRetencion=\"" + tokens[2].trim();
+						importeLine = " ElValorDelCampoTotalImpuestosRetenidosDebeSerIgualALaSumaDeLosImportesRegistradosEnElElementoHijoRetencion=\"" + tokens[2].trim();
 					}
 					
 				}else{
-					importeLine = "\" ElValorDelCampoImporteCorrespondienteARetencionDebeTenerLaCantidadDeDecimalesQueSoportaLaMoneda=\"" + tokens[2].trim();
+					importeLine = " ElValorDelCampoImporteCorrespondienteARetencionDebeTenerLaCantidadDeDecimalesQueSoportaLaMoneda=\"" + tokens[2].trim();
 				}
 
 			}else{
-				importeLine = "\" DebeExistirElAtributoTotalImpuestosRetenidos=\"" + tokens[2].trim();
+				importeLine = " DebeExistirElAtributoTotalImpuestosRetenidos=\"" + tokens[2].trim();
 			}
 			
 			return Util
@@ -1870,76 +1870,81 @@ public class ConvertirImplV3_3
 		System.out.println("entra LoadInfoV33: "+linea);
 //		System.out.println("entra LoadInfoV33 Element: "+tokens[0]);
 		String[] lin = linea.split("\\|");
-		if (tokens[0].equals(tags._CONTROLCFD)){
-			// Set
-
-		} else if (tokens[0].equals(tags._CFD)) {
-			// Comprobante
-
-		} else if (tokens[0].equals(tags._EMISOR)) {
-			// Emisor
-
-		} else if (tokens[0].equals(tags._RECEPTOR)) {
-			// Receptor
-			System.out.println("entra LoadInfoV33 Receptor:" + lin[1].trim() );
-		} else if (tokens[0].equals(tags._DOMICILIO)) {
-			// Domicilio
-			System.out.println("entra LoadInfoV33 Domicilio:" + lin[9].trim() );
-			tags.recepPais = lin[9].trim();
-
-		} else if (tokens[0].equals(tags._CONCEPTO)) {
-			// Concepto
-
-		} else if (tokens[0].equals(tags._IMPUESTOS)) {
-			// Impuestos
-
-		} else if (tokens[0].equals(tags._RETENCION)) {
-			// Retenciones
-			System.out.println("entra LoadInfoV33 Retenciones Back: "+ lin[1].trim() + " : " + lin[2].trim());
-//			tags.retencionImpuestoVal = lineas[1].trim();
-//			tags.retencionImporteVal = lineas[2].trim(); // Se comenta por que al parecer se recorro uno despues AMDA
-			System.out.println("entra LoadInfoV33 Retenciones: "+ lin[1].trim() + " : " + lin[2].trim());
-			tags.retencionImpuestoVal = lin[1].trim();
+		if(lin.length > 1){
 			
-			if(lin[3].trim().equalsIgnoreCase("0.00")){
-				tags.retencionImporteVal = "0.00";
-			}else{
-				tags.retencionImporteVal = lin[2].trim();
-			}
+			if (tokens[0].equals(tags._CONTROLCFD)){
+				// Set
 
-		} else if (tokens[0].equals(tags._TRASLADO)) {
-			// Traslados
-//			System.out.println("entra LoadInfoV33 Traslados: "+ lineas[1].trim() + " : " + lineas[2].trim() + " : " + lineas[3].trim());
-//			tags.trasladoImpuestoVal = lineas[1].trim();
-//			tags.trasladoTasaVal = lineas[2].trim();
-//			tags.trasladoImporteVal = lineas[3].trim(); // Se comenta por que al parecer se recorro uno despues AMDA
-			System.out.println("entra LoadInfoV33 Traslados: "+ lin[1].trim() + " : " + lin[2].trim() + " : " + lin[3].trim());
-			tags.trasladoImpuestoVal = lin[1].trim();
-			tags.trasladoTasaVal = lin[2].trim();
-			if(lin[3].trim().equalsIgnoreCase("0.00")){
-				tags.trasladoImporteVal = "0.00";
-			}else{
-				tags.trasladoImporteVal = lin[3].trim();
+			} else if (tokens[0].equals(tags._CFD)) {
+				// Comprobante
+
+			} else if (tokens[0].equals(tags._EMISOR)) {
+				// Emisor
+
+			} else if (tokens[0].equals(tags._RECEPTOR)) {
+				// Receptor
+				System.out.println("entra LoadInfoV33 Receptor:" + lin[1].trim() );
+			} else if (tokens[0].equals(tags._DOMICILIO)) {
+				// Domicilio
+				System.out.println("entra LoadInfoV33 Domicilio:" + lin[9].trim() );
+				tags.recepPais = lin[9].trim();
+
+			} else if (tokens[0].equals(tags._CONCEPTO)) {
+				// Concepto
+
+			} else if (tokens[0].equals(tags._IMPUESTOS)) {
+				// Impuestos
+
+			} else if (tokens[0].equals(tags._RETENCION)) {
+				// Retenciones
+				System.out.println("entra LoadInfoV33 Retenciones Back: "+ lin[1].trim() + " : " + lin[2].trim());
+//				tags.retencionImpuestoVal = lineas[1].trim();
+//				tags.retencionImporteVal = lineas[2].trim(); // Se comenta por que al parecer se recorro uno despues AMDA
+				System.out.println("entra LoadInfoV33 Retenciones: "+ lin[1].trim() + " : " + lin[2].trim());
+				tags.retencionImpuestoVal = lin[1].trim();
+				
+				if(lin[3].trim().equalsIgnoreCase("0.00")){
+					tags.retencionImporteVal = "0.00";
+				}else{
+					tags.retencionImporteVal = lin[2].trim();
+				}
+
+			} else if (tokens[0].equals(tags._TRASLADO)) {
+				// Traslados
+//				System.out.println("entra LoadInfoV33 Traslados: "+ lineas[1].trim() + " : " + lineas[2].trim() + " : " + lineas[3].trim());
+//				tags.trasladoImpuestoVal = lineas[1].trim();
+//				tags.trasladoTasaVal = lineas[2].trim();
+//				tags.trasladoImporteVal = lineas[3].trim(); // Se comenta por que al parecer se recorro uno despues AMDA
+				System.out.println("entra LoadInfoV33 Traslados: "+ lin[1].trim() + " : " + lin[2].trim() + " : " + lin[3].trim());
+				tags.trasladoImpuestoVal = lin[1].trim();
+				tags.trasladoTasaVal = lin[2].trim();
+				if(lin[3].trim().equalsIgnoreCase("0.00")){
+					tags.trasladoImporteVal = "0.00";
+				}else{
+					tags.trasladoImporteVal = lin[3].trim();
+				}
+//				valImporteTraslado = lin[3].trim();
+				System.out.println("Sale LoadInfoV33 Traslados:" + tags.trasladoImporteVal);			
+				
+//				valImporteRetencion = lin[2].trim();
+				System.out.println("Sale LoadInfoV33 Retencion:" + tags.retencionImporteVal);
+
+			} else if (tokens[0].equals(tags._FACTORAJE)) {
+				// -
+//				System.out.println("entra LoadInfoV33 Traslados: "+ lin[1].trim() + " : " + lin[2].trim() + " : " + lin[3].trim());
+//				tags.trasladoImpuestoVal = lin[1].trim();
+//				tags.trasladoTasaVal = lin[2].trim();
+//				if(lin[3].trim().equalsIgnoreCase("0.00")){
+//					tags.trasladoImporteVal = "0.00";
+//				}else{
+//					tags.trasladoImporteVal = lin[3].trim();
+//				}
+////				valImporteTraslado = lin[3].trim();
+//				System.out.println("Sale LoadInfoV33 Traslados:" + tags.trasladoImporteVal);
 			}
-//			valImporteTraslado = lin[3].trim();
-			System.out.println("Sale LoadInfoV33 Traslados:" + tags.trasladoImporteVal);			
 			
-//			valImporteRetencion = lin[2].trim();
-			System.out.println("Sale LoadInfoV33 Retencion:" + tags.retencionImporteVal);
-
-		} else if (tokens[0].equals(tags._FACTORAJE)) {
-			// -
-//			System.out.println("entra LoadInfoV33 Traslados: "+ lin[1].trim() + " : " + lin[2].trim() + " : " + lin[3].trim());
-//			tags.trasladoImpuestoVal = lin[1].trim();
-//			tags.trasladoTasaVal = lin[2].trim();
-//			if(lin[3].trim().equalsIgnoreCase("0.00")){
-//				tags.trasladoImporteVal = "0.00";
-//			}else{
-//				tags.trasladoImporteVal = lin[3].trim();
-//			}
-////			valImporteTraslado = lin[3].trim();
-//			System.out.println("Sale LoadInfoV33 Traslados:" + tags.trasladoImporteVal);
-		}
+		}// Validando split Termina
+		
 	}
 
 	public TagsXML getTags() 
