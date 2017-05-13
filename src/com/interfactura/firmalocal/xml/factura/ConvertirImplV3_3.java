@@ -1559,9 +1559,9 @@ public class ConvertirImplV3_3
 				claveImpRet = UtilCatalogos.findValClaveImpuesto(tags.mapCatalogos, tokens[1].trim());
 				System.out.println("Valor Clave Impuesto Ret AMDA : " + claveImpRet);
 				if(!claveImpRet.equalsIgnoreCase("vacio")){
-					impuestoLine = " Impuesto=\"" + claveImpRet;
+					impuestoLine = " Impuesto=\"" + claveImpRet + "\"";
 				}else{
-					impuestoLine = " ElCampoImpuestoDeRetencionNoContieneUnValorDelCatalogoc_Impuesto=\"" + claveImpRet;
+					impuestoLine = " ElCampoImpuestoDeRetencionNoContieneUnValorDelCatalogoc_Impuesto=\"" + claveImpRet + "\"";
 				}
 			}
 			
