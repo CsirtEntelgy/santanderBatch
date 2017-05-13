@@ -725,6 +725,8 @@ public class GeneraXML_CFDV3_3
 		} 
 		catch (Exception ex) 
 		{
+			logger.info(out.toString());
+			logger.info(ex);
 			msgError = ex.getMessage();
 
 			String typeIncidence = "ERROR";
@@ -1071,11 +1073,14 @@ public class GeneraXML_CFDV3_3
 			{	temp = "Error: ".concat("\r\n".intern());	} 
 			else 
 			{	temp = "Warning: ".concat("\r\n".intern());	}
-			if(e!= null && !e.isEmpty()){
+			if (e != null && !e.isEmpty()) {
 				incidencia.write(temp.getBytes("UTF-8".intern()));
-				for(String err : e.split("@@-@@".intern())){
-					incidencia.write(err.concat("\r\n".intern()).getBytes("UTF-8".intern()));
-				}			
+				logger.info("mLlovera: incident:"+e);
+				for (String err : e.split("@@-@@".intern())) {
+					logger.info("mLlovera: incidentList:"+err);
+					incidencia.write(err.concat("\r\n".intern()).getBytes(
+							"UTF-8".intern()));
+				}
 			}
 			temp = "Inicio de CFD: ".concat(startLine).concat("\r\n");
 			logger.info("mLlovera: temp:"+temp);

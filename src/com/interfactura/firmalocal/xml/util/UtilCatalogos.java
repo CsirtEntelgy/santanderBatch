@@ -1321,28 +1321,44 @@ public class UtilCatalogos
 	        NodeList nl = (NodeList) expr.evaluate(doc, XPathConstants.NODESET);
 	        return nl;
 	    }
+
+	    private static BigDecimal getBigDecimalByNodeExpression(Document doc, String expression) throws XPathExpressionException {
+	        NodeList nl = getNodesByExpression(doc, expression);
+	        BigDecimal value = new BigDecimal(0);
+	        if (nl != null) {
+	            for (int i = 0; i < nl.getLength(); i++) {
+	                value = value.add(new BigDecimal(nl.item(i).getNodeValue()));
+	            }
+	        }
+	        return value;
+	    }
 	    
 		public static Double getDoubleByExpression(Document doc, String expression) throws XPathExpressionException {
 	        XPathFactory xPathfactory = XPathFactory.newInstance();
 	        XPath xpath = xPathfactory.newXPath();
 	        XPathExpression expr = xpath.compile(expression);
-	        Double nl = (Double) expr.evaluate(doc, XPathConstants.NUMBER);
+	        Double nl = (Double)expr.evaluate(doc, XPathConstants.NUMBER);
 	        return nl;
 	    }
 	    
 	    public static void evaluateCalulation(Document doc) throws XPathExpressionException, Exception {
-	        BigDecimal compTotal = BigDecimal.valueOf(getDoubleByExpression(doc, "//Comprobante/@Total"));
-	        StringBuilder sb = new StringBuilder("sum(//Comprobante/Conceptos/Concepto/@Importe)");
-	        sb.append("+sum(//Comprobante/Conceptos/Concepto/Impuestos/Traslados/Traslado/@Importe)");
-	        BigDecimal traslados = BigDecimal.valueOf(getDoubleByExpression(doc, sb.toString()));
-	        sb = new StringBuilder("sum(//Comprobante/Conceptos/Concepto/Impuestos/Retenciones/Retencion/@Importe)");
-	        BigDecimal retenciones = BigDecimal.valueOf(getDoubleByExpression(doc, sb.toString()));
-	        BigDecimal totalOper = traslados.add(retenciones.multiply(BigDecimal.valueOf(-1)));
+	    	BigDecimal compTotal = BigDecimal.valueOf(getDoubleByExpression(doc, "//Comprobante/@Total"));
+	        StringBuilder sb = new StringBuilder("(//Comprobante/Conceptos/Concepto/@Importe)");
+	        BigDecimal conceptTotal = getBigDecimalByNodeExpression(doc, sb.toString());
+	        sb = new StringBuilder("(//Comprobante/Conceptos/Concepto/Impuestos/Traslados/Traslado/@Importe)");
+	        BigDecimal traslTotal = getBigDecimalByNodeExpression(doc, sb.toString());
+	        BigDecimal traslados = conceptTotal.add(traslTotal);
+	        sb = new StringBuilder("(//Comprobante/Conceptos/Concepto/Impuestos/Retenciones/Retencion/@Importe)");
+	        BigDecimal retenciones = getBigDecimalByNodeExpression(doc, sb.toString());
+	        
+			System.out.println("traslados=" + traslados);
+	        BigDecimal totalOper = retenciones.equals(BigDecimal.valueOf(0)) ? traslados : traslados.add(retenciones.multiply(BigDecimal.valueOf(-1)));
 	        if (compTotal.equals(totalOper)) {
 
 			} else {
 				System.out.println("totalOper=" + totalOper);
 				System.out.println("compTotal=" + compTotal);
+				System.out.println("retenciones=" + retenciones);
 				System.out.println("Comptaracion=" + compTotal.equals(totalOper));
 				throw new Exception(
 						"El campo Total no corresponde con la suma del subtotal, menos los descuentos aplicables, más las contribuciones recibidas (impuestos trasladados - federales o locales, derechos, productos, aprovechamientos, aportaciones de seguridad social, contribuciones de mejoras) menos los impuestos retenidos.");
