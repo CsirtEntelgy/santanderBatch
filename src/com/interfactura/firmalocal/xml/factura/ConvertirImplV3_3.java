@@ -740,12 +740,8 @@ public class ConvertirImplV3_3
 			}
 			
 			System.out.println("Receptor recepPais: " + tags.recepPais);
-			String stringa = Normalizer.normalize(tags.recepPais, Normalizer.Form.NFD);
-			System.out.println("Receptor STRINGA RecepPais: " + stringa);
-			String stringU = stringa.replaceAll("[^\\p{ASCII}]", "");
-			System.out.println("Receptor stringU RecepPais: " + stringU);
-			String stringD = stringU.replaceAll("\\p{M}", "");
-			System.out.println("Receptor stringD RecepPais: " + stringD);
+			tags.recepPais = UtilCatalogos.findStringAcento(tags.recepPais);
+			System.out.println("Receptor recepPais Despues: " + tags.recepPais);
 			if(tags.RECEPCION_RFC.equalsIgnoreCase("XEXX010101000") || tags.RECEPCION_RFC.equalsIgnoreCase("XAXX010101000") || tags.RECEPCION_RFC.equalsIgnoreCase("XEXE010101000") || tags.RECEPCION_RFC.equalsIgnoreCase("XEXX010101000")){
 				
 				if(tags.recepPais.trim().length() > 0){

@@ -129,8 +129,9 @@ public class UtilCatalogos
         errorMessage.put("ErrTraImp002", "Clave=\"ErrTraImp002\" Nodo=\"Traslados\" Mensaje=\"El Valor Seleccionado Debe Corresponder A Un Valor Del Catalogo Donde La Columna Impuesto Corresponda Con El Campo Impuesto Y La Coloumna Factor Corresponda Al Campo TipoFactor (Traslados)\"");
         errorMessage.put("ErrTraImp003", "Clave=\"ErrTraImp003\" Nodo=\"Traslados\" Mensaje=\"El Valor Del Campo Total Impuestos Traslado No Es Igual A La Suma De Los Importes Registrados En El Elemento Hijo Traslado\"");
         errorMessage.put("ErrTraImp004", "Clave=\"ErrTraImp004\" Nodo=\"Traslados\" Mensaje=\"El Valor Del Campo Importe Correspondiente A Traslado Debe Tener La Cantidad De Decimales Que Soporta La Moneda\"");
-        
-        
+        errorMessage.put("ErrTraConTipFac001", "Clave=\"ErrTraConTipFac001\" Nodo=\"Traslados\" Mensaje=\"El Valor Del Campo Tipo Factor Que Corresponde A Traslado No Contiene Un Valor Del Catalogo c_TipoFactor\"");
+        errorMessage.put("ErrTraConImpu001", "Clave=\"ErrTraConImpu001\" Nodo=\"Traslados\" Mensaje=\"El Valor Del Campo Impuesto Que Corresponde A Traslado No Contiene Un Valor Del Catalogo c_Impuesto\"");
+        errorMessage.put("ErrRetConTipFac001", "Clave=\"ErrRetConTipFac001\" Nodo=\"Traslados\" Mensaje=\"El Valor Del Campo Tipo Factor Que Corresponde A Retencion No Contiene Un Valor Del Catalogo c_TipoFactor\"");
         
         
         
@@ -801,10 +802,10 @@ public class UtilCatalogos
 								if(!findValImpuestoByClave(mapCatalogos, mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal1()).equalsIgnoreCase("vacio")){
 									impuestoLine = "\" Impuesto=\"" + mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal1() ;
 								}else{
-									impuestoLine = "\" ElValorDelCampoImpuestoQueCorrespondeATrasladoNoContieneUnValorDelCatalogoc_Impuesto=\"" + mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal1() ;
+									impuestoLine = "\" ErrTraConImpu001=\"" + mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal1() ;
 								}
 							}else{
-								impuestoLine = "\" ElValorDelCampoImpuestoQueCorrespondeATrasladoNoContieneUnValorDelCatalogoc_Impuesto=\"" + mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal1() ;
+								impuestoLine = "\" ErrTraConImpu001=\"" + mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal1() ;
 							}
 							
 							String tipoFactorLine = "";
@@ -835,10 +836,10 @@ public class UtilCatalogos
 //									}
 									
 								}else{
-									tipoFactorLine = "\" ElValorDelCampoTipoFactorQueCorrespondeATrasladoNoContieneUnValorDelCatalogoc_TipoFactor=\"" + tipoFactorValue;
+									tipoFactorLine = "\" ErrTraConTipFac001=\"" + tipoFactorValue;
 								}
 							}else{
-								tipoFactorLine = "\" ElValorDelCampoTipoFactorQueCorrespondeATrasladoNoContieneUnValorDelCatalogoc_TipoFactor=\"" + mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal2();
+								tipoFactorLine = "\" ErrTraConTipFac001=\"" + mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal2();
 							}
 							
 							nodocon +=  "\n<cfdi:Traslado " + baseCamp +
@@ -1050,10 +1051,10 @@ public class UtilCatalogos
 									}
 									
 								}else{
-									tipoFactorLine = "\" ElValorDelCampoTipoFactorQueCorrespondeARetencionNoContieneUnValorDelCatalogoc_TipoFactor=\"" + tipoFactorValue;
+									tipoFactorLine = "\" ErrRetConTipFac001=\"" + tipoFactorValue;
 								}
 							}else{
-								tipoFactorLine = "\" ElValorTipoFactorQueCorrespondeARetencionNoContieneUnValorDelCatalogoc_TipoFactor=\"" + mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal2();
+								tipoFactorLine = "\" ErrRetConTipFac001=\"" + mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal2();
 							}
 							
 							nodocon +=  "\n<cfdi:Retencion " + baseCamp +
