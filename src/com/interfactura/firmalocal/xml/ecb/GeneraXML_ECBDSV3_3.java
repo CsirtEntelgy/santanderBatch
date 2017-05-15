@@ -1957,16 +1957,6 @@ public class GeneraXML_ECBDSV3_3 {
 					}
 					throw new Exception("Estructura Incorrecta " + numberLines.toString());
 				}
-				/*Validaciones 3.3*/
-				UtilCatalogos.lstErrors = new StringBuffer();
-				Document doc = byteArrayOutputStreamToDocument(out);
-				Element root = doc.getDocumentElement();
-				UtilCatalogos.evaluateNodesError(root);
-				if(!UtilCatalogos.lstErrors.toString().isEmpty()){
-					throw new Exception(UtilCatalogos.lstErrors.toString());
-				}
-				UtilCatalogos.evaluateCalulation(doc);
-				/*Fin Validaciones 3.3*/
 				
 				long t2 = t1- System.currentTimeMillis();
 				if (conver.getTags().isEntidadFiscal) 
@@ -2021,7 +2011,17 @@ public class GeneraXML_ECBDSV3_3 {
 						 
 						 */
 						out = Util.enconding(out);
-						 
+
+						/*Validaciones 3.3*/
+						UtilCatalogos.lstErrors = new StringBuffer();
+						Document dom = byteArrayOutputStreamToDocument(out);
+						Element root = dom.getDocumentElement();
+						UtilCatalogos.evaluateNodesError(root);
+						if(!UtilCatalogos.lstErrors.toString().isEmpty()){
+							throw new Exception(UtilCatalogos.lstErrors.toString());
+						}
+						UtilCatalogos.evaluateCalulation(dom,conver.getTags().decimalesMoneda);
+						/*Fin Validaciones 3.3*/ 
 						try{
 														
 							//if(lstObjECBs.size()<26643 ){
@@ -2045,7 +2045,7 @@ public class GeneraXML_ECBDSV3_3 {
 								
 								//Inicio - Quitar todos los movimientos no fiscales del XML almacenado en la variable out
 								//Manipular con Document el xml obtenido de la variable out					
-								Document dom = this.removeMovimientoECB(byteArrayOutputStreamToDocument(out));
+								dom = this.removeMovimientoECB(byteArrayOutputStreamToDocument(out));
 								//Fin - Quitar todos los movimientos no fiscales del XML almacenado en la variable out
 								//System.out.println("flags: fAttMovIncorrect:" + this.fAttMovIncorrect + " fnombreCliente:" + this.fnombreCliente + " fnumeroCuenta:" + this.fnumeroCuenta + " fperiodo:" + this.fperiodo + " fsucursal:" + this.fsucursal);
 								if(!this.fAttMovIncorrect && !this.fnombreCliente && !this.fnumeroCuenta && !this.fperiodo && !this.fsucursal){

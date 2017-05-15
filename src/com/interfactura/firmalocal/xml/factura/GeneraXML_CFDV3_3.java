@@ -706,7 +706,8 @@ public class GeneraXML_CFDV3_3
 			if(!UtilCatalogos.lstErrors.toString().isEmpty()){
 				throw new Exception(UtilCatalogos.lstErrors.toString());
 			}
-			UtilCatalogos.evaluateCalulation(doc);
+			UtilCatalogos.evaluateCalulation(doc, conver.getTags().decimalesMoneda);
+			out = UtilCatalogos.convertStringToOutpuStream(UtilCatalogos.convertDocumentXmlToString(doc));
 			/*Fin Validaciones 3.3*/
 			
 			// si no existe la entidad fiscal ya no valida y no lo checa
@@ -748,7 +749,7 @@ public class GeneraXML_CFDV3_3
 						"No existe certificado para la entidad fiscal "
 								+ conver.getTags().fis.getFiscalName());
 			}
-
+			
 			CfdBean cfdBean = new CfdBean(out, serieFiscalId, fiscalEntityId, certificate, creationDate);
 			conver.getTags().NUM_CERTIFICADO = cfdBean.getSealCertificate().getSerialNumber();
 			cfdBean.setProviderNumber(conver.getTags().NUM_PROVEEDOR);
