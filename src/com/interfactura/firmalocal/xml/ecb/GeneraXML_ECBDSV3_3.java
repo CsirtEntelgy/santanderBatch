@@ -2814,7 +2814,19 @@ public class GeneraXML_ECBDSV3_3 {
 			+ "|" + strTagNUM_TARJETA
 			+ "|" + strCFD_TYPE
 			+ "|" + "\r\n";
+		incidencia.write(temp.getBytes());
+		incidencia.write("Se presentaron los siguientes errores al validar la estructura del comprobante: \r\n".getBytes());
+		if(typeIncidence.equals("ERROR"))
+		{	temp = "Error: " + e + "\r\n";	} 
+		else 
+		{	temp = "Warning: " + e + "\r\n";	}
+		temp += "Inicio de CFD: " + startLine + "\r\n";
 		incidencia.write(temp.getBytes("UTF-8"));
+		
+		
+		
+		
+		/*incidencia.write(temp.getBytes("UTF-8"));
 		incidencia.write("Se presentaron los siguientes errores al validar la estructura del comprobante: \r\n".getBytes("UTF-8"));
 		logger.info("mLlovera: typeIncidence:"+typeIncidence);
 		logger.info("mLlovera: error:"+incidencia.toString());
@@ -2833,7 +2845,7 @@ public class GeneraXML_ECBDSV3_3 {
 		temp = "Inicio de CFD: ".concat(startLine).concat("\n");
 		logger.info("mLlovera: temp:"+temp);
 		//temp = temp.replace("\n", System.getProperty("line.separator"));
-		incidencia.write(temp.getBytes());
+		incidencia.write(temp.getBytes());*/
 		temp = null;
 		long t2 = t1- System.currentTimeMillis();
 		System.out.println("TIME: Escritura archivo incidente fileIncidencia " + t2 + " ms");

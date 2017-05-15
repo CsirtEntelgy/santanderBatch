@@ -1066,7 +1066,19 @@ public class GeneraXML_CFDV3_3
 	{
 		String temp = rfc + "|" + contrato+ "|"
 				+ codigoCliente + "|" + periodo + "|" + "\r\n";
-			incidencia.write(temp.getBytes("UTF-8"));
+		incidencia.write(temp.getBytes());
+		incidencia.write("Se presentaron los siguientes errores al validar la estructura del comprobante: \r\n".getBytes());
+		if(typeIncidence.equals("ERROR"))
+		{	temp = "Error: " + e + "\r\n";	} 
+		else 
+		{	temp = "Warning: " + e + "\r\n";	}
+		temp += "Inicio de CFD: " + startLine + "\r\n";
+		incidencia.write(temp.getBytes("UTF-8"));
+		
+		
+		
+		
+			/*incidencia.write(temp.getBytes("UTF-8"));
 			incidencia
 					.write("Se presentaron los siguientes errores al validar la estructura del comprobante: \r\n"
 							.getBytes("UTF-8"));
@@ -1085,7 +1097,7 @@ public class GeneraXML_CFDV3_3
 			temp = "Inicio de CFD: ".concat(startLine).concat("\r\n");
 			logger.info("mLlovera: temp:"+temp);
 			//temp = temp.replace("\n", System.getProperty("line.separator"));
-			incidencia.write(temp.getBytes());
+			incidencia.write(temp.getBytes());*/
 			temp = null;
 			this.setBDIncidence(setCFDIncidence(e, typeIncidence,
 					nameFile, startLine, endLine));
