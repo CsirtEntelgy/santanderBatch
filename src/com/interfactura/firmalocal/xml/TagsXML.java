@@ -187,4 +187,11 @@ public class TagsXML {
 	public Double descuentoFactValDou = 0.00;
 	public Integer numeroConceptosFac = 0;
 	
+	public String[] lineaAnteriorConceptoTokens;
+	public long contCFDAnteriorConcepto = 0L;
+	public String[] lineaAnteriorImpuestoTokens;
+	public long contCFDAnteriorImpuesto = 0L;
+	public String[] lineaAnteriorRetencionTokens;
+	public long contCFDAnteriorRetencion = 0L;
+	
 }

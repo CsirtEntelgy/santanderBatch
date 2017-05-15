@@ -7,6 +7,7 @@ import static com.interfactura.firmalocal.xml.util.Util.tags;
 
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
+import java.text.Normalizer;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -174,6 +175,7 @@ public class ConvertirImplV3_3
 				if(!valEqMoneda.equalsIgnoreCase("vacio")){
 					concat.append(" Moneda=\"" + valEqMoneda + "\"");
 					tags.TIPO_MONEDA = valEqMoneda;
+					tags.TIPO_MONEDA = UtilCatalogos.findStringAcento(tags.TIPO_MONEDA);
 				}else{
 					concat.append(" ElCampoMonedaNoTieneUnValorEnElCatalogo" + "=\"" + tags.SERIE_FISCAL_CFD + "\"");
 				}
@@ -724,6 +726,12 @@ public class ConvertirImplV3_3
 			}
 			
 			System.out.println("Receptor recepPais: " + tags.recepPais);
+			String stringa = Normalizer.normalize(tags.recepPais, Normalizer.Form.NFD);
+			System.out.println("Receptor STRINGA RecepPais: " + stringa);
+			String stringU = stringa.replaceAll("[^\\p{ASCII}]", "");
+			System.out.println("Receptor stringU RecepPais: " + stringU);
+			String stringD = stringU.replaceAll("\\p{M}", "");
+			System.out.println("Receptor stringD RecepPais: " + stringD);
 			if(tags.RECEPCION_RFC.equalsIgnoreCase("XEXX010101000") || tags.RECEPCION_RFC.equalsIgnoreCase("XAXX010101000") || tags.RECEPCION_RFC.equalsIgnoreCase("XEXE010101000") || tags.RECEPCION_RFC.equalsIgnoreCase("XEXX010101000")){
 				
 				if(tags.recepPais.trim().length() > 0){
@@ -762,7 +770,9 @@ public class ConvertirImplV3_3
 			if(!tags.RECEPCION_RFC.equalsIgnoreCase("RFCNecesario")){
 				
 				if(tags.RECEPCION_RFC.equalsIgnoreCase("XEXX010101000") || tags.RECEPCION_RFC.equalsIgnoreCase("XAXX010101000") || tags.RECEPCION_RFC.equalsIgnoreCase("XEXE010101000") || tags.RECEPCION_RFC.equalsIgnoreCase("XEXX010101000") ){
-					String valRegIdTrib = UtilCatalogos.findNumRegIdTrib(tags.mapCatalogos, tags.RECEPCION_RFC);
+					System.out.println("Recepcion RFC DO:  " + tags.RECEPCION_RFC);
+					System.out.println("Recepcion RFC DO:  " + tokens[2].trim());
+					String valRegIdTrib = UtilCatalogos.findNumRegIdTrib(tags.mapCatalogos, tokens[2].trim());
 					if(!valRegIdTrib.equalsIgnoreCase("vacio")){
 //						numRegIdTribReceptor = " NumRegIdTrib=\"" + valRegIdTrib + "\"";
 						

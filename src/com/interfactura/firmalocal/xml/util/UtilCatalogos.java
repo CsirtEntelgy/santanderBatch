@@ -15,6 +15,7 @@ import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.text.Normalizer;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -50,6 +51,10 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
+
+
+
+
 
 
 
@@ -256,6 +261,7 @@ public class UtilCatalogos
 			
 			if(mapCatalogos.size() > 0 && value.trim().length() > 0){
 				for(int i=0; i<mapCatalogos.get("NumRegIdTrib").size(); i++){
+					System.out.println("findNumRegIdTrib Catalogo:  " + mapCatalogos.get("NumRegIdTrib").get(i).getVal3());
 					if(mapCatalogos.get("NumRegIdTrib").get(i).getVal3() != null){
 						if(mapCatalogos.get("NumRegIdTrib").get(i).getVal3().equalsIgnoreCase(value)){
 							response = mapCatalogos.get("NumRegIdTrib").get(i).getVal1();
@@ -1379,4 +1385,72 @@ public class UtilCatalogos
 						"El campo Total no corresponde con la suma del subtotal, menos los descuentos aplicables, más las contribuciones recibidas (impuestos trasladados - federales o locales, derechos, productos, aprovechamientos, aportaciones de seguridad social, contribuciones de mejoras) menos los impuestos retenidos.");
 			}
 	    }
+	    
+		//Validacion Encuentra Valor de Retencion del catalogo claveProdServ a travez de la descripcion AMDA
+		public static String findStringAcento(String value){
+			String response = "";
+			String valres = "";
+			System.out.println("findStringAcento AMDA: " + value);
+			if(value.trim().length() > 0){
+				
+				String stringa = Normalizer.normalize(value, Normalizer.Form.NFD);
+				String stringU = stringa.replaceAll("[^\\p{ASCII}]", "");
+				System.out.println("findStringAcento AMDAII: " + stringU);
+				if(stringU.trim().equalsIgnoreCase("Canad")){
+					response = "Canada";
+				}else if(stringU.trim().equalsIgnoreCase("Florn antillano neerlands")){
+					response = "Florin antillano neerlandes";
+				}else if(stringU.trim().equalsIgnoreCase("Dlar de Barbados")){
+					response = "Dolar de Barbados";
+				}else if(stringU.trim().equalsIgnoreCase("Lev bulgaro")){
+					response = "Lev bulgaro";
+				}else if(stringU.trim().equalsIgnoreCase("Dlar de Bermudas")){
+					response = "Dolar de Bermudas";
+				}else if(stringU.trim().equalsIgnoreCase("Dlar de Brunei")){
+					response = "Dolar de Brunei";
+				}else if(stringU.trim().equalsIgnoreCase("Dlar de las Bahamas")){
+					response = "Dolar de las Bahamas";
+				}else if(stringU.trim().equalsIgnoreCase("Dlar de Belice")){
+					response = "Dolar de Belice";
+				}else if(stringU.trim().equalsIgnoreCase("Coln costarricense")){
+					response = "Colon costarricense";
+				}else if(stringU.trim().equalsIgnoreCase("Birr etope")){
+					response = "Birr etiope";
+				}else if(stringU.trim().equalsIgnoreCase("Dlar de Fiji")){
+					response = "Dolar de Fiji";
+				}else if(stringU.trim().equalsIgnoreCase("Dlar guyans")){
+					response = "Dolar guyanes";
+				}else if(stringU.trim().equalsIgnoreCase("Florn")){
+					response = "Florin";
+				}else if(stringU.trim().equalsIgnoreCase("Nuevo Shekel Israel")){
+					response = "Nuevo Shekel Israeli";
+				}else if(stringU.trim().equalsIgnoreCase("Dinar iraqu")){
+					response = "Dinar iraqui";
+				}else if(stringU.trim().equalsIgnoreCase("Rial irani")){
+					response = "Rial irani";
+				}else if(stringU.trim().equalsIgnoreCase("Dlar Jamaiquino")){
+					response = "Dolar Jamaiquino";
+				}else if(stringU.trim().equalsIgnoreCase("Cheln keniano")){
+					response = "Chelin keniano";
+				}else if(stringU.trim().equalsIgnoreCase("Corea del Norte gan")){
+					response = "Corea del Norte gano";
+				}else if(stringU.trim().equalsIgnoreCase("Dinar kuwaiti")){
+					response = "Dinar kuwaiti";
+				}else if(stringU.trim().equalsIgnoreCase("Dlar de las Islas Caimn")){
+					response = "Dolar de las Islas Caiman";
+				}else if(stringU.trim().equalsIgnoreCase("Dlar liberiano")){
+					response = "Dolar liberiano";
+				}else if(stringU.trim().equalsIgnoreCase("Dirham marroqu")){
+					response = "Dirham marroqui";
+				}else if(stringU.trim().equalsIgnoreCase("Mxico Unidad de Inversin (UDI)")){
+					response = "Mexico Unidad de Inversion (UDI)";
+				}
+
+			}else{
+				response = "vacio";
+			}
+			System.out.println("findStringAcento response AMDAII: " + response);
+			return response;
+		}
+	    
 }
