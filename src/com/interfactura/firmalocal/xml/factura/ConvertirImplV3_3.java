@@ -171,13 +171,26 @@ public class ConvertirImplV3_3
 			String valEqMoneda = "";
 			System.out.println("Tipo Moneda SerieFical AMDA: " + tags.TIPO_MONEDA + " : " + tags.SERIE_FISCAL_CFD);
 			if(tags.TIPO_MONEDA.trim() != ""){ // Validacion Moneda Equivalencia AMDA V 3.3
-				valEqMoneda = UtilCatalogos.findEquivalenciaMoneda(tags.mapCatalogos, tags.TIPO_MONEDA);
+				tags.TIPO_MONEDA = UtilCatalogos.findStringAcento(tags.TIPO_MONEDA);
+				valEqMoneda = UtilCatalogos.findMonedaCatalogo(tags.mapCatalogos, tags.TIPO_MONEDA);
+				System.out.println("Tipo Moneda AMDA FindAcento: " + tags.TIPO_MONEDA + " : " + tags.SERIE_FISCAL_CFD);
+//				valEqMoneda = UtilCatalogos.findEquivalenciaMoneda(tags.mapCatalogos, tags.TIPO_MONEDA);
 				if(!valEqMoneda.equalsIgnoreCase("vacio")){
 					concat.append(" Moneda=\"" + valEqMoneda + "\"");
 					tags.TIPO_MONEDA = valEqMoneda;
-					tags.TIPO_MONEDA = UtilCatalogos.findStringAcento(tags.TIPO_MONEDA);
+					System.out.println("Tipo Moneda AMDA If True: " + tags.TIPO_MONEDA + " : " + tags.SERIE_FISCAL_CFD);
+//					tags.TIPO_MONEDA = UtilCatalogos.findStringAcento(tags.TIPO_MONEDA);
+//					System.out.println("Tipo Moneda AMDA FindAcento: " + tags.TIPO_MONEDA + " : " + tags.SERIE_FISCAL_CFD);
 				}else{
-					concat.append(" ElCampoMonedaNoTieneUnValorEnElCatalogo" + "=\"" + tags.SERIE_FISCAL_CFD + "\"");
+					System.out.println("Tipo Moneda AMDA ELSE: " + tags.TIPO_MONEDA + " : " + tags.SERIE_FISCAL_CFD);
+					valEqMoneda = UtilCatalogos.findEquivalenciaMoneda(tags.mapCatalogos, tags.TIPO_MONEDA);
+					if(!valEqMoneda.equalsIgnoreCase("vacio")){
+						concat.append(" Moneda=\"" + valEqMoneda + "\"");
+						tags.TIPO_MONEDA = valEqMoneda;
+						System.out.println("Tipo Moneda AMDA Else true: " + tags.TIPO_MONEDA + " : " + tags.SERIE_FISCAL_CFD);
+					}else{
+						concat.append(" ElCampoMonedaNoTieneUnValorEnElCatalogo" + "=\"" + tags.SERIE_FISCAL_CFD + "\"");
+					}	
 				}
 				
 				
@@ -287,6 +300,7 @@ public class ConvertirImplV3_3
 			}
 			
 			// Validando decimales soportados por el tipo de moneda AMDA V 3.3
+			System.out.println("Decimales moneda Antes: " + tags.TIPO_MONEDA);
 			if(tags.TIPO_MONEDA.trim().length() > 0 ){
 				tags.decimalesMoneda = UtilCatalogos.findDecimalesMoneda(tags.mapCatalogos, tags.TIPO_MONEDA);
 				System.out.println("Decimales moneda: " + tags.decimalesMoneda);

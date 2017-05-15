@@ -16,8 +16,10 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -29,6 +31,9 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.validation.ValidatorHandler;
 
 //import oracle.net.ano.Service;
+
+
+
 
 
 
@@ -328,10 +333,27 @@ public class GeneraXML_CFDV3_3
 				out.write(conver.domicilio(tokens, numberLineCFD));
 				this.beginCONCEPTOS(out);
 			} else if (tokens[0].equals(conver.getTags()._CONCEPTO)) {
+				System.out.println("LineaConcepto Genera AMDA:  " + tokens);
 				conver.getTags().lineaAnteriorConceptoTokens = tokens;
 				conver.getTags().contCFDAnteriorConcepto = numberLineCFD;
+				String tokenC = "tokenC";
+				String numberLineCFDC = "numberLineCFDC";
+//				conver.getTags().numControl = 0;
+				conver.getTags().numControl = conver.getTags().numControl + 1;
+				System.out.println("Num AMDA:  " + conver.getTags().numControl);
+				tokenC = tokenC + conver.getTags().numControl ;
+				numberLineCFDC = numberLineCFDC + conver.getTags().numControl;
+				System.out.println("TokenC AMDA:  " + tokenC);
+				System.out.println("numberLineCFDC AMDA:  " + numberLineCFDC);
+				
+				conver.getTags().mapConcep.put(tokenC, conver.getTags().lineaAnteriorConceptoTokens);
+				System.out.println("Saliendo de CONECPTO AMDA  " + conver.getTags().mapConcep.size());
+				conver.getTags().mapConcepL.put(numberLineCFDC, conver.getTags().contCFDAnteriorConcepto);
+				System.out.println("Saliendo de CONECPTOL AMDA  " + conver.getTags().mapConcepL.size());
+
 //				out.write(conver.concepto(tokens, numberLineCFD));
 			} else if (tokens[0].equals(conver.getTags()._INFOADUANERA)) {
+				System.out.println("Saliendo de InfoAduanera AMDA  ");
 				out.write(conver.infoAduanera(tokens, date, numberLineCFD));
 			} else if (tokens[0].equals(conver.getTags()._PREDIAL)) {
 				out.write(conver.predial(tokens, numberLineCFD));
@@ -354,8 +376,31 @@ public class GeneraXML_CFDV3_3
 //					out.write(conver.retenciones(tokens, numberLineCFD));
 				}
 			} else if (tokens[0].equals(conver.getTags()._TRASLADO)) {
+				System.out.println("MAP CONCEP SIZE: " + conver.getTags().mapConcep.size());
+				String tokenCTr = "";
+				String numberLineCFDCTr = "" ;
+				Integer numTr = 0;
 				
-				out.write(conver.concepto(conver.getTags().lineaAnteriorConceptoTokens, conver.getTags().contCFDAnteriorConcepto));
+				for(int i=0; i<conver.getTags().mapConcep.size(); i++){
+					tokenCTr = "tokenC";
+					numberLineCFDCTr = "numberLineCFDC";
+					
+					numTr = numTr + 1;
+					System.out.println("NumTr AMDA:  " + numTr);
+					tokenCTr = tokenCTr + numTr ;
+					numberLineCFDCTr = numberLineCFDCTr + numTr;
+					System.out.println("TokenCTr AMDA:  " + tokenCTr);
+					System.out.println("numberLineCFDCTr AMDA:  " + numberLineCFDCTr);
+					
+					String[] tokenKe = (String[])conver.getTags().mapConcep.get(tokenCTr);
+					System.out.println("Despues de Token Ke AMDA: ");
+					Long valMap = conver.getTags().mapConcepL.get(numberLineCFDCTr);
+					System.out.println("Despues Long 1 AMDA: ");
+//			        Long valMapLongLong = Long.parseLong(valMap);
+			        System.out.println("Despues Long 2 AMDA: ");
+					out.write(conver.concepto(tokenKe, valMap));
+				}
+				
 				if(!conver.getTags().tipoComprobante.equalsIgnoreCase("T") || !conver.getTags().tipoComprobante.equalsIgnoreCase("P")){
 					out.write(conver.impuestos(conver.getTags().lineaAnteriorImpuestoTokens, conver.getTags().contCFDAnteriorImpuesto));
 					this.beginRETENCIONES(out);
@@ -476,6 +521,8 @@ public class GeneraXML_CFDV3_3
 	private void begin(ByteArrayOutputStream out) throws IOException {
 		lstFactoraje = new ArrayList<byte[]>();
 		out.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>".getBytes("UTF-8"));
+//		conver.getTags().mapConcep = new HashMap<String, String[]>();
+//		conver.getTags().mapConcepL = new HashMap<String, Long>();
 	}
 
 	/**

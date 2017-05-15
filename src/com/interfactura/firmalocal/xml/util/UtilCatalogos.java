@@ -1425,7 +1425,7 @@ public class UtilCatalogos
 				}else if(stringU.trim().equalsIgnoreCase("Nuevo Shekel Israel")){
 					response = "Nuevo Shekel Israeli";
 				}else if(stringU.trim().equalsIgnoreCase("Dinar iraqu")){
-					response = "Dinar iraqui";
+					response = "Dinar iraquí";
 				}else if(stringU.trim().equalsIgnoreCase("Rial irani")){
 					response = "Rial irani";
 				}else if(stringU.trim().equalsIgnoreCase("Dlar Jamaiquino")){
@@ -1444,6 +1444,54 @@ public class UtilCatalogos
 					response = "Dirham marroqui";
 				}else if(stringU.trim().equalsIgnoreCase("Mxico Unidad de Inversin (UDI)")){
 					response = "Mexico Unidad de Inversion (UDI)";
+				}else if(stringU.trim().equalsIgnoreCase("Dlar de Namibia")){
+					response = "Dlar de Namibia";
+				}else if(stringU.trim().equalsIgnoreCase("Crdoba Oro")){
+					response = "Cordoba Oro";
+				}else if(stringU.trim().equalsIgnoreCase("Rupia nepal")){
+					response = "Rupia nepali";
+				}else if(stringU.trim().equalsIgnoreCase("Dlar de Nueva Zelanda")){
+					response = "Dolar de Nueva Zelanda";
+				}else if(stringU.trim().equalsIgnoreCase("Rial oman")){
+					response = "Rial omani";
+				}else if(stringU.trim().equalsIgnoreCase("Rupia de Pakistn")){
+					response = "Rupia de Pakistan";
+				}else if(stringU.trim().equalsIgnoreCase("Guaran")){
+					response = "Guarani";
+				}else if(stringU.trim().equalsIgnoreCase("Franco ruands")){
+					response = "Franco ruandes";
+				}else if(stringU.trim().equalsIgnoreCase("Riyal saud")){
+					response = "Riyal saudi";
+				}else if(stringU.trim().equalsIgnoreCase("Dlar de las Islas Salomn")){
+					response = "Dolar de las Islas Salomon";
+				}else if(stringU.trim().equalsIgnoreCase("Cheln somal")){
+					response = "Chelin somali";
+				}else if(stringU.trim().equalsIgnoreCase("Dlar de Suriname")){
+					response = "Dolar de Suriname";
+				}else if(stringU.trim().equalsIgnoreCase("Turkmenistn nuevo manat")){
+					response = "Turkmenistan nuevo manat";
+				}else if(stringU.trim().equalsIgnoreCase("Paanga")){
+					response = "Pa'anga";
+				}else if(stringU.trim().equalsIgnoreCase("Dlar de Trinidad y Tobago")){
+					response = "Dolar de Trinidad y Tobago";
+				}else if(stringU.trim().equalsIgnoreCase("Nuevo dlar de Taiwn")){
+					response = "Nuevo dolar de Taiwan";
+				}else if(stringU.trim().equalsIgnoreCase("Dlar estadounidense (da siguiente)")){
+					response = "Dolar estadounidense (dia siguiente)";
+				}else if(stringU.trim().equalsIgnoreCase("Uzbekistn Sum")){
+					response = "Uzbekistan Sum";
+				}else if(stringU.trim().equalsIgnoreCase("Bolvar")){
+					response = "Bolivar";
+				}else if(stringU.trim().equalsIgnoreCase("Cdigos reservados especficamente para propsitos de prueba")){
+					response = "Códigos reservados específicamente para propósitos de prueba";
+				}else if(stringU.trim().equalsIgnoreCase("Los cdigos asignados para las transacciones en que intervenga ninguna moneda")){
+					response = "Los códigos asignados para las transacciones en que intervenga ninguna moneda";
+				}else if(stringU.trim().equalsIgnoreCase("Rial yemen")){
+					response = "Rial yemeni";
+				}else if(stringU.trim().equalsIgnoreCase("Zimbabwe Dlar")){
+					response = "Zimbabwe Dólar";
+				}else if(stringU.trim().equalsIgnoreCase("MXN")){
+					response = "MXN";
 				}
 
 			}else{

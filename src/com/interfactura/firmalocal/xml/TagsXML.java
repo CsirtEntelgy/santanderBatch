@@ -1,9 +1,11 @@
 package com.interfactura.firmalocal.xml;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.collections.map.HashedMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -187,6 +189,9 @@ public class TagsXML {
 	public Double descuentoFactValDou = 0.00;
 	public Integer numeroConceptosFac = 0;
 	
+	public Map<String, String[]> mapConcep = new HashMap<String, String[]>();
+	public Map<String, Long> mapConcepL = new HashMap<String, Long>();
+	public Integer numControl = 0;
 	public String[] lineaAnteriorConceptoTokens;
 	public long contCFDAnteriorConcepto = 0L;
 	public String[] lineaAnteriorImpuestoTokens;
