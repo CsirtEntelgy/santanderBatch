@@ -18,6 +18,7 @@ import java.io.Writer;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
+import java.text.MessageFormat;
 import java.text.Normalizer;
 import java.text.NumberFormat;
 import java.text.ParseException;
@@ -74,6 +75,7 @@ import org.xml.sax.SAXException;
 
 
 
+
 import com.interfactura.firmalocal.xml.CatalogosDom;
 
 public class UtilCatalogos 
@@ -90,12 +92,14 @@ public class UtilCatalogos
         errorMessage.put("ErrCompTipoCambio005", "Clave=\"ErrCompTipoCambio005\" Nodo=\"Comprobante\" Mensaje=\"El campo TipoCambio se debe registrar cuando el campo Moneda tiene un valor distinto de MXN y XXX.\"");
         errorMessage.put("ErrCompTipoCambio006", "Clave=\"ErrCompTipoCambio006\" Nodo=\"Comprobante\" Mensaje=\"El campo TipoCambio no es un valor númerico\"");
         errorMessage.put("ErrCompTipoComprobante001", "Clave=\"ErrCompTipoComprobante001\" Nodo=\"Comprobante\" Mensaje=\"El campo TipoDeComprobante, no contiene un valor del catálogo c_TipoDeComprobante.\"");
+        errorMessage.put("ErrCompTipoComprobante002", "Clave=\"ErrCompTipoComprobante002\" Nodo=\"Comprobante\" Mensaje=\"El TipoDeComprobante NO es I,E o N, y un concepto incluye el campo descuento. \"");
         errorMessage.put("ErrCompTotal001", "Clave=\"ErrCompTotal001\" Nodo=\"Comprobante\" Mensaje=\"El campo Total no debe ser negativo.\"");
         errorMessage.put("ErrCompTotal002", "Clave=\"ErrCompTotal002\" Nodo=\"Comprobante\" Mensaje=\"El campo Total no es númerico.\"");
         errorMessage.put("ErrCompSubTotal001", "Clave=\"ErrCompSubTotal001\" Nodo=\"Comprobante\" Mensaje=\"No se permiten campos negativos en el campo Subtotal\"");
         errorMessage.put("ErrCompSubTotal002", "Clave=\"ErrCompSubTotal002\" Nodo=\"Comprobante\"  Mensaje=\"El TipoDeComprobante es T o P y el importe no es igual a 0, o cero con decimales.\"");
         errorMessage.put("ErrCompSubTotal003", "Clave=\"ErrCompSubTotal003\" Nodo=\"Comprobante\"  Mensaje=\"El valor de este campo SubTotal excede la cantidad de decimales que soporta la moneda.\"");
         errorMessage.put("ErrCompSubTotal004", "Clave=\"ErrCompSubTotal004\" Nodo=\"Comprobante\"  Mensaje=\"El valor del campo SubTotal viene vacio o no es numerico.\"");
+        errorMessage.put("ErrCompSubTotal005", "Clave=\"ErrCompSubTotal005\" Nodo=\"Comprobante\"  Mensaje=\"El valor registrado en el campo Descuento no es menor o igual que el campo Subtotal.\"");
         errorMessage.put("ErrReceNumRegIdTrib001", "Clave=\"ErrReceNumRegIdTrib001\" Nodo=\"Receptor\"  Mensaje=\"El Valor RegistroIdAtributario No Cumple Con El Patron Correspondiente.\"");
         errorMessage.put("ErrReceNumRegIdTrib002", "Clave=\"ErrReceNumRegIdTrib002\" Nodo=\"Receptor\"  Mensaje=\"No Se Ha Encontrado El Receptor Relacionado Con NumRegIdTrib El RFC Del Receptor Debe De Ser Un Generico Extranjero.\"");
         errorMessage.put("ErrCompFormaPago001", "Clave=\"ErrCompFormaPago001\" Nodo=\"Comprobante\" Mensaje=\"El campo FormaPago no contiene un valor del catálogo c_FormaPago. \"");
@@ -119,6 +123,7 @@ public class UtilCatalogos
         errorMessage.put("ErrCompValUni003", "Clave=\"ErrCompValUni003\" Nodo=\"Concepto\" Mensaje=\"El valor valor del campo ValorUnitario debe ser mayor que cero (0) cuando el tipo de comprobante es Traslado.\"");
         errorMessage.put("ErrCompValUni004", "Clave=\"ErrCompValUni004\" Nodo=\"Concepto\" Mensaje=\"El Valor Del Campo Valor Unitario Debe Ser Mayor Que Cero Cuando El Tipo De Comprobante Es Pago.\"");
         errorMessage.put("ErrConcImport001", "Clave=\"ErrConcImport001\" Nodo=\"Concepto\" Mensaje=\"El Valor Del Campo Importe Debe Tener Hasta La Cantidad De Decimales Que Soporta La Moneda.\"");
+        errorMessage.put("ErrConcImport002", "Clave=\"ErrConcImport002\" Nodo=\"Concepto\" Mensaje=\"El valor del campo Descuento es mayor que el campo Importe, importe numero: {0}, descuento:{1}, importe:{2}\"");
         errorMessage.put("ErrConcImpueTra001", "Clave=\"ErrConcImpueTra001\" Nodo=\"Concepto\" Mensaje=\"El Campo No Contiene Un Valor Del Catalogo Impuesto Para TasaOCuota Traslado.\"");
         errorMessage.put("ErrConcImpueTra002", "Clave=\"ErrConcImpueTra002\" Nodo=\"Concepto\" Mensaje=\"El Campo No Contiene Un Valor Del Catalogo Impuesto Para TasaOCuota Traslado\"");
         errorMessage.put("ErrConConcepTra001", "Clave=\"ErrConConcepTra001\" Nodo=\"Concepto\" Mensaje=\"No Se Encontro Un Concepto Traslados Para Buscar\"");
@@ -1388,6 +1393,14 @@ public class UtilCatalogos
 	        return nl;
 	    }
 
+	    public static String getStringValByExpression(Document doc, String expression) throws XPathExpressionException {
+	        NodeList nl = getNodesByExpression(doc, expression);
+	        if (nl != null && nl.getLength() > 0) {
+	            return nl.item(0).getNodeValue();
+	        }
+	        return "";
+	    }
+
 	    private static BigDecimal getBigDecimalByNodeExpression(Document doc, String expression) throws XPathExpressionException {
 	        NodeList nl = getNodesByExpression(doc, expression);
 	        BigDecimal value = new BigDecimal(0);
@@ -1430,28 +1443,48 @@ public class UtilCatalogos
 						"El campo Total no corresponde con la suma del subtotal, menos los descuentos aplicables, más las contribuciones recibidas (impuestos trasladados - federales o locales, derechos, productos, aprovechamientos, aportaciones de seguridad social, contribuciones de mejoras) menos los impuestos retenidos.");
 			}
 
-	        /*Asignacion de Descuento*/
+
+	        /*Asignacion y validacion de Descuento*/
 	        BigDecimal discount = BigDecimal.valueOf(getDoubleByExpression(doc, "//Comprobante/@Descuento"));
+	        String voucherType = getStringValByExpression(doc, "//Comprobante/@TipoDeComprobante");
 	        System.out.println("discount:" + discount);
 	        if (discount.doubleValue() > 0) {//Si no viene con valor omitimos este paso
-	            String concepts = "//Comprobante/Conceptos/Concepto";
-	            BigDecimal totalConcept = BigDecimal.valueOf(getDoubleByExpression(doc, "count(".concat(concepts.intern()).concat(")")));
-	            System.out.println("Conceptos:" + totalConcept);
-	            if (totalConcept.doubleValue() > 0) {//Verificamos que vengan conceptos
-	                //Obtenemos el decuento por concepto
-	                BigDecimal discPerConcept = discount.divide(totalConcept, maxDecimals, RoundingMode.HALF_UP);
-	                BigDecimal last = discount.subtract(discPerConcept.multiply(totalConcept));
-	                NodeList nl = getNodesByExpression(doc, concepts.intern());
-	                if (nl != null) {
-	                    String disc = discPerConcept.toString();
-	                    for (int i = 0; i < nl.getLength(); i++) {
-	                        if ((i + 1) == nl.getLength() && last.doubleValue() > 0) {
-	                            //Se suma el descuento por concepto mas
-	                            disc = discPerConcept.add(last).toString();
+	            if (voucherType.equalsIgnoreCase("I")
+	                    || voucherType.equalsIgnoreCase("E")
+	                    || voucherType.equalsIgnoreCase("N")) {
+	                //El subtotal debe ser mayor o igual al descuento
+	                BigDecimal subTotal = BigDecimal.valueOf(getDoubleByExpression(doc, "//Comprobante/@SubTotal"));
+	                if (discount.doubleValue() > subTotal.doubleValue()) {
+	                    throw new Exception(errorMessage.get("ErrCompSubTotal005"));
+	                }
+
+	                String concepts = "//Comprobante/Conceptos/Concepto";
+	                BigDecimal totalConcept = BigDecimal.valueOf(getDoubleByExpression(doc, "count(".concat(concepts.intern()).concat(")")));
+	                System.out.println("Conceptos:" + totalConcept);
+	                if (totalConcept.doubleValue() > 0) {//Verificamos que vengan conceptos
+	                    //Obtenemos el decuento por concepto
+	                    BigDecimal discPerConcept = discount.divide(totalConcept, maxDecimals, RoundingMode.HALF_UP);
+	                    BigDecimal last = discount.subtract(discPerConcept.multiply(totalConcept));
+	                    NodeList nl = getNodesByExpression(doc, concepts.intern());
+	                    if (nl != null) {
+	                        String disc = discPerConcept.toString();
+	                        for (int i = 0; i < nl.getLength(); i++) {
+	                            if ((i + 1) == nl.getLength() && last.doubleValue() > 0) {
+	                                //Se suma el descuento por concepto mas
+	                                discPerConcept = discPerConcept.add(last);
+	                                disc = discPerConcept.toString();
+	                            }
+	                            Element el = ((Element) nl.item(i));
+	                            BigDecimal importe = new BigDecimal(el.getAttribute("Importe"));
+	                            if (discPerConcept.doubleValue() > importe.doubleValue()) {
+	                                throw new Exception(MessageFormat.format(errorMessage.get("ErrConcImport002"), (i + 1), discPerConcept, importe));
+	                            }
+	                            el.setAttribute("Descuento", disc.intern());
 	                        }
-	                        ((Element) nl.item(i)).setAttribute("Descuento", disc.intern());
 	                    }
 	                }
+	            } else {
+	                throw new Exception(errorMessage.get("ErrCompTipoComprobante002"));
 	            }
 	        }
 	    }
