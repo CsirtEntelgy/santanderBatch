@@ -141,6 +141,24 @@ public class UtilCatalogos
         errorMessage.put("ErrCompDesc001", "Clave=\"ErrCompDesc001\" Nodo=\"Comprobante\" Mensaje=\"El Valor Registrado En El Campo Descuento No Es Menor O Igual Que El Campo Sub Total\"");
         errorMessage.put("ErrCompDesc002", "Clave=\"ErrCompDesc002\" Nodo=\"Comprobante\" Mensaje=\"El Campo Subtotal O Descuento Es Incorrecto Para Calcular Descuento\"");
         errorMessage.put("ErrCompDesc003", "Clave=\"ErrCompDesc003\" Nodo=\"Comprobante\" Mensaje=\"El Valor Del Campo Descuento Excede La Cantidad De Decimales Que Soporte La Moneda\"");
+        errorMessage.put("ErrCompTipMon001", "Clave=\"ErrCompTipMon001\" Nodo=\"Comprobante\" Mensaje=\"El Campo Tipo Cambio No Cumple Con El Patron Requerido\"");
+        errorMessage.put("ErrCompTipMon002", "Clave=\"ErrCompTipMon002\" Nodo=\"Comprobante\" Mensaje=\"El Campo Tipo Cambio No Esta Dentro De Los Limites\"");
+        errorMessage.put("ErrCompTipMon003", "Clave=\"ErrCompTipMon003\" Nodo=\"Comprobante\" Mensaje=\"El Campo Tipo Cambio No Tiene El Valor 1 Y La Moneda Indicada Es MXN\"");
+        errorMessage.put("ErrCompTipMon004", "Clave=\"ErrCompTipMon004\" Nodo=\"Comprobante\" Mensaje=\"Tipo Cambio Incorrecto\"");
+        errorMessage.put("ErrCompMon001", "Clave=\"ErrCompMon001\" Nodo=\"Comprobante\" Mensaje=\"El Campo Moneda No Tiene Un Valor En El Catalogo\"");
+        errorMessage.put("ErrCompTipCom001", "Clave=\"ErrCompTipCom001\" Nodo=\"Comprobante\" Mensaje=\"El Campo tipo De Comprobante No Contiene Un Valor En El Cataloco c_Tipo De Comprobante\"");
+        errorMessage.put("ErrCompForPag001", "Clave=\"ErrCompForPag001\" Nodo=\"Comprobante\" Mensaje=\"El Campo Forma Pago No Contiene Un Valor Del Catalogo C_FormaPago\"");
+        errorMessage.put("ErrCompMetPag001", "Clave=\"ErrCompMetPag001\" Nodo=\"Comprobante\" Mensaje=\"El Campo Metodo Pago No Contiene Un Valor Del Catalogo C_FormaPago\"");
+        errorMessage.put("ErrCompSubTot001", "Clave=\"ErrCompSubTot001\" Nodo=\"Comprobante\" Mensaje=\"No Se Permiten Valores Negativos En Sub Total\"");
+        errorMessage.put("ErrCompSubTot002", "Clave=\"ErrCompSubTot002\" Nodo=\"Comprobante\" Mensaje=\"El Valor Del Campo Sub Total Excede La Cantidad De Decimales Que Soporta La Moneda\"");
+        errorMessage.put("ErrCompSubTot003", "Clave=\"ErrCompSubTot003\" Nodo=\"Comprobante\" Mensaje=\"Sub Total Incorrecto Viene Vacio O No Es Un Numero\"");
+        errorMessage.put("ErrCompTipCom002", "Clave=\"ErrCompTipCom002\" Nodo=\"Comprobante\" Mensaje=\"El Tipo De Comprobante Es T o P y El Importe No Es Igual A (0) o Cero Con Decimales\"");
+        errorMessage.put("ErrRecUsoCfdi001", "Clave=\"ErrRecUsoCfdi001\" Nodo=\"Receptor\" Mensaje=\"El Campo UsoCFDI No Contiene Un Valor Del Catalogo c_UsoCFDI\"");
+        errorMessage.put("ErrRecResFis001", "Clave=\"ErrRecResFis001\" Nodo=\"Receptor\" Mensaje=\"El Valor Del Campo Residencia Fiscal No Puede Ser MEX\"");
+        errorMessage.put("ErrRecResFis002", "Clave=\"ErrRecResFis002\" Nodo=\"Receptor\" Mensaje=\"El Campo Residencia Fiscal No Contiene Un Valor Del Catalogo c_Pais\"");
+        errorMessage.put("ErrRecRegId001", "Clave=\"ErrRecRegId001\" Nodo=\"Receptor\" Mensaje=\"El Valor Registro Id Atributario No Cumple Con El Patron Correspondiente\"");
+        errorMessage.put("ErrRecRegId002", "Clave=\"ErrRecRegId002\" Nodo=\"Receptor\" Mensaje=\"No Se Ha Encontrado El Receptor Relacionado Con NumRegIdTrib El RFC Del Receptor Debe De Ser Un Generico Extranjero\"");
+        
         }
 	// Validacion Tipo de comprobante AMDA
 		public static String findTipoComprobante(Map<String, ArrayList<CatalogosDom>> mapCatalogos, String value){
