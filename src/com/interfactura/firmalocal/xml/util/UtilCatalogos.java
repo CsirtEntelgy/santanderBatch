@@ -65,21 +65,12 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
-
-
-
-
-
-
-
-
-
-
-
 import com.interfactura.firmalocal.xml.CatalogosDom;
+import com.interfactura.firmalocal.xml.factura.GeneraXML_CFDV3_3;
 
 public class UtilCatalogos 
 {
+	private static Logger logger = Logger.getLogger(UtilCatalogos.class);
 	public static final Map<String, String> errorMessage = new HashMap<String, String>();
 	public static StringBuffer lstErrors = new StringBuffer();
 	static {
@@ -1461,6 +1452,7 @@ public class UtilCatalogos
 	    }
 	    
 	    public static void evaluateCalulation(Document doc, int maxDecimals) throws XPathExpressionException, Exception {
+	    	logger.info("Iniciando Validaciones de Calculos");
 	    	BigDecimal compTotal = BigDecimal.valueOf(getDoubleByExpression(doc, "//Comprobante/@Total"));
 	        StringBuilder sb = new StringBuilder("(//Comprobante/Conceptos/Concepto/@Importe)");
 	        BigDecimal conceptTotal = getBigDecimalByNodeExpression(doc, sb.toString());
@@ -1483,11 +1475,12 @@ public class UtilCatalogos
 						"El campo Total no corresponde con la suma del subtotal, menos los descuentos aplicables, más las contribuciones recibidas (impuestos trasladados - federales o locales, derechos, productos, aprovechamientos, aportaciones de seguridad social, contribuciones de mejoras) menos los impuestos retenidos.");
 			}
 
-
+	        logger.info("Validando descuentos");
 	        /*Asignacion y validacion de Descuento*/
 	        BigDecimal discount = BigDecimal.valueOf(getDoubleByExpression(doc, "//Comprobante/@Descuento"));
+	        logger.info("discount:"+discount);
 	        String voucherType = getStringValByExpression(doc, "//Comprobante/@TipoDeComprobante");
-	        System.out.println("discount:" + discount);
+	        logger.info("voucherType:"+voucherType);
 	        if (discount.doubleValue() > 0) {//Si no viene con valor omitimos este paso
 	            if (voucherType.equalsIgnoreCase("I")
 	                    || voucherType.equalsIgnoreCase("E")
