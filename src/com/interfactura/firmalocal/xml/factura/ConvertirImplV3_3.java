@@ -1057,6 +1057,10 @@ public class ConvertirImplV3_3
 			tags.sumTraTotalIva = trasladoDoom.get("sumTotalIva").toString();
 			System.out.println("TRASLADO NODOS AMDA SumIEPS : " + trasladoDoom.get("sumTotalIeps"));
 			tags.sumTraTotalIeps = trasladoDoom.get("sumTotalIeps").toString();
+			System.out.println("TRASLADO NODOS AMDA Exento 1 : " + trasladoDoom.get("exento"));
+			System.out.println("TRASLADO NODOS AMDA Exento 2 : " + trasladoDoom.get("noExentoT"));
+			tags.exentoT = (Boolean)trasladoDoom.get("exento");
+			tags.noExentoT = (Boolean)trasladoDoom.get("noExentoT");;
 			
 			try{
 				Double sumTotalIsrDo = Double.parseDouble(tags.sumTraTotalIsr);
@@ -1512,10 +1516,14 @@ public class ConvertirImplV3_3
 							valid = true;
 							System.out.println("Importes TRUE TASLADOS : ");
 						}
-						if(totImpTra > importeDou || totImpTra < importeDou){
-							valImporteImpTras = "\" ElValorDelCampoTotalImpuestosTrasladoNoEsIgualALaSumaDeLosImportesRegistradosEnElElementoHijoTraslado=\"" + tokens[3].trim()+ "\" ";
+						if(totImpTra > importeDou || totImpTra < importeDou){													
+								valImporteImpTras = "\" ElValorDelCampoTotalImpuestosTrasladoNoEsIgualALaSumaDeLosImportesRegistradosEnElElementoHijoTraslado=\"" + tokens[3].trim()+ "\" ";														
 						}else if(!valid){
-							valImporteImpTras = "\" ErrImpTraImporte001=\"" + tokens[3].trim() + "\" ";
+//							System.out.println("Exento --Traslados : " + tags.exentoT + tags.noExentoT);
+//							if(tags.exentoT && !tags.noExentoT){
+								valImporteImpTras = "\" ErrImpTraImporte001=\"" + tokens[3].trim() + "\" ";
+//							}
+							
 						}else{
 							if(UtilCatalogos.decimalesValidationMsj(tokens[3].trim(), tags.decimalesMoneda)){
 								valImporteImpTras = "\" Importe=\"" + tokens[3].trim()+ "\" ";

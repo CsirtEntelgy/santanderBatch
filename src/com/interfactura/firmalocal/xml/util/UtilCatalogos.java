@@ -740,6 +740,8 @@ public class UtilCatalogos
 			Double sumTotalIva = 0.00;
 			Double sumTotalIsr= 0.00;
 			Double sumTotalIeps = 0.00;
+			boolean exento = false;
+			boolean noExentoT = false;
 			System.out.println("findTraslados Inicio TipoComprobante " + tipoComprobante);
 			System.out.println("findTraslados Inicio " + descCon);
 			System.out.println("findTraslados Inicio " + mapCatalogos.get("EquivalenciaConceptoImpuesto").size());
@@ -828,7 +830,8 @@ public class UtilCatalogos
 								if(!tipoFactorValue.equalsIgnoreCase("vacio")){
 									tipoFactorLine = "\" TipoFactor=\"" + tipoFactorValue;
 									String descImp = findDescImpuestoByClave(mapCatalogos, mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal1());
-//									if(!tipoFactorValue.equalsIgnoreCase("Exento")){
+									if(!tipoFactorValue.equalsIgnoreCase("Exento")){
+										noExentoT = true;
 										// descImp(Iva, IEPS, ISR), Descripcion(Tasa, Cuota O Exento), valor de la tasa, descripcion(Traslado O retencion)
 										//Buscando TasaOcuotaCatalogo findTasaOcuotaVal(mapCatalogos, descImp, mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal2(), valTasa, mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal4())
 									System.out.println("Antes de Validacion findTasaOCuotaExist AMDA : " + descImp);
@@ -844,7 +847,9 @@ public class UtilCatalogos
 										}
 										
 										importeLine = "\" Importe=\"" + decimales(importeTrasladoMul.toString(), decimalesMoneda);
-//									}
+									}else{
+										exento = true;
+									}
 									
 								}else{
 									tipoFactorLine = "\" ErrTraConTipFac001=\"" + tipoFactorValue;
@@ -923,6 +928,8 @@ public class UtilCatalogos
 			responseMap.put("sumTotalIsr", decimales(sumTotalIsr.toString(), decimalesMoneda));
 			responseMap.put("sumTotalIva", decimales(sumTotalIva.toString(), decimalesMoneda));
 			responseMap.put("sumTotalIeps", decimales(sumTotalIeps.toString(), decimalesMoneda));
+			responseMap.put("exento", exento);
+			responseMap.put("noExentoT", noExentoT);
 			System.out.println("Response Get Traslado: " + responseMap.get("sumaTotal"));
 			System.out.println("Response Get Traslado sumTotalIsr: " + responseMap.get("sumTotalIsr"));
 			System.out.println("Response Get Traslado sumTotalIva: " + responseMap.get("sumTotalIva"));
@@ -1157,6 +1164,18 @@ public class UtilCatalogos
 				if(decimalesMoneda > 0){
 					if(importeValDer.length() > decimalesMoneda){
 						response = importeValIzq+"."+importeValDer.substring(0,decimalesMoneda);
+					}else if(importeValDer.length() < decimalesMoneda){
+						Integer result = decimalesMoneda - importeValDer.length();
+						System.out.println("Result Decimales: " + result);
+						if(result.equals(4)){
+							response = importeValIzq+"."+importeValDer + "0000";
+						}else if(result.equals(3)){
+							response = importeValIzq+"."+importeValDer + "000";
+						}else if(result.equals(2)){
+							response = importeValIzq+"."+importeValDer + "00";
+						}else if(result.equals(1)){
+							response = importeValIzq+"."+importeValDer + "0";
+						}
 					}else{
 						response = importeval;
 					}

@@ -198,5 +198,8 @@ public class TagsXML {
 	public long contCFDAnteriorImpuesto = 0L;
 	public String[] lineaAnteriorRetencionTokens;
 	public long contCFDAnteriorRetencion = 0L;
+	public boolean exentoT = false;
+	public boolean noExentoT = false;
+	
 	
 }
