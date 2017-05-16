@@ -168,7 +168,7 @@ public class ConvertirImplV3_3
 
 			concat = new StringBuilder();
 			
-			String monedaMexicana = "Mexico";
+			String monedaMexicana = "Peso Mexicano";
 			if(tags.TIPO_MONEDA == null || "".equals(tags.TIPO_MONEDA.intern().trim())){
 				tags.TIPO_MONEDA = monedaMexicana.intern();
 			}
@@ -467,6 +467,8 @@ public class ConvertirImplV3_3
 			System.out.println("SubTotal : " + tags.SUBTOTAL_MN);
 			try {
 			    double valSubTotal = Double.parseDouble(tags.SUBTOTAL_MN.trim());
+			    tags.subtotalDoubleTag = valSubTotal;
+			    System.out.println("SubTotal Double! AMDA: " + tags.subtotalDoubleTag);
 			    if(valSubTotal<0){
 			       System.out.println("SubTotal: " + " es negativo");
 			    	concat.append(" ErrCompSubTot001"+ "=\"" + tags.SUBTOTAL_MN.trim() + "\"");
@@ -751,7 +753,7 @@ public class ConvertirImplV3_3
 			String numRegIdTribReceptor = "";
 			String usoCFDIReceptor = "" ;//" UsoCFDI=\"" + "P01" + "\"";
 			
-			if(!UtilCatalogos.findUsoCfdi(tags.mapCatalogos, "Por definir").equalsIgnoreCase("vacio")){ // Fijo por el momento
+			if(!UtilCatalogos.findUsoCfdi(tags.mapCatalogos, "Adquisición de mercancías").equalsIgnoreCase("vacio")){ // Fijo por el momento
 				usoCFDIReceptor = " UsoCFDI=\"" + UtilCatalogos.findUsoCfdi(tags.mapCatalogos, "Adquisición de mercancías") + "\"";
 			}else{
 				usoCFDIReceptor = " ErrRecUsoCfdi001=\"" + UtilCatalogos.findUsoCfdi(tags.mapCatalogos, "Por definir") + "\"";
@@ -1365,7 +1367,7 @@ public class ConvertirImplV3_3
 					totalImpRetLine = " TotalImpuestosRetenidos=\"" + tags.TOTAL_IMP_RET + "\" ";
 					tags.atributoTotalImpuestosReten = true;
 				}else{
-					totalImpRetLine = " ElValorDelCampoTotalImpuestosRetenidosDebeTenerHastaLaCantidadDeDecimalesQueSoporteLaMoneda=\"" + tags.TOTAL_IMP_RET + "\" ";
+					totalImpRetLine = " ErrImpTotImpRet001=\"" + tags.TOTAL_IMP_RET + "\" ";
 					tags.atributoTotalImpuestosReten = false;
 				}
 			}else{
@@ -1378,7 +1380,7 @@ public class ConvertirImplV3_3
 					totalImpTraLine = " TotalImpuestosTrasladados=\"" + tags.TOTAL_IMP_TRA + "\" ";
 					tags.atributoTotalImpuestosTras = true;
 				}else{
-					totalImpTraLine = " ElValorDelCampoTotalImpuestosTrasladadosDebeTenerHastaLaCantidadDeDecimalesQueSoporteLaMoneda=\"" + tags.TOTAL_IMP_TRA + "\" ";
+					totalImpTraLine = " ErrImpTotImpTra002=\"" + tags.TOTAL_IMP_TRA + "\" ";
 					tags.atributoTotalImpuestosTras = false;
 				}
 			}else{
@@ -1453,10 +1455,10 @@ public class ConvertirImplV3_3
 					if(!claveImp.equalsIgnoreCase("vacio")){
 						impuestoLine = " Impuesto=\"" + claveImp;
 					}else{
-						impuestoLine = " ElCampoImpuestoDeRetencionNoContieneUnValorDelCatalogoc_Impuesto=\"" + claveImp;
+						impuestoLine = " ErrTraImp001=\"" + claveImp;
 					}
 				}else{
-					impuestoLine = " DebeExistirElCampoTotalImpuestosTraslados=\"" + claveImp;
+					impuestoLine = " ErrImpTotImpTra001=\"" + claveImp;
 				}
 			}
 						
@@ -1473,7 +1475,7 @@ public class ConvertirImplV3_3
 					if(!tasaOCuotaResult.equalsIgnoreCase("vacio")){
 						tasaOCuotaStr = "\" TasaOCuota=\""  + Util.completeZeroDecimals(tasaOCuotaResult, 6);
 					}else{
-						tasaOCuotaStr = "\" ElValorSeleccionadoDebeCorresponderAUnValorDelCatalogoDondeLaColumnaImpuestoCorrespondaConElCampoImpuestoYLaColoumnaFactorCorrespondaAlCampoTipoFactor=\""  + tasaOCuotaResult;
+						tasaOCuotaStr = "\" ErrTraTasaOCuo001=\""  + tasaOCuotaResult;
 					}
 
 				}
@@ -1620,7 +1622,7 @@ public class ConvertirImplV3_3
 				if(!claveImpRet.equalsIgnoreCase("vacio")){
 					impuestoLine = " Impuesto=\"" + claveImpRet + "\"";
 				}else{
-					impuestoLine = " ElCampoImpuestoDeRetencionNoContieneUnValorDelCatalogoc_Impuesto=\"" + claveImpRet + "\"";
+					impuestoLine = " ErrRetImp002=\"" + claveImpRet + "\"";
 				}
 			}
 			

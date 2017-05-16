@@ -200,6 +200,7 @@ public class TagsXML {
 	public long contCFDAnteriorRetencion = 0L;
 	public boolean exentoT = false;
 	public boolean noExentoT = false;
+	public Double subtotalDoubleTag = 0.00;
 	
 	
 }

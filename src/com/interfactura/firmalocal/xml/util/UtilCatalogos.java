@@ -121,6 +121,10 @@ public class UtilCatalogos
         errorMessage.put("ErrConTipCom002", "Clave=\"ErrConTipCom002\" Nodo=\"Concepto\" Mensaje=\"El Valor Del Campo Valor Unitario Debe Tener Hasta La Cantidad De Decimales Que Soporte La Moneda\"");
         errorMessage.put("ErrConTipCom003", "Clave=\"ErrConTipCom003\" Nodo=\"Concepto\" Mensaje=\"El Valor Del Campo Valor Unitario Debe Ser Mayor Que Cero Cuando El Tipo De Comprobante Es Traslado\"");
         errorMessage.put("ErrConTipCom004", "Clave=\"ErrConTipCom004\" Nodo=\"Concepto\" Mensaje=\"El valor valor del campo ValorUnitario debe ser mayor que cero (0) cuando el tipo de comprobante es Pago\"");
+        errorMessage.put("ErrTraTasaOCuo001", "Clave=\"ErrTraTasaOCuo001\" Nodo=\"Traslados\" Mensaje=\"El Valor Seleccionado Debe Corresponder A Un Valor Del Catalogo Donde La Columna Impuesto Corresponda Con El Campo Impuesto Y La Coloumna Factor Corresponda Al Campo TipoFactor\"");
+        errorMessage.put("ErrImpTotImpRet001", "Clave=\"ErrImpTotImpRet001\" Nodo=\"Impuestos\" Mensaje=\"El Valor Del Campo TotalImpuestosRetenidos Debe Tener Hasta La Cantidad De Decimales Que Soporte La Moneda\"");
+        errorMessage.put("ErrImpTotImpTra002", "Clave=\"ErrImpTotImpTra002\" Nodo=\"Impuestos\" Mensaje=\"El Valor Del Campo TotalImpuestosTrasladados Debe Tener Hasta La Cantidad De Decimales Que Soporte La Moneda\"");
+        errorMessage.put("ErrImpTotImpTra001", "Clave=\"ErrImpTotImpTra001\" Nodo=\"Impuestos\" Mensaje=\"Debe Existir El Campo TotalImpuestosTraslados\"");
         }
 	// Validacion Tipo de comprobante AMDA
 		public static String findTipoComprobante(Map<String, ArrayList<CatalogosDom>> mapCatalogos, String value){
@@ -441,12 +445,17 @@ public class UtilCatalogos
 			System.out.println("Validacion findValMaxTasaOCuota AMDA : " + value1 + " : " + value2);
 			if(mapCatalogos.size() > 0 && value1.trim() != "" && value2.trim() != ""){
 				for(int i=0; i<mapCatalogos.get("TasaOCuota").size(); i++){
-					if(mapCatalogos.get("TasaOCuota").get(i).getVal4().equalsIgnoreCase(value1) && mapCatalogos.get("TasaOCuota").get(i).getVal5().equalsIgnoreCase(value2)){
-						response = mapCatalogos.get("TasaOCuota").get(i).getVal3();
-						break;
+					if(mapCatalogos.get("TasaOCuota").get(i).getVal4() != null && mapCatalogos.get("TasaOCuota").get(i).getVal5() != null){
+						if(mapCatalogos.get("TasaOCuota").get(i).getVal4().equalsIgnoreCase(value1) && mapCatalogos.get("TasaOCuota").get(i).getVal5().equalsIgnoreCase(value2)){
+							response = mapCatalogos.get("TasaOCuota").get(i).getVal3();
+							break;
+						}else{
+							response = "vacio";
+						}
 					}else{
 						response = "vacio";
 					}
+					
 				}
 			}else{
 				response = "vacio";
