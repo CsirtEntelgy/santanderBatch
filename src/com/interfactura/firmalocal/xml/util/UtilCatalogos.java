@@ -1,49 +1,18 @@
 package com.interfactura.firmalocal.xml.util;
 
-import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.LineNumberReader;
-import java.io.OutputStreamWriter;
-import java.io.SequenceInputStream;
 import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
-import java.io.Writer;
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.text.MessageFormat;
 import java.text.Normalizer;
-import java.text.NumberFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Stack;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
@@ -51,22 +20,21 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 
 import org.apache.log4j.Logger;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.ContentHandler;
-import org.xml.sax.SAXException;
+
 import com.interfactura.firmalocal.xml.CatalogosDom;
-import com.interfactura.firmalocal.xml.factura.GeneraXML_CFDV3_3;
 
 public class UtilCatalogos 
 {
@@ -111,7 +79,7 @@ public class UtilCatalogos
         errorMessage.put("ErrCompFecha001", "Clave=\"ErrCompFecha001\" Nodo=\"Comprobante\" Mensaje=\"El Campo Fecha No Cumple Con El Patron Requerido.\"");
         errorMessage.put("ErrCompValUni001", "Clave=\"ErrCompValUni001\" Nodo=\"Concepto\" Mensaje=\"El Valor Del Campo Valor Unitario Debe Ser Mayor Que Cero (0) Cuando El Tipo De Comprobante Es Ingreso, Egreso O Nomina.\"");
         errorMessage.put("ErrCompValUni002", "Clave=\"ErrCompValUni002\" Nodo=\"Concepto\" Mensaje=\"El Valor Del Campo Valor Unitario Debe Tener Hasta La Cantidad De Decimales Que Soporte La Moneda.\"");
-        errorMessage.put("ErrCompValUni003", "Clave=\"ErrCompValUni003\" Nodo=\"Concepto\" Mensaje=\"El valor valor del campo ValorUnitario debe ser mayor que cero (0) cuando el tipo de comprobante es Traslado.\"");
+        errorMessage.put("ErrCompValUni003", "Clave=\"ErrCompValUni003\" Nodo=\"Concepto\" Mensaje=\"El valor valor del campo ValorUnitario debe ser mayor que cero (0) cuando el tipo de comprobante es Ingreso, Egreso o Nomina\"");
         errorMessage.put("ErrCompValUni004", "Clave=\"ErrCompValUni004\" Nodo=\"Concepto\" Mensaje=\"El Valor Del Campo Valor Unitario Debe Ser Mayor Que Cero Cuando El Tipo De Comprobante Es Pago.\"");
         errorMessage.put("ErrConcImport001", "Clave=\"ErrConcImport001\" Nodo=\"Concepto\" Mensaje=\"El Valor Del Campo Importe Debe Tener Hasta La Cantidad De Decimales Que Soporta La Moneda.\"");
         errorMessage.put("ErrConcImport002", "Clave=\"ErrConcImport002\" Nodo=\"Concepto\" Mensaje=\"El valor del campo Descuento es mayor que el campo Importe, importe numero: {0}, descuento:{1}, importe:{2}\"");
@@ -1477,38 +1445,46 @@ public class UtilCatalogos
 
 	        logger.info("Validando descuentos");
 	        /*Asignacion y validacion de Descuento*/
-	        BigDecimal discount = BigDecimal.valueOf(getDoubleByExpression(doc, "//Comprobante/@Descuento"));
-	        logger.info("discount:"+discount);
+	        BigDecimal discount = getBigDecimalByNodeExpression(doc, "//Comprobante/@Descuento");
 	        String voucherType = getStringValByExpression(doc, "//Comprobante/@TipoDeComprobante");
-	        logger.info("voucherType:"+voucherType);
+	        System.out.println("discount:" + discount);
+	        boolean validateDiscount = false;
 	        if (discount.doubleValue() > 0) {//Si no viene con valor omitimos este paso
-	            if (voucherType.equalsIgnoreCase("I")
-	                    || voucherType.equalsIgnoreCase("E")
-	                    || voucherType.equalsIgnoreCase("N")) {
+	            validateDiscount = true;
+	        }
+	        if (voucherType.equalsIgnoreCase("I")
+	                || voucherType.equalsIgnoreCase("E")
+	                || voucherType.equalsIgnoreCase("N")) {
+	            if (validateDiscount) {
 	                //El subtotal debe ser mayor o igual al descuento
 	                BigDecimal subTotal = BigDecimal.valueOf(getDoubleByExpression(doc, "//Comprobante/@SubTotal"));
 	                if (discount.doubleValue() > subTotal.doubleValue()) {
 	                    throw new Exception(errorMessage.get("ErrCompSubTotal005"));
 	                }
-
-	                String concepts = "//Comprobante/Conceptos/Concepto";
-	                BigDecimal totalConcept = BigDecimal.valueOf(getDoubleByExpression(doc, "count(".concat(concepts.intern()).concat(")")));
-	                System.out.println("Conceptos:" + totalConcept);
-	                if (totalConcept.doubleValue() > 0) {//Verificamos que vengan conceptos
-	                    //Obtenemos el decuento por concepto
-	                    BigDecimal discPerConcept = discount.divide(totalConcept, maxDecimals, RoundingMode.HALF_UP);
-	                    BigDecimal last = discount.subtract(discPerConcept.multiply(totalConcept));
-	                    NodeList nl = getNodesByExpression(doc, concepts.intern());
-	                    if (nl != null) {
-	                        String disc = discPerConcept.toString();
-	                        for (int i = 0; i < nl.getLength(); i++) {
+	            }
+	            String concepts = "//Comprobante/Conceptos/Concepto";
+	            BigDecimal totalConcept = BigDecimal.valueOf(getDoubleByExpression(doc, "count(".concat(concepts.intern()).concat(")")));
+	            System.out.println("Conceptos:" + totalConcept);
+	            if (totalConcept.doubleValue() > 0) {//Verificamos que vengan conceptos
+	                //Obtenemos el decuento por concepto
+	                BigDecimal discPerConcept = discount.divide(totalConcept, maxDecimals, RoundingMode.HALF_UP);
+	                BigDecimal last = discount.subtract(discPerConcept.multiply(totalConcept));
+	                NodeList nl = getNodesByExpression(doc, concepts.intern());
+	                if (nl != null) {
+	                    String disc = discPerConcept.toString();
+	                    for (int i = 0; i < nl.getLength(); i++) {
+	                        Element el = ((Element) nl.item(i));
+	                        BigDecimal importe = new BigDecimal(el.getAttribute("Importe"));
+	                        BigDecimal valorUnitario = new BigDecimal(el.getAttribute("ValorUnitario"));
+	                        if (valorUnitario.doubleValue() <= 0) {
+	                            throw new Exception(errorMessage.get("ErrCompValUni003"));
+	                        }
+	                        if (validateDiscount) {
 	                            if ((i + 1) == nl.getLength() && last.doubleValue() > 0) {
 	                                //Se suma el descuento por concepto mas
 	                                discPerConcept = discPerConcept.add(last);
 	                                disc = discPerConcept.toString();
 	                            }
-	                            Element el = ((Element) nl.item(i));
-	                            BigDecimal importe = new BigDecimal(el.getAttribute("Importe"));
 	                            if (discPerConcept.doubleValue() > importe.doubleValue()) {
 	                                throw new Exception(MessageFormat.format(errorMessage.get("ErrConcImport002"), (i + 1), discPerConcept, importe));
 	                            }
@@ -1516,7 +1492,9 @@ public class UtilCatalogos
 	                        }
 	                    }
 	                }
-	            } else {
+	            }
+	        } else {
+	            if (validateDiscount) {
 	                throw new Exception(errorMessage.get("ErrCompTipoComprobante002"));
 	            }
 	        }
