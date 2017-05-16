@@ -171,7 +171,13 @@ public class ConvertirImplV3_3
 			String valEqMoneda = "";
 			System.out.println("Tipo Moneda SerieFical AMDA: " + tags.TIPO_MONEDA + " : " + tags.SERIE_FISCAL_CFD);
 			if(tags.TIPO_MONEDA.trim() != ""){ // Validacion Moneda Equivalencia AMDA V 3.3
-				tags.TIPO_MONEDA = UtilCatalogos.findStringAcento(tags.TIPO_MONEDA);
+				String stringa = Normalizer.normalize(tags.TIPO_MONEDA, Normalizer.Form.NFD);
+				String stringU = stringa.replaceAll("[^\\p{ASCII}]", "");
+				System.out.println("Tipo Moneda Norm AMDA: " + stringU + " : " + stringU.trim().length());
+				System.out.println("Tipo Moneda Norm AMDA: " + tags.TIPO_MONEDA + " : " + tags.TIPO_MONEDA.trim().length());
+				if(stringU.trim().length() < tags.TIPO_MONEDA.trim().length()){
+					tags.TIPO_MONEDA = UtilCatalogos.findStringAcento(tags.TIPO_MONEDA);
+				}
 				valEqMoneda = UtilCatalogos.findMonedaCatalogo(tags.mapCatalogos, tags.TIPO_MONEDA);
 				System.out.println("Tipo Moneda AMDA FindAcento: " + tags.TIPO_MONEDA + " : " + tags.SERIE_FISCAL_CFD);
 //				valEqMoneda = UtilCatalogos.findEquivalenciaMoneda(tags.mapCatalogos, tags.TIPO_MONEDA);
@@ -782,6 +788,7 @@ public class ConvertirImplV3_3
 				if(tags.RECEPCION_RFC.equalsIgnoreCase("XEXX010101000") || tags.RECEPCION_RFC.equalsIgnoreCase("XAXX010101000") || tags.RECEPCION_RFC.equalsIgnoreCase("XEXE010101000") || tags.RECEPCION_RFC.equalsIgnoreCase("XEXX010101000") ){
 					System.out.println("Recepcion RFC DO:  " + tags.RECEPCION_RFC);
 					System.out.println("Recepcion RFC DO:  " + tokens[2].trim());
+					System.out.println("Recepcion RFC valPais:  " + valPais);
 					String valRegIdTrib = UtilCatalogos.findNumRegIdTrib(tags.mapCatalogos, tokens[2].trim());
 					if(!valRegIdTrib.equalsIgnoreCase("vacio")){
 //						numRegIdTribReceptor = " NumRegIdTrib=\"" + valRegIdTrib + "\"";
@@ -804,7 +811,13 @@ public class ConvertirImplV3_3
 							    	 numRegIdTribReceptor = " NumRegIdTrib=\"" + valRegIdTrib + "\"";
 							     }
 								
+							}else{
+								System.out.println("Else OOO:  " + valRegIdTrib);
+								numRegIdTribReceptor = " NumRegIdTrib=\"" + valRegIdTrib + "\"";
 							}
+						}else{
+							System.out.println("Else ñññ:  " + valRegIdTrib);
+//							numRegIdTribReceptor = " NumRegIdTrib=\"" + valRegIdTrib + "\"";
 						}
 						
 					}else{

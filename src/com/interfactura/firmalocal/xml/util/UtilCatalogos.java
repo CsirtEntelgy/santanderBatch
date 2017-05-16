@@ -501,11 +501,17 @@ public class UtilCatalogos
 		//Validacion Encuentra Valor Maximo de Tasa o Cuota del catalogo TasaOCuota para Traslado AMDA
 		public static String findValMaxTasaOCuotaTraslado(Map<String, ArrayList<CatalogosDom>> mapCatalogos, String value1, String value2){
 			String response = "";
+			String perce = "";
 			System.out.println("Validacion findValMaxTasaOCuotaTraslado AMDA : " + value1 + " : " + value2);
+			if(value1.equalsIgnoreCase("IEPS")){
+				perce = "0.265";
+			}else{
+				perce = "0.16";
+			}
 			if(mapCatalogos.size() > 0 && value1.trim() != "" && value2.trim() != ""){
 				for(int i=0; i<mapCatalogos.get("TasaOCuota").size(); i++){
 					if(mapCatalogos.get("TasaOCuota").get(i).getVal4() != null && mapCatalogos.get("TasaOCuota").get(i).getVal5() != null && mapCatalogos.get("TasaOCuota").get(i).getVal3() !=  null){
-						if(mapCatalogos.get("TasaOCuota").get(i).getVal4().equalsIgnoreCase(value1) && mapCatalogos.get("TasaOCuota").get(i).getVal5().equalsIgnoreCase(value2) && mapCatalogos.get("TasaOCuota").get(i).getVal3().equalsIgnoreCase("0.16")){
+						if(mapCatalogos.get("TasaOCuota").get(i).getVal4().equalsIgnoreCase(value1) && mapCatalogos.get("TasaOCuota").get(i).getVal5().equalsIgnoreCase(value2) && mapCatalogos.get("TasaOCuota").get(i).getVal3().equalsIgnoreCase(perce)){
 							response = mapCatalogos.get("TasaOCuota").get(i).getVal3();
 							break;
 						}else{
@@ -1555,7 +1561,15 @@ public class UtilCatalogos
 				}else if(stringU.trim().equalsIgnoreCase("Zimbabwe Dlar")){
 					response = "Zimbabwe Dólar";
 				}else if(stringU.trim().equalsIgnoreCase("MXN")){
-					response = "MXN";
+					response = "Peso";
+				}else if(stringU.trim().equalsIgnoreCase("Peso")){
+					response = "Peso";
+				}else if(stringU.trim().equalsIgnoreCase("M.N.")){
+					response = "M.N.";
+				}else if(stringU.trim().equalsIgnoreCase("M.N")){
+					response = "M.N";
+				}else if(stringU.trim().equalsIgnoreCase("m.n.")){
+					response = "m.n.";
 				}
 
 			}else{
