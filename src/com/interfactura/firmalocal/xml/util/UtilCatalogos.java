@@ -115,9 +115,12 @@ public class UtilCatalogos
         errorMessage.put("ErrRecUsoCfdi001", "Clave=\"ErrRecUsoCfdi001\" Nodo=\"Receptor\" Mensaje=\"El Campo UsoCFDI No Contiene Un Valor Del Catalogo c_UsoCFDI\"");
         errorMessage.put("ErrRecResFis001", "Clave=\"ErrRecResFis001\" Nodo=\"Receptor\" Mensaje=\"El Valor Del Campo Residencia Fiscal No Puede Ser MEX\"");
         errorMessage.put("ErrRecResFis002", "Clave=\"ErrRecResFis002\" Nodo=\"Receptor\" Mensaje=\"El Campo Residencia Fiscal No Contiene Un Valor Del Catalogo c_Pais\"");
-        errorMessage.put("ErrRecRegId001", "Clave=\"ErrRecRegId001\" Nodo=\"Receptor\" Mensaje=\"El Valor Registro Id Atributario No Cumple Con El Patron Correspondiente\"");
+        errorMessage.put("ErrRecRegId001", "Clave=\"ErrRecRegId001\" Nodo=\"Receptor\" Mensaje=\"El Valor Registro NumRegIdTrib No Cumple Con El Patron Correspondiente\"");
         errorMessage.put("ErrRecRegId002", "Clave=\"ErrRecRegId002\" Nodo=\"Receptor\" Mensaje=\"No Se Ha Encontrado El Receptor Relacionado Con NumRegIdTrib El RFC Del Receptor Debe De Ser Un Generico Extranjero\"");
-        
+        errorMessage.put("ErrConTipCom001", "Clave=\"ErrConTipCom001\" Nodo=\"Concepto\" Mensaje=\"El Valor Del Campo Valor Unitario Debe Ser Mayor Que Cero Cuando El Tipo De Comprobante Es Ingreso Egreso O Nomina\"");
+        errorMessage.put("ErrConTipCom002", "Clave=\"ErrConTipCom002\" Nodo=\"Concepto\" Mensaje=\"El Valor Del Campo Valor Unitario Debe Tener Hasta La Cantidad De Decimales Que Soporte La Moneda\"");
+        errorMessage.put("ErrConTipCom003", "Clave=\"ErrConTipCom003\" Nodo=\"Concepto\" Mensaje=\"El Valor Del Campo Valor Unitario Debe Ser Mayor Que Cero Cuando El Tipo De Comprobante Es Traslado\"");
+        errorMessage.put("ErrConTipCom004", "Clave=\"ErrConTipCom004\" Nodo=\"Concepto\" Mensaje=\"El valor valor del campo ValorUnitario debe ser mayor que cero (0) cuando el tipo de comprobante es Pago\"");
         }
 	// Validacion Tipo de comprobante AMDA
 		public static String findTipoComprobante(Map<String, ArrayList<CatalogosDom>> mapCatalogos, String value){

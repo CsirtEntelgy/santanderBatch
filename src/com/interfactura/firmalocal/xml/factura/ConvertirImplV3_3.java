@@ -168,7 +168,7 @@ public class ConvertirImplV3_3
 
 			concat = new StringBuilder();
 			
-			String monedaMexicana = "MXN";
+			String monedaMexicana = "Mexico";
 			if(tags.TIPO_MONEDA == null || "".equals(tags.TIPO_MONEDA.intern().trim())){
 				tags.TIPO_MONEDA = monedaMexicana.intern();
 			}
@@ -752,7 +752,7 @@ public class ConvertirImplV3_3
 			String usoCFDIReceptor = "" ;//" UsoCFDI=\"" + "P01" + "\"";
 			
 			if(!UtilCatalogos.findUsoCfdi(tags.mapCatalogos, "Por definir").equalsIgnoreCase("vacio")){ // Fijo por el momento
-				usoCFDIReceptor = " UsoCFDI=\"" + UtilCatalogos.findUsoCfdi(tags.mapCatalogos, "Por definir") + "\"";
+				usoCFDIReceptor = " UsoCFDI=\"" + UtilCatalogos.findUsoCfdi(tags.mapCatalogos, "Adquisición de mercancías") + "\"";
 			}else{
 				usoCFDIReceptor = " ErrRecUsoCfdi001=\"" + UtilCatalogos.findUsoCfdi(tags.mapCatalogos, "Por definir") + "\"";
 			}
@@ -932,7 +932,7 @@ public class ConvertirImplV3_3
 				if(tags.tipoComprobante.trim().equalsIgnoreCase("I") || tags.tipoComprobante.trim().equalsIgnoreCase("E") || tags.tipoComprobante.trim().equalsIgnoreCase("N")){
 					// Valor unitario debe ser mayor a 0
 					if(valUnit <= 0){
-						valorUnitarioStr = "\" ElValorDelCampoValorUnitarioDebeSerMayorQueCeroCuandoElTipoDeComprobanteEsIngresoEgresoONomina=\"";
+						valorUnitarioStr = "\" ErrConTipCom001=\"";
 //						nodoValorUnitarioStr = "\" valorUnitarioDebeSerMayorDeCero=\"" + valorUnitarioStr ;
 						nodoValorUnitarioStr = valorUnitarioStr + "El valor valor del campo ValorUnitario debe ser mayor que cero (0) cuando el tipo de comprobante es Ingreso, Egreso o Nomina" ;
 					}else{
@@ -940,14 +940,14 @@ public class ConvertirImplV3_3
 						if(UtilCatalogos.decimalesValidationMsj(valorUnitarioStr, tags.decimalesMoneda)){
 							nodoValorUnitarioStr = "\" ValorUnitario=\"" + valorUnitarioStr ;
 		    		   }else{
-		    			   	nodoValorUnitarioStr = "\" ElValorDelCampoValorUnitarioDebeTenerHastaLaCantidadDeDecimalesQueSoporteLaMoneda=\"" + valorUnitarioStr ;
+		    			   	nodoValorUnitarioStr = "\" ErrConTipCom002=\"" + valorUnitarioStr ;
 		    		   }
 //						nodoValorUnitarioStr = "\" ValorUnitario=\"" + valorUnitarioStr ;
 					}
 				}else if(tags.tipoComprobante.trim().equalsIgnoreCase("T")){
 					// Valor unitario puede ser mayor o igual a 0
 					if(valUnit < 0){
-						valorUnitarioStr = "\" ElValorDelCampoValorUnitarioDebeSerMayorQueCeroCuandoElTipoDeComprobanteEsTraslado=\"";
+						valorUnitarioStr = "\" ErrConTipCom003=\"";
 //						nodoValorUnitarioStr = "\" valorUnitarioDebeSerMenorDeCero=\"" + valorUnitarioStr ;
 						nodoValorUnitarioStr = valorUnitarioStr + "El valor valor del campo ValorUnitario debe ser mayor que cero (0) cuando el tipo de comprobante es Traslado" ;
 					}else{
@@ -955,14 +955,14 @@ public class ConvertirImplV3_3
 						if(UtilCatalogos.decimalesValidationMsj(valorUnitarioStr, tags.decimalesMoneda)){
 							nodoValorUnitarioStr = "\" ValorUnitario=\"" + valorUnitarioStr ;
 		    		   }else{
-		    			   	nodoValorUnitarioStr = "\" ElValorDelCampoValorUnitarioDebeTenerHastaLaCantidadDeDecimalesQueSoporteLaMoneda=\"" + valorUnitarioStr ;
+		    			   	nodoValorUnitarioStr = "\" ErrConTipCom002=\"" + valorUnitarioStr ;
 		    		   }
 //						nodoValorUnitarioStr = "\" ValorUnitario=\"" + valorUnitarioStr ;
 					}
 				}else if(tags.tipoComprobante.trim().equalsIgnoreCase("P")){
 					// Valor unitario debe ser igual a 0
 					if(valUnit != 0){
-						valorUnitarioStr = "\" ElValorDelCampoValorUnitarioDebeSerMayorQueCeroCuandoElTipoDeComprobanteEsPago=\"";
+						valorUnitarioStr = "\" ErrConTipCom004=\"";
 //						nodoValorUnitarioStr = "\" valorUnitarioDebeSerCero=\"" + valorUnitarioStr ;
 						nodoValorUnitarioStr =  valorUnitarioStr + "El valor valor del campo ValorUnitario debe ser mayor que cero (0) cuando el tipo de comprobante es Pago" ;
 					}else{
@@ -970,7 +970,7 @@ public class ConvertirImplV3_3
 						if(UtilCatalogos.decimalesValidationMsj(valorUnitarioStr, tags.decimalesMoneda)){
 							nodoValorUnitarioStr = "\" ValorUnitario=\"" + valorUnitarioStr ;
 		    		   }else{
-		    			   	nodoValorUnitarioStr = "\" ElValorDelCampoValorUnitarioDebeTenerHastaLaCantidadDeDecimalesQueSoporteLaMoneda=\"" + valorUnitarioStr ;
+		    			   	nodoValorUnitarioStr = "\" ErrConTipCom002=\"" + valorUnitarioStr ;
 		    		   }
 //						nodoValorUnitarioStr = "\" ValorUnitario=\"" + valorUnitarioStr ;
 					}
