@@ -302,7 +302,7 @@ public class ConvertirImplV3_3
 			}else if(tags.TIPO_MONEDA.equalsIgnoreCase("MXN")){
 				 concat.append(" ElCampoTipoCambioNoTieneElValor1YLaMonedaIndicadaEsMXN" + "=\"" + tags.TIPO_CAMBIO + "\"");
 			}else if(!tags.TIPO_MONEDA.equalsIgnoreCase("MXN") && !tags.TIPO_MONEDA.equalsIgnoreCase("XXX")){
-				concat.append(" ElCampoTipoCambioSeDeberegistrarCuandoElCampoMonedaTieneUnValorDistintoDeMXNYXXX" + "=\"" + tags.TIPO_CAMBIO + "\"");
+				concat.append(" ErrCompTipCam001" + "=\"" + tags.TIPO_CAMBIO + "\"");
 			}
 			
 			// Validando decimales soportados por el tipo de moneda AMDA V 3.3
@@ -575,15 +575,15 @@ public class ConvertirImplV3_3
 							double valSubTotal = Double.parseDouble(tags.SUBTOTAL_MN.trim());
 							System.out.println("Valor SubTotal: "+  valSubTotal);
 							if(valDesc > valSubTotal){
-								concat.append(" ElValorRegistradoEnElCampoDescuentoNoEsMenorOIgualQueElCampoSubTotal=\"" + tokens[6] + "\"");
+								concat.append(" ErrCompDesc001=\"" + tokens[6] + "\"");
 							}else{
 								concat.append(" Descuento=\"" + tokens[6] + "\"");
 							}
 						}catch(NumberFormatException e){
-							concat.append(" ElCampoSubtotalODescuentoEsIncorrectoParaCalcularDescuento=\"" + tokens[6] + "\"");
+							concat.append(" ErrCompDesc002=\"" + tokens[6] + "\"");
 						}						
 					}else{
-						concat.append(" ElValorDelCampoDescuentoExcedeLaCantidadDeDecimalesQueSoporteLaMoneda=\"" + tokens[6] + "\"");
+						concat.append(" ErrCompDesc003=\"" + tokens[6] + "\"");
 					}
 						
 				} // Descuento pendiente Validación ADMA V 3.3
@@ -746,7 +746,13 @@ public class ConvertirImplV3_3
 			}
 			
 			System.out.println("Receptor recepPais: " + tags.recepPais);
-			tags.recepPais = UtilCatalogos.findStringAcento(tags.recepPais);
+			String stringa = Normalizer.normalize(tags.recepPais, Normalizer.Form.NFD);
+			String stringU = stringa.replaceAll("[^\\p{ASCII}]", "");
+			System.out.println("tags.recepPais Norm AMDA: " + stringU + " : " + stringU.trim().length());
+			System.out.println("tags.recepPais Norm AMDA: " + tags.recepPais + " : " + tags.recepPais.trim().length());
+			if(stringU.trim().length() < tags.recepPais.trim().length()){
+				tags.recepPais = UtilCatalogos.findStringAcento(tags.recepPais);
+			}
 			System.out.println("Receptor recepPais Despues: " + tags.recepPais);
 			if(tags.RECEPCION_RFC.equalsIgnoreCase("XEXX010101000") || tags.RECEPCION_RFC.equalsIgnoreCase("XAXX010101000") || tags.RECEPCION_RFC.equalsIgnoreCase("XEXE010101000") || tags.RECEPCION_RFC.equalsIgnoreCase("XEXX010101000")){
 				

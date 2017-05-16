@@ -137,9 +137,10 @@ public class UtilCatalogos
         errorMessage.put("ErrTraConTipFac001", "Clave=\"ErrTraConTipFac001\" Nodo=\"Traslados\" Mensaje=\"El Valor Del Campo Tipo Factor Que Corresponde A Traslado No Contiene Un Valor Del Catalogo c_TipoFactor\"");
         errorMessage.put("ErrTraConImpu001", "Clave=\"ErrTraConImpu001\" Nodo=\"Traslados\" Mensaje=\"El Valor Del Campo Impuesto Que Corresponde A Traslado No Contiene Un Valor Del Catalogo c_Impuesto\"");
         errorMessage.put("ErrRetConTipFac001", "Clave=\"ErrRetConTipFac001\" Nodo=\"Traslados\" Mensaje=\"El Valor Del Campo Tipo Factor Que Corresponde A Retencion No Contiene Un Valor Del Catalogo c_TipoFactor\"");
-        
-        
-        
+        errorMessage.put("ErrCompTipCam001", "Clave=\"ErrCompTipCam001\" Nodo=\"Comprobante\" Mensaje=\"El Campo Tipo Cambio Se Deberegistrar Cuando El Campo Moneda Tiene Un Valor Distinto De MXN Y XXX\"");
+        errorMessage.put("ErrCompDesc001", "Clave=\"ErrCompDesc001\" Nodo=\"Comprobante\" Mensaje=\"El Valor Registrado En El Campo Descuento No Es Menor O Igual Que El Campo Sub Total\"");
+        errorMessage.put("ErrCompDesc002", "Clave=\"ErrCompDesc002\" Nodo=\"Comprobante\" Mensaje=\"El Campo Subtotal O Descuento Es Incorrecto Para Calcular Descuento\"");
+        errorMessage.put("ErrCompDesc003", "Clave=\"ErrCompDesc003\" Nodo=\"Comprobante\" Mensaje=\"El Valor Del Campo Descuento Excede La Cantidad De Decimales Que Soporte La Moneda\"");
         }
 	// Validacion Tipo de comprobante AMDA
 		public static String findTipoComprobante(Map<String, ArrayList<CatalogosDom>> mapCatalogos, String value){
@@ -1201,6 +1202,8 @@ public class UtilCatalogos
 					if(importeValDer.length() > decimalesMoneda){
 //						response = importeValIzq+"."+importeValDer.substring(0,decimalesMoneda);
 						response = false;
+					}else if(importeValDer.length() < decimalesMoneda){
+						response = false;
 					}else{
 //						response = importeval;
 						response = true;
@@ -1622,6 +1625,36 @@ public class UtilCatalogos
 					response = "M.N";
 				}else if(stringU.trim().equalsIgnoreCase("m.n.")){
 					response = "m.n.";
+				}else if(stringU.trim().equalsIgnoreCase("Afganistn")){
+					response = "Afganistán";
+				}else if(stringU.trim().equalsIgnoreCase("Islas land")){
+					response = "Islas Åland";
+				}else if(stringU.trim().equalsIgnoreCase("Azerbaiyn")){
+					response = "Azerbaiyán";
+				}else if(stringU.trim().equalsIgnoreCase("Antrtida")){
+					response = "Antártida";
+				}else if(stringU.trim().equalsIgnoreCase("Banglads")){
+					response = "Bangladés";
+				}else if(stringU.trim().equalsIgnoreCase("Banglads")){
+					response = "Bangladés";
+				}else if(stringU.trim().equalsIgnoreCase("Barin")){
+					response = "Baréin";
+				}else if(stringU.trim().equalsIgnoreCase("Blgica")){
+					response = "Bélgica";
+				}else if(stringU.trim().equalsIgnoreCase("Benn")){
+					response = "Benín";
+				}else if(stringU.trim().equalsIgnoreCase("Bruni Darussalam")){
+					response = "Brunéi Darussalam";
+				}else if(stringU.trim().equalsIgnoreCase("Camern")){
+					response = "Camerún";
+				}else if(stringU.trim().equalsIgnoreCase("Corea (la Repblica de)")){
+					response = "Corea (la República de)";
+				}else if(stringU.trim().equalsIgnoreCase("Cte dIvoire")){
+					response = "Côte d'Ivoire";
+				}else if(stringU.trim().equalsIgnoreCase("Curaao")){
+					response = "Curaçao";
+				}else if(stringU.trim().equalsIgnoreCase("Emiratos rabes Unidos (Los)")){
+					response = "Emiratos Árabes Unidos (Los)";
 				}
 
 			}else{
