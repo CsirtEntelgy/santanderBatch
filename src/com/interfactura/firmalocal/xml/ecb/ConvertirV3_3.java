@@ -1759,9 +1759,9 @@ public class ConvertirV3_3
 			System.out.println("Validacion Subtotal totalRetAndTraDoubl AMDA : " + tags.totalRetAndTraDoubl);
 			if(tags.tipoComprobante.trim().equalsIgnoreCase("I") || tags.tipoComprobante.trim().equalsIgnoreCase("E") || tags.tipoComprobante.trim().equalsIgnoreCase("N")){
 				System.out.println("Validando Subtotal con total Conceptos AMDA : ");
-//				if(!tags.subtotalDoubleTag.equals(tags.totalRetAndTraDoubl)){
-//					valSubTotalDou = " ErrCompSubTot004=\"" + "vacio";
-//				}
+				if(!tags.subtotalDoubleTag.equals(tags.totalRetAndTraDoubl)){
+					valSubTotalDou = " ErrCompSubTot004=\"" + "vacio" + "\" ";
+				}
 			}
 			
 			tags.TOTAL_IMP_RET = lineas[1].trim();
@@ -1824,6 +1824,7 @@ public class ConvertirV3_3
 							"\n<cfdi:Impuestos ",
 							totalImpRetLine,
 							totalImpTraLine,
+							valSubTotalDou,
 //							">",
 //							elementRetencion,
 //							elementTraslado,
