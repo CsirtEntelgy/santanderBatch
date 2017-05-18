@@ -739,6 +739,7 @@ public class ConvertirV3_3
 				System.out.println("SubTotal : " + tags.SUBTOTAL_MN);
 				try {
 				    double valSubTotal = Double.parseDouble(tags.SUBTOTAL_MN.trim());
+				    tags.subtotalDoubleTag = valSubTotal;
 				    if(valSubTotal<0){
 				       System.out.println("SubTotal: " + " es negativo");
 				    	concat.append(" ErrCompSubTotal001" + "=\"" + tags.SUBTOTAL_MN.trim() + "\"");
@@ -1199,6 +1200,11 @@ public class ConvertirV3_3
 		lineas = linea.split("\\|");
 		if (lineas.length >= 3) 
 		{			
+			
+			System.out.println("Asignando Numero De Conceptos: " + tags.numeroConceptosFac);
+			tags.numeroConceptosFac = tags.numeroConceptosFac+1;
+			System.out.println("Asignando Numero De Conceptos Despues: " + tags.numeroConceptosFac);
+			System.out.println("Importe en Concepto ANTES: " + lineas[2].trim());
 			//HashMap campos = (HashMap) campos22.get(tags.fis.getTaxID());
 			//System.out.println("concepto RFC:" + tags.EMISION_RFC);
 			HashMap campos = (HashMap) campos22.get(tags.EMISION_RFC);
@@ -1296,9 +1302,16 @@ public class ConvertirV3_3
 			// Importe V 3.3 AMDA pendiente logica de redondeo
 			String valImporte = "";
 			String lineImporte = "";
+//			Double totalRetAndTraDoubl = 0.00;
 			if(lineas[2].trim().length() > 0){
 				System.out.println("Importe en Concepto: " + lineas[2].trim());
 				valImporte = lineas[2].trim();
+				try{
+					Double valImpCon = Double.parseDouble(valImporte);
+					tags.totalRetAndTraDoubl = tags.totalRetAndTraDoubl + valImpCon;
+				}catch(NumberFormatException e){
+					System.out.println("Importe en Concepto Problema al convertir en Numerico: " + lineas[2].trim());
+				}
 				if(UtilCatalogos.decimalesValidationMsj(valImporte, tags.decimalesMoneda)){
 					lineImporte = "\" Importe=\"" + valImporte;
 				}else{
@@ -1518,7 +1531,7 @@ public class ConvertirV3_3
 				claveProdServVal = "ClaveProdServ=\"" +UtilCatalogos.findClaveProdServbyDesc(tags.mapCatalogos, "Instituciones bancarias"); // Fijo 84121500 AMDA
 				
 			}else{
-				claveProdServVal = "ElCampoClaveProdServNoContieneUnValorDelCatalogoc_ClaveProdServ=\"" + "vacio"; // Fijo 84121500 AMDA
+				claveProdServVal = "ErrConClavPro001=\"" + "vacio"; // Fijo 84121500 AMDA
 			}
 			boolean paint = false;
 			if(elementTraslado.length() > 35 && elementRetencion.length() > 39){
@@ -1543,9 +1556,16 @@ public class ConvertirV3_3
 			}
 			System.out.println("Elemento Impuestos AMDA : " + elementImpuestos);
 			System.out.println("Elemento Impuestos Total Traslados AMDA : " + tags.sumTotalImpuestosTras);
+			Double valVal = Double.parseDouble(tags.sumTotalImpuestosTras);
+			System.out.println("Elemento Impuestos Total Traslados DESP AMDA : " + valVal);
+			tags.sumTotalImpuestosTrasDou = tags.sumTotalImpuestosTrasDou + valVal;
+			System.out.println("Elemento Impuestos Total Traslados SUMMMM AMDA : " + tags.sumTotalImpuestosTras);
 			System.out.println("Elemento Impuestos Total Retenciones AMDA : " + tags.sumTotalImpuestosReten);
 			
-			String nodoConcepto = "\n<cfdi:Concepto " + claveProdServVal + 
+			
+			String nodoConcepto = "\n<cfdi:Concepto " + claveProdServVal +
+//								  "\"" +
+//								  valSubTotalDou + 
 								  "\" Cantidad=\"" + "1" +
 								  "\" ClaveUnidad=\"" + claveUnidad + //Pendiente el valor de ClaveUnidad
 								  "\" Unidad=\"" + unidadVal + 
@@ -1644,7 +1664,7 @@ public class ConvertirV3_3
 			if(!regFisCon.equalsIgnoreCase("vacio")){
 				regimenStr = " RegimenFiscal=\"" + regFisCon + "\" "; // Agregue esto /> para cerrar el nodo de concepto al regresar AMDA
 			}else{
-				regimenStr = " ElCampoRegimenFiscalNoContieneUnValorDelCatalogoc_RegimenFiscal=\"" + regVal + "\" "; // Agregue esto /> para cerrar el nodo de concepto al regresar AMDA
+				regimenStr = " ErrEmiRegFis001=\"" + regVal + "\" "; // Agregue esto /> para cerrar el nodo de concepto al regresar AMDA
 			}
 			
 			tags.REGIMEN_FISCAL = regVal;	
@@ -1733,6 +1753,17 @@ public class ConvertirV3_3
 		
 		if (lineas.length >= 3) 
 		{
+			
+			String valSubTotalDou = "";
+			System.out.println("Validacion Subtotal subtotalDoubleTag AMDA : " + tags.subtotalDoubleTag);
+			System.out.println("Validacion Subtotal totalRetAndTraDoubl AMDA : " + tags.totalRetAndTraDoubl);
+			if(tags.tipoComprobante.trim().equalsIgnoreCase("I") || tags.tipoComprobante.trim().equalsIgnoreCase("E") || tags.tipoComprobante.trim().equalsIgnoreCase("N")){
+				System.out.println("Validando Subtotal con total Conceptos AMDA : ");
+//				if(!tags.subtotalDoubleTag.equals(tags.totalRetAndTraDoubl)){
+//					valSubTotalDou = " ErrCompSubTot004=\"" + "vacio";
+//				}
+			}
+			
 			tags.TOTAL_IMP_RET = lineas[1].trim();
 			tags.TOTAL_IMP_TRA = lineas[2].trim();
 			String totalImpRetLine = "";
@@ -1761,7 +1792,10 @@ public class ConvertirV3_3
 					tags.atributoTotalImpuestosReten = false;
 				}
 			}else{
-				tags.atributoTotalImpuestosReten = false;
+//				tags.atributoTotalImpuestosReten = false;
+				totalImpRetLine = " TotalImpuestosRetenidos=\"" + UtilCatalogos.decimales("0.00", tags.decimalesMoneda) + "\" ";
+				tags.atributoTotalImpuestosReten = true;
+				
 			}
 			
 			String totalImpTraLine = "";
@@ -1905,7 +1939,8 @@ public class ConvertirV3_3
 						System.out.println("Valor SUMMMM1 Traslados : " + sumtotalTraDou);
 						System.out.println("Valor SUMMMM Traslados : " + valConepto);
 						System.out.println("Valor SUMMMM2 Traslados : " + importeDou);
-						if(!(sumtotalTraDou > importeDou) && !(sumtotalTraDou < importeDou) ){ // ImporteDou:9 Linea 3, Importe del Traslado
+						System.out.println("Valor SUMMMM sumTotalImpuestosTrasDou Traslados : " + tags.sumTotalImpuestosTrasDou);
+						if(!(importeDou > tags.sumTotalImpuestosTrasDou) && !(importeDou < tags.sumTotalImpuestosTrasDou) ){ // ImporteDou:9 Linea 3, Importe del Traslado
 							valid = true;
 							System.out.println("Importes TRUE TASLADOS : ");
 						}
@@ -1939,6 +1974,25 @@ public class ConvertirV3_3
 //					 " />" +
 //					 "\n</cfdi:Traslados>";
 //			System.out.println("Elemento Traslado Impuestos AMDA : " + elementTraslado);
+			
+			System.out.println("Asignando sumTotalImpuestosTras RESETEO: " + tags.sumTotalImpuestosTras);
+			tags.sumTotalImpuestosTrasDou = 0.00;
+			System.out.println("Asignando sumTotalImpuestosTras DESP RESETEO: " + tags.sumTotalImpuestosTras);
+			System.out.println("Asignando Numero De Conceptos RESETEO: " + tags.numeroConceptosFac);
+			tags.numeroConceptosFac = 0;
+			System.out.println("Asignando Numero De Conceptos RESETEO DESPUES: " + tags.numeroConceptosFac);
+			System.out.println("Asignando SumTotales RESETEO: " + tags.sumTraTotalIepsDou + " : " + tags.sumTraTotalIvaDou + " : " + tags.sumTraTotalIsrDou);
+			double sumtotalTraDou = tags.sumTraTotalIepsDou + tags.sumTraTotalIvaDou + tags.sumTraTotalIsrDou;
+			System.out.println("Asignando sumtotalTraDou Val en Reseteo: " + sumtotalTraDou);
+			tags.sumTraTotalIepsDou = 0.00;
+			tags.sumTraTotalIvaDou = 0.00;
+			tags.sumTraTotalIsrDou = 0.00;
+			System.out.println("Asignando sumTraTotalIepsDou RESETEO DESPUES: " + tags.sumTraTotalIepsDou);
+			System.out.println("Asignando sumTraTotalIvaDou RESETEO DESPUES: " + tags.sumTraTotalIvaDou);
+			System.out.println("Asignando sumTraTotalIsrDou RESETEO DESPUES: " + tags.sumTraTotalIsrDou);
+			System.out.println("Validacion Subtotal totalRetAndTraDoubl AMDA RESETEO : " + tags.totalRetAndTraDoubl);
+			tags.totalRetAndTraDoubl = 0.00;
+			System.out.println("Validacion Subtotal totalRetAndTraDoubl AMDA Despues RESETEO : " + tags.totalRetAndTraDoubl);
 			
 			return Util
 					.conctatArguments(//"\n<cfdi:Traslados>" , 
@@ -2052,9 +2106,10 @@ public class ConvertirV3_3
 							valid = true;
 							System.out.println("Importes TRUE RETENCIONES : ");
 						}
-						if(totImpRet > importeDou || totImpRet < importeDou){
-							importeLine = "\" ErrRetImp001=\"" + lineas[2].trim();
-						}else if(!valid){
+//						if(totImpRet > importeDou || totImpRet < importeDou){
+//							importeLine = "\" ErrRetImp001=\"" + lineas[2].trim();
+//						}else if(!valid){
+						if(!valid){
 							importeLine = "\" ErrImpRetImporte001=\"" + lineas[2].trim();
 						}else{
 							if(UtilCatalogos.decimalesValidationMsj(lineas[2].trim(), tags.decimalesMoneda)){
@@ -2077,9 +2132,30 @@ public class ConvertirV3_3
 				importeLine = "\" DebeExistirElAtributoTotalImpuestosRetenidos=\"" + lineas[2].trim();
 			}
 			
+//			System.out.println("Asignando sumTotalImpuestosTras RESETEO: " + tags.sumTotalImpuestosTras);
+//			tags.sumTotalImpuestosTrasDou = 0.00;
+//			System.out.println("Asignando sumTotalImpuestosTras DESP RESETEO: " + tags.sumTotalImpuestosTras);
+//			System.out.println("Asignando Numero De Conceptos RESETEO: " + tags.numeroConceptosFac);
+//			tags.numeroConceptosFac = 0;
+//			System.out.println("Asignando Numero De Conceptos RESETEO DESPUES: " + tags.numeroConceptosFac);
+//			System.out.println("Asignando SumTotales RESETEO: " + tags.sumTraTotalIepsDou + " : " + tags.sumTraTotalIvaDou + " : " + tags.sumTraTotalIsrDou);
+//			double sumtotalTraDou = tags.sumTraTotalIepsDou + tags.sumTraTotalIvaDou + tags.sumTraTotalIsrDou;
+//			System.out.println("Asignando sumtotalTraDou Val en Reseteo: " + sumtotalTraDou);
+//			tags.sumTraTotalIepsDou = 0.00;
+//			tags.sumTraTotalIvaDou = 0.00;
+//			tags.sumTraTotalIsrDou = 0.00;
+//			System.out.println("Asignando sumTraTotalIepsDou RESETEO DESPUES: " + tags.sumTraTotalIepsDou);
+//			System.out.println("Asignando sumTraTotalIvaDou RESETEO DESPUES: " + tags.sumTraTotalIvaDou);
+//			System.out.println("Asignando sumTraTotalIsrDou RESETEO DESPUES: " + tags.sumTraTotalIsrDou);
+//			System.out.println("Validacion Subtotal totalRetAndTraDoubl AMDA RESETEO : " + tags.totalRetAndTraDoubl);
+//			tags.totalRetAndTraDoubl = 0.00;
+//			System.out.println("Validacion Subtotal totalRetAndTraDoubl AMDA Despues RESETEO : " + tags.totalRetAndTraDoubl);
+			
 			return Util
 					.conctatArguments("\n<cfdi:Retencion", impuestoLine, 
 							importeLine, "\"/>").toString().getBytes("UTF-8");
+			
+
 			
 //			return Util
 //					.conctatArguments("\n<cfdi:Retencion Impuesto=\"", claveImpRet, 

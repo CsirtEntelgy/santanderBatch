@@ -201,6 +201,8 @@ public class TagsXML {
 	public boolean exentoT = false;
 	public boolean noExentoT = false;
 	public Double subtotalDoubleTag = 0.00;
+	public Double totalRetAndTraDoubl = 0.00;
+	public Double sumTotalImpuestosTrasDou = 0.00;
 	
 	
 }

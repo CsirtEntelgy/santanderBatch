@@ -44,46 +44,46 @@ public class UtilCatalogos
 	static {
         errorMessage.put("ErrCompMoneda001", "Clave=\"ErrCompSubTotal001\" Nodo=\"Comprobante\" Mensaje=\"El campo Moneda no contiene un valor del catálogo c_Moneda.\"");
         errorMessage.put("ErrCompMoneda002", "Clave=\"ErrCompSubTotal002\" Nodo=\"Comprobante\" Mensaje=\"El valor de este campo Moneda excede la cantidad de decimales que soporta la moneda.\"");
-        errorMessage.put("ErrCompTipoCambio001", "Clave=\"ErrCompTipoCambio001\" Nodo=\"Comprobante\" Mensaje=\"El campo TipoCambio no cumple con el patrón requerido.\"");
+        errorMessage.put("ErrCompTipoCambio001", "Clave=\"CFDI33116\" Nodo=\"Comprobante\" Mensaje=\"El campo TipoCambio no cumple con el patrón requerido.\"");
         errorMessage.put("ErrCompTipoCambio002", "Clave=\"ErrCompTipoCambio002\" Nodo=\"Comprobante\" Mensaje=\"El campo TipoCambio no esta dentro de los límites establecidos\"");
         errorMessage.put("ErrCompTipoCambio003", "Clave=\"ErrCompTipoCambio003\" Nodo=\"Comprobante\" Mensaje=\"No se econtro TipoCambio para la moneda relacionada\"");
-        errorMessage.put("ErrCompTipoCambio004", "Clave=\"ErrCompTipoCambio004\" Nodo=\"Comprobante\" Mensaje=\"El campo TipoCambio no tiene el valor \"1\" y la moneda indicada es MXN.\"");
-        errorMessage.put("ErrCompTipoCambio005", "Clave=\"ErrCompTipoCambio005\" Nodo=\"Comprobante\" Mensaje=\"El campo TipoCambio se debe registrar cuando el campo Moneda tiene un valor distinto de MXN y XXX.\"");
+        errorMessage.put("ErrCompTipoCambio004", "Clave=\"CFDI33113\" Nodo=\"Comprobante\" Mensaje=\"El campo TipoCambio no tiene el valor \"1\" y la moneda indicada es MXN.\"");
+        errorMessage.put("ErrCompTipoCambio005", "Clave=\"CFDI33114\" Nodo=\"Comprobante\" Mensaje=\"El campo TipoCambio se debe registrar cuando el campo Moneda tiene un valor distinto de MXN y XXX.\"");
         errorMessage.put("ErrCompTipoCambio006", "Clave=\"ErrCompTipoCambio006\" Nodo=\"Comprobante\" Mensaje=\"El campo TipoCambio no es un valor númerico\"");
-        errorMessage.put("ErrCompTipoComprobante001", "Clave=\"ErrCompTipoComprobante001\" Nodo=\"Comprobante\" Mensaje=\"El campo TipoDeComprobante, no contiene un valor del catálogo c_TipoDeComprobante.\"");
-        errorMessage.put("ErrCompTipoComprobante002", "Clave=\"ErrCompTipoComprobante002\" Nodo=\"Comprobante\" Mensaje=\"El TipoDeComprobante NO es I,E o N, y un concepto incluye el campo descuento. \"");
+        errorMessage.put("ErrCompTipoComprobante001", "Clave=\"CFDI33120\" Nodo=\"Comprobante\" Mensaje=\"El campo TipoDeComprobante, no contiene un valor del catálogo c_TipoDeComprobante.\"");
+        errorMessage.put("ErrCompTipoComprobante002", "Clave=\"CFDI33110\" Nodo=\"Comprobante\" Mensaje=\"El TipoDeComprobante NO es I,E o N, y un concepto incluye el campo descuento. \"");
         errorMessage.put("ErrCompTotal001", "Clave=\"ErrCompTotal001\" Nodo=\"Comprobante\" Mensaje=\"El campo Total no debe ser negativo.\"");
         errorMessage.put("ErrCompTotal002", "Clave=\"ErrCompTotal002\" Nodo=\"Comprobante\" Mensaje=\"El campo Total no es númerico.\"");
         errorMessage.put("ErrCompSubTotal001", "Clave=\"ErrCompSubTotal001\" Nodo=\"Comprobante\" Mensaje=\"No se permiten campos negativos en el campo Subtotal\"");
-        errorMessage.put("ErrCompSubTotal002", "Clave=\"ErrCompSubTotal002\" Nodo=\"Comprobante\"  Mensaje=\"El TipoDeComprobante es T o P y el importe no es igual a 0, o cero con decimales.\"");
-        errorMessage.put("ErrCompSubTotal003", "Clave=\"ErrCompSubTotal003\" Nodo=\"Comprobante\"  Mensaje=\"El valor de este campo SubTotal excede la cantidad de decimales que soporta la moneda.\"");
+        errorMessage.put("ErrCompSubTotal002", "Clave=\"CFDI33108\" Nodo=\"Comprobante\"  Mensaje=\"El TipoDeComprobante es T o P y el importe no es igual a 0, o cero con decimales.\"");
+        errorMessage.put("ErrCompSubTotal003", "Clave=\"CFDI33105\" Nodo=\"Comprobante\"  Mensaje=\"El valor de este campo SubTotal excede la cantidad de decimales que soporta la moneda.\"");
         errorMessage.put("ErrCompSubTotal004", "Clave=\"ErrCompSubTotal004\" Nodo=\"Comprobante\"  Mensaje=\"El valor del campo SubTotal viene vacio o no es numerico.\"");
-        errorMessage.put("ErrCompSubTotal005", "Clave=\"ErrCompSubTotal005\" Nodo=\"Comprobante\"  Mensaje=\"El valor registrado en el campo Descuento no es menor o igual que el campo Subtotal.\"");
-        errorMessage.put("ErrReceNumRegIdTrib001", "Clave=\"ErrReceNumRegIdTrib001\" Nodo=\"Receptor\"  Mensaje=\"El Valor RegistroIdAtributario No Cumple Con El Patron Correspondiente.\"");
+        errorMessage.put("ErrCompSubTotal005", "Clave=\"CFDI33109\" Nodo=\"Comprobante\"  Mensaje=\"El valor registrado en el campo Descuento no es menor o igual que el campo Subtotal.\"");
+        errorMessage.put("ErrReceNumRegIdTrib001", "Clave=\"CFDI33139\" Nodo=\"Receptor\"  Mensaje=\"El Valor RegistroIdAtributario No Cumple Con El Patron Correspondiente.\"");
         errorMessage.put("ErrReceNumRegIdTrib002", "Clave=\"ErrReceNumRegIdTrib002\" Nodo=\"Receptor\"  Mensaje=\"No Se Ha Encontrado El Receptor Relacionado Con NumRegIdTrib El RFC Del Receptor Debe De Ser Un Generico Extranjero.\"");
-        errorMessage.put("ErrCompFormaPago001", "Clave=\"ErrCompFormaPago001\" Nodo=\"Comprobante\" Mensaje=\"El campo FormaPago no contiene un valor del catálogo c_FormaPago. \"");
-        errorMessage.put("ErrCompMetodoPago001", "Clave=\"ErrCompMetodoPago001\" Nodo=\"Comprobante\" Mensaje=\"El campo MetodoPago, no contiene un valor del catálogo c_MetodoPago.\"");
+        errorMessage.put("ErrCompFormaPago001", "Clave=\"CFDI33103\" Nodo=\"Comprobante\" Mensaje=\"El campo FormaPago no contiene un valor del catálogo c_FormaPago. \"");
+        errorMessage.put("ErrCompMetodoPago001", "Clave=\"CFDI33121\" Nodo=\"Comprobante\" Mensaje=\"El campo MetodoPago, no contiene un valor del catálogo c_MetodoPago.\"");
         
-        errorMessage.put("ErrCompUsoCFDI001", "Clave=\"ErrCompUsoCFDI001\" Nodo=\"Receptor\" Mensaje=\"El campo UsoCFDI, no contiene un valor del catálogo c_UsoCFDI.\"");
-        errorMessage.put("ErrCompResidenciaFiscal001", "Clave=\"ErrCompResidenciaFiscal001\" Nodo=\"Receptor\" Mensaje=\"El valor del campo ResidenciaFiscal no puede ser MEX\"");
-        errorMessage.put("ErrCompResidenciaFiscal002", "Clave=\"ErrCompResidenciaFiscal002\" Nodo=\"Receptor\" Mensaje=\"El campo ResidenciaFiscal, no contiene un valor del catálogo c_Pais\"");
+        errorMessage.put("ErrCompUsoCFDI001", "Clave=\"CFDI33140\" Nodo=\"Receptor\" Mensaje=\"El campo UsoCFDI, no contiene un valor del catálogo c_UsoCFDI.\"");
+        errorMessage.put("ErrCompResidenciaFiscal001", "Clave=\"CFDI33135\" Nodo=\"Receptor\" Mensaje=\"El valor del campo ResidenciaFiscal no puede ser MEX\"");
+        errorMessage.put("ErrCompResidenciaFiscal002", "Clave=\"CFDI33133\" Nodo=\"Receptor\" Mensaje=\"El campo ResidenciaFiscal, no contiene un valor del catálogo c_Pais\"");
         
-        errorMessage.put("ErrCompResidenciaFiscal003", "Clave=\"ErrCompResidenciaFiscal003\" Nodo=\"Receptor\" Mensaje=\"El valor del campo ResidenciaFiscal no puede ser MEX\"");
-        errorMessage.put("ErrCompResidenciaFiscal004", "Clave=\"ErrCompResidenciaFiscal004\" Nodo=\"Receptor\" Mensaje=\"El valor del campo ResidenciaFiscal no puede ser MEX\"");
+        errorMessage.put("ErrCompResidenciaFiscal003", "Clave=\"CFDI33135\" Nodo=\"Receptor\" Mensaje=\"El valor del campo ResidenciaFiscal no puede ser MEX\"");
+        errorMessage.put("ErrCompResidenciaFiscal004", "Clave=\"CFDI33135\" Nodo=\"Receptor\" Mensaje=\"El valor del campo ResidenciaFiscal no puede ser MEX\"");
         
         errorMessage.put("ErrImpTraImporte001", "Clave=\"ErrImpTraImporte001\" Nodo=\"Impuestos\" Mensaje=\"El Campo Importe Correspondiente A Traslados No Es Igual A La Suma De Los Importes De Los Impuestos Traslados Registrados En Los Conceptos Donde El Impuesto Sea Igual Al Campo Impuesto De Este Elemento\"");
         errorMessage.put("ErrImpRetImporte001", "Clave=\"ErrImpRetImporte001\" Nodo=\"Impuestos\" Mensaje=\"El Campo Importe Correspondiente A Retención No Es Igual A La Suma De Los Importes De Los Impuestos Retenidos Registrados En Los Conceptos Donde El Impuesto Sea Igual Al Campo Impuesto De Este Elemento\"");
         errorMessage.put("ErrImpRetConImporte001", "Clave=\"ErrImpRetConImporte001\" Nodo=\"Impuestos\" Mensaje=\"El Valor Del Campo Tipo Factor Que Corresponde A Retencion Debe Ser Distinto De Exento\"");
         errorMessage.put("ErrImpTraConTasaOCuota001", "Clave=\"ErrImpTratConTasaOCuota001\" Nodo=\"Impuestos\" Mensaje=\"El Valor Del Campo TasaOCuota Que Corresponde A Traslado No Contiene Un Valor Del Catalogo c_TasaOCuota\"");
-        errorMessage.put("ErrImpRetConTasaOCuota001", "Clave=\"ErrImpRetConTasaOCuota001\" Nodo=\"Impuestos\" Mensaje=\"ElValorDelCampoTasaOCuotaQueCorrespondeARetencionNoContieneUnValorDelCatalogoc_TasaOCuota\"");
+        errorMessage.put("ErrImpRetConTasaOCuota001", "Clave=\"CFDI33167\" Nodo=\"Impuestos\" Mensaje=\"ElValorDelCampoTasaOCuotaQueCorrespondeARetencionNoContieneUnValorDelCatalogoc_TasaOCuota\"");
         errorMessage.put("ErrCompFecha001", "Clave=\"ErrCompFecha001\" Nodo=\"Comprobante\" Mensaje=\"El Campo Fecha No Cumple Con El Patron Requerido.\"");
-        errorMessage.put("ErrCompValUni001", "Clave=\"ErrCompValUni001\" Nodo=\"Concepto\" Mensaje=\"El Valor Del Campo Valor Unitario Debe Ser Mayor Que Cero (0) Cuando El Tipo De Comprobante Es Ingreso, Egreso O Nomina.\"");
-        errorMessage.put("ErrCompValUni002", "Clave=\"ErrCompValUni002\" Nodo=\"Concepto\" Mensaje=\"El Valor Del Campo Valor Unitario Debe Tener Hasta La Cantidad De Decimales Que Soporte La Moneda.\"");
+        errorMessage.put("ErrCompValUni001", "Clave=\"CFDI33147\" Nodo=\"Concepto\" Mensaje=\"El Valor Del Campo Valor Unitario Debe Ser Mayor Que Cero (0) Cuando El Tipo De Comprobante Es Ingreso, Egreso O Nomina.\"");
+        errorMessage.put("ErrCompValUni002", "Clave=\"CFDI33146\" Nodo=\"Concepto\" Mensaje=\"El Valor Del Campo Valor Unitario Debe Tener Hasta La Cantidad De Decimales Que Soporte La Moneda.\"");
         errorMessage.put("ErrCompValUni003", "Clave=\"ErrCompValUni003\" Nodo=\"Concepto\" Mensaje=\"El valor valor del campo ValorUnitario debe ser mayor que cero (0) cuando el tipo de comprobante es Ingreso, Egreso o Nomina\"");
         errorMessage.put("ErrCompValUni004", "Clave=\"ErrCompValUni004\" Nodo=\"Concepto\" Mensaje=\"El Valor Del Campo Valor Unitario Debe Ser Mayor Que Cero Cuando El Tipo De Comprobante Es Pago.\"");
-        errorMessage.put("ErrConcImport001", "Clave=\"ErrConcImport001\" Nodo=\"Concepto\" Mensaje=\"El Valor Del Campo Importe Debe Tener Hasta La Cantidad De Decimales Que Soporta La Moneda.\"");
+        errorMessage.put("ErrConcImport001", "Clave=\"CFDI33148\" Nodo=\"Concepto\" Mensaje=\"El Valor Del Campo Importe Debe Tener Hasta La Cantidad De Decimales Que Soporta La Moneda.\"");
         errorMessage.put("ErrConcImport002", "Clave=\"ErrConcImport002\" Nodo=\"Concepto\" Mensaje=\"El valor del campo Descuento es mayor que el campo Importe, importe numero: {0}, descuento:{1}, importe:{2}\"");
-        errorMessage.put("ErrConcImpueTra001", "Clave=\"ErrConcImpueTra001\" Nodo=\"Concepto\" Mensaje=\"El Campo No Contiene Un Valor Del Catalogo Impuesto Para TasaOCuota Traslado.\"");
+        errorMessage.put("ErrConcImpueTra001", "Clave=\"CFDI33159\" Nodo=\"Concepto\" Mensaje=\"El Campo No Contiene Un Valor Del Catalogo Impuesto Para TasaOCuota Traslado.\"");
         errorMessage.put("ErrConcImpueTra002", "Clave=\"ErrConcImpueTra002\" Nodo=\"Concepto\" Mensaje=\"El Campo No Contiene Un Valor Del Catalogo Impuesto Para TasaOCuota Traslado\"");
         errorMessage.put("ErrConConcepTra001", "Clave=\"ErrConConcepTra001\" Nodo=\"Concepto\" Mensaje=\"No Se Encontro Un Concepto Traslados Para Buscar\"");
         errorMessage.put("ErrConImpRet001", "Clave=\"ErrConImpRet001\" Nodo=\"Concepto\" Mensaje=\"El Campo No Contiene Un Valor Del Catalogo Impuesto Para TasaOCuota Retencion\"");
@@ -93,20 +93,20 @@ public class UtilCatalogos
         errorMessage.put("ErrTraImp002", "Clave=\"ErrTraImp002\" Nodo=\"Traslados\" Mensaje=\"El Valor Seleccionado Debe Corresponder A Un Valor Del Catalogo Donde La Columna Impuesto Corresponda Con El Campo Impuesto Y La Coloumna Factor Corresponda Al Campo TipoFactor (Traslados)\"");
         errorMessage.put("ErrTraImp003", "Clave=\"ErrTraImp003\" Nodo=\"Traslados\" Mensaje=\"El Valor Del Campo Total Impuestos Traslado No Es Igual A La Suma De Los Importes Registrados En El Elemento Hijo Traslado\"");
         errorMessage.put("ErrTraImp004", "Clave=\"ErrTraImp004\" Nodo=\"Traslados\" Mensaje=\"El Valor Del Campo Importe Correspondiente A Traslado Debe Tener La Cantidad De Decimales Que Soporta La Moneda\"");
-        errorMessage.put("ErrTraConTipFac001", "Clave=\"ErrTraConTipFac001\" Nodo=\"Traslados\" Mensaje=\"El Valor Del Campo Tipo Factor Que Corresponde A Traslado No Contiene Un Valor Del Catalogo c_TipoFactor\"");
-        errorMessage.put("ErrTraConImpu001", "Clave=\"ErrTraConImpu001\" Nodo=\"Traslados\" Mensaje=\"El Valor Del Campo Impuesto Que Corresponde A Traslado No Contiene Un Valor Del Catalogo c_Impuesto\"");
-        errorMessage.put("ErrRetConTipFac001", "Clave=\"ErrRetConTipFac001\" Nodo=\"Traslados\" Mensaje=\"El Valor Del Campo Tipo Factor Que Corresponde A Retencion No Contiene Un Valor Del Catalogo c_TipoFactor\"");
-        errorMessage.put("ErrCompTipCam001", "Clave=\"ErrCompTipCam001\" Nodo=\"Comprobante\" Mensaje=\"El Campo Tipo Cambio Se Deberegistrar Cuando El Campo Moneda Tiene Un Valor Distinto De MXN Y XXX\"");
+        errorMessage.put("ErrTraConTipFac001", "Clave=\"CFDI33156\" Nodo=\"Traslados\" Mensaje=\"El Valor Del Campo Tipo Factor Que Corresponde A Traslado No Contiene Un Valor Del Catalogo c_TipoFactor\"");
+        errorMessage.put("ErrTraConImpu001", "Clave=\"CFDI33155\" Nodo=\"Traslados\" Mensaje=\"El Valor Del Campo Impuesto Que Corresponde A Traslado No Contiene Un Valor Del Catalogo c_Impuesto\"");
+        errorMessage.put("ErrRetConTipFac001", "Clave=\"CFDI33165\" Nodo=\"Traslados\" Mensaje=\"El Valor Del Campo Tipo Factor Que Corresponde A Retencion No Contiene Un Valor Del Catalogo c_TipoFactor\"");
+        errorMessage.put("ErrCompTipCam001", "Clave=\"CFDI33114\" Nodo=\"Comprobante\" Mensaje=\"El Campo Tipo Cambio Se Deberegistrar Cuando El Campo Moneda Tiene Un Valor Distinto De MXN Y XXX\"");
         errorMessage.put("ErrCompDesc001", "Clave=\"ErrCompDesc001\" Nodo=\"Comprobante\" Mensaje=\"El Valor Registrado En El Campo Descuento No Es Menor O Igual Que El Campo Sub Total\"");
         errorMessage.put("ErrCompDesc002", "Clave=\"ErrCompDesc002\" Nodo=\"Comprobante\" Mensaje=\"El Campo Subtotal O Descuento Es Incorrecto Para Calcular Descuento\"");
-        errorMessage.put("ErrCompDesc003", "Clave=\"ErrCompDesc003\" Nodo=\"Comprobante\" Mensaje=\"El Valor Del Campo Descuento Excede La Cantidad De Decimales Que Soporte La Moneda\"");
+        errorMessage.put("ErrCompDesc003", "Clave=\"CFDI33111\" Nodo=\"Comprobante\" Mensaje=\"El Valor Del Campo Descuento Excede La Cantidad De Decimales Que Soporte La Moneda\"");
         errorMessage.put("ErrCompTipMon001", "Clave=\"ErrCompTipMon001\" Nodo=\"Comprobante\" Mensaje=\"El Campo Tipo Cambio No Cumple Con El Patron Requerido\"");
         errorMessage.put("ErrCompTipMon002", "Clave=\"ErrCompTipMon002\" Nodo=\"Comprobante\" Mensaje=\"El Campo Tipo Cambio No Esta Dentro De Los Limites\"");
         errorMessage.put("ErrCompTipMon003", "Clave=\"ErrCompTipMon003\" Nodo=\"Comprobante\" Mensaje=\"El Campo Tipo Cambio No Tiene El Valor 1 Y La Moneda Indicada Es MXN\"");
         errorMessage.put("ErrCompTipMon004", "Clave=\"ErrCompTipMon004\" Nodo=\"Comprobante\" Mensaje=\"Tipo Cambio Incorrecto\"");
-        errorMessage.put("ErrCompMon001", "Clave=\"ErrCompMon001\" Nodo=\"Comprobante\" Mensaje=\"El Campo Moneda No Tiene Un Valor En El Catalogo\"");
+        errorMessage.put("ErrCompMon001", "Clave=\"CFDI33112\" Nodo=\"Comprobante\" Mensaje=\"El Campo Moneda No Tiene Un Valor En El Catalogo\"");
         errorMessage.put("ErrCompTipCom001", "Clave=\"ErrCompTipCom001\" Nodo=\"Comprobante\" Mensaje=\"El Campo tipo De Comprobante No Contiene Un Valor En El Cataloco c_Tipo De Comprobante\"");
-        errorMessage.put("ErrCompForPag001", "Clave=\"ErrCompForPag001\" Nodo=\"Comprobante\" Mensaje=\"El Campo Forma Pago No Contiene Un Valor Del Catalogo C_FormaPago\"");
+        errorMessage.put("ErrCompForPag001", "Clave=\"CFDI33103\" Nodo=\"Comprobante\" Mensaje=\"El Campo Forma Pago No Contiene Un Valor Del Catalogo C_FormaPago\"");
         errorMessage.put("ErrCompMetPag001", "Clave=\"ErrCompMetPag001\" Nodo=\"Comprobante\" Mensaje=\"El Campo Metodo Pago No Contiene Un Valor Del Catalogo C_FormaPago\"");
         errorMessage.put("ErrCompSubTot001", "Clave=\"ErrCompSubTot001\" Nodo=\"Comprobante\" Mensaje=\"No Se Permiten Valores Negativos En Sub Total\"");
         errorMessage.put("ErrCompSubTot002", "Clave=\"ErrCompSubTot002\" Nodo=\"Comprobante\" Mensaje=\"El Valor Del Campo Sub Total Excede La Cantidad De Decimales Que Soporta La Moneda\"");
@@ -122,10 +122,18 @@ public class UtilCatalogos
         errorMessage.put("ErrConTipCom003", "Clave=\"ErrConTipCom003\" Nodo=\"Concepto\" Mensaje=\"El Valor Del Campo Valor Unitario Debe Ser Mayor Que Cero Cuando El Tipo De Comprobante Es Traslado\"");
         errorMessage.put("ErrConTipCom004", "Clave=\"ErrConTipCom004\" Nodo=\"Concepto\" Mensaje=\"El valor valor del campo ValorUnitario debe ser mayor que cero (0) cuando el tipo de comprobante es Pago\"");
         errorMessage.put("ErrTraTasaOCuo001", "Clave=\"ErrTraTasaOCuo001\" Nodo=\"Traslados\" Mensaje=\"El Valor Seleccionado Debe Corresponder A Un Valor Del Catalogo Donde La Columna Impuesto Corresponda Con El Campo Impuesto Y La Coloumna Factor Corresponda Al Campo TipoFactor\"");
-        errorMessage.put("ErrImpTotImpRet001", "Clave=\"ErrImpTotImpRet001\" Nodo=\"Impuestos\" Mensaje=\"El Valor Del Campo TotalImpuestosRetenidos Debe Tener Hasta La Cantidad De Decimales Que Soporte La Moneda\"");
-        errorMessage.put("ErrImpTotImpTra002", "Clave=\"ErrImpTotImpTra002\" Nodo=\"Impuestos\" Mensaje=\"El Valor Del Campo TotalImpuestosTrasladados Debe Tener Hasta La Cantidad De Decimales Que Soporte La Moneda\"");
-        errorMessage.put("ErrImpTotImpTra001", "Clave=\"ErrImpTotImpTra001\" Nodo=\"Impuestos\" Mensaje=\"Debe Existir El Campo TotalImpuestosTraslados\"");
-        }
+        errorMessage.put("ErrImpTotImpRet001", "Clave=\"CFDI33180\" Nodo=\"Impuestos\" Mensaje=\"El Valor Del Campo TotalImpuestosRetenidos Debe Tener Hasta La Cantidad De Decimales Que Soporte La Moneda\"");
+        errorMessage.put("ErrImpTotImpTra002", "Clave=\"CFDI33182\" Nodo=\"Impuestos\" Mensaje=\"El Valor Del Campo TotalImpuestosTrasladados Debe Tener Hasta La Cantidad De Decimales Que Soporte La Moneda\"");
+        errorMessage.put("ErrImpTotImpTra001", "Clave=\"CFDI33190\" Nodo=\"Impuestos\" Mensaje=\"Debe Existir El Campo TotalImpuestosTraslados\"");
+        errorMessage.put("ErrCompSubTot004", "Clave=\"CFDI33107\" Nodo=\"Comprobante\" Mensaje=\"El TipoDeComprobante es I,E o N, el importe registrado en el campo no es igual a la suma de los importes de los conceptos registrados\"");
+        errorMessage.put("ErrEmiRegFis001", "Clave=\"CFDI33130\" Nodo=\"Emisor\" Mensaje=\"El campo RegimenFiscal, no contiene un valor del catálogo c_RegimenFiscal.\"");
+        errorMessage.put("ErrConClavPro001", "Clave=\"CFDI33142\" Nodo=\"Emisor\" Mensaje=\"El campo ClaveProdServ, no contiene un valor del catálogo c_ClaveProdServ.\"");
+        errorMessage.put("ErrConTraBas001", "Clave=\"CFDI33154\" Nodo=\"Traslado\" Mensaje=\"El Valor Del Campo Base Que Corresponde A Traslado Debe Ser Mayor Que Cero\"");
+        errorMessage.put("ErrConTraBas002", "Clave=\"CFDI33153\" Nodo=\"Traslado\" Mensaje=\"El Valor Del Campo Base Que Corresponde A Traslado Debetener Hasta La Cantidad De Decimales Que Sporte La Moneda\"");
+        errorMessage.put("ErrConRetImp001", "Clave=\"CFDI33164\" Nodo=\"Retencion\" Mensaje=\"El Valor Del Campo Impuesto Que Corresponde A Retencion No Contiene Un Valor Del Catalogo c_Impuesto\"");
+        errorMessage.put("ErrConRetBas001", "Clave=\"CFDI33163\" Nodo=\"Retencion\" Mensaje=\"El Valor Del Campo Base Que Corresponde A Traslado Debe Ser Mayor Que Cero\"");
+        errorMessage.put("ErrConRetBas002", "Clave=\"CFDI33162\" Nodo=\"Retencion\" Mensaje=\"El Valor Del Campo Base Que Corresponde A Traslado Debetener Hasta La Cantidad De Decimales Que Sporte La Moneda\"");
+	}
 	// Validacion Tipo de comprobante AMDA
 		public static String findTipoComprobante(Map<String, ArrayList<CatalogosDom>> mapCatalogos, String value){
 			
@@ -738,7 +746,7 @@ public class UtilCatalogos
 			if(mapCatalogos.size() > 0 && descCon.trim().length() > 0){
 				
 				for(int i=0; i<mapCatalogos.get("EquivalenciaConceptoImpuesto").size(); i++){
-					System.out.println("findTraslados Dentro For " + mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal5());
+					System.out.println("findTraslados Dentro For " + mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal5() + " : " + mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal4());
 					if(mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal5().equalsIgnoreCase(descCon) && mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal4().equalsIgnoreCase("Traslado")){
 						
 						if(mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal3() != null){
@@ -770,19 +778,24 @@ public class UtilCatalogos
 //							importeTrasladoMul = (valTasaNum*importeConNum) + importeConNum;
 							importeTrasladoMul = (valTasaNum*importeConNum);
 							System.out.println("Val Impor Traslado " + importeTrasladoMul);
-							if(mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal1().equalsIgnoreCase("001")){
-								responseMap.put("ISR", true);
-								sumTotalIsr = sumTotalIsr + importeTrasladoMul;
-								System.out.println("Val sumTotalIsr Traslado " + sumTotalIsr);
-							}else if(mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal1().equalsIgnoreCase("002")){
-								responseMap.put("IVA", true);
-								sumTotalIva = sumTotalIva + importeTrasladoMul;
-								System.out.println("Val sumTotalIva Traslado " + sumTotalIva);
-							}else if(mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal1().equalsIgnoreCase("003")){
-								responseMap.put("IEPS", true);
-								sumTotalIeps = sumTotalIeps + importeTrasladoMul;
-								System.out.println("Val sumTotalIeps Traslado " + sumTotalIeps);
+							String tipoFactorValueMontos = findValTipoFactorByDesc(mapCatalogos, mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal2());
+							System.out.println("Val Impor tipoFactorValueMontos Tra O:  " + tipoFactorValueMontos);
+							if(!tipoFactorValueMontos.equalsIgnoreCase("Exento")){
+								if(mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal1().equalsIgnoreCase("001")){
+									responseMap.put("ISR", true);
+									sumTotalIsr = sumTotalIsr + importeTrasladoMul;
+									System.out.println("Val sumTotalIsr Traslado " + sumTotalIsr);
+								}else if(mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal1().equalsIgnoreCase("002")){
+									responseMap.put("IVA", true);
+									sumTotalIva = sumTotalIva + importeTrasladoMul;
+									System.out.println("Val sumTotalIva Traslado " + sumTotalIva);
+								}else if(mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal1().equalsIgnoreCase("003")){
+									responseMap.put("IEPS", true);
+									sumTotalIeps = sumTotalIeps + importeTrasladoMul;
+									System.out.println("Val sumTotalIeps Traslado " + sumTotalIeps);
+								}
 							}
+							
 							
 							String baseCamp = "";
 							if(UtilCatalogos.decimalesValidationMsj(importeCon, decimalesMoneda)){
@@ -792,12 +805,12 @@ public class UtilCatalogos
 									if(importeConNum > 0){
 										baseCamp = "Base=\"" + importeCon;
 									}else{
-										baseCamp = "ElValorDelCampoBaseQueCorrespondeATrasladoDebeSerMayorQueCero=\"" + importeCon;
+										baseCamp = "ErrConTraBas001=\"" + importeCon;
 									}
 								}
 								
 							}else{
-								baseCamp = "ElValorDelCampoBaseQueCorrespondeATrasladoDebetenerHastaLaCantidadDeDecimalesQueSporteLaMoneda=\"" + importeCon;
+								baseCamp = "ErrConTraBas002=\"" + importeCon;
 							}
 							
 							String impuestoLine = "";
@@ -869,13 +882,31 @@ public class UtilCatalogos
 //						response = response + nodocon;
 //						break;
 					}else{
+//						if(mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal5().equalsIgnoreCase(descCon) && !mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal4().equalsIgnoreCase("Retencion")){
+//							nodocon += "\n<cfdi:Traslado Base=\"" + "0.00" +
+//							   "\" Impuesto=\"" + "000" +
+//							   "\" TipoFactor=\"" + "Tasa" +
+//							   "\" ElValorDelCampoTasaOCuotaQueCorrespondeATrasladoNoContieneUnValorDelCatalogoc_TasaOCuota=\"" + "0.000" +
+//							   "\" Importe=\"" + "0.00" + "\" " +
+//							   " />" ;
+//						}else if(!mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal5().equalsIgnoreCase(descCon) && mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal4().equalsIgnoreCase("Retencion")){
+//							nodocon += "\n<cfdi:Traslado Base=\"" + "0.00" +
+//									   "\" ErrTraImp001=\"" + "000" +
+//									   "\" TipoFactor=\"" + "Tasa" +
+//									   "\" TasaOCuota=\"" + "0.000" +
+//									   "\" Importe=\"" + "0.00" + "\" " +
+//									   " />" ;
+//						}else{
+							response = "";
+//						}
+						
 						// La tasaOCuota no se encontro en el catalogo
-						response = "\n<cfdi:Traslado Base=\"" + "0.00" +
-								   "\" Impuesto=\"" + "001" +
-								   "\" TipoFactor=\"" + "Tasa" +
-								   "\" ElValorDelCampoTasaOCuotaQueCorrespondeATrasladoNoContieneUnValorDelCatalogoc_TasaOCuota=\"" + "0.000" +
-								   "\" Importe=\"" + "0.00" + "\" " +
-								   " />" ;
+//						nodocon = "\n<cfdi:Traslado Base=\"" + "0.00" +
+//								   "\" ErrTraImp001=\"" + "000" +
+//								   "\" TipoFactor=\"" + "Tasa" +
+//								   "\" ErrImpTratConTasaOCuota001=\"" + "0.000" +
+//								   "\" Importe=\"" + "0.00" + "\" " +
+//								   " />" ;
 //						response = "";
 					}
 					response = nodocon;
@@ -920,6 +951,7 @@ public class UtilCatalogos
 			responseMap.put("sumTotalIeps", decimales(sumTotalIeps.toString(), decimalesMoneda));
 			responseMap.put("exento", exento);
 			responseMap.put("noExentoT", noExentoT);
+			System.out.println("Response Get Traslado valNodoStr: " + responseMap.get("valNodoStr"));
 			System.out.println("Response Get Traslado: " + responseMap.get("sumaTotal"));
 			System.out.println("Response Get Traslado sumTotalIsr: " + responseMap.get("sumTotalIsr"));
 			System.out.println("Response Get Traslado sumTotalIva: " + responseMap.get("sumTotalIva"));
@@ -946,7 +978,7 @@ public class UtilCatalogos
 			if(mapCatalogos.size() > 0 && descCon.trim().length() > 0){
 				
 				for(int i=0; i<mapCatalogos.get("EquivalenciaConceptoImpuesto").size(); i++){
-					System.out.println("findTraslados Dentro For " + mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal5());
+					System.out.println("findTraslados Dentro For " + mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal5() + " : " + mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal4());
 					if(mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal5().equalsIgnoreCase(descCon) && mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal4().equalsIgnoreCase("Retencion")){
 						valTasa = mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal3();
 						
@@ -1003,12 +1035,12 @@ public class UtilCatalogos
 									if(importeConNum > 0){
 										baseCamp = "Base=\"" + importeCon;
 									}else{
-										baseCamp = "ElValorDelCampoBaseQueCorrespondeARetencionDebeSerMayorQueCero=\"" + importeCon;
+										baseCamp = "ErrConRetBas001=\"" + importeCon;
 									}
 								}
 								
 							}else{
-								baseCamp = "ElValorDelCampoBaseQueCorrespondeARetencionDebetenerHastaLaCantidadDeDecimalesQueSporteLaMoneda=\"" + importeCon;
+								baseCamp = "ErrConRetBas002=\"" + importeCon;
 							}
 							
 							String impuestoLine = "";
@@ -1016,10 +1048,10 @@ public class UtilCatalogos
 								if(!findValImpuestoByClave(mapCatalogos, mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal1()).equalsIgnoreCase("vacio")){
 									impuestoLine = "\" Impuesto=\"" + mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal1() ;
 								}else{
-									impuestoLine = "\" ElValorDelCampoImpuestoQueCorrespondeARetencionNoContieneUnValorDelCatalogoc_Impuesto=\"" + mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal1() ;
+									impuestoLine = "\" ErrConRetImp001=\"" + mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal1() ;
 								}
 							}else{
-								impuestoLine = "\" ElValorDelCampoImpuestoQueCorrespondeARetencionNoContieneUnValorDelCatalogoc_Impuesto=\"" + mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal1() ;
+								impuestoLine = "\" ErrConRetImp001=\"" + mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal1() ;
 							}
 							
 							String tipoFactorLine = "";
@@ -1087,12 +1119,30 @@ public class UtilCatalogos
 //						response = response + nodocon;
 //						break;
 					}else{
-						response = "\n<cfdi:Retencion Base=\"" + "0.00" +
-								   "\" Impuesto=\"" + "001" +
-								   "\" TipoFactor=\"" + "Tasa" +
-								   "\" ElValorDelCampoTasaOCuotaQueCorrespondeARetencionNoContieneUnValorDelCatalogoc_TasaOCuota=\"" + "0.000" +
-								   "\" Importe=\"" + "0.00" + "\" " +
-								   " />" ;
+//						if(mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal5().equalsIgnoreCase(descCon) && !mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal4().equalsIgnoreCase("Retencion")){
+//							nodocon += "\n<cfdi:Retencion Base=\"" + "0.00" +
+//							   "\" Impuesto=\"" + "000" +
+//							   "\" TipoFactor=\"" + "Tasa" +
+//							   "\" ElValorDelCampoTasaOCuotaQueCorrespondeARetencionNoContieneUnValorDelCatalogoc_TasaOCuota=\"" + "0.000" +
+//							   "\" Importe=\"" + "0.00" + "\" " +
+//							   " />" ;
+//						}else if(!mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal5().equalsIgnoreCase(descCon) && mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal4().equalsIgnoreCase("Retencion")){
+//							nodocon += "\n<cfdi:Retencion Base=\"" + "0.00" +
+//									   "\" ErrRetImp002=\"" + "000" +
+//									   "\" TipoFactor=\"" + "Tasa" +
+//									   "\" TasaOCuota=\"" + "0.000" +
+//									   "\" Importe=\"" + "0.00" + "\" " +
+//									   " />" ;
+//						}else{
+							response = "";
+//						}
+						
+//						nodocon = "\n<cfdi:Retencion Base=\"" + "0.00" +
+//								   "\" ErrRetImp002=\"" + "000" +
+//								   "\" TipoFactor=\"" + "Tasa" +
+//								   "\" ElValorDelCampoTasaOCuotaQueCorrespondeARetencionNoContieneUnValorDelCatalogoc_TasaOCuota=\"" + "0.000" +
+//								   "\" Importe=\"" + "0.00" + "\" " +
+//								   " />" ;
 //						response = "";
 					}
 					response = nodocon;
