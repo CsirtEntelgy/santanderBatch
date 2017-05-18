@@ -1003,7 +1003,8 @@ public class ConvertirImplV3_3
 				valImporte = tokens[6].trim();
 				try{
 					Double valImpCon = Double.parseDouble(valImporte);
-					totalRetAndTraDoubl = totalRetAndTraDoubl + valImpCon;
+//					totalRetAndTraDoubl = totalRetAndTraDoubl + valImpCon;
+					tags.sumTotalImpuestosTrasDou = tags.sumTotalImpuestosTrasDou + valImpCon;
 				}catch(NumberFormatException e){
 					System.out.println("Importe en Concepto Problema al convertir en Numerico: " + tokens[6].trim());
 				}
@@ -1240,18 +1241,19 @@ public class ConvertirImplV3_3
 			}
 			System.out.println("Elemento Impuestos AMDA : " + elementImpuestos);
 			
-			String valSubTotalDou = "";
-			System.out.println("Validacion Subtotal subtotalDoubleTag AMDA : " + tags.subtotalDoubleTag);
-			System.out.println("Validacion Subtotal totalRetAndTraDoubl AMDA : " + totalRetAndTraDoubl);
-			if(tags.tipoComprobante.trim().equalsIgnoreCase("I") || tags.tipoComprobante.trim().equalsIgnoreCase("E") || tags.tipoComprobante.trim().equalsIgnoreCase("N")){
-				System.out.println("Validando Subtotal con total Conceptos AMDA : ");
-				if(!tags.subtotalDoubleTag.equals(totalRetAndTraDoubl)){
-					valSubTotalDou = " ErrCompSubTot004=\"" + "vacio";
-				}
-			}
+//			String valSubTotalDou = "";
+//			System.out.println("Validacion Subtotal subtotalDoubleTag AMDA : " + tags.subtotalDoubleTag);
+//			System.out.println("Validacion Subtotal totalRetAndTraDoubl AMDA : " + totalRetAndTraDoubl);
+//			System.out.println("Validacion Subtotal totalRetAndTraDoubl AMDA : " + tags.sumTotalImpuestosTrasDou);
+//			if(tags.tipoComprobante.trim().equalsIgnoreCase("I") || tags.tipoComprobante.trim().equalsIgnoreCase("E") || tags.tipoComprobante.trim().equalsIgnoreCase("N")){
+//				System.out.println("Validando Subtotal con total Conceptos AMDA : ");
+//				if(!tags.subtotalDoubleTag.equals(tags.sumTotalImpuestosTrasDou)){
+//					valSubTotalDou = " ErrCompSubTot004=\"" + "vacio";
+//				}
+//			}
 			
-			String nodoConcepto = "\n<cfdi:Concepto" + claveProdServVal + "\"" +
-					   valSubTotalDou +
+			String nodoConcepto = "\n<cfdi:Concepto" + claveProdServVal +
+//					   valSubTotalDou +
 					  "\" Cantidad=\"" + "1" +
 					  "\" ClaveUnidad=\"" + claveUnidad + //Pendiente el valor de ClaveUnidad
 					  "\" Unidad=\"" + tags.UNIDAD_MEDIDA.trim() + 
@@ -1377,6 +1379,21 @@ public class ConvertirImplV3_3
 		tmp = "";
 		if (tokens.length >= 4) 
 		{
+			
+			String valSubTotalDou = "";
+			System.out.println("Validacion Subtotal subtotalDoubleTag AMDA : " + tags.subtotalDoubleTag);
+//			System.out.println("Validacion Subtotal totalRetAndTraDoubl AMDA : " + totalRetAndTraDoubl);
+			System.out.println("Validacion Subtotal totalRetAndTraDoubl AMDA : " + tags.sumTotalImpuestosTrasDou);
+			if(tags.tipoComprobante.trim().equalsIgnoreCase("I") || tags.tipoComprobante.trim().equalsIgnoreCase("E") || tags.tipoComprobante.trim().equalsIgnoreCase("N")){
+				System.out.println("Validando Subtotal con total Conceptos AMDA : ");
+				if(!tags.subtotalDoubleTag.equals(tags.sumTotalImpuestosTrasDou)){
+					valSubTotalDou = " ErrCompSubTot004=\"" + "vacio" + "\" ";
+				}
+			}
+			// Reseteo de dato
+			System.out.println("Validacion Subtotal totalRetAndTraDoubl AMDA Antes RESETEO: " + tags.sumTotalImpuestosTrasDou);
+			tags.sumTotalImpuestosTrasDou = 0.00;
+			
 			if (tags.isParte) 
 			{	tmp += "\n</cfdi:Parte>";	}
 			tmp += tags("", pila);
@@ -1422,6 +1439,7 @@ public class ConvertirImplV3_3
 					.conctatArguments(tmp, "\n<cfdi:Impuestos ",
 							totalImpRetLine,
 							totalImpTraLine,
+							valSubTotalDou,
 							">").toString().getBytes("UTF-8");
 			
 //			return Util
