@@ -1308,7 +1308,15 @@ public class ConvertirV3_3
 				valImporte = lineas[2].trim();
 				try{
 					Double valImpCon = Double.parseDouble(valImporte);
-					tags.totalRetAndTraDoubl = tags.totalRetAndTraDoubl + valImpCon;
+					if(tags.tipoComprobante.trim().equalsIgnoreCase("I") || tags.tipoComprobante.trim().equalsIgnoreCase("E") || tags.tipoComprobante.trim().equalsIgnoreCase("N")){
+						System.out.println("Sumando Conceptos AMDA: " + lineas[2].trim());
+						System.out.println("Valor de Suma Conceptos AMDA: " + tags.totalRetAndTraDoubl);
+						tags.totalRetAndTraDoubl = tags.totalRetAndTraDoubl + valImpCon;
+						String sumCheckDe = UtilCatalogos.decimales(tags.totalRetAndTraDoubl.toString(), tags.decimalesMoneda);
+						tags.totalRetAndTraDoubl =  Double.parseDouble(sumCheckDe);
+						System.out.println("Valor de Suma Conceptos Despues AMDA: " + tags.totalRetAndTraDoubl);
+					}
+					
 				}catch(NumberFormatException e){
 					System.out.println("Importe en Concepto Problema al convertir en Numerico: " + lineas[2].trim());
 				}
