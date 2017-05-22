@@ -71,8 +71,8 @@ public class UtilCatalogos
         errorMessage.put("ErrCompResidenciaFiscal003", "Clave=\"CFDI33135\" Nodo=\"Receptor\" Mensaje=\"El valor del campo ResidenciaFiscal no puede ser MEX\"");
         errorMessage.put("ErrCompResidenciaFiscal004", "Clave=\"CFDI33135\" Nodo=\"Receptor\" Mensaje=\"El valor del campo ResidenciaFiscal no puede ser MEX\"");
         
-        errorMessage.put("ErrImpTraImporte001", "Clave=\"CFDI33195\" Nodo=\"Impuestos\" Mensaje=\"El campo Importe correspondiente a Traslado no es igual a la suma de los importes de los impuestos trasladados registrados en los conceptos donde el impuesto del concepto sea igual al campo impuesto de este elemento\"");
-        errorMessage.put("ErrImpRetImporte001", "Clave=\"CFDI33189\" Nodo=\"Impuestos\" Mensaje=\"El Campo Importe Correspondiente A Retención No Es Igual A La Suma De Los Importes De Los Impuestos Retenidos Registrados En Los Conceptos Donde El Impuesto Sea Igual Al Campo Impuesto De Este Elemento\"");
+        errorMessage.put("ErrImpTraImporte001", "Clave=\"CFDI33195\" Nodo=\"Impuestos\" Mensaje=\"El campo Importe correspondiente a Traslado no es igual a la suma de los importes de los impuestos trasladados registrados en los conceptos donde el impuesto del concepto sea igual al campo impuesto de este elemento, verificar que el Concepto Registrado exista en la tabla EquivalenciaConceptoImpuesto.\"");
+        errorMessage.put("ErrImpRetImporte001", "Clave=\"CFDI33189\" Nodo=\"Impuestos\" Mensaje=\"El Campo Importe Correspondiente A Retención No Es Igual A La Suma De Los Importes De Los Impuestos Retenidos Registrados En Los Conceptos Donde El Impuesto Sea Igual Al Campo Impuesto De Este Elemento, verificar que el Concepto Registrado exista en la tabla EquivalenciaConceptoImpuesto.\"");
         errorMessage.put("ErrImpRetConImporte001", "Clave=\"CFDI33166\" Nodo=\"Impuestos\" Mensaje=\"El Valor Del Campo Tipo Factor Que Corresponde A Retencion Debe Ser Distinto De Exento\"");
         errorMessage.put("ErrImpTraConTasaOCuota001", "Clave=\"CFDI33159\" Nodo=\"Impuestos\" Mensaje=\"El Valor Del Campo TasaOCuota Que Corresponde A Traslado No Contiene Un Valor Del Catalogo c_TasaOCuota\"");
         errorMessage.put("ErrImpRetConTasaOCuota001", "Clave=\"CFDI33167\" Nodo=\"Impuestos\" Mensaje=\"ElValorDelCampoTasaOCuotaQueCorrespondeARetencionNoContieneUnValorDelCatalogoc_TasaOCuota\"");
@@ -138,9 +138,9 @@ public class UtilCatalogos
 		public static String findTipoComprobante(Map<String, ArrayList<CatalogosDom>> mapCatalogos, String value){
 			
 			String response = "";
-			 System.out.println("Entrando a findTipoComprobante");
-			 System.out.println("Tamaño lista catalogos; "+ mapCatalogos.size());
-			 System.out.println("Valor del tipoDeComprobante a buscar: "+ value);
+//			 System.out.println("Entrando a findTipoComprobante");
+//			 System.out.println("Tamaño lista catalogos; "+ mapCatalogos.size());
+//			 System.out.println("Valor del tipoDeComprobante a buscar: "+ value);
 			if(mapCatalogos.size() > 0 && value.trim() != ""){
 				for(int i=0; i<mapCatalogos.get("TipoDeComprobante").size(); i++){
 					if(mapCatalogos.get("TipoDeComprobante").get(i).getVal1().equalsIgnoreCase(value)){
@@ -162,9 +162,9 @@ public class UtilCatalogos
 			public static String findTipoComprobanteByDescription(Map<String, ArrayList<CatalogosDom>> mapCatalogos, String value){
 				
 				String response = "";
-				 System.out.println("Entrando a findTipoComprobante");
-				 System.out.println("Tamaño lista catalogos; "+ mapCatalogos.size());
-				 System.out.println("Valor del tipoDeComprobante a buscar: "+ value);
+//				 System.out.println("Entrando a findTipoComprobante");
+//				 System.out.println("Tamaño lista catalogos; "+ mapCatalogos.size());
+//				 System.out.println("Valor del tipoDeComprobante a buscar: "+ value);
 				if(mapCatalogos.size() > 0 && value.trim() != ""){
 					for(int i=0; i<mapCatalogos.get("TipoDeComprobante").size(); i++){
 						if(mapCatalogos.get("TipoDeComprobante").get(i).getVal2().equalsIgnoreCase(value)){
@@ -250,7 +250,7 @@ public class UtilCatalogos
 				for(int i=0; i<mapCatalogos.get("RegimenFiscal").size(); i++){
 					if(mapCatalogos.get("RegimenFiscal").get(i).getVal2().equalsIgnoreCase(value)){
 						response = mapCatalogos.get("RegimenFiscal").get(i).getVal1();
-						System.out.println("*** response AMDA: " + response);
+//						System.out.println("*** response AMDA: " + response);
 						if(response.contains(".")){
 							System.out.println("*** response Dentro IF AMDA: " + response);
 							String words[] = response.split("\\.");
@@ -450,7 +450,7 @@ public class UtilCatalogos
 		//Validacion Encuentra Valor Maximo de Tasa o Cuota del catalogo TasaOCuota AMDA
 		public static String findValMaxTasaOCuota(Map<String, ArrayList<CatalogosDom>> mapCatalogos, String value1, String value2){
 			String response = "";
-			System.out.println("Validacion findValMaxTasaOCuota AMDA : " + value1 + " : " + value2);
+//			System.out.println("Validacion findValMaxTasaOCuota AMDA : " + value1 + " : " + value2);
 			if(mapCatalogos.size() > 0 && value1.trim() != "" && value2.trim() != ""){
 				for(int i=0; i<mapCatalogos.get("TasaOCuota").size(); i++){
 					if(mapCatalogos.get("TasaOCuota").get(i).getVal4() != null && mapCatalogos.get("TasaOCuota").get(i).getVal5() != null){
@@ -476,13 +476,13 @@ public class UtilCatalogos
 		//Validacion Si se Encuentra un Valor de Tasa o Cuota del catalogo TasaOCuota AMDA
 		public static String findTasaOCuotaExist(Map<String, ArrayList<CatalogosDom>> mapCatalogos, String descImp, String desc, String valorTasa, String descTraORet){
 			String response = "";
-			System.out.println("Validacion findTasaOCuotaExist AMDA : " + descImp + " : " + desc + " : " + valorTasa + " : " + descTraORet);
+//			System.out.println("Validacion findTasaOCuotaExist AMDA : " + descImp + " : " + desc + " : " + valorTasa + " : " + descTraORet);
 			if(mapCatalogos.size() > 0 && descImp.trim() != "" && desc.trim() != "" && valorTasa.trim() != "" && descTraORet.trim() != ""){
 				for(int i=0; i<mapCatalogos.get("TasaOCuota").size(); i++){
 					String uno = mapCatalogos.get("TasaOCuota").get(i).getVal4() ;
 					String dos = mapCatalogos.get("TasaOCuota").get(i).getVal5();
 					String tres = mapCatalogos.get("TasaOCuota").get(i).getVal3();
-					System.out.println("Validacion findTasaOCuotaExist Uno Dos Tres AMDA : " + uno + " : " + dos + " : " + tres );
+//					System.out.println("Validacion findTasaOCuotaExist Uno Dos Tres AMDA : " + uno + " : " + dos + " : " + tres );
 					if(uno != null && dos != null && tres != null){
 						if(uno.equalsIgnoreCase(descImp) && dos.equalsIgnoreCase(desc) && tres.equalsIgnoreCase(valorTasa)){
 							response = mapCatalogos.get("TasaOCuota").get(i).getVal3();
@@ -534,14 +534,14 @@ public class UtilCatalogos
 		//Validacion Encuentra Valor de la Moneda AMDA
 		public static String findEquivalenciaMoneda(Map<String, ArrayList<CatalogosDom>> mapCatalogos, String value){
 			String response = "";
-			System.out.println("Equivalencia Moneda A Buscar : " + value);
-			System.out.println("Mapa Contenido EquivalenciaMoneda : " + mapCatalogos.get("EquivalenciaMoneda").size());
+//			System.out.println("Equivalencia Moneda A Buscar : " + value);
+//			System.out.println("Mapa Contenido EquivalenciaMoneda : " + mapCatalogos.get("EquivalenciaMoneda").size());
 			if(mapCatalogos.size() > 0 && value.trim() != ""){
-				System.out.println("Dentro If Equivalencia Moneda A Buscar : " + value);
+//				System.out.println("Dentro If Equivalencia Moneda A Buscar : " + value);
 				for(int i=0; i<mapCatalogos.get("EquivalenciaMoneda").size(); i++){
-					System.out.println("Dentro For Equivalencia Moneda A Buscar : " + value);
+//					System.out.println("Dentro For Equivalencia Moneda A Buscar : " + value);
 					if(mapCatalogos.get("EquivalenciaMoneda").get(i).getVal2() != null){
-						System.out.println("Dentro no null Equivalencia Moneda A Buscar : " + value);
+//						System.out.println("Dentro no null Equivalencia Moneda A Buscar : " + value);
 						if(mapCatalogos.get("EquivalenciaMoneda").get(i).getVal2().equalsIgnoreCase(value)){
 							response = mapCatalogos.get("EquivalenciaMoneda").get(i).getVal1();	
 							break;
@@ -618,27 +618,27 @@ public class UtilCatalogos
 						response = mapCatalogos.get("Moneda").get(i).getVal3();
 						porcentaje = mapCatalogos.get("Moneda").get(i).getVal4();
 						tipoCamCatalog = mapCatalogos.get("Moneda").get(i).getVal5();
-						System.out.println("Porcentaje AMDA: " + porcentaje);
-						System.out.println("Tipo Cambio AMDA: " + tipoCam);
-						System.out.println("Tipo Cambio Catalogo AMDA: " + tipoCamCatalog);
+//						System.out.println("Porcentaje AMDA: " + porcentaje);
+//						System.out.println("Tipo Cambio AMDA: " + tipoCam);
+//						System.out.println("Tipo Cambio Catalogo AMDA: " + tipoCamCatalog);
 //						total = 120*(50.0f/100.0f); // 50% de 120
 						
 						
 						try{
 							porcentajeDoub = Double.parseDouble(porcentaje);
-							System.out.println("Porcentaje Double AMDA: " + porcentajeDoub);
+//							System.out.println("Porcentaje Double AMDA: " + porcentajeDoub);
 							tipoCamDoub = Double.parseDouble(tipoCam);
-							System.out.println("Tipo Cambio Double AMDA: " + tipoCamDoub);
+//							System.out.println("Tipo Cambio Double AMDA: " + tipoCamDoub);
 							tipoCamCatalogDoub = Double.parseDouble(tipoCamCatalog);
-							System.out.println("Tipo Cambio Catalogo Double AMDA: " + tipoCamCatalogDoub);
+//							System.out.println("Tipo Cambio Catalogo Double AMDA: " + tipoCamCatalogDoub);
 							
 							total = tipoCamCatalogDoub*(porcentajeDoub/100.0);
-							System.out.println("Total AMDA PORCENTAJE: " + total);
+//							System.out.println("Total AMDA PORCENTAJE: " + total);
 							
 							totalArriba = tipoCamCatalogDoub+total;
-							System.out.println("TotalArriba AMDA PORCENTAJE: " + totalArriba);
+//							System.out.println("TotalArriba AMDA PORCENTAJE: " + totalArriba);
 							totalAbajo = tipoCamCatalogDoub-total;
-							System.out.println("TotalAbajo AMDA PORCENTAJE: " + totalAbajo);
+//							System.out.println("TotalAbajo AMDA PORCENTAJE: " + totalAbajo);
 							
 							if(tipoCamDoub >= totalAbajo && tipoCamDoub <= totalArriba ){
 								response = "OK";
@@ -646,7 +646,7 @@ public class UtilCatalogos
 								response = "vacio";
 							}
 
-							System.out.println("Decimales moneda Conversion numerico: " + response);
+//							System.out.println("Decimales moneda Conversion numerico: " + response);
 						}catch(NumberFormatException e){
 							System.out.println("Problema al convertir datos de tipoCambio: ");
 							response = "vacio";
@@ -740,13 +740,13 @@ public class UtilCatalogos
 			Double sumTotalIeps = 0.00;
 			boolean exento = false;
 			boolean noExentoT = false;
-			System.out.println("findTraslados Inicio TipoComprobante " + tipoComprobante);
-			System.out.println("findTraslados Inicio " + descCon);
-			System.out.println("findTraslados Inicio " + mapCatalogos.get("EquivalenciaConceptoImpuesto").size());
+//			System.out.println("findTraslados Inicio TipoComprobante " + tipoComprobante);
+//			System.out.println("findTraslados Inicio " + descCon);
+//			System.out.println("findTraslados Inicio " + mapCatalogos.get("EquivalenciaConceptoImpuesto").size());
 			if(mapCatalogos.size() > 0 && descCon.trim().length() > 0){
 				
 				for(int i=0; i<mapCatalogos.get("EquivalenciaConceptoImpuesto").size(); i++){
-					System.out.println("findTraslados Dentro For " + mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal5() + " : " + mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal4());
+//					System.out.println("findTraslados Dentro For " + mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal5() + " : " + mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal4());
 					if(mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal5().equalsIgnoreCase(descCon) && mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal4().equalsIgnoreCase("Traslado")){
 						
 						if(mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal3() != null){
@@ -771,28 +771,28 @@ public class UtilCatalogos
 								System.out.println("Val Tasa Vacio " + valTasa);
 							}
 							valTasaNum = Double.parseDouble(valTasa);
-							System.out.println("Val Tasa " + valTasaNum);
-							System.out.println("Val Impor Conce Antes " + importeCon);
+//							System.out.println("Val Tasa " + valTasaNum);
+//							System.out.println("Val Impor Conce Antes " + importeCon);
 							importeConNum = Double.parseDouble(importeCon);
-							System.out.println("Val Impor Conce " + valTasaNum);
+//							System.out.println("Val Impor Conce " + valTasaNum);
 //							importeTrasladoMul = (valTasaNum*importeConNum) + importeConNum;
 							importeTrasladoMul = (valTasaNum*importeConNum);
-							System.out.println("Val Impor Traslado " + importeTrasladoMul);
+//							System.out.println("Val Impor Traslado " + importeTrasladoMul);
 							String tipoFactorValueMontos = findValTipoFactorByDesc(mapCatalogos, mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal2());
-							System.out.println("Val Impor tipoFactorValueMontos Tra O:  " + tipoFactorValueMontos);
+//							System.out.println("Val Impor tipoFactorValueMontos Tra O:  " + tipoFactorValueMontos);
 							if(!tipoFactorValueMontos.equalsIgnoreCase("Exento")){
 								if(mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal1().equalsIgnoreCase("001")){
 									responseMap.put("ISR", true);
 									sumTotalIsr = sumTotalIsr + importeTrasladoMul;
-									System.out.println("Val sumTotalIsr Traslado " + sumTotalIsr);
+//									System.out.println("Val sumTotalIsr Traslado " + sumTotalIsr);
 								}else if(mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal1().equalsIgnoreCase("002")){
 									responseMap.put("IVA", true);
 									sumTotalIva = sumTotalIva + importeTrasladoMul;
-									System.out.println("Val sumTotalIva Traslado " + sumTotalIva);
+//									System.out.println("Val sumTotalIva Traslado " + sumTotalIva);
 								}else if(mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal1().equalsIgnoreCase("003")){
 									responseMap.put("IEPS", true);
 									sumTotalIeps = sumTotalIeps + importeTrasladoMul;
-									System.out.println("Val sumTotalIeps Traslado " + sumTotalIeps);
+//									System.out.println("Val sumTotalIeps Traslado " + sumTotalIeps);
 								}
 							}
 							
@@ -837,10 +837,10 @@ public class UtilCatalogos
 										noExentoT = true;
 										// descImp(Iva, IEPS, ISR), Descripcion(Tasa, Cuota O Exento), valor de la tasa, descripcion(Traslado O retencion)
 										//Buscando TasaOcuotaCatalogo findTasaOcuotaVal(mapCatalogos, descImp, mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal2(), valTasa, mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal4())
-									System.out.println("Antes de Validacion findTasaOCuotaExist AMDA : " + descImp);
-									System.out.println("Antes de Validacion findTasaOCuotaExist AMDA : " + mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal2());
-									System.out.println("Antes de Validacion findTasaOCuotaExist AMDA : " + valTasa);
-									System.out.println("Antes de Validacion findTasaOCuotaExist AMDA : " + mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal4());
+//									System.out.println("Antes de Validacion findTasaOCuotaExist AMDA : " + descImp);
+//									System.out.println("Antes de Validacion findTasaOCuotaExist AMDA : " + mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal2());
+//									System.out.println("Antes de Validacion findTasaOCuotaExist AMDA : " + valTasa);
+//									System.out.println("Antes de Validacion findTasaOCuotaExist AMDA : " + mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal4());
 									String findValTasa = findTasaOCuotaExist(mapCatalogos, descImp, mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal2(), valTasa, mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal4());
 										if(!findValTasa.equalsIgnoreCase("vacio")){
 											tasaOCutoaLine = "\" TasaOCuota=\"" + Util.completeZeroDecimals(valTasa, 6);
@@ -874,10 +874,10 @@ public class UtilCatalogos
 //									   "\" Importe=\"" + decimales(importeTrasladoMul.toString(), decimalesMoneda) + "\" " +
 //									   " />" ;
 							sumTotal += importeTrasladoMul;
-							System.out.println("Val Suma Total Traslado " + sumTotal);
-							System.out.println("Val NodoCon Traslado " + nodocon);
+//							System.out.println("Val Suma Total Traslado " + sumTotal);
+//							System.out.println("Val NodoCon Traslado " + nodocon);
 						}catch(NumberFormatException e){
-							System.out.println("No es numero findTraslados: " + valTasa);
+//							System.out.println("No es numero findTraslados: " + valTasa);
 						}
 //						response = response + nodocon;
 //						break;
@@ -951,11 +951,11 @@ public class UtilCatalogos
 			responseMap.put("sumTotalIeps", decimales(sumTotalIeps.toString(), decimalesMoneda));
 			responseMap.put("exento", exento);
 			responseMap.put("noExentoT", noExentoT);
-			System.out.println("Response Get Traslado valNodoStr: " + responseMap.get("valNodoStr"));
-			System.out.println("Response Get Traslado: " + responseMap.get("sumaTotal"));
-			System.out.println("Response Get Traslado sumTotalIsr: " + responseMap.get("sumTotalIsr"));
-			System.out.println("Response Get Traslado sumTotalIva: " + responseMap.get("sumTotalIva"));
-			System.out.println("Response Get Traslado sumTotalIeps: " + responseMap.get("sumTotalIeps"));
+//			System.out.println("Response Get Traslado valNodoStr: " + responseMap.get("valNodoStr"));
+//			System.out.println("Response Get Traslado: " + responseMap.get("sumaTotal"));
+//			System.out.println("Response Get Traslado sumTotalIsr: " + responseMap.get("sumTotalIsr"));
+//			System.out.println("Response Get Traslado sumTotalIva: " + responseMap.get("sumTotalIva"));
+//			System.out.println("Response Get Traslado sumTotalIeps: " + responseMap.get("sumTotalIeps"));
 			return responseMap;
 		}
 		
@@ -972,9 +972,9 @@ public class UtilCatalogos
 			Double sumTotalIva = 0.00;
 			Double sumTotalIsr= 0.00;
 			Double sumTotalIeps = 0.00;
-			System.out.println("findRetencion Inicio TipoComprobante " + tipoComprobante);
-			System.out.println("findRetencion Inicio " + descCon);
-			System.out.println("findRetencion Inicio 2 " + mapCatalogos.get("EquivalenciaConceptoImpuesto").size());
+//			System.out.println("findRetencion Inicio TipoComprobante " + tipoComprobante);
+//			System.out.println("findRetencion Inicio " + descCon);
+//			System.out.println("findRetencion Inicio 2 " + mapCatalogos.get("EquivalenciaConceptoImpuesto").size());
 			if(mapCatalogos.size() > 0 && descCon.trim().length() > 0){
 				
 				for(int i=0; i<mapCatalogos.get("EquivalenciaConceptoImpuesto").size(); i++){
@@ -1005,25 +1005,25 @@ public class UtilCatalogos
 								System.out.println("Val Tasa Vacio Reten " + valTasa);
 							}
 							valTasaNum = Double.parseDouble(valTasa);
-							System.out.println("Val Tasa Reten " + valTasaNum);
-							System.out.println("Val Impor Conce Antes Reten " + importeCon);
+//							System.out.println("Val Tasa Reten " + valTasaNum);
+//							System.out.println("Val Impor Conce Antes Reten " + importeCon);
 							importeConNum = Double.parseDouble(importeCon);
-							System.out.println("Val Impor Conce Reten " + valTasaNum);
+//							System.out.println("Val Impor Conce Reten " + valTasaNum);
 //							importeTrasladoMul = (valTasaNum*importeConNum) + importeConNum;
 							importeTrasladoMul = (valTasaNum*importeConNum);
-							System.out.println("Val Impor Retencion " + importeTrasladoMul);
+//							System.out.println("Val Impor Retencion " + importeTrasladoMul);
 							if(mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal1().equalsIgnoreCase("001")){
 								responseMap.put("ISR", true);
 								sumTotalIsr = sumTotalIsr + importeTrasladoMul;
-								System.out.println("Val sumTotalIsr Retencion " + sumTotalIsr);
+//								System.out.println("Val sumTotalIsr Retencion " + sumTotalIsr);
 							}else if(mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal1().equalsIgnoreCase("002")){
 								responseMap.put("IVA", true);
 								sumTotalIva = sumTotalIva + importeTrasladoMul;
-								System.out.println("Val sumTotalIva Retencion " + sumTotalIva);
+//								System.out.println("Val sumTotalIva Retencion " + sumTotalIva);
 							}else if(mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal1().equalsIgnoreCase("003")){
 								responseMap.put("IEPS", true);
 								sumTotalIeps = sumTotalIeps + importeTrasladoMul;
-								System.out.println("Val sumTotalIeps Retencion " + sumTotalIeps);
+//								System.out.println("Val sumTotalIeps Retencion " + sumTotalIeps);
 							}
 							
 							String baseCamp = "";
@@ -1059,18 +1059,18 @@ public class UtilCatalogos
 							String tasaOCutoaLine = "";
 							String importeLine = "";
 							if(mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal2() != null){
-								System.out.println("Antes BuscarTipoFactor : " + mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal2());
+//								System.out.println("Antes BuscarTipoFactor : " + mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal2());
 								tipoFactorValue= findValTipoFactorByDescRet(mapCatalogos, mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal2());
-								System.out.println("Despues BuscarTipoFactor : " + tipoFactorValue);
+//								System.out.println("Despues BuscarTipoFactor : " + tipoFactorValue);
 								if(!tipoFactorValue.equalsIgnoreCase("vacio")){
 									tipoFactorLine = "\" TipoFactor=\"" + tipoFactorValue;
 									String descImp = findDescImpuestoByClave(mapCatalogos, mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal1());
 									String findValTasa = "";
 									if(!tipoFactorValue.equalsIgnoreCase("Exento")){
-										System.out.println("Antes de Validacion findTasaOCuotaExist RET AMDA : " + descImp);
-										System.out.println("Antes de Validacion findTasaOCuotaExist RET AMDA : " + mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal2());
-										System.out.println("Antes de Validacion findTasaOCuotaExist RET AMDA : " + valTasa);
-										System.out.println("Antes de Validacion findTasaOCuotaExist RET AMDA : " + mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal4());
+//										System.out.println("Antes de Validacion findTasaOCuotaExist RET AMDA : " + descImp);
+//										System.out.println("Antes de Validacion findTasaOCuotaExist RET AMDA : " + mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal2());
+//										System.out.println("Antes de Validacion findTasaOCuotaExist RET AMDA : " + valTasa);
+//										System.out.println("Antes de Validacion findTasaOCuotaExist RET AMDA : " + mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal4());
 										findValTasa = findTasaOCuotaExist(mapCatalogos, descImp, mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal2(), valTasa, mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal4());
 										if(!findValTasa.equalsIgnoreCase("vacio")){
 											tasaOCutoaLine = "\" TasaOCuota=\"" + Util.completeZeroDecimals(valTasa, 6);
@@ -1111,8 +1111,8 @@ public class UtilCatalogos
 //									   "\" Importe=\"" + decimales(importeTrasladoMul.toString(), decimalesMoneda) + "\" " +
 //									   " />" ;
 							sumTotal += importeTrasladoMul;
-							System.out.println("Val Suma Total Retencion " + sumTotal);
-							System.out.println("Val NodoCon findRetencion " + nodocon);
+//							System.out.println("Val Suma Total Retencion " + sumTotal);
+//							System.out.println("Val NodoCon findRetencion " + nodocon);
 						}catch(NumberFormatException e){
 							System.out.println("No es numero findRetencion: " + valTasa);
 						}
@@ -1184,10 +1184,10 @@ public class UtilCatalogos
 			responseMap.put("sumTotalIsr", decimales(sumTotalIsr.toString(), decimalesMoneda));
 			responseMap.put("sumTotalIva", decimales(sumTotalIva.toString(), decimalesMoneda));
 			responseMap.put("sumTotalIeps", decimales(sumTotalIeps.toString(), decimalesMoneda));
-			System.out.println("Response Get Retencion sumaTotal: " + responseMap.get("sumaTotal"));
-			System.out.println("Response Get Retencion sumTotalIsr: " + responseMap.get("sumTotalIsr"));
-			System.out.println("Response Get Retencion sumTotalIva: " + responseMap.get("sumTotalIva"));
-			System.out.println("Response Get Retencion sumTotalIeps: " + responseMap.get("sumTotalIeps"));
+//			System.out.println("Response Get Retencion sumaTotal: " + responseMap.get("sumaTotal"));
+//			System.out.println("Response Get Retencion sumTotalIsr: " + responseMap.get("sumTotalIsr"));
+//			System.out.println("Response Get Retencion sumTotalIva: " + responseMap.get("sumTotalIva"));
+//			System.out.println("Response Get Retencion sumTotalIeps: " + responseMap.get("sumTotalIeps"));
 			return responseMap;
 		}
 		
@@ -1196,7 +1196,7 @@ public class UtilCatalogos
 			String response = "";
 			String importeValDer = "";
 			String importeValIzq = "";
-			System.out.println("Entrando funcion Decimales: " + importeval + " : " + decimalesMoneda);
+//			System.out.println("Entrando funcion Decimales: " + importeval + " : " + decimalesMoneda);
 			if(importeval.contains(".")){
 				String deci[] = importeval.split("\\.");
 				importeValIzq = deci[0];
@@ -1206,7 +1206,7 @@ public class UtilCatalogos
 						response = importeValIzq+"."+importeValDer.substring(0,decimalesMoneda);
 					}else if(importeValDer.length() < decimalesMoneda){
 						Integer result = decimalesMoneda - importeValDer.length();
-						System.out.println("Result Decimales: " + result);
+//						System.out.println("Result Decimales: " + result);
 						if(result.equals(4)){
 							response = importeValIzq+"."+importeValDer + "0000";
 						}else if(result.equals(3)){
@@ -1224,7 +1224,7 @@ public class UtilCatalogos
 					response = importeval;
 				}
 			}
-			System.out.println("Regreso Importe Substring: " + response);
+//			System.out.println("Regreso Importe Substring: " + response);
 			return response;
 		}
 		
@@ -1232,7 +1232,7 @@ public class UtilCatalogos
 			boolean response = false;
 			String importeValDer = "";
 			String importeValIzq = "";
-			System.out.println("Entrando funcion Decimales: " + importeval + " : " + decimalesMoneda);
+//			System.out.println("Entrando funcion Decimales: " + importeval + " : " + decimalesMoneda);
 			if(importeval.contains(".")){
 				String deci[] = importeval.split("\\.");
 				importeValIzq = deci[0];
@@ -1256,7 +1256,7 @@ public class UtilCatalogos
 				response = true;
 			}
 				
-			System.out.println("Regreso Importe Substring: " + response);
+//			System.out.println("Regreso Importe Substring: " + response);
 			return response;
 		}
 		

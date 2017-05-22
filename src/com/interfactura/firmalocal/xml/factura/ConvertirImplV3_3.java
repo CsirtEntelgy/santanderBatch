@@ -179,18 +179,18 @@ public class ConvertirImplV3_3
 			if(tags.TIPO_MONEDA.trim() != ""){ // Validacion Moneda Equivalencia AMDA V 3.3
 				String stringa = Normalizer.normalize(tags.TIPO_MONEDA, Normalizer.Form.NFD);
 				String stringU = stringa.replaceAll("[^\\p{ASCII}]", "");
-				System.out.println("Tipo Moneda Norm AMDA: " + stringU + " : " + stringU.trim().length());
-				System.out.println("Tipo Moneda Norm AMDA: " + tags.TIPO_MONEDA + " : " + tags.TIPO_MONEDA.trim().length());
+//				System.out.println("Tipo Moneda Norm AMDA: " + stringU + " : " + stringU.trim().length());
+//				System.out.println("Tipo Moneda Norm AMDA: " + tags.TIPO_MONEDA + " : " + tags.TIPO_MONEDA.trim().length());
 				if(stringU.trim().length() < tags.TIPO_MONEDA.trim().length()){
 					tags.TIPO_MONEDA = UtilCatalogos.findStringAcento(tags.TIPO_MONEDA);
 				}
 				valEqMoneda = UtilCatalogos.findMonedaCatalogo(tags.mapCatalogos, tags.TIPO_MONEDA);
-				System.out.println("Tipo Moneda AMDA FindAcento: " + tags.TIPO_MONEDA + " : " + tags.SERIE_FISCAL_CFD);
+//				System.out.println("Tipo Moneda AMDA FindAcento: " + tags.TIPO_MONEDA + " : " + tags.SERIE_FISCAL_CFD);
 //				valEqMoneda = UtilCatalogos.findEquivalenciaMoneda(tags.mapCatalogos, tags.TIPO_MONEDA);
 				if(!valEqMoneda.equalsIgnoreCase("vacio")){
 					concat.append(" Moneda=\"" + valEqMoneda + "\"");
 					tags.TIPO_MONEDA = valEqMoneda;
-					System.out.println("Tipo Moneda AMDA If True: " + tags.TIPO_MONEDA + " : " + tags.SERIE_FISCAL_CFD);
+//					System.out.println("Tipo Moneda AMDA If True: " + tags.TIPO_MONEDA + " : " + tags.SERIE_FISCAL_CFD);
 //					tags.TIPO_MONEDA = UtilCatalogos.findStringAcento(tags.TIPO_MONEDA);
 //					System.out.println("Tipo Moneda AMDA FindAcento: " + tags.TIPO_MONEDA + " : " + tags.SERIE_FISCAL_CFD);
 				}else{
@@ -199,7 +199,7 @@ public class ConvertirImplV3_3
 					if(!valEqMoneda.equalsIgnoreCase("vacio")){
 						concat.append(" Moneda=\"" + valEqMoneda + "\"");
 						tags.TIPO_MONEDA = valEqMoneda;
-						System.out.println("Tipo Moneda AMDA Else true: " + tags.TIPO_MONEDA + " : " + tags.SERIE_FISCAL_CFD);
+//						System.out.println("Tipo Moneda AMDA Else true: " + tags.TIPO_MONEDA + " : " + tags.SERIE_FISCAL_CFD);
 					}else{
 						concat.append(" ErrCompMon001" + "=\"" + tags.SERIE_FISCAL_CFD + "\"");
 					}	
@@ -223,13 +223,13 @@ public class ConvertirImplV3_3
 				patternReg = "[0-9]{1,14}(.([0-9]{1,6}))";
 				
 				if(!patternReg.trim().equalsIgnoreCase("vacio") && patternReg.trim().length() > 0){
-					System.out.println("Validando PATTERN REGEX Para tipo de Cambio : " + tags.TIPO_CAMBIO);
+//					System.out.println("Validando PATTERN REGEX Para tipo de Cambio : " + tags.TIPO_CAMBIO);
 					Pattern p = Pattern.compile(patternReg);
 					 Matcher m = p.matcher(tags.TIPO_CAMBIO);
 				     
 				     if(!m.find()){
 				    	 //TipoComprobante no valido
-				    	 System.out.println("PATTERN REGEX NO ES Valido el tipo de Cambio:  " + tags.TIPO_CAMBIO + " : " + patternReg);
+//				    	 System.out.println("PATTERN REGEX NO ES Valido el tipo de Cambio:  " + tags.TIPO_CAMBIO + " : " + patternReg);
 				    	 concat.append(" ErrCompTipMon001" + "=\"" + tags.TIPO_CAMBIO + "\"");
 				     }else{
 				    	 
@@ -250,22 +250,22 @@ public class ConvertirImplV3_3
 //								    }
 								String resultadoRipoCam = UtilCatalogos.findTipoCambioPorcentaje(tags.mapCatalogos, tags.TIPO_MONEDA, tags.TIPO_CAMBIO);
 							    if(resultadoRipoCam.equalsIgnoreCase("OK")){
-							       System.out.println("Tipo Cambio Bien");
+//							       System.out.println("Tipo Cambio Bien");
 							       concat.append(" TipoCambio=\"" + tags.TIPO_CAMBIO + "\"");
 							    }else{
-							    	System.out.println("Tipo Cambio No dentro de limites");
+//							    	System.out.println("Tipo Cambio No dentro de limites");
 							    	concat.append(" ErrCompTipMon002" + "=\"" + tags.TIPO_CAMBIO + "\"");
 							    }
 
 							}else if(tags.TIPO_MONEDA.equalsIgnoreCase("MXN")){
-								 System.out.println("Cuendo es MXN La Moneda AMDA" + valueTipoCambioDoubl + " : " + tags.TIPO_CAMBIO);
+//								 System.out.println("Cuendo es MXN La Moneda AMDA" + valueTipoCambioDoubl + " : " + tags.TIPO_CAMBIO);
 								 if(valueTipoCambioDoubl > 1 || valueTipoCambioDoubl < 1){
 										concat.append(" ErrCompTipMon003" + "=\"" + tags.TIPO_CAMBIO + "\"");
 								 }else{
 										concat.append(" TipoCambio=\"" + tags.TIPO_CAMBIO + "\""); 
 								 }
 							}else if(tags.TIPO_MONEDA.equalsIgnoreCase("XXX")){
-								 System.out.println("Cuendo es XXX La Moneda AMDA");
+//								 System.out.println("Cuendo es XXX La Moneda AMDA");
 //								concat.append(" TipoCambio=\"" + "1.00"+ "\"");
 							}else{
 //								concat.append(" TipoCambio=\"" + tags.TIPO_CAMBIO + "\"");
@@ -368,7 +368,7 @@ public class ConvertirImplV3_3
 		     
 		     if(!m.find()){
 		    	 //RFC no valido
-		    	 System.out.println("PATTERN REGEX NO ES Valido FECHA:  " + tags.FECHA_CFD);
+//		    	 System.out.println("PATTERN REGEX NO ES Valido FECHA:  " + tags.FECHA_CFD);
 //		    	 numRegIdTribReceptor = " ErrReceNumRegIdTrib001=\"" + valRegIdTrib + "\"";
 		    	 concat.append(" ErrCompFecha001=\"" + tags.FECHA_CFD + "\"");
 		     }else{
@@ -426,7 +426,7 @@ public class ConvertirImplV3_3
 				}
 				
 				metodoPagoVal = UtilCatalogos.findMetodoPago(tags.mapCatalogos, "Pago en una sola excibicion");
-				System.out.println("Metodo Pago consulta Catalogos: " + metodoPagoVal);
+//				System.out.println("Metodo Pago consulta Catalogos: " + metodoPagoVal);
 				if(!metodoPagoVal.equalsIgnoreCase("vacio")){
 					concat.append(" MetodoPago=\""
 							+  metodoPagoVal + "\" "); // Antes properties.getLabelMetodoPago() AMDA V 3.3
@@ -468,14 +468,14 @@ public class ConvertirImplV3_3
 			try {
 			    double valSubTotal = Double.parseDouble(tags.SUBTOTAL_MN.trim());
 			    tags.subtotalDoubleTag = valSubTotal;
-			    System.out.println("SubTotal Double! AMDA: " + tags.subtotalDoubleTag);
+//			    System.out.println("SubTotal Double! AMDA: " + tags.subtotalDoubleTag);
 			    if(valSubTotal<0){
-			       System.out.println("SubTotal: " + " es negativo");
+//			       System.out.println("SubTotal: " + " es negativo");
 			    	concat.append(" ErrCompSubTot001"+ "=\"" + tags.SUBTOTAL_MN.trim() + "\"");
 			    }else{
-			       System.out.println("SubTotal: " + " es positivo");
-			       System.out.println("SubTotal agregando decimales : " + tags.decimalesMoneda + " : " + tags.SUBTOTAL_MN.trim());
-			       System.out.println("SubTotal: " + " es positivo" + tags.tipoComprobante);
+//			       System.out.println("SubTotal: " + " es positivo");
+//			       System.out.println("SubTotal agregando decimales : " + tags.decimalesMoneda + " : " + tags.SUBTOTAL_MN.trim());
+//			       System.out.println("SubTotal: " + " es positivo" + tags.tipoComprobante);
 			       if(tipoComprobanteVal.equalsIgnoreCase("T") ||tipoComprobanteVal.equalsIgnoreCase("P")){
 			    	   if(valSubTotal > 0 || valSubTotal < 0){
 			    		   concat.append(" ErrCompTipCom002=\"" + UtilCatalogos.decimales(tags.SUBTOTAL_MN.trim(), tags.decimalesMoneda) + "\"");
@@ -516,7 +516,7 @@ public class ConvertirImplV3_3
 //			       }
 			    }
 			} catch (NumberFormatException e) {
-			    System.out.println("SubTotal: "+  "No es un numero");
+//			    System.out.println("SubTotal: "+  "No es un numero");
 			    concat.append(" SubTotallIncorrectoVieneVacioONoEsUnNumero"+  "=\"" + tags.SUBTOTAL_MN + "\"");
 			}
 			double valTotal = 0.00;
@@ -537,11 +537,11 @@ public class ConvertirImplV3_3
 					try {
 					    valTotal = Double.parseDouble(tags.TOTAL_MN);
 					    if(valTotal<0){
-					       System.out.println("Total: " + " es negativo");
+//					       System.out.println("Total: " + " es negativo");
 					    	concat.append(" totalIncorrecto"+ valTotal + "=\"" + tags.TOTAL_MN + "\"");
 					    }else{
-					       System.out.println("Total: " + " es positivo");
-					       System.out.println("Total agregando decimales : " + tags.decimalesMoneda + " : " + tags.TOTAL_MN);
+//					       System.out.println("Total: " + " es positivo");
+//					       System.out.println("Total agregando decimales : " + tags.decimalesMoneda + " : " + tags.TOTAL_MN);
 					       concat.append(" Total=\"" + UtilCatalogos.decimales(tags.TOTAL_MN, tags.decimalesMoneda ) + "\"");
 					       
 					       //Validando Monto Maximo
@@ -586,8 +586,8 @@ public class ConvertirImplV3_3
 							double valDesc = Double.parseDouble(tokens[6]);
 							System.out.println("Valor Descuento: "+  valDesc);
 							tags.descuentoFactValDou = valDesc;
-							System.out.println("Valor descuentoFactValDou: "+  tags.descuentoFactValDou);
-							System.out.println("Valor SubTotal Antes: "+  tags.SUBTOTAL_MN);
+//							System.out.println("Valor descuentoFactValDou: "+  tags.descuentoFactValDou);
+//							System.out.println("Valor SubTotal Antes: "+  tags.SUBTOTAL_MN);
 							double valSubTotal = Double.parseDouble(tags.SUBTOTAL_MN.trim());
 							System.out.println("Valor SubTotal: "+  valSubTotal);
 							if(valDesc > valSubTotal){
@@ -711,7 +711,7 @@ public class ConvertirImplV3_3
 				valNombre = valNombre.replaceAll("\\(", "");
 				valNombre = valNombre.replaceAll("\\)", "");
 				valNombre = valNombre.replace("/", "");
-				System.out.println("Emisro Reg: "+valNombre );
+//				System.out.println("Emisro Reg: "+valNombre );
 				return " Nombre=\"" +valNombre + "\"";
 			}else{
 				return " Nombre=\"" +"" + "\"";
@@ -761,11 +761,11 @@ public class ConvertirImplV3_3
 				usoCFDIReceptor = " ErrRecUsoCfdi001=\"" + UtilCatalogos.findUsoCfdi(tags.mapCatalogos, "Por definir") + "\"";
 			}
 			
-			System.out.println("Receptor recepPais: " + tags.recepPais);
+//			System.out.println("Receptor recepPais: " + tags.recepPais);
 			String stringa = Normalizer.normalize(tags.recepPais, Normalizer.Form.NFD);
 			String stringU = stringa.replaceAll("[^\\p{ASCII}]", "");
-			System.out.println("tags.recepPais Norm AMDA: " + stringU + " : " + stringU.trim().length());
-			System.out.println("tags.recepPais Norm AMDA: " + tags.recepPais + " : " + tags.recepPais.trim().length());
+//			System.out.println("tags.recepPais Norm AMDA: " + stringU + " : " + stringU.trim().length());
+//			System.out.println("tags.recepPais Norm AMDA: " + tags.recepPais + " : " + tags.recepPais.trim().length());
 			if(stringU.trim().length() < tags.recepPais.trim().length()){
 				tags.recepPais = UtilCatalogos.findStringAcento(tags.recepPais);
 			}
@@ -809,8 +809,8 @@ public class ConvertirImplV3_3
 				
 				if(tags.RECEPCION_RFC.equalsIgnoreCase("XEXX010101000") || tags.RECEPCION_RFC.equalsIgnoreCase("XAXX010101000") || tags.RECEPCION_RFC.equalsIgnoreCase("XEXE010101000") || tags.RECEPCION_RFC.equalsIgnoreCase("XEXX010101000") ){
 					System.out.println("Recepcion RFC DO:  " + tags.RECEPCION_RFC);
-					System.out.println("Recepcion RFC DO:  " + tokens[2].trim());
-					System.out.println("Recepcion RFC valPais:  " + valPais);
+//					System.out.println("Recepcion RFC DO:  " + tokens[2].trim());
+//					System.out.println("Recepcion RFC valPais:  " + valPais);
 					String valRegIdTrib = UtilCatalogos.findNumRegIdTrib(tags.mapCatalogos, tokens[2].trim());
 					if(!valRegIdTrib.equalsIgnoreCase("vacio")){
 //						numRegIdTribReceptor = " NumRegIdTrib=\"" + valRegIdTrib + "\"";
@@ -819,7 +819,7 @@ public class ConvertirImplV3_3
 						String patternReg = "";
 						if(!valPais.trim().equalsIgnoreCase("vacio") && valPais.trim().length() > 0){
 							patternReg = UtilCatalogos.findPatternRFCPais(tags.mapCatalogos, valPais);
-							System.out.println("PATTERN REGEX:  " + patternReg);
+//							System.out.println("PATTERN REGEX:  " + patternReg);
 							if(!patternReg.trim().equalsIgnoreCase("vacio") && patternReg.trim().length() > 0){
 								System.out.println("Validando PATTERN REGEX");
 								Pattern p = Pattern.compile(patternReg);
@@ -827,7 +827,7 @@ public class ConvertirImplV3_3
 							     
 							     if(!m.find()){
 							    	 //RFC no valido
-							    	 System.out.println("PATTERN REGEX NO ES Valido el RegIdTrib:  " + valRegIdTrib + " : " + valPais + " : " + patternReg);
+//							    	 System.out.println("PATTERN REGEX NO ES Valido el RegIdTrib:  " + valRegIdTrib + " : " + valPais + " : " + patternReg);
 							    	 numRegIdTribReceptor = " ErrRecRegId001=\"" + valRegIdTrib + "\"";
 							     }else{
 							    	 numRegIdTribReceptor = " NumRegIdTrib=\"" + valRegIdTrib + "\"";
@@ -917,7 +917,7 @@ public class ConvertirImplV3_3
 			tags.UNIDAD_MEDIDA=tokens[2];
 			System.out.println("Asignando Numero De Conceptos: " + tags.numeroConceptosFac);
 			tags.numeroConceptosFac = tags.numeroConceptosFac+1;
-			System.out.println("Asignando Numero De Conceptos Despues: " + tags.numeroConceptosFac);
+//			System.out.println("Asignando Numero De Conceptos Despues: " + tags.numeroConceptosFac);
 			String valDescConcep = "";
 			if(tokens[4].trim().length() > 0){
 				valDescConcep = Util.convierte(tokens[4]).trim();
@@ -928,7 +928,7 @@ public class ConvertirImplV3_3
 			}
 			
 			// Nuevo Campo AMDA Version 3.3 regimenStr = "\n<cfdi:RegimenFiscal Regimen=\"" + regVal + "\" />";
-			System.out.println("Tipo Comprobante en Concepto: " + tags.tipoComprobante);
+//			System.out.println("Tipo Comprobante en Concepto: " + tags.tipoComprobante);
 			String valorUnitarioStr = "";
 			String nodoValorUnitarioStr = "";
 			try{

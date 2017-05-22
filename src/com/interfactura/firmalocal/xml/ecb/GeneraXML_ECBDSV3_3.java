@@ -1021,95 +1021,95 @@ public class GeneraXML_ECBDSV3_3 {
 			
 			break;
 		case 2:
-			System.out.println("case2");
+//			System.out.println("case2");
 //			if(!versionTypo) // Validando a que tipo de version apunta AMDA
 				out.write(conver.fComprobante(linea, contCFD, tipoCambio, lstFiscal, campos22, fileNames));
 //			else
 //				//Entra a la version 3.3
 //				out.write(conver.fComprobante(linea, contCFD, tipoCambio, lstFiscal, campos22, fileNames));
-				System.out.println("Out: Case 2 " + out);
+//				System.out.println("Out: Case 2 " + out);
 			break;
 		case 3:
-			System.out.println("case3");
+//			System.out.println("case3");
 			out.write(conver.emisor(linea, lstFiscal, contCFD, campos22));
-			System.out.println("Out: Case 3 " + out);
+//			System.out.println("Out: Case 3 " + out);
 			break;
 		case 4:
-			System.out.println("case4");
+//			System.out.println("case4");
 			//out.write(conver.receptor(linea, contCFD));
-			System.out.println("Out: Case 4 " + out);
+//			System.out.println("Out: Case 4 " + out);
 			break;
 		case 5:
 			out.write(conver.receptor(conver.getTags().lineaAnterior, conver.getTags().contCFDAnterior));
-			System.out.println("case5");
+//			System.out.println("case5");
 			out.write(conver.domicilio(linea, contCFD));
-			System.out.println("Out: Case 5 " + out);
+//			System.out.println("Out: Case 5 " + out);
 			this.beginCONCEPTOS();
-			System.out.println("Out: Case 5-1 " + out);
+//			System.out.println("Out: Case 5-1 " + out);
 			break;
 		case 6:
-			System.out.println("case6");
+//			System.out.println("case6");
 			out.write(conver.concepto(linea, contCFD, lstFiscal, campos22));
-			System.out.println("Out: Case 6 " + out);
+//			System.out.println("Out: Case 6 " + out);
 			break;
 		case 7:
-			System.out.println("case7");
-			System.out.println("Conver Tags Tipo Comprobante: " + conver.getTags().tipoComprobante);
+//			System.out.println("case7");
+//			System.out.println("Conver Tags Tipo Comprobante: " + conver.getTags().tipoComprobante);
 			if(!conver.getTags().tipoComprobante.equalsIgnoreCase("T") && !conver.getTags().tipoComprobante.equalsIgnoreCase("P")){
-				System.out.println("Conver Tags Tipo Comprobante DEntro De Impuestos: " + conver.getTags().tipoComprobante);
+//				System.out.println("Conver Tags Tipo Comprobante DEntro De Impuestos: " + conver.getTags().tipoComprobante);
 				out.write(conver.impuestos(linea, contCFD));
 			}
-			System.out.println("Out: Case 7 " + out);
+//			System.out.println("Out: Case 7 " + out);
 			break;
 		case 8:
-			System.out.println("case8");
+//			System.out.println("case8");
 			if(!conver.getTags().tipoComprobante.equalsIgnoreCase("T") && !conver.getTags().tipoComprobante.equalsIgnoreCase("P")){
-				System.out.println("Conver Tags Tipo Comprobante DEntro De retencion: " + conver.getTags().tipoComprobante);
+//				System.out.println("Conver Tags Tipo Comprobante DEntro De retencion: " + conver.getTags().tipoComprobante);
 				this.beginRETENCIONES();
-				System.out.println("Out: Case 8 " + out);
+//				System.out.println("Out: Case 8 " + out);
 				out.write(conver.retenciones(linea, contCFD));
 			}
-			System.out.println("Out: Case 8-1 " + out);
+//			System.out.println("Out: Case 8-1 " + out);
 			break;
 		case 9:
-			System.out.println("case9");
-			System.out.println("Out: Case 9 " + out);
+//			System.out.println("case9");
+//			System.out.println("Out: Case 9 " + out);
 			if(!conver.getTags().tipoComprobante.equalsIgnoreCase("T") && !conver.getTags().tipoComprobante.equalsIgnoreCase("P")){
 				System.out.println("Conver Tags Tipo Comprobante DEntro De Ret y Tra: " + conver.getTags().tipoComprobante);
 				this.endRETENCIONES();
-				System.out.println("Out: Case 9-1 " + out);
+//				System.out.println("Out: Case 9-1 " + out);
 				this.beginTRASLADOS();
-				System.out.println("Out: Case 9-2 " + out);
+//				System.out.println("Out: Case 9-2 " + out);
 				out.write(conver.traslados(linea, contCFD));	
 			}
-			System.out.println("Out: Case 9-3 " + out);
+//			System.out.println("Out: Case 9-3 " + out);
 			break;
 		case 10:
-			System.out.println("case10");
-			System.out.println("Out: Case 10 " + out);
+//			System.out.println("case10");
+//			System.out.println("Out: Case 10 " + out);
 			this.endCONCEPTOS();
-			System.out.println("Out: Case 10-1 " + out);
+//			System.out.println("Out: Case 10-1 " + out);
 			this.endRETENCIONES();
-			System.out.println("Out: Case 10-2 " + out);
+//			System.out.println("Out: Case 10-2 " + out);
 			this.endTRALADOS();
-			System.out.println("Out: Case 10-3 " + out);
+//			System.out.println("Out: Case 10-3 " + out);
 			if (conver.getTags().isImpuestos) 
 			{	this.endIMPUESTOS();	} 
 			else if (!conver.getTags().isImpuestos) 
 			{	out.write("\n<cfdi:Impuestos/>".getBytes());		}
-			System.out.println("Out: Case 10-4 " + out);
+//			System.out.println("Out: Case 10-4 " + out);
 			this.endMOVIMIENTOS();
-			System.out.println("Out: Case 10-5 " + out);
+//			System.out.println("Out: Case 10-5 " + out);
 			this.addenda();
-			System.out.println("Out: Case 10-6 " + out);
+//			System.out.println("Out: Case 10-6 " + out);
 			break;
 		case 11:
-			System.out.println("case11");
-			System.out.println("Out: Case 11 " + out);
+//			System.out.println("case11");
+//			System.out.println("Out: Case 11 " + out);
 			this.beginMOVIMIENTOS(); 
-			System.out.println("Out: Case 11-1 " + out);
+//			System.out.println("Out: Case 11-1 " + out);
 			out.write(conver.movimeinto(linea, contCFD));
-			System.out.println("Out: Case 11-2 " + out);
+//			System.out.println("Out: Case 11-2 " + out);
 			break;
 		default:
 			System.out.println("caseBreak");
