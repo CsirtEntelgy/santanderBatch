@@ -1362,9 +1362,16 @@ public class GeneraXML_CFDV3_3
 					xmlProcess.getValidator().valida(cfdBean.getBaosXml(), this.validator);
 					String fecha = Util.systemDate();
 					xmlProcess.setTransf(transf);
+
+
+					/*Se asigna el NoCertificado ya que antes se hacia despues de generar la cadena original*/
+					Document doc = UtilCatalogos.convertStringToDocument(cfdBean.getBaosXml().toString("UTF-8"));
+					UtilCatalogos.setValueOnDocumentElement(doc, "//Comprobante/@NoCertificado", cfdBean.getSealCertificate().getSerialNumber());
+					cfdBean.setBaosXml(UtilCatalogos.convertStringToOutpuStream(UtilCatalogos.convertDocumentXmlToString(doc)));
+					/*Fin asignaciones*/
 					
 					ByteArrayOutputStream originalString = null;
-					originalString= xmlProcess.generatesOriginalString(cfdBean.getBaosXml());
+					originalString= xmlProcess.generatesOriginalString(cfdBean.getBaosXml()); 
 					System.out.println("originalString: " + originalString.toString("UTF-8"));
 					String seal = xmlProcess.sealEncryption(originalString, cfdBean.getSealCertificate());
 					

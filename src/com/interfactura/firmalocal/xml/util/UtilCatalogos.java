@@ -2,7 +2,9 @@ package com.interfactura.firmalocal.xml.util;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.IOException;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -13,6 +15,9 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
@@ -33,6 +38,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 import com.interfactura.firmalocal.xml.CatalogosDom;
 
@@ -1392,6 +1399,14 @@ public class UtilCatalogos
 			return response;
 		}
 
+	    
+		public static void setValueOnDocumentElement(Document doc, String expression, String value) throws XPathExpressionException {
+			NodeList nl = getNodesByExpression(doc, expression);
+			if (nl != null && nl.getLength() > 0) {
+				nl.item(0).setNodeValue(value);
+			}
+		}
+
 		public static ByteArrayOutputStream convertStringToOutpuStream(String data) {
 			ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 			DataOutputStream out = new DataOutputStream(byteArrayOutputStream);				
@@ -1405,6 +1420,22 @@ public class UtilCatalogos
 			return byteArrayOutputStream;
 
 		}
+
+	    public static Document convertPathFileToDocument(String pathFileXml) throws SAXException, IOException, ParserConfigurationException {
+	    	File file = new File(pathFileXml);
+	    	DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			DocumentBuilder db = dbf.newDocumentBuilder();
+			Document dom = db.parse(file);
+			return dom;
+	    }
+	    
+	    public static Document convertStringToDocument(String xmlStr) throws ParserConfigurationException, SAXException, IOException {
+	        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+	        DocumentBuilder builder;
+	        builder = factory.newDocumentBuilder();
+	        Document doc = builder.parse(new InputSource(new StringReader(xmlStr)));
+	        return doc;
+	    }
 
 	    public static String convertDocumentXmlToString(Document doc) throws TransformerConfigurationException, TransformerException {
 	        TransformerFactory tf = TransformerFactory.newInstance();

@@ -2099,6 +2099,12 @@ public class GeneraXML_ECBDSV3_3 {
 										
 										t2 = t1- System.currentTimeMillis();
 										System.out.println("TIME: xmlProcess:" + t2 + " ms");
+
+										/*Se asigna el NoCertificado ya que antes se hacia despues de generar la cadena original*/
+										Document doc = UtilCatalogos.convertStringToDocument(xmlFinal.toString("UTF-8"));
+										UtilCatalogos.setValueOnDocumentElement(doc, "//Comprobante/@NoCertificado", certificate.getSerialNumber());
+										xmlFinal = UtilCatalogos.convertStringToOutpuStream(UtilCatalogos.convertDocumentXmlToString(doc));
+										/*Fin asignaciones*/
 										
 										ByteArrayOutputStream originalString = xmlProcess.generatesOriginalString(xmlFinal);
 										String cadena = originalString.toString("UTF-8");

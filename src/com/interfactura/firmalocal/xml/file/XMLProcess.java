@@ -217,9 +217,20 @@ public class XMLProcess
 					.getPrivateKeyPassword().toCharArray());			
 			if (pk8.isRSA()) 
 			{	pk = (RSAPrivateKey) pk8.getPrivateKey();	}
+
+			Signature firma = Signature.getInstance("SHA1withRSA"); 
+			try {				
+				if(new String(cadena.toByteArray(), "UTF-8").split("\\|")[2].equals("3.3")){
+					firma = Signature.getInstance("SHA256withRSA");
+				}
+				firma.initSign(pk);
 			
-			//MD5withRSA
-			Signature firma = Signature.getInstance("SHA1withRSA");
+				logger.info("CadenaOriginal firma:" + firma);
+				logger.info("CadenaOriginal CadenaOriginal:" + new String(cadena.toByteArray()));
+				logger.info("CadenaOriginal CadenaOriginal:" + new String(cadena.toByteArray(), "UTF-8"));
+			} catch (Exception ex) {
+				logger.error(ex);
+			}
 			firma.initSign(pk);
 			firma.update(cadena.toByteArray());
 			
