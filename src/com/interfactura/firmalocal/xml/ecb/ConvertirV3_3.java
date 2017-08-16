@@ -1203,7 +1203,7 @@ public class ConvertirV3_3
 			
 //			System.out.println("Asignando Numero De Conceptos: " + tags.numeroConceptosFac);
 			tags.numeroConceptosFac = tags.numeroConceptosFac+1;
-			System.out.println("Asignando Numero De Conceptos Despues: " + tags.numeroConceptosFac);
+			logger.info("Asignando Numero De Conceptos Despues: " + tags.numeroConceptosFac);
 //			System.out.println("Importe en Concepto ANTES: " + lineas[2].trim());
 			//HashMap campos = (HashMap) campos22.get(tags.fis.getTaxID());
 			//System.out.println("concepto RFC:" + tags.EMISION_RFC);
@@ -1369,9 +1369,6 @@ public class ConvertirV3_3
 				}else{
 					tasaOCuotaStr = "\" ErrConcImpueTra002=\""  + tags.trasladoImpuestoVal;
 				}
-
-				
-//				System.out.println("Valor TasaOCuota Traslado AMDA : " + tasaOCuotaStr);
 			}
 			
 			if(valTipoFactor.equalsIgnoreCase("Tasa") || valTipoFactor.equalsIgnoreCase("Cuota")){
@@ -1388,37 +1385,24 @@ public class ConvertirV3_3
 			String elementTraslado = "";
 			if(lineas[1].trim().length() > 1){
 				Map<String, Object> trasladoDoom = UtilCatalogos.findTraslados(tags.mapCatalogos, valImporte, valDescConcep, tags.decimalesMoneda, tags.tipoComprobante);
-//				System.out.println("TRASLADO NODOS AMDA : " + trasladoDoom);
 				elementTraslado = "\n<cfdi:Traslados>" + 
-//										 "\n<cfdi:Traslado Base=\"" + valorBase +
-//										 "\" Impuesto=\"" + claveImp +
-//										 "\" TipoFactor=\"" + valTipoFactor + // Por definir de donde tomar el valor AMDA
-//										 tasaOCuotaStr +
-//										 valImporteImpTras +
-//										 " />" +
 										 trasladoDoom.get("valNodoStr") +
 										 "\n</cfdi:Traslados>";		
 				tags.sumTotalImpuestosTras = trasladoDoom.get("sumaTotal").toString();
-//				System.out.println("TRASLADO NODOS AMDA SumISR : " + trasladoDoom.get("sumTotalIsr"));
 				tags.sumTraTotalIsr = trasladoDoom.get("sumTotalIsr").toString();
-//				System.out.println("TRASLADO NODOS AMDA SumIVA : " + trasladoDoom.get("sumTotalIva"));
 				tags.sumTraTotalIva = trasladoDoom.get("sumTotalIva").toString();
-//				System.out.println("TRASLADO NODOS AMDA SumIEPS : " + trasladoDoom.get("sumTotalIeps"));
 				tags.sumTraTotalIeps = trasladoDoom.get("sumTotalIeps").toString();
 				
 				try{
 					Double sumTotalIsrDo = Double.parseDouble(tags.sumTraTotalIsr);
 					tags.sumTraTotalIsrDou = tags.sumTraTotalIsrDou + sumTotalIsrDo;
 					tags.sumTraTotalIsr = tags.sumTraTotalIsrDou.toString();
-//					System.out.println("TRASLADO NODOS AMDA SumISR Double : " + tags.sumTraTotalIsrDou);
 					Double sumTraTotalIvaDou = Double.parseDouble(tags.sumTraTotalIva);
 					tags.sumTraTotalIvaDou = tags.sumTraTotalIvaDou + sumTraTotalIvaDou;
 					tags.sumTraTotalIva = tags.sumTraTotalIvaDou.toString();
-//					System.out.println("TRASLADO NODOS AMDA SumIVA Double : " + tags.sumTraTotalIvaDou);
 					Double sumTraTotalIepsDou = Double.parseDouble(tags.sumTraTotalIeps);
 					tags.sumTraTotalIepsDou = tags.sumTraTotalIepsDou + sumTraTotalIepsDou;
 					tags.sumTraTotalIeps = tags.sumTraTotalIepsDou.toString();
-//					System.out.println("TRASLADO NODOS AMDA SumIEPS Double : " + tags.sumTraTotalIepsDou);
 				}catch(NumberFormatException e){
 					System.out.println("Calculando TRASLADO Sumas AMDA Error Numerico");
 				}
@@ -1428,15 +1412,7 @@ public class ConvertirV3_3
 						 "\n<cfdi:Traslado ErrConConcepTra001=\"" + lineas[1].trim() + "\"" +
 						 " />" +
 						 "\n</cfdi:Traslados>";	
-			}
-
-//			System.out.println("Elemento Traslado AMDA : " + elementTraslado);
-//			System.out.println("Elemento Traslado Length AMDA : " + elementTraslado.length()); // 35 Default
-//			System.out.println("TRASLADO NODOS AMDA SumISR Double : " + tags.sumTraTotalIsrDou);
-//			System.out.println("TRASLADO NODOS AMDA SumIVA Double : " + tags.sumTraTotalIvaDou);
-//			System.out.println("TRASLADO NODOS AMDA SumIEPS Double : " + tags.sumTraTotalIepsDou);
-			
-			// Elemento Retenciones V3.3 AMDA
+			}// Elemento Retenciones V3.3 AMDA
 			String valorBaseRet = "";
 			String claveImpRet = "";
 			String valTipoFactorRet = "Tasa"; // Por definir de donde tomar el valor AMDA
@@ -1471,8 +1447,6 @@ public class ConvertirV3_3
 				}else{
 					tasaOCuotaStrRet = "\" ErrConImpRet001=\"" + tags.retencionImpuestoVal ;
 				}
-				
-//				System.out.println("Valor TasaOCuota Ret AMDA : " + tasaOCuotaStrRet);
 			}
 			
 			if(valTipoFactor.equalsIgnoreCase("Tasa") || valTipoFactor.equalsIgnoreCase("Cuota")){
@@ -1488,35 +1462,23 @@ public class ConvertirV3_3
 			if(lineas[1].trim().length() > 1){
 				Map<String, Object> retencionDoom = UtilCatalogos.findRetencion(tags.mapCatalogos, valImporte, valDescConcep, tags.decimalesMoneda, tags.tipoComprobante);
 				elementRetencion = "\n<cfdi:Retenciones>" +
-//						 				  "\n<cfdi:Retencion Base=\"" + valorBaseRet +
-//						 				  "\" Impuesto=\"" + claveImpRet +
-//						 				   "\" TipoFactor=\"" + valTipoFactorRet + // Por definir de donde tomar el valor AMDA
-//						 				   tasaOCuotaStrRet +
-//						 				   valImporteImpRet +
-//						 				  "/>" +
 										  retencionDoom.get("valNodoStr") +
 										  "\n</cfdi:Retenciones>";
 				tags.sumTotalImpuestosReten = retencionDoom.get("sumaTotal").toString();
-//				System.out.println("RETENCION NODOS AMDA SumISR : " + retencionDoom.get("sumTotalIsr"));
 				tags.sumRetTotalIsr = retencionDoom.get("sumTotalIsr").toString();
-//				System.out.println("RETENCION NODOS AMDA SumIVA : " + retencionDoom.get("sumTotalIva"));
 				tags.sumRetTotalIva = retencionDoom.get("sumTotalIva").toString();
-//				System.out.println("RETENCION NODOS AMDA SumIEPS : " + retencionDoom.get("sumTotalIeps"));
 				tags.sumRetTotalIeps = retencionDoom.get("sumTotalIeps").toString();
 				
 				try{
 					Double sumTotalIsrDo = Double.parseDouble(tags.sumTraTotalIsr);
 					tags.sumRetTotalIsrDou = tags.sumRetTotalIsrDou + sumTotalIsrDo;
 					tags.sumRetTotalIsr = tags.sumRetTotalIsrDou.toString();
-//					System.out.println("TRASLADO NODOS AMDA SumISR Double : " + tags.sumTraTotalIsrDou);
 					Double sumRetTotalIvaDou = Double.parseDouble(tags.sumRetTotalIva);
 					tags.sumRetTotalIvaDou = tags.sumRetTotalIvaDou + sumRetTotalIvaDou;
 					tags.sumRetTotalIva = tags.sumRetTotalIvaDou.toString();
-//					System.out.println("TRASLADO NODOS AMDA SumIVA Double : " + tags.sumTraTotalIvaDou);
 					Double sumRetTotalIepsDou = Double.parseDouble(tags.sumRetTotalIeps);
 					tags.sumRetTotalIepsDou = tags.sumRetTotalIepsDou + sumRetTotalIepsDou;
 					tags.sumRetTotalIeps = tags.sumRetTotalIepsDou.toString();
-//					System.out.println("TRASLADO NODOS AMDA SumIEPS Double : " + tags.sumTraTotalIepsDou);
 				}catch(NumberFormatException e){
 					System.out.println("Calculando Retencion Sumas AMDA Error Numerico");
 				}
@@ -1526,12 +1488,6 @@ public class ConvertirV3_3
 		 				  "\n<cfdi:Retencion NoSeEncontroUnConceptoRetencionesParaBuscar=\"" + valorBaseRet + "\"" +
 						  "\n</cfdi:Retenciones>";
 			}
-//			System.out.println("Elemento Retencion AMDA : " + elementRetencion);
-//			System.out.println("Elemento Retencion Length AMDA : " + elementRetencion.length()); // 39 Default
-//			System.out.println("TRASLADO NODOS AMDA SumISR Double : " + tags.sumRetTotalIsrDou);
-//			System.out.println("TRASLADO NODOS AMDA SumIVA Double : " + tags.sumRetTotalIvaDou);
-//			System.out.println("TRASLADO NODOS AMDA SumIEPS Double : " + tags.sumRetTotalIepsDou);
-			
 			String claveProdServVal = ""; // Fijo por el momento AMDA
 			boolean claveProdServTraslado = false;
 			boolean claveProdServRetencion = false;
@@ -1548,32 +1504,21 @@ public class ConvertirV3_3
 			   			elementRetencion +
 			   			"\n</cfdi:Impuestos>";
 				paint = true;
-//				System.out.println("ENTRO UNO: " + elementImpuestos);
 			}else if(elementRetencion.length() > 39 && !paint){
 				elementImpuestos = "\n<cfdi:Impuestos>" + 
 //			   			elementTraslado +
 			   			elementRetencion +
 			   			"\n</cfdi:Impuestos>";
-//				System.out.println("ENTRO DOS: " + elementImpuestos);
 			}else if(elementTraslado.length() > 35 && !paint){
 				elementImpuestos = "\n<cfdi:Impuestos>" + 
 			   			elementTraslado +
-//			   			elementRetencion +
 			   			"\n</cfdi:Impuestos>";
-//				System.out.println("ENTRO TRES: " + elementImpuestos);
 			}
-//			System.out.println("Elemento Impuestos AMDA : " + elementImpuestos);
-//			System.out.println("Elemento Impuestos Total Traslados AMDA : " + tags.sumTotalImpuestosTras);
 			Double valVal = Double.parseDouble(tags.sumTotalImpuestosTras);
-//			System.out.println("Elemento Impuestos Total Traslados DESP AMDA : " + valVal);
 			tags.sumTotalImpuestosTrasDou = tags.sumTotalImpuestosTrasDou + valVal;
-//			System.out.println("Elemento Impuestos Total Traslados SUMMMM AMDA : " + tags.sumTotalImpuestosTras);
-//			System.out.println("Elemento Impuestos Total Retenciones AMDA : " + tags.sumTotalImpuestosReten);
 			
 			
 			String nodoConcepto = "\n<cfdi:Concepto " + claveProdServVal +
-//								  "\"" +
-//								  valSubTotalDou + 
 								  "\" Cantidad=\"" + "1" +
 								  "\" ClaveUnidad=\"" + claveUnidad + //Pendiente el valor de ClaveUnidad
 								  "\" Unidad=\"" + unidadVal + 
@@ -1581,26 +1526,11 @@ public class ConvertirV3_3
 								  nodoValorUnitarioStr + 
 								  lineImporte + "\" " + " >"+
 								  elementImpuestos +
-//								  "\n<cfdi:Impuestos TotalImpuestosTrasladados=\"" + trasladoDoom.get("sumaTotal") +
-//								  "\" TotalImpuestosRetenidos=\"" + retencionDoom.get("sumaTotal") + "\" "+ "/>" +
-//							   	  "\n</cfdi:Impuestos>" + 
 								  "\n</cfdi:Concepto>";
-//			System.out.println("String Nodo Concepto: " + nodoConcepto);
-				
-//			return Util
-//					.conctatArguments(
-//							"\n<cfdi:Concepto cantidad=\"1\" descripcion=\"",
-//							Util.convierte(lineas[1]).trim(), "\" valorUnitario=\"",
-//							lineas[2].trim(), 
-//							"\" importe=\"", lineas[2].trim(), 
-//							"\" unidad=\"", unidadVal,
-//							"\"/>").toString().getBytes("UTF-8");
 			// Cambio de estructura AMDA Version 3.3
 			return Util
 					.conctatArguments(
-//							"\n<cfdi:Concepto ",
 							nodoConcepto.toString()
-//							"\"/>"
 							).toString().getBytes("UTF-8");
 		} 
 		else 
@@ -1699,65 +1629,6 @@ public class ConvertirV3_3
 		lineas = linea.split("\\|");
 		tags.isImpuestos = true;
 		tags.isConceptos = false;
-		
-//		// Elemento Retenciones V 3.3 AMDA
-//		String claveImpRet = "";
-//		if(tags.retencionImpuestoVal.trim().length() > 0){ // Validando el codigo del Impuesto
-//			System.out.println("Valor Impuesto Ret AMDA : " + tags.retencionImpuestoVal);
-//			claveImpRet = UtilCatalogos.findValClaveImpuesto(tags.mapCatalogos, tags.retencionImpuestoVal);
-//			System.out.println("Valor Clave Impuesto Ret AMDA : " + claveImpRet);
-//		}
-//		
-//		String elementRetencion = "\n<cfdi:Retenciones>" +
-//				  				  "\n<cfdi:Retencion Impuesto=\"" + claveImpRet +
-//				  				  "\" Importe=\"" + tags.retencionImporteVal + "\"" +
-//				  "/>" +
-//				  "\n</cfdi:Retenciones>";
-//		System.out.println("Elemento Retenciones Impuestos AMDA : " + elementRetencion);
-		
-//		// Elemento Traslados V3.3 AMDA
-//		String claveImp = "";
-//		String valTipoFactor = "Tasa"; // Por definir de donde tomar el valor AMDA
-//		String tasaOCuotaStr = "";
-//		String valImporteImpTras = "";
-//					
-//		if(tags.trasladoImpuestoVal.trim().length() > 0){ // Validando el codigo del Impuesto
-//			System.out.println("Valor Impuesto Traslado AMDA : " + tags.trasladoImpuestoVal);
-//			claveImp = UtilCatalogos.findValClaveImpuesto(tags.mapCatalogos, tags.trasladoImpuestoVal);
-//			System.out.println("Valor Clave Impuesto Traslado AMDA : " + claveImp);
-//		}
-//					
-//		if(valTipoFactor.equalsIgnoreCase("Tasa") || valTipoFactor.equalsIgnoreCase("Cuota")){
-//			System.out.println("Validacion TasaOCuota Traslado AMDA : " + tags.trasladoImpuestoVal + " : " + valTipoFactor);
-//			if(!tags.trasladoImpuestoVal.trim().equalsIgnoreCase("ISR")){
-//
-////				tasaOCuotaStr = "\" TasaOCuota=\""  + UtilCatalogos.findValMaxTasaOCuota(tags.mapCatalogos, tags.trasladoImpuestoVal, valTipoFactor);
-//
-//				tasaOCuotaStr = "\" TasaOCuota=\""  + Util.completeZeroDecimals(UtilCatalogos.findValMaxTasaOCuota(tags.mapCatalogos, tags.trasladoImpuestoVal, valTipoFactor), 6);
-//
-//			}
-//						
-//			System.out.println("Valor TasaOCuota Traslado AMDA : " + tasaOCuotaStr);
-//		}
-//					
-//		if(valTipoFactor.equalsIgnoreCase("Tasa") || valTipoFactor.equalsIgnoreCase("Cuota")){
-//			System.out.println("Valor Importe AMDA T : " + tags.trasladoImporteVal + " : " + valImporteTraslado);
-//			if(tags.trasladoImporteVal.trim().length() > 0){
-//				valImporteImpTras = "\" Importe=\"" +tags.trasladoImporteVal.trim() + "\"";
-//			}else{
-//				valImporteImpTras = "\" Importe=\"" + "0.00" + "\"";
-//			}
-//			
-//		}
-//					
-//		String elementTraslado = "\n<cfdi:Traslados>" + 
-//								 "\n<cfdi:Traslado Impuesto=\"" + claveImp +
-//								 "\" TipoFactor=\"" + valTipoFactor + // Por definir de donde tomar el valor AMDA
-//								 tasaOCuotaStr +
-//								 valImporteImpTras + // Por definir como se relaciona el importe 
-//								 " />" +
-//								 "\n</cfdi:Traslados>";
-//		System.out.println("Elemento Traslado Impuestos AMDA : " + elementTraslado);
 		
 		if (lineas.length >= 3) 
 		{
@@ -2358,9 +2229,10 @@ public class ConvertirV3_3
 			break;
 		case 3:
 			// Emisor
-			System.out.println("Emisor ? LoadInfoV33: "+lin[1].trim() + " : " + lin[2].trim());
+			System.out.println("Emisor ? LoadInfoV33 lin.length: "+lin.length);
 			if (lin.length >= 2) 
 			{
+				System.out.println("Emisor ? LoadInfoV33: "+lin[1].trim() + " : " + lin[2].trim());
 				tags.EMISION_RFC = lin[1].trim();
 				if(tags.EMISION_RFC.trim().length() == 0){ // Validacion AMDA Version 3.3
 					tags.EMISION_RFC = "RFCNecesario";

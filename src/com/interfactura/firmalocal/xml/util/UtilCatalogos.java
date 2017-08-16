@@ -884,6 +884,7 @@ public class UtilCatalogos
 //							System.out.println("Val Suma Total Traslado " + sumTotal);
 //							System.out.println("Val NodoCon Traslado " + nodocon);
 						}catch(NumberFormatException e){
+							logger.error(e);
 //							System.out.println("No es numero findTraslados: " + valTasa);
 						}
 //						response = response + nodocon;
