@@ -167,10 +167,12 @@ public class ConvertirImplV3_3
 			tags.FOLIO_REFERENCE = tokens[2];
 
 			concat = new StringBuilder();
-			
+			boolean sinMoneda = false;
 			String monedaMexicana = "Peso Mexicano";
 			if(tags.TIPO_MONEDA == null || "".equals(tags.TIPO_MONEDA.intern().trim())){
 				tags.TIPO_MONEDA = monedaMexicana.intern();
+				System.out.println("--SMS--: Linea sin Moneda : Asignando sinMoneda a true");
+				sinMoneda=true;
 			}
 			System.out.println("Tipo Moneda AMDA Else: " + tags.TIPO_MONEDA);
 			
@@ -615,6 +617,11 @@ public class ConvertirImplV3_3
 			tags.FACTORAJE_COMISION = tokens[18];
 			tags.FACTORAJE_LETRAS = tokens[19];
 			
+			if(sinMoneda) {
+				System.out.println("--SMS--: Linea sin Moneda : Limpiando tags.TIPO_MONEDA  tags.TIPO_CAMBIO");
+				tags.TIPO_MONEDA ="";
+				tags.TIPO_CAMBIO ="";
+			}
 			return Util
 					.conctatArguments(
 							"\n<cfdi:Comprobante Version=\"3.3\" ",

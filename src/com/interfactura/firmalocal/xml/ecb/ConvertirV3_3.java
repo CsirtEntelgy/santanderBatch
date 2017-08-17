@@ -246,6 +246,7 @@ public class ConvertirV3_3
 	{
 			lineas = linea.split("\\|");
 			String monedaMexicana = "MXN";
+			boolean sinMoneda =false;
 			System.out.println("linea " + linea);
 			//System.out.println("lineas[9]" + lineas[9]);
 			HashMap map = (HashMap) campos22.get(tags.EMISION_RFC);
@@ -269,6 +270,8 @@ public class ConvertirV3_3
 				tags.SERIE_FISCAL_CFD = lineas[3].trim();
 				if(tags.SERIE_FISCAL_CFD == null || "".equals(tags.SERIE_FISCAL_CFD.intern().trim())){
 					tags.SERIE_FISCAL_CFD = monedaMexicana.intern();
+					System.out.println("--SMS--: Linea sin Moneda : Asignando sinMoneda a true");
+					sinMoneda=true;
 				}
 				String valEqMoneda = ""; // AMDA Version 3.3
 				if (!Util.isNullEmpty(tags.SERIE_FISCAL_CFD)) 
@@ -910,6 +913,13 @@ public class ConvertirV3_3
 								"xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">")
 						.toString().getBytes("UTF-8");
 						*/
+				
+				if(sinMoneda) {
+					System.out.println("--SMS--: Linea sin Moneda : Limpiando tags.SERIE_FISCAL_CFD tags.TIPO_MONEDA tags.TIPO_CAMBIO");
+					tags.SERIE_FISCAL_CFD ="";
+					tags.TIPO_MONEDA ="";
+					tags.TIPO_CAMBIO ="";
+				}
 				return Util
 						.conctatArguments(
 								"\n<cfdi:Comprobante Version=\"3.3\" ",
