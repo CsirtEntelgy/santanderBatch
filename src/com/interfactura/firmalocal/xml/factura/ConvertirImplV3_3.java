@@ -629,7 +629,7 @@ public class ConvertirImplV3_3
 							" xmlns:ecb=\"http://www.sat.gob.mx/ecb\" ",
 							" xmlns:cfdi=\"http://www.sat.gob.mx/cfd/3\"  ",
 							" xsi:schemaLocation=\"http://www.sat.gob.mx/cfd/3",
-							" http://www.sat.gob.mx/sitio_internet/cfd/3/cfdv32.xsd ",
+							" http://www.sat.gob.mx/sitio_internet/cfd/3/cfdv33.xsd ",
 							" http://www.sat.gob.mx/ecb http://www.sat.gob.mx/sitio_internet/cfd/ecb/ecb.xsd\" ",
 							" Sello=\"", properties.getLabelSELLO(), "\" ",
 							" NoCertificado=\"",
