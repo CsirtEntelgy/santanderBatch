@@ -403,12 +403,14 @@ public class GeneraXML_CFDV3_3
 				
 				if(!conver.getTags().tipoComprobante.equalsIgnoreCase("T") || !conver.getTags().tipoComprobante.equalsIgnoreCase("P")){
 					out.write(conver.impuestos(conver.getTags().lineaAnteriorImpuestoTokens, conver.getTags().contCFDAnteriorImpuesto));
+					/*SMS-Comentado por agregar nodos a impuestos
 					this.beginRETENCIONES(out);
 					out.write(conver.retenciones(conver.getTags().lineaAnteriorRetencionTokens, conver.getTags().contCFDAnteriorRetencion));
 					
 					this.endRETENCIONES(out);
 					this.beginTRASLADOS(out);
 					out.write(conver.traslados(tokens, this.lstIva, numberLineCFD));
+					*/
 				}
 			} else if (tokens[0].equals(conver.getTags()._FACTORAJE)) {
 				this.lstFactoraje.add(conver.factoraje(tokens, numberLineCFD));

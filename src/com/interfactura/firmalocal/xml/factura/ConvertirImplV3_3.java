@@ -777,7 +777,8 @@ public class ConvertirImplV3_3
 				tags.recepPais = UtilCatalogos.findStringAcento(tags.recepPais);
 			}
 			System.out.println("Receptor recepPais Despues: " + tags.recepPais);
-			if(tags.RECEPCION_RFC.equalsIgnoreCase("XEXX010101000") || tags.RECEPCION_RFC.equalsIgnoreCase("XAXX010101000") || tags.RECEPCION_RFC.equalsIgnoreCase("XEXE010101000") || tags.RECEPCION_RFC.equalsIgnoreCase("XEXX010101000")){
+			if(tags.RECEPCION_RFC.equalsIgnoreCase("XEXX010101000") 
+					|| tags.RECEPCION_RFC.equalsIgnoreCase("XEXE010101000") || tags.RECEPCION_RFC.equalsIgnoreCase("XEXX010101000")){
 				
 				if(tags.recepPais.trim().length() > 0){
 					valPais = UtilCatalogos.findValPais(tags.mapCatalogos, tags.recepPais);
@@ -814,7 +815,8 @@ public class ConvertirImplV3_3
 						
 			if(!tags.RECEPCION_RFC.equalsIgnoreCase("RFCNecesario")){
 				
-				if(tags.RECEPCION_RFC.equalsIgnoreCase("XEXX010101000") || tags.RECEPCION_RFC.equalsIgnoreCase("XAXX010101000") || tags.RECEPCION_RFC.equalsIgnoreCase("XEXE010101000") || tags.RECEPCION_RFC.equalsIgnoreCase("XEXX010101000") ){
+				if(tags.RECEPCION_RFC.equalsIgnoreCase("XEXX010101000")
+						|| tags.RECEPCION_RFC.equalsIgnoreCase("XEXE010101000") || tags.RECEPCION_RFC.equalsIgnoreCase("XEXX010101000") ){
 					System.out.println("Recepcion RFC DO:  " + tags.RECEPCION_RFC);
 //					System.out.println("Recepcion RFC DO:  " + tokens[2].trim());
 //					System.out.println("Recepcion RFC valPais:  " + valPais);

@@ -1065,9 +1065,10 @@ public class GeneraXML_ECBDSV3_3 {
 //			System.out.println("case8");
 			if(!conver.getTags().tipoComprobante.equalsIgnoreCase("T") && !conver.getTags().tipoComprobante.equalsIgnoreCase("P")){
 //				System.out.println("Conver Tags Tipo Comprobante DEntro De retencion: " + conver.getTags().tipoComprobante);
+				/*SMS-Comentado 22/08/2017 Generaba nodos en impuestos
 				this.beginRETENCIONES();
-//				System.out.println("Out: Case 8 " + out);
 				out.write(conver.retenciones(linea, contCFD));
+				*/
 			}
 //			System.out.println("Out: Case 8-1 " + out);
 			break;
@@ -1076,11 +1077,11 @@ public class GeneraXML_ECBDSV3_3 {
 //			System.out.println("Out: Case 9 " + out);
 			if(!conver.getTags().tipoComprobante.equalsIgnoreCase("T") && !conver.getTags().tipoComprobante.equalsIgnoreCase("P")){
 				System.out.println("Conver Tags Tipo Comprobante DEntro De Ret y Tra: " + conver.getTags().tipoComprobante);
+				/*SMS-Comentado 22/08/2017 Generaba nodos en impuestos
 				this.endRETENCIONES();
-//				System.out.println("Out: Case 9-1 " + out);
 				this.beginTRASLADOS();
-//				System.out.println("Out: Case 9-2 " + out);
 				out.write(conver.traslados(linea, contCFD));	
+				*/
 			}
 //			System.out.println("Out: Case 9-3 " + out);
 			break;
@@ -1089,9 +1090,10 @@ public class GeneraXML_ECBDSV3_3 {
 //			System.out.println("Out: Case 10 " + out);
 			this.endCONCEPTOS();
 //			System.out.println("Out: Case 10-1 " + out);
+			/*SMS-Comentado 22/08/2017 Generaba nodos en impuestos
 			this.endRETENCIONES();
-//			System.out.println("Out: Case 10-2 " + out);
 			this.endTRALADOS();
+			*/
 //			System.out.println("Out: Case 10-3 " + out);
 			if (conver.getTags().isImpuestos) 
 			{	this.endIMPUESTOS();	} 

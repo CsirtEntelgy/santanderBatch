@@ -1083,7 +1083,8 @@ public class ConvertirV3_3
 			
 			System.out.println("Receptor recepPais: " + tags.recepPais);
 			System.out.println("Receptor RFC Receptor Valida ResidenciaFiscal: "+ tags.RECEPCION_RFC );
-			if(tags.RECEPCION_RFC.equalsIgnoreCase("XEXX010101000") || tags.RECEPCION_RFC.equalsIgnoreCase("XAXX010101000") || tags.RECEPCION_RFC.equalsIgnoreCase("XEXE010101000") || tags.RECEPCION_RFC.equalsIgnoreCase("XEXX010101000")){
+			if(tags.RECEPCION_RFC.equalsIgnoreCase("XEXX010101000") 
+					|| tags.RECEPCION_RFC.equalsIgnoreCase("XEXE010101000") || tags.RECEPCION_RFC.equalsIgnoreCase("XEXX010101000")){
 				if(tags.recepPais.trim().length() > 0){
 					valPais = UtilCatalogos.findValPais(tags.mapCatalogos, tags.recepPais);
 					System.out.println("Valor Abreviado Pais: " + valPais);
@@ -1109,7 +1110,8 @@ public class ConvertirV3_3
 			// Validando RFC si es RFC Generico
 			if(!tags.RECEPCION_RFC.equalsIgnoreCase("RFCNecesario")){
 				
-				if(tags.RECEPCION_RFC.equalsIgnoreCase("XEXX010101000") || tags.RECEPCION_RFC.equalsIgnoreCase("XAXX010101000") || tags.RECEPCION_RFC.equalsIgnoreCase("XEXE010101000") || tags.RECEPCION_RFC.equalsIgnoreCase("XEXX010101000") ){
+				if(tags.RECEPCION_RFC.equalsIgnoreCase("XEXX010101000") 
+						|| tags.RECEPCION_RFC.equalsIgnoreCase("XEXE010101000") || tags.RECEPCION_RFC.equalsIgnoreCase("XEXX010101000") ){
 					String valRegIdTrib = UtilCatalogos.findNumRegIdTrib(tags.mapCatalogos, lineas[2].trim()); //
 					if(!valRegIdTrib.equalsIgnoreCase("vacio")){
 //						numRegIdTribReceptor = " NumRegIdTrib=\"" + valRegIdTrib + "\"";
