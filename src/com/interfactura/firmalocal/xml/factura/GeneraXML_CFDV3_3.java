@@ -559,6 +559,8 @@ public class GeneraXML_CFDV3_3
 			this.beginCampo("FAC_LETRAS", conver.getTags().FACTORAJE_LETRAS,
 					out);
 		}
+		this.beginDomicilioEmisor(out);
+		this.beginDomicilioReceptor(out);
 	}
 
 	/**
@@ -661,6 +663,52 @@ public class GeneraXML_CFDV3_3
 		out.write("\n</cfdi:Addenda>".getBytes("UTF-8"));
 	}
 
+	/**
+	 * 
+	 * @param out
+	 * @throws IOException
+	 */
+	private void beginDomicilioReceptor(ByteArrayOutputStream out)
+			throws IOException {
+		String temp = "";
+		temp+= conver.getTags()._Calle;
+		temp+= conver.getTags()._NoExterior;
+		temp+= conver.getTags()._NoInterior;
+		temp+= conver.getTags()._Colonia;
+		temp+= conver.getTags()._Localidad;
+		temp+= conver.getTags()._Referencia;
+		temp+= conver.getTags()._Municipio;
+		temp+= conver.getTags()._Estado;
+		temp+= conver.getTags()._Pais;
+		temp+= conver.getTags()._CodigoPostal;
+		System.out.println("Domicilio Receptor"+temp);
+		if (temp.length() > 0) {
+			temp = "\n<as:DomicilioReceptor " + temp + "/>";
+			out.write(temp.getBytes("UTF-8"));
+		}
+	}
+
+	private void beginDomicilioEmisor(ByteArrayOutputStream out) throws IOException {
+		String temp = "";
+		temp+=Util.isNullEmpity(Util.isNullEmpity(conver.getTags().fis.getAddress().getStreet().toUpperCase()), "Calle");
+		temp+=Util.isNullEmpity(conver.getTags().fis.getAddress().getExternalNumber(), "NoExterior");
+		temp+=Util.isNullEmpity(conver.getTags().fis.getAddress().getInternalNumber(), "NoInterior");
+		temp+=Util.isNullEmpity(conver.getTags().fis.getAddress().getNeighborhood().toUpperCase(), "Colonia");
+		// Localidad vacio
+		temp+=Util.isNullEmpity(conver.getTags().fis.getAddress().getReference(), "Referencia");
+		temp+=Util.isNullEmpity(Util.isNullEmpity(conver.getTags().fis.getAddress().getRegion().toUpperCase()), "Municipio");
+		temp+=Util.isNullEmpity(Util.isNullEmpity(conver.getTags().fis.getAddress().getState().getName().toUpperCase()),
+				"Estado");
+		temp+=Util.isNullEmpity(conver.getTags().fis.getAddress().getState().getCountry().getName().toUpperCase(), "Pais");
+		temp+=Util.isNullEmpity(Util.isNullEmpity(conver.getTags().fis.getAddress().getZipCode()), "CodigoPostal");
+		temp+=Util.isNullEmpity(conver.getTags().fis.getAddress().getCity(), "Ciudad");
+		System.out.println("Domicilio Emisor" + temp);
+		if (temp.length() > 0) {
+			temp = "\n<as:DomicilioEmisor " + temp + "/>";
+			out.write(temp.getBytes("UTF-8"));
+		}
+	}
+	
 	/**
 	 * 
 	 * @param cont

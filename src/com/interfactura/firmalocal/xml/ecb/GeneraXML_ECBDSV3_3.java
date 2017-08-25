@@ -110,6 +110,7 @@ public class GeneraXML_ECBDSV3_3 {
 	
     private List<MovimientoECB> lstMovimientosECB = new ArrayList<MovimientoECB>();						
 	private EstadoDeCuentaBancario estadoDeCuentaBancario = new EstadoDeCuentaBancario();
+	private Node addendaDomiciliosNode = null;
 		
 	//Atributos TimbreFiscalDigital
     private String strFechaTimbrado = "";
@@ -997,8 +998,9 @@ public class GeneraXML_ECBDSV3_3 {
 				this.endIMPUESTOS();
 				//System.out.println("endMOVIMIENTOS");
 				this.endMOVIMIENTOS();
-				//System.out.println("complemento");
+				System.out.println("Case 1:Entra Addenda ");
 				this.addenda();
+				System.out.println("Case 1:Sale Addenda ");
 				
 				System.out.println("filenamesContabilizar:" + fileNames);				
 				
@@ -1293,13 +1295,21 @@ public class GeneraXML_ECBDSV3_3 {
 	 * ADDENDA SANTANDER
 	 * @throws IOException
 	 */
-	public void addenda() 
-		throws IOException 
-	{
-		if (conver.getTags().isAddenda) 
-		{	this.endADDENDA();	} 
-		else if (!conver.getTags().isAddenda) 
-		{	this.beginADDENDA();	}
+	public void addenda() throws IOException {
+		System.out.println("SMS:ADDENDA:Entra addenda");
+		if (conver.getTags().isAddenda) {
+			System.out.println("SMS:ADDENDA:Antes end addenda");
+			this.endADDENDA();
+			System.out.println("SMS:ADDENDA:Despues End addenda");
+			System.out.println("SMS:ADDENDA:Antes addenda domicilio");
+			this.addendaDomicilios();
+			System.out.println("SMS:ADDENDA:Despues addenda domicilio");
+		} else if (!conver.getTags().isAddenda) {
+			System.out.println("Antes begin addenda");
+			this.beginADDENDA();
+			System.out.println("Despues begin addenda");
+		}
+		System.out.println("Sale addenda");
 	}
 
 	/**
@@ -1313,7 +1323,7 @@ public class GeneraXML_ECBDSV3_3 {
 		{
 			out.write("\n<cfdi:Addenda>".getBytes());
 			out.write("\n<Santander:addendaECB xmlns:Santander=\"http://www.santander.com.mx/schemas/xsd/addendaECB\">".getBytes());
-			out.write(conver.complemento(linea, contCFD));			
+			out.write(conver.complemento(linea, contCFD));		
 			conver.getTags().isAddenda = true;
 		}
 	}
@@ -1338,6 +1348,7 @@ public class GeneraXML_ECBDSV3_3 {
 	public void endADDENDA() 
 		throws IOException 
 	{
+		System.out.println("SMS:ADDENDA:Entra end addenda");
 		if (conver.getTags().isAddenda) 
 		{
 			out.write("\n</Santander:EstadoDeCuentaBancario>".getBytes());
@@ -1345,6 +1356,40 @@ public class GeneraXML_ECBDSV3_3 {
 			out.write("\n</cfdi:Addenda>".getBytes());
 			conver.getTags().isAddenda = false;
 		}
+		System.out.println("SMS:ADDENDA:Sale end addenda");
+	}
+	
+	/**
+	 * Metodo para generar addenda de domicilios
+	 */
+	public void addendaDomicilios() throws IOException {
+		System.out.println("SMS:ADDENDA:Entra addenda domicilios");
+		System.out.println("SMS:ADDENDA:Antes begin addenda domicilios");
+		this.beginAddendaDomicilios();
+		System.out.println("SMS:ADDENDA:Despues begin addenda domicilios");
+		System.out.println("SMS:ADDENDA:Antes domicilio emisor");
+		out.write(conver.domicilioEmisor());		
+		System.out.println("SMS:ADDENDA:Despues domicilio emisor");
+		System.out.println("SMS:ADDENDA:Antes domicilio receptor");
+		out.write(conver.domicilioReceptor());		
+		System.out.println("SMS:ADDENDA:Despues domicilio receptor");
+		System.out.println("SMS:ADDENDA:Antes end domicilio ");
+		this.endAddendaDomicilios();
+		System.out.println("SMS:ADDENDA:Despues end domicilio ");
+		System.out.println("SMS:ADDENDA:Entra addenda domicilios");
+	}
+	private void beginAddendaDomicilios() throws IOException {
+		System.out.println("SMS:ADDENDA:Entra begin addenda domicilios");
+		out.write("\n<cfdi:Addenda>".getBytes("UTF-8"));
+		out.write(conver.getTags().addenda.getBytes("UTF-8"));
+		System.out.println("SMS:ADDENDA:Sale begin addenda domicilios");
+	}
+	
+	private void endAddendaDomicilios() throws IOException {
+		System.out.println("SMS:ADDENDA:Entra end addenda domicilios");
+		out.write("\n</as:AddendaSantanderV1>".getBytes("UTF-8"));
+		out.write("\n</cfdi:Addenda>".getBytes("UTF-8"));
+		System.out.println("SMS:ADDENDA:Sale end addenda domicilios");
 	}
 	/**
 	 * 
@@ -1527,6 +1572,36 @@ public class GeneraXML_ECBDSV3_3 {
 
 	}
 	
+	private Document removeAddendaDomicilio(Document dom) throws Exception {
+		Element root = dom.getDocumentElement();
+		int i = 0;
+		boolean fDelAddenda = false, removeNode = false;
+
+		do {
+			// Verificar si el hijo actual corresponde a una instancia de Element y se llama
+			// cfdi:Complemento
+			if (root.getChildNodes().item(i) instanceof Element
+					&& root.getChildNodes().item(i).getNodeName().equals("cfdi:Addenda")) {
+				//Recorrer los elentos de la addenda
+				for (int x = 0; x < root.getChildNodes().item(i).getChildNodes().getLength(); x++) {
+					//Verificar que la addenda tenga un elemento as:AddendaSantanderV1 para remover el nodo
+					if (root.getChildNodes().item(i).getChildNodes().item(x) instanceof Element && root.getChildNodes()
+							.item(i).getChildNodes().item(x).getNodeName().equals("as:AddendaSantanderV1")) {
+						addendaDomiciliosNode = root.getChildNodes().item(i).cloneNode(true);
+						removeNode = true;
+						break;
+					}
+				}
+				if (removeNode) {
+					root.removeChild(dom.getDocumentElement().getChildNodes().item(i));
+					fDelAddenda = true;
+				}
+			}
+			i++;
+		} while (i < root.getChildNodes().getLength() && !fDelAddenda);
+		return dom;
+	}
+
 	
 	private Document removeMovimientoECB(Document dom) throws Exception{		
 		this.fAttMovIncorrect = false;
@@ -1794,8 +1869,7 @@ public class GeneraXML_ECBDSV3_3 {
 		}
 		return strFolioSAT;
 	}
-	
-			
+
 	private Document putMovimientoECB(Element docEleComprobante, Document domResultado, EstadoDeCuentaBancario estadoDeCuentaBancariox, List<MovimientoECB> lstMovimientosECBx){
 		
 		Element rootAddenda = domResultado.createElement("cfdi:Addenda");
@@ -1929,7 +2003,11 @@ public class GeneraXML_ECBDSV3_3 {
 				}
 			}
 		}
-				
+		//Agrega la addenda domicilios
+		if(addendaDomiciliosNode != null) {
+			domResultado.appendChild(addendaDomiciliosNode);
+			addendaDomiciliosNode=null;
+		}
 		return domResultado;
 	}
 			
@@ -2047,6 +2125,7 @@ public class GeneraXML_ECBDSV3_3 {
 								
 								//Inicio - Quitar todos los movimientos no fiscales del XML almacenado en la variable out
 								//Manipular con Document el xml obtenido de la variable out					
+								dom = this.removeAddendaDomicilio(byteArrayOutputStreamToDocument(out));
 								dom = this.removeMovimientoECB(byteArrayOutputStreamToDocument(out));
 								//Fin - Quitar todos los movimientos no fiscales del XML almacenado en la variable out
 								//System.out.println("flags: fAttMovIncorrect:" + this.fAttMovIncorrect + " fnombreCliente:" + this.fnombreCliente + " fnumeroCuenta:" + this.fnumeroCuenta + " fperiodo:" + this.fperiodo + " fsucursal:" + this.fsucursal);

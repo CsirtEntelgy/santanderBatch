@@ -84,6 +84,7 @@ public class ConvertirImplV3_3
 		tags.isDescriptionTASA = false;
 		tags.isFormat = false;
 		descriptionFormat = new ArrayList<String>();
+		tags.subtotalDoubleTag =0.0D;
 	}
 
 	/**
@@ -216,6 +217,11 @@ public class ConvertirImplV3_3
 //				}
 //				System.out.println("Tipo Moneda AMDA Else: " + tags.TIPO_MONEDA);
 //				concat.append(" ElCampoMonedaNoTieneUnValorEnElCatalogo" + tags.TIPO_MONEDA + "=\"" + tags.SERIE_FISCAL_CFD + "\"");
+			}
+			
+			if(tags.TIPO_MONEDA.trim().equalsIgnoreCase("MXN")){ 
+				// Si la moneda es MXN automaticamente se debe de colocar el tipo cambio cambio es 1
+				tags.TIPO_CAMBIO = "1.00";
 			}
 			
 			String patternReg = "";
@@ -1792,17 +1798,17 @@ public class ConvertirImplV3_3
 	{
 		if (tokens.length >= 12) 
 		{
-			tags._Calle = " calle=\"" + convierte(tokens[1]) + "\" ";
-			tags._NoExterior = isNullEmpity(tokens[2], " noExterior");
-			tags._NoInterior = isNullEmpity(tokens[3], " noInterior");
-			tags._Colonia = isNullEmpity(tokens[4], " colonia");
-			tags._Localidad = isNullEmpity(tokens[5], " localidad");
-			tags._Referencia = isNullEmpity(tokens[6], " referencia");
-			tags._Municipio = isNullEmpity(tokens[7], " municipio");
-			tags._Estado = isNullEmpity(tokens[8], " estado");
-			tags._Pais = " pais=\"" + convierte(tokens[9]) + "\"";
+			tags._Calle = " Calle=\"" + convierte(tokens[1]) + "\" ";
+			tags._NoExterior = isNullEmpity(tokens[2], " NoExterior");
+			tags._NoInterior = isNullEmpity(tokens[3], " NoInterior");
+			tags._Colonia = isNullEmpity(tokens[4], " Colonia");
+			tags._Localidad = isNullEmpity(tokens[5], " Localidad");
+			tags._Referencia = isNullEmpity(tokens[6], " Referencia");
+			tags._Municipio = isNullEmpity(tokens[7], " Municipio");
+			tags._Estado = isNullEmpity(tokens[8], " Estado");
+			tags._Pais = " Pais=\"" + convierte(tokens[9]) + "\"";
 			tags._CodigoPostal = tokens.length >= 11 ? isNullEmpity(tokens[10],
-					" codigoPostal") : "";
+					" CodigoPostal") : "";
 			tags("", pila).toString();
 //			return Util
 //					.conctatArguments("\n<cfdi:Domicilio ", tags._Calle,

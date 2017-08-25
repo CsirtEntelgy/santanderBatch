@@ -1,5 +1,6 @@
 package com.interfactura.firmalocal.xml.ecb;
 
+import static com.interfactura.firmalocal.xml.util.Util.isNull;
 import static com.interfactura.firmalocal.xml.util.Util.isNullEmpity;
 import static com.interfactura.firmalocal.xml.util.Util.tags;
 
@@ -212,6 +213,8 @@ public class ConvertirV3_3
 		tags.isDescriptionTASA = false;
 		tags.isFormat = false;
 		descriptionFormat = new ArrayList<String>();
+		//Limpia variable 
+		tags.totalRetAndTraDoubl =0.0D;
 	}
 
 	//24 de Abril 2013 Verificar si una cadena es numérica
@@ -927,7 +930,7 @@ public class ConvertirV3_3
 //								"xmlns:Santander=\"http://www.santander.com.mx/addendaECB\" ",		
 								"xmlns:cfdi=\"http://www.sat.gob.mx/cfd/3\"  ",		
 								"xsi:schemaLocation=\"http://www.sat.gob.mx/cfd/3 ",
-								"http://www.sat.gob.mx/sitio_internet/cfd/3/cfdv33.xsd ",
+								"http://www.sat.gob.mx/sitio_internet/cfd/3/cfdv33.xsd\" ",
 //								"http://www.santander.com.mx/addendaECB http://www.santander.com.mx/cfdi/addendaECB.xsd\" ",
 								"Sello=\"", properties.getLabelSELLO(), "\" ",
 								"NoCertificado=\"",
@@ -2088,6 +2091,91 @@ public class ConvertirV3_3
 		else 
 		{	return formatECB(numberLine);	}
 	}
+	/*
+	 * Metodo para agregar el domicilio del receptor a la addenda
+	 */
+	public byte[] domicilioReceptor() 
+			throws UnsupportedEncodingException 
+	{
+		System.out.println("SMS:ADDENDA:Entra domicilioReceptor");
+		System.out.println("Domicilio Receptor Calle"+tags._Calle);
+		System.out.println("Domicilio Receptor #Exterior"+tags._NoExterior);
+		System.out.println("Domicilio Receptor #Interior"+tags._NoInterior);
+		System.out.println("Domicilio Receptor Colonia"+tags._Colonia);
+		System.out.println("Domicilio Receptor Localidad"+tags._Localidad);
+		System.out.println("Domicilio Receptor Referencia"+tags._Referencia);
+		System.out.println("Domicilio Receptor Municipio"+tags._Municipio);
+		System.out.println("Domicilio Receptor Estado"+tags._Estado);
+		System.out.println("Domicilio Receptor Pais"+tags._Pais);
+		System.out.println("Domicilio Receptor CP"+tags._CodigoPostal);
+		System.out.println("SMS:ADDENDA:Sale domicilioReceptor");
+			return
+					Util
+					.conctatArguments(
+							"\n<as:DomicilioReceptor ",
+								tags._Calle,
+								tags._NoExterior,
+								tags._NoInterior,
+								tags._Colonia,
+								tags._Localidad,
+								tags._Referencia,
+								tags._Municipio,
+								tags._Estado,
+								tags._Pais,
+								tags._CodigoPostal,
+								"/>"
+							).toString()
+					.getBytes("UTF-8");
+	}
+	
+	/*
+	 * Metodo para agregar el domicilio del emisor a la addenda
+	 */
+	public byte[] domicilioEmisor() throws UnsupportedEncodingException {
+		System.out.println("SMS:ADDENDA:Entra domicilioEmisor");
+		StringBuffer sb = new StringBuffer();
+		if (tags.fis.getAddress() != null) {
+			if (tags.fis.getAddress().getStreet() != null) {
+				sb.append(Util.isNullEmpity(tags.fis.getAddress().getStreet().toUpperCase(), "Calle"));
+			}
+			if (tags.fis.getAddress().getExternalNumber() != null) {
+				sb.append(Util.isNullEmpity(tags.fis.getAddress().getExternalNumber(), "NoExterior"));
+			}
+			if (tags.fis.getAddress().getInternalNumber() != null) {
+				sb.append(Util.isNullEmpity(tags.fis.getAddress().getInternalNumber(), "NoInterior"));
+			}
+			if (tags.fis.getAddress().getNeighborhood() != null) {
+				sb.append(Util.isNullEmpity(tags.fis.getAddress().getNeighborhood().toUpperCase(), "Colonia"));
+			}
+			if (tags.fis.getAddress().getReference() != null) {
+				sb.append(Util.isNullEmpity(tags.fis.getAddress().getReference(), "Referencia"));
+			}
+			if (tags.fis.getAddress().getRegion() != null) {
+				sb.append(Util.isNullEmpity(tags.fis.getAddress().getRegion().toUpperCase(), "Municipio"));
+			}
+			if (tags.fis.getAddress().getState() != null) {
+				if (tags.fis.getAddress().getState().getName() != null) {
+					sb.append(Util.isNullEmpity(tags.fis.getAddress().getState().getName().toUpperCase(), "Estado"));
+				}
+				if (tags.fis.getAddress().getState().getCountry() != null) {
+					if (tags.fis.getAddress().getState().getCountry().getName() != null) {
+						sb.append(Util.isNullEmpity(
+								tags.fis.getAddress().getState().getCountry().getName().toUpperCase(), "Pais"));
+					}
+				}
+			}
+			if (tags.fis.getAddress().getZipCode() != null) {
+				sb.append(Util.isNullEmpity(tags.fis.getAddress().getZipCode(), "CodigoPostal"));
+			}
+			if (tags.fis.getAddress().getZipCode() != null) {
+				sb.append(Util.isNullEmpity(tags.fis.getAddress().getCity(), "Ciudad"));
+			}
+
+		}
+		System.out.println("SMS:Datos Domicilio Emisor"+sb.toString());
+		System.out.println("SMS:ADDENDA:Sale domicilioEmisor");
+		return Util.conctatArguments("\n<as:DomicilioEmisor ", sb.toString(), "/>").toString().getBytes("UTF-8");
+	}
 
 	/**
 	 * 
@@ -2198,20 +2286,20 @@ public class ConvertirV3_3
 	{
 		lineas = linea.split("\\|");
 		if (lineas.length >= 11) {
-			tags._Calle = Util.isNullEmpity(lineas[1].trim(), "calle");
+			tags._Calle = Util.isNullEmpity(lineas[1].trim(), "Calle");
 			tags._NoExterior = Util
-					.isNullEmpity(lineas[2].trim(), "noExterior");
+					.isNullEmpity(lineas[2].trim(), "NoExterior");
 			tags._NoInterior = Util
-					.isNullEmpity(lineas[3].trim(), "noInterior");
-			tags._Colonia = Util.isNullEmpity(lineas[4].trim(), "colonia");
-			tags._Localidad = Util.isNullEmpity(lineas[5].trim(), "localidad");
+					.isNullEmpity(lineas[3].trim(), "NoInterior");
+			tags._Colonia = Util.isNullEmpity(lineas[4].trim(), "Colonia");
+			tags._Localidad = Util.isNullEmpity(lineas[5].trim(), "Localidad");
 			tags._Referencia = Util
-					.isNullEmpity(lineas[6].trim(), "referencia");
-			tags._Municipio = Util.isNullEmpity(lineas[7].trim(), "municipio");
-			tags._Estado = Util.isNullEmpity(lineas[8].trim(), "estado");
-			tags._Pais = " pais=\"" + lineas[9].trim() + "\" ";
+					.isNullEmpity(lineas[6].trim(), "Referencia");
+			tags._Municipio = Util.isNullEmpity(lineas[7].trim(), "Municipio");
+			tags._Estado = Util.isNullEmpity(lineas[8].trim(), "Estado");
+			tags._Pais = " Pais=\"" + lineas[9].trim() + "\" ";
 			tags._CodigoPostal = lineas.length >= 11 ? Util.isNullEmpity(
-					lineas[10].trim(), "codigoPostal") : "";
+					lineas[10].trim(), "CodigoPostal") : "";
 					tags("", pila).toString();
 //			return Util
 //					.conctatArguments("\n<cfdi:Domicilio ", tags._Calle,

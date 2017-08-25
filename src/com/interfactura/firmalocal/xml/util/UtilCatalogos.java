@@ -1523,6 +1523,8 @@ public class UtilCatalogos
 	        BigDecimal traslados = conceptTotal.add(traslTotal);
 	        sb = new StringBuilder("(//Comprobante/Conceptos/Concepto/Impuestos/Retenciones/Retencion/@Importe)");
 	        BigDecimal retenciones = getBigDecimalByNodeExpression(doc, sb.toString());
+	        BigDecimal discount = getBigDecimalByNodeExpression(doc, "//Comprobante/@Descuento");
+	        retenciones = retenciones.add(discount);	        
 	        
 	        BigDecimal totalOper = retenciones.equals(BigDecimal.valueOf(0)) ? traslados : traslados.add(retenciones.multiply(BigDecimal.valueOf(-1)));
 	        if (compTotal.doubleValue() == totalOper.doubleValue()) {
@@ -1539,7 +1541,6 @@ public class UtilCatalogos
 
 	        logger.info("Validando descuentos");
 	        /*Asignacion y validacion de Descuento*/
-	        BigDecimal discount = getBigDecimalByNodeExpression(doc, "//Comprobante/@Descuento");
 	        String voucherType = getStringValByExpression(doc, "//Comprobante/@TipoDeComprobante");
 	        System.out.println("discount:" + discount);
 	        boolean validateDiscount = false;
