@@ -901,7 +901,7 @@ public class GeneraXML_CFDV3_3
 				+ "|" + "" + "|"
 				+ cfdBean.getCertificateNumber() + "|" 
 				+ cfdBean.getUnidadMedida() + "|" + cfdBean.getLugarExpedicion() + "|"  
-				+ cfdBean.getMetodoPago() + "|" + cfdBean.getRegimenFiscal() + "|" + cfdBean.getMoneda() + "|" 
+				+ cfdBean.getFormaPago() + "|" + cfdBean.getRegimenFiscal() + "|" + cfdBean.getMoneda() + "|" 
 				+ cfdBean.getTipoCambio() + "|" + "\r\n";
 		salida.write(tempLinea.getBytes("UTF-8"));
 		tempLinea = null;
