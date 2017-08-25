@@ -231,7 +231,6 @@ public class XMLProcess
 			} catch (Exception ex) {
 				logger.error(ex);
 			}
-			firma.initSign(pk);
 			firma.update(cadena.toByteArray());
 			
 			long t2 = t1- System.currentTimeMillis();
