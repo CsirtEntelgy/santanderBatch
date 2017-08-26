@@ -1429,7 +1429,7 @@ public class GeneraXML_CFDV3_3
 					replaceOS = xmlProcess.replacesOriginalString(cfdBean.getBaosXml(),
 									cfdBean.getSealCertificate(), seal, conver.getTags().LUGAR_EXPEDICION,
 									conver.getTags().METODO_PAGO, conver.getTags().FORMA_PAGO, false);
-					
+					cfdBean.setFormaPago(conver.getTags().FORMA_PAGO);
 					String emisor = cfdBean.getBroadcastRFC();
 					//int newFolio = cfdBean.getFolioRange().getActualFolio().intValue();
 					long newFolio = open.getSequence_value();
@@ -1565,10 +1565,10 @@ public class GeneraXML_CFDV3_3
 					            					if(nodo3 instanceof Element && nodo3.getNodeName().equals("tfd:TimbreFiscalDigital")){			            						
 					            						strFechaTimbrado = nodo3.getAttributes().getNamedItem("FechaTimbrado").getTextContent();
 					            						strUUID = nodo3.getAttributes().getNamedItem("UUID").getTextContent();
-					            						strNoCertificadoSAT = nodo3.getAttributes().getNamedItem("noCertificadoSAT").getTextContent();
-					            						strSelloCFD = nodo3.getAttributes().getNamedItem("selloCFD").getTextContent();
-					            						strSelloSAT = nodo3.getAttributes().getNamedItem("selloSAT").getTextContent();
-					            						strVersion = nodo3.getAttributes().getNamedItem("version").getTextContent();
+					            						strNoCertificadoSAT = nodo3.getAttributes().getNamedItem("NoCertificadoSAT").getTextContent();
+					            						strSelloCFD = nodo3.getAttributes().getNamedItem("SelloCFD").getTextContent();
+					            						strSelloSAT = nodo3.getAttributes().getNamedItem("SelloSAT").getTextContent();
+					            						strVersion = nodo3.getAttributes().getNamedItem("Version").getTextContent();
 					            					}
 					            				}
 					            			}
