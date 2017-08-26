@@ -24,8 +24,11 @@ import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
@@ -47,6 +50,7 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 import com.interfactura.firmalocal.domain.entities.CFDIssued;
 import com.interfactura.firmalocal.domain.entities.CFDIssuedIn;
@@ -110,7 +114,7 @@ public class GeneraXML_ECBDSV3_3 {
 	
     private List<MovimientoECB> lstMovimientosECB = new ArrayList<MovimientoECB>();						
 	private EstadoDeCuentaBancario estadoDeCuentaBancario = new EstadoDeCuentaBancario();
-	private Node addendaDomiciliosNode = null;
+	private String addendaDomiciliosNodeStr = null;
 		
 	//Atributos TimbreFiscalDigital
     private String strFechaTimbrado = "";
@@ -1104,7 +1108,9 @@ public class GeneraXML_ECBDSV3_3 {
 //			System.out.println("Out: Case 10-4 " + out);
 			this.endMOVIMIENTOS();
 //			System.out.println("Out: Case 10-5 " + out);
+			System.out.println("Case 10:Entra Addenda ");
 			this.addenda();
+			System.out.println("Case 10:Entra Addenda ");
 //			System.out.println("Out: Case 10-6 " + out);
 			break;
 		case 11:
@@ -1301,9 +1307,6 @@ public class GeneraXML_ECBDSV3_3 {
 			System.out.println("SMS:ADDENDA:Antes end addenda");
 			this.endADDENDA();
 			System.out.println("SMS:ADDENDA:Despues End addenda");
-			System.out.println("SMS:ADDENDA:Antes addenda domicilio");
-			this.addendaDomicilios();
-			System.out.println("SMS:ADDENDA:Despues addenda domicilio");
 		} else if (!conver.getTags().isAddenda) {
 			System.out.println("Antes begin addenda");
 			this.beginADDENDA();
@@ -1355,6 +1358,9 @@ public class GeneraXML_ECBDSV3_3 {
 			out.write("\n</Santander:addendaECB>".getBytes());
 			out.write("\n</cfdi:Addenda>".getBytes());
 			conver.getTags().isAddenda = false;
+			System.out.println("SMS:ADDENDA:Antes addenda domicilio");
+			this.addendaDomicilios();
+			System.out.println("SMS:ADDENDA:Despues addenda domicilio");
 		}
 		System.out.println("SMS:ADDENDA:Sale end addenda");
 	}
@@ -1571,37 +1577,6 @@ public class GeneraXML_ECBDSV3_3 {
 	private void validateNodes() throws Exception {
 
 	}
-	
-	private Document removeAddendaDomicilio(Document dom) throws Exception {
-		Element root = dom.getDocumentElement();
-		int i = 0;
-		boolean fDelAddenda = false, removeNode = false;
-
-		do {
-			// Verificar si el hijo actual corresponde a una instancia de Element y se llama
-			// cfdi:Complemento
-			if (root.getChildNodes().item(i) instanceof Element
-					&& root.getChildNodes().item(i).getNodeName().equals("cfdi:Addenda")) {
-				//Recorrer los elentos de la addenda
-				for (int x = 0; x < root.getChildNodes().item(i).getChildNodes().getLength(); x++) {
-					//Verificar que la addenda tenga un elemento as:AddendaSantanderV1 para remover el nodo
-					if (root.getChildNodes().item(i).getChildNodes().item(x) instanceof Element && root.getChildNodes()
-							.item(i).getChildNodes().item(x).getNodeName().equals("as:AddendaSantanderV1")) {
-						addendaDomiciliosNode = root.getChildNodes().item(i).cloneNode(true);
-						removeNode = true;
-						break;
-					}
-				}
-				if (removeNode) {
-					root.removeChild(dom.getDocumentElement().getChildNodes().item(i));
-					fDelAddenda = true;
-				}
-			}
-			i++;
-		} while (i < root.getChildNodes().getLength() && !fDelAddenda);
-		return dom;
-	}
-
 	
 	private Document removeMovimientoECB(Document dom) throws Exception{		
 		this.fAttMovIncorrect = false;
@@ -1821,6 +1796,19 @@ public class GeneraXML_ECBDSV3_3 {
 									}
 								}
 							}
+						}else if (root.getChildNodes().item(i).getChildNodes().item(x) instanceof Element && root.getChildNodes()
+								.item(i).getChildNodes().item(x).getNodeName().equals("as:AddendaSantanderV1")) {
+							System.out.println("Elimina addenda domicilios");
+							String domStr="";
+							domStr=UtilCatalogos.convertDocumentXmlToString(dom);
+							if (domStr.indexOf("<cfdi:Addenda><as:AddendaSantanderV1") != -1){
+								int iStart = domStr.indexOf("<cfdi:Addenda><as:AddendaSantanderV1");
+								int iEnd = domStr.indexOf("</as:AddendaSantanderV1></cfdi:Addenda>");
+								iEnd = iEnd + 39;
+								addendaDomiciliosNodeStr = domStr.substring(iStart, iEnd);
+								System.out.println("SMS:Addenda:Corte:: " + addendaDomiciliosNodeStr);
+							}
+							root.removeChild(root.getChildNodes().item(i));
 						}
 					}
 			}
@@ -1871,6 +1859,7 @@ public class GeneraXML_ECBDSV3_3 {
 	}
 
 	private Document putMovimientoECB(Element docEleComprobante, Document domResultado, EstadoDeCuentaBancario estadoDeCuentaBancariox, List<MovimientoECB> lstMovimientosECBx){
+		
 		
 		Element rootAddenda = domResultado.createElement("cfdi:Addenda");
 		//rootAddenda.setAttribute("xmlns:Santander", "http://www.santander.com.mx/schemas/xsd/addendaECB");
@@ -2003,10 +1992,33 @@ public class GeneraXML_ECBDSV3_3 {
 				}
 			}
 		}
-		//Agrega la addenda domicilios
-		if(addendaDomiciliosNode != null) {
-			domResultado.appendChild(addendaDomiciliosNode);
-			addendaDomiciliosNode=null;
+		// Agrega la addenda domicilios
+		if (this.addendaDomiciliosNodeStr != null && !this.addendaDomiciliosNodeStr.trim().isEmpty() ) {
+			String xmlString2 = "", xmlFinal = "";
+			try {
+				xmlString2 = UtilCatalogos.convertDocumentXmlToString(domResultado);
+			} catch (TransformerConfigurationException e) {
+				e.printStackTrace();
+			} catch (TransformerException e) {
+				e.printStackTrace();
+			}
+			System.out.println("SMS-Antes agregar addenda domicilio::" + xmlString2);
+			String strAddendaComp = "";
+			strAddendaComp = this.addendaDomiciliosNodeStr + "</cfdi:Comprobante>";
+			String strXmlString = "";
+			strXmlString = xmlString2.replace("</cfdi:Comprobante>", strAddendaComp);
+			xmlFinal = strXmlString.replaceAll("[\n\r]", "");
+			System.out.println("SMS-Despues agregar addenda domicilio::" + xmlString2);
+			try {
+				domResultado = UtilCatalogos.convertStringToDocument(xmlFinal);
+			} catch (ParserConfigurationException e) {
+				e.printStackTrace();
+			} catch (SAXException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			this.addendaDomiciliosNodeStr = null;
 		}
 		return domResultado;
 	}
@@ -2125,7 +2137,7 @@ public class GeneraXML_ECBDSV3_3 {
 								
 								//Inicio - Quitar todos los movimientos no fiscales del XML almacenado en la variable out
 								//Manipular con Document el xml obtenido de la variable out					
-								dom = this.removeAddendaDomicilio(byteArrayOutputStreamToDocument(out));
+//								dom = this.removeAddendaDomicilio(byteArrayOutputStreamToDocument(out));
 								dom = this.removeMovimientoECB(byteArrayOutputStreamToDocument(out));
 								//Fin - Quitar todos los movimientos no fiscales del XML almacenado en la variable out
 								//System.out.println("flags: fAttMovIncorrect:" + this.fAttMovIncorrect + " fnombreCliente:" + this.fnombreCliente + " fnumeroCuenta:" + this.fnumeroCuenta + " fperiodo:" + this.fperiodo + " fsucursal:" + this.fsucursal);
