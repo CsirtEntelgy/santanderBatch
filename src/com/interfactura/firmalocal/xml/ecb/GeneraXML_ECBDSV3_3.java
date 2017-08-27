@@ -1824,10 +1824,10 @@ public class GeneraXML_ECBDSV3_3 {
 					if(nodo2 instanceof Element && nodo2.getNodeName().equals("tfd:TimbreFiscalDigital")){	
 						strFechaTimbrado = nodo2.getAttributes().getNamedItem("FechaTimbrado").getTextContent().trim();
 						strUUID = nodo2.getAttributes().getNamedItem("UUID").getTextContent().trim();
-						strNoCertificadoSAT = nodo2.getAttributes().getNamedItem("noCertificadoSAT").getTextContent().trim();
-						strSelloCFD = nodo2.getAttributes().getNamedItem("selloCFD").getTextContent().trim();
-						strSelloSAT = nodo2.getAttributes().getNamedItem("selloSAT").getTextContent().trim();
-						strVersion = nodo2.getAttributes().getNamedItem("version").getTextContent().trim(); // Antes version, Version 3.3 AMDA
+						strNoCertificadoSAT = nodo2.getAttributes().getNamedItem("NoCertificadoSAT").getTextContent().trim();
+						strSelloCFD = nodo2.getAttributes().getNamedItem("SelloCFD").getTextContent().trim();
+						strSelloSAT = nodo2.getAttributes().getNamedItem("SelloSAT").getTextContent().trim();
+						strVersion = nodo2.getAttributes().getNamedItem("Version").getTextContent().trim(); // Antes version, Version 3.3 AMDA
 					}
 				}				
 			}else if(nodo instanceof Element && nodo.getNodeName().equals("cfdi:Addenda")){
