@@ -20,7 +20,10 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
+import java.util.Stack;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -114,7 +117,7 @@ public class GeneraXML_ECBDSV3_3 {
 	
     private List<MovimientoECB> lstMovimientosECB = new ArrayList<MovimientoECB>();						
 	private EstadoDeCuentaBancario estadoDeCuentaBancario = new EstadoDeCuentaBancario();
-	private String addendaDomiciliosNodeStr = null;
+	private Queue<String> addendaDomiciliosNodeStr = new LinkedList<String>();
 		
 	//Atributos TimbreFiscalDigital
     private String strFechaTimbrado = "";
@@ -1801,11 +1804,11 @@ public class GeneraXML_ECBDSV3_3 {
 							System.out.println("Elimina addenda domicilios");
 							String domStr="";
 							domStr=UtilCatalogos.convertDocumentXmlToString(dom);
-							if (domStr.indexOf("<cfdi:Addenda><as:AddendaSantanderV1") != -1){
-								int iStart = domStr.indexOf("<cfdi:Addenda><as:AddendaSantanderV1");
-								int iEnd = domStr.indexOf("</as:AddendaSantanderV1></cfdi:Addenda>");
-								iEnd = iEnd + 39;
-								addendaDomiciliosNodeStr = domStr.substring(iStart, iEnd);
+							if (domStr.indexOf("<as:AddendaSantanderV1") != -1){
+								int iStart = domStr.indexOf("<as:AddendaSantanderV1");
+								int iEnd = domStr.indexOf("</as:AddendaSantanderV1>");
+								iEnd = iEnd + 24;
+								addendaDomiciliosNodeStr.add(domStr.substring(iStart, iEnd));
 								System.out.println("SMS:Addenda:Corte:: " + addendaDomiciliosNodeStr);
 							}
 							root.removeChild(root.getChildNodes().item(i));
@@ -1993,7 +1996,7 @@ public class GeneraXML_ECBDSV3_3 {
 			}
 		}
 		// Agrega la addenda domicilios
-		if (this.addendaDomiciliosNodeStr != null && !this.addendaDomiciliosNodeStr.trim().isEmpty() ) {
+		if (addendaDomiciliosNodeStr.peek() != null && !addendaDomiciliosNodeStr.peek().trim().isEmpty() ) {
 			String xmlString2 = "", xmlFinal = "";
 			try {
 				xmlString2 = UtilCatalogos.convertDocumentXmlToString(domResultado);
@@ -2004,7 +2007,7 @@ public class GeneraXML_ECBDSV3_3 {
 			}
 			System.out.println("SMS-Antes agregar addenda domicilio::" + xmlString2);
 			String strAddendaComp = "";
-			strAddendaComp = this.addendaDomiciliosNodeStr + "</cfdi:Comprobante>";
+			strAddendaComp = "<cfdi:Addenda>"+addendaDomiciliosNodeStr.poll() + "</cfdi:Addenda></cfdi:Comprobante>";
 			String strXmlString = "";
 			strXmlString = xmlString2.replace("</cfdi:Comprobante>", strAddendaComp);
 			xmlFinal = strXmlString.replaceAll("[\n\r]", "");
@@ -2018,7 +2021,6 @@ public class GeneraXML_ECBDSV3_3 {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			this.addendaDomiciliosNodeStr = null;
 		}
 		return domResultado;
 	}

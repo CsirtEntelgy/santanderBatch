@@ -132,7 +132,7 @@ public class UtilCatalogos
         errorMessage.put("ErrImpTotImpRet001", "Clave=\"CFDI33180\" Nodo=\"Impuestos\" Mensaje=\"El Valor Del Campo TotalImpuestosRetenidos Debe Tener Hasta La Cantidad De Decimales Que Soporte La Moneda\"");
         errorMessage.put("ErrImpTotImpTra002", "Clave=\"CFDI33182\" Nodo=\"Impuestos\" Mensaje=\"El Valor Del Campo TotalImpuestosTrasladados Debe Tener Hasta La Cantidad De Decimales Que Soporte La Moneda\"");
         errorMessage.put("ErrImpTotImpTra001", "Clave=\"CFDI33190\" Nodo=\"Impuestos\" Mensaje=\"Debe Existir El Campo TotalImpuestosTraslados\"");
-        errorMessage.put("ErrCompSubTot004", "Clave=\"CFDI33107\" Nodo=\"Comprobante\" Mensaje=\"El TipoDeComprobante es I,E o N, el importe registrado en el campo no es igual a la suma de los importes de los conceptos registrados\"");
+        errorMessage.put("ErrCompSubTot004", "Clave=\"CFDI33107\" Nodo=\"Comprobante\" Mensaje=\"El TipoDeComprobante es I,E o N, el importe registrado en el campo  subtotal no es igual a la suma de los importes de los conceptos registrados\"");
         errorMessage.put("ErrEmiRegFis001", "Clave=\"CFDI33130\" Nodo=\"Emisor\" Mensaje=\"El campo RegimenFiscal, no contiene un valor del catálogo c_RegimenFiscal.\"");
         errorMessage.put("ErrConClavPro001", "Clave=\"CFDI33142\" Nodo=\"Emisor\" Mensaje=\"El campo ClaveProdServ, no contiene un valor del catálogo c_ClaveProdServ.\"");
         errorMessage.put("ErrConTraBas001", "Clave=\"CFDI33154\" Nodo=\"Traslado\" Mensaje=\"El Valor Del Campo Base Que Corresponde A Traslado Debe Ser Mayor Que Cero\"");
