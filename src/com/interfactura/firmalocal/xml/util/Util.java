@@ -156,7 +156,7 @@ public class Util
 	{
 		if (isNullEmpty(obj)) 
 		{	return "";	}
-		return Util.convierte(nameAttr.concat("=\"").concat(obj.trim()).concat("\" "));
+		return Util.convierte(nameAttr.concat("=\"").concat(obj.trim().toUpperCase()).concat("\" "));
 	}
 
 	/**
