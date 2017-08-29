@@ -725,7 +725,7 @@ public class ConvertirImplV3_3
 				valNombre = valNombre.replaceAll("\\)", "");
 				valNombre = valNombre.replace("/", "");
 //				System.out.println("Emisro Reg: "+valNombre );
-				return " Nombre=\"" +valNombre + "\"";
+				return " Nombre=\"" +valNombre.toUpperCase() + "\"";
 			}else{
 				return " Nombre=\"" +"" + "\"";
 			}
@@ -758,7 +758,7 @@ public class ConvertirImplV3_3
 					valNombre = valNombre.replaceAll("\\(", "");
 					valNombre = valNombre.replaceAll("\\)", "");
 					valNombre = valNombre.replace("/", "");
-					nombreReceptor = " Nombre=\"" + Util.convierte(valNombre) + "\"";
+					nombreReceptor = " Nombre=\"" + Util.convierte(valNombre).toUpperCase() + "\"";
 				}				
 			}
 			
@@ -1272,7 +1272,7 @@ public class ConvertirImplV3_3
 					  "\" Cantidad=\"" + "1" +
 					  "\" ClaveUnidad=\"" + claveUnidad + //Pendiente el valor de ClaveUnidad
 					  "\" Unidad=\"" + tags.UNIDAD_MEDIDA.trim() + 
-					  "\" Descripcion=\"" + valDescConcep +//Util.convierte(convierte(tokens[4])).trim() + 
+					  "\" Descripcion=\"" + valDescConcep.toUpperCase() +//Util.convierte(convierte(tokens[4])).trim() + 
 					  nodoValorUnitarioStr + 
 					  lineImporte + "\" " + " >"+
 					  elementImpuestos +
@@ -1806,7 +1806,7 @@ public class ConvertirImplV3_3
 			tags._Referencia = isNullEmpity(tokens[6], " Referencia");
 			tags._Municipio = isNullEmpity(tokens[7], " Municipio");
 			tags._Estado = isNullEmpity(tokens[8], " Estado");
-			tags._Pais = " Pais=\"" + convierte(tokens[9]) + "\"";
+			tags._Pais = " Pais=\"" + convierte(tokens[9]).toUpperCase() + "\"";
 			tags._CodigoPostal = tokens.length >= 11 ? isNullEmpity(tokens[10],
 					" CodigoPostal") : "";
 			tags("", pila).toString();
