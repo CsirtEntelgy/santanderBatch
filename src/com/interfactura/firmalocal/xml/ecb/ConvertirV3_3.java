@@ -879,7 +879,7 @@ public class ConvertirV3_3
 								+ formaPagoVal + "\" "); // Antes PAGO EN UNA SOLA EXHIBICION AMDA V 3.3
 					}
 					
-					metodoPagoVal = UtilCatalogos.findMetodoPago(tags.mapCatalogos, "Pago en una sola excibicion");
+					metodoPagoVal = UtilCatalogos.findMetodoPago(tags.mapCatalogos, "PUE");
 					System.out.println("Metodo Pago consulta Catalogos: " + metodoPagoVal);
 					if(!metodoPagoVal.equalsIgnoreCase("vacio")){
 						concat.append(" MetodoPago=\""
@@ -964,7 +964,7 @@ public class ConvertirV3_3
 		System.out.println("Entrando a Emisor: ");
 		if (lineas.length >= 2) 
 		{
-			tags.EMISION_RFC = lineas[1].trim();
+			tags.EMISION_RFC = lineas[1].trim().toUpperCase();
 			if(tags.EMISION_RFC.trim().length() == 0){ // Validacion AMDA Version 3.3
 				tags.EMISION_RFC = "RFCNecesario";
 			}

@@ -433,7 +433,7 @@ public class ConvertirImplV3_3
 							+ formaPagoVal + "\" "); // Antes PAGO EN UNA SOLA EXHIBICION AMDA V 3.3
 				}
 				
-				metodoPagoVal = UtilCatalogos.findMetodoPago(tags.mapCatalogos, "Pago en una sola excibicion");
+				metodoPagoVal = UtilCatalogos.findMetodoPago(tags.mapCatalogos, "PUE");
 //				System.out.println("Metodo Pago consulta Catalogos: " + metodoPagoVal);
 				if(!metodoPagoVal.equalsIgnoreCase("vacio")){
 					concat.append(" MetodoPago=\""
@@ -679,7 +679,7 @@ public class ConvertirImplV3_3
 	{
 		if (tokens.length >= 3) 
 		{
-			tags.EMISION_RFC = tokens[1].trim();
+			tags.EMISION_RFC = tokens[1].trim().toUpperCase();
 			logger.debug("RFC EMISOR: " + tags.EMISION_RFC);
 			tags.fis = null;
 			tags.fis = lstFiscal.get(tags.EMISION_RFC);
@@ -689,7 +689,7 @@ public class ConvertirImplV3_3
 			}else{
 				tags.LUGAR_EXPEDICION = null;
 				tags.FORMA_PAGO = null;
-			}			
+			}
 			
 //			return Util
 //					.conctatArguments(tags("Emisor", pila), "\n<cfdi:Emisor RFC=\"",
@@ -720,7 +720,7 @@ public class ConvertirImplV3_3
 		{
 			tags.isEntidadFiscal = true;
 			if(tags.fis.getFiscalName() != null){
-				String valNombre = tags.fis.getFiscalName().replaceAll("\\.", "");
+				String valNombre = tags.fis.getFiscalName().toUpperCase().replaceAll("\\.", "");
 				valNombre = valNombre.replaceAll("\\(", "");
 				valNombre = valNombre.replaceAll("\\)", "");
 				valNombre = valNombre.replace("/", "");
@@ -754,7 +754,7 @@ public class ConvertirImplV3_3
 			
 			if(tokens.length > 2){
 				if(!tokens[2].trim().equals("")){
-					String valNombre = tokens[2].trim().replaceAll("\\.", "");
+					String valNombre = tokens[2].trim().toUpperCase().replaceAll("\\.", "");
 					valNombre = valNombre.replaceAll("\\(", "");
 					valNombre = valNombre.replaceAll("\\)", "");
 					valNombre = valNombre.replace("/", "");
