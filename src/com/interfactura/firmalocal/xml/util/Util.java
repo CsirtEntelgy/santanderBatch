@@ -1081,7 +1081,10 @@ public class Util
 //			                    	System.out.println("val2 : "+ valDom.getVal2() );
 			                        break;
 			                    case Cell.CELL_TYPE_STRING:
-			                    	valDom.setVal2(cell.getStringCellValue());
+			                    	valDom.setVal2(cell.getRichStringCellValue().getString());
+			                        System.out.println("Normal val2 : "+ cell.getStringCellValue());
+			                        System.out.println("UTF-8 val2 : "+ cell.getRichStringCellValue().getString());
+			                        System.out.println("---------------");
 //			                        System.out.println("val2 : "+ valDom.getVal2() );
 			                        break;
 			                    }
