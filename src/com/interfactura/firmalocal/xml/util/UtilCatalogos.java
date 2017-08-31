@@ -1209,7 +1209,7 @@ public class UtilCatalogos
 			if(importeval.contains(".")){
 				//Redondear hacia arriba
 				DecimalFormat df = new DecimalFormat("#.##");
-				df.setRoundingMode(RoundingMode.CEILING);
+				df.setRoundingMode(RoundingMode.HALF_EVEN);
 				Double dImporteValue = new Double(importeval);
 			    importeval = df.format(dImporteValue);
 			    
