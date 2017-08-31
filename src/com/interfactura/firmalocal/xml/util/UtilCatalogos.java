@@ -8,6 +8,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.text.MessageFormat;
 import java.text.Normalizer;
 import java.util.ArrayList;
@@ -1206,6 +1207,12 @@ public class UtilCatalogos
 			String importeValIzq = "";
 //			System.out.println("Entrando funcion Decimales: " + importeval + " : " + decimalesMoneda);
 			if(importeval.contains(".")){
+				//Redondear hacia arriba
+				DecimalFormat df = new DecimalFormat("#.##");
+				df.setRoundingMode(RoundingMode.CEILING);
+				Double dImporteValue = new Double(importeval);
+			    importeval = df.format(dImporteValue);
+			    
 				String deci[] = importeval.split("\\.");
 				importeValIzq = deci[0];
 				importeValDer = deci[1];
