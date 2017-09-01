@@ -1208,10 +1208,10 @@ public class UtilCatalogos
 //			System.out.println("Entrando funcion Decimales: " + importeval + " : " + decimalesMoneda);
 			if(importeval.contains(".")){
 				//Redondear hacia arriba
-				DecimalFormat df = new DecimalFormat("#.##");
-				df.setRoundingMode(RoundingMode.HALF_EVEN);
-				Double dImporteValue = new Double(importeval);
-			    importeval = df.format(dImporteValue);
+//				DecimalFormat df = new DecimalFormat("#.##");
+//				df.setRoundingMode(RoundingMode.HALF_EVEN);
+//				Double dImporteValue = new Double(importeval);
+//			    importeval = df.format(dImporteValue);
 			    
 				String deci[] = importeval.split("\\.");
 				importeValIzq = deci[0];
