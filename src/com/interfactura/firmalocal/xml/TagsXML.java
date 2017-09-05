@@ -2,6 +2,7 @@ package com.interfactura.firmalocal.xml;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -125,6 +126,8 @@ public class TagsXML {
 	public boolean isFolioRange;
 	public boolean isFormat;
 	public boolean isAddenda;
+	public String claveTipoRelacion;
+	public List<String> uuidsTipoRelacion = new ArrayList<String>();
 	
 	public String _CONTROLCFD="CONTROLCFD";
 	public String _CFD="CFD";
@@ -140,6 +143,7 @@ public class TagsXML {
 	public String _RETENCION="RETENCION";
 	public String _TRASLADO="TRASLADO";
 	public String _FACTORAJE="FACTORAJE";
+	public String _CFDIREL="CFDIREL";
 	@Autowired
 	public CFDIssuedManager cFDIssuedManager;
 	@Autowired
@@ -203,6 +207,6 @@ public class TagsXML {
 	public Double subtotalDoubleTag = 0.00;
 	public Double totalRetAndTraDoubl = 0.00;
 	public Double sumTotalImpuestosTrasDou = 0.00;
-	
+	public boolean isECBEnCeros = false;
 	
 }

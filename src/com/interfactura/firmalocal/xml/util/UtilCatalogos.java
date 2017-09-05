@@ -141,6 +141,8 @@ public class UtilCatalogos
         errorMessage.put("ErrConRetImp001", "Clave=\"CFDI33164\" Nodo=\"Retencion\" Mensaje=\"El Valor Del Campo Impuesto Que Corresponde A Retencion No Contiene Un Valor Del Catalogo c_Impuesto\"");
         errorMessage.put("ErrConRetBas001", "Clave=\"CFDI33163\" Nodo=\"Retencion\" Mensaje=\"El Valor Del Campo Base Que Corresponde A Traslado Debe Ser Mayor Que Cero\"");
         errorMessage.put("ErrConRetBas002", "Clave=\"CFDI33162\" Nodo=\"Retencion\" Mensaje=\"El Valor Del Campo Base Que Corresponde A Traslado Debetener Hasta La Cantidad De Decimales Que Sporte La Moneda\"");
+        errorMessage.put("ErrCFDIRel001", "Clave=\"CFDI33168\" Nodo=\"CfdiRelacionados\" Mensaje=\"El Valor Del Campo Tipo Relación, no se encuentra en el catálogo c_TipoRelacion\"");
+        errorMessage.put("ErrCFDIRel002", "Clave=\"CFDI33169\" Nodo=\"CfdiRelacionado\" Mensaje=\"El Valor Del Campo UUID, no concuerda con el patrón\"");
 	}
 	// Validacion Tipo de comprobante AMDA
 		public static String findTipoComprobante(Map<String, ArrayList<CatalogosDom>> mapCatalogos, String value){
@@ -1350,6 +1352,26 @@ public class UtilCatalogos
 				}
 			}else{
 				response = "vacio";
+			}
+			
+			return response;
+		}
+		
+		//Valida que exista un Tipo Relacion a partir de la clave proporcionada
+		public static boolean existClaveInTipoRelacion(Map<String, ArrayList<CatalogosDom>> mapCatalogos, String value){
+			boolean response = false;
+			
+			if(mapCatalogos.size() > 0 && value.trim() != ""){
+				for(int i=0; i<mapCatalogos.get("TipoRelacion").size(); i++){
+					if(mapCatalogos.get("TipoRelacion").get(i).getVal1().equalsIgnoreCase(value)){
+						response= true;
+						break;
+					}else{
+						response = false;
+					}
+				}
+			}else{
+				response = false;
 			}
 			
 			return response;

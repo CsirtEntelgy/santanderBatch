@@ -5,8 +5,10 @@ import static com.interfactura.firmalocal.xml.util.Util.isNullEmpity;
 import static com.interfactura.firmalocal.xml.util.Util.isNullEmpty;
 import static com.interfactura.firmalocal.xml.util.Util.tags;
 
+import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
+import java.text.MessageFormat;
 import java.text.Normalizer;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -2072,6 +2074,63 @@ public class ConvertirImplV3_3
 		}// Validando split Termina
 		
 	}
+	
+	
+	public void getInfoCfdiRelacionado(String linea) throws UnsupportedEncodingException {
+		String[] lineas = linea.split("\\|");
+		if (lineas.length >= 3) {
+			tags.claveTipoRelacion = lineas[1];
+				for (int i = 2; i < lineas.length - 1; i++) {
+					String currUUID = lineas[i];
+					tags.uuidsTipoRelacion.add(currUUID);
+				}
+		} 
+	}
+
+	public ByteArrayOutputStream cfdiRelacionado(ByteArrayOutputStream out) throws UnsupportedEncodingException {
+		StringBuffer result = new StringBuffer();
+		String regExUUID = "[a-f0-9A-F]{8}-[a-f0-9A-F]{4}-[a-f0-9A-F]{4}-[a-f0-9A-F]{4}-[a-f0-9A-F]{12}";
+		if ((tags.claveTipoRelacion == null || tags.claveTipoRelacion.isEmpty())&& tags.tipoComprobante.equalsIgnoreCase("E") && true) {
+			tags.claveTipoRelacion="01";
+			tags.uuidsTipoRelacion.add("00000000-0000-0000-0000-000000000000");
+		}
+		
+		if (tags.claveTipoRelacion != null && !tags.claveTipoRelacion.isEmpty()) {
+			String claveTipoRelacion = tags.claveTipoRelacion;
+			boolean existeTipoRelacion = UtilCatalogos.existClaveInTipoRelacion(tags.mapCatalogos, claveTipoRelacion);
+			if (existeTipoRelacion) {
+				result.append("<cfdi:CfdiRelacionados TipoRelacion=\"" + claveTipoRelacion + "\">");
+				for (String currUUID : tags.uuidsTipoRelacion) {
+					if (!currUUID.isEmpty() && currUUID.matches(regExUUID)) {
+						result.append("<cfdi:CfdiRelacionado UUID=\"" + currUUID + "\"/>");
+					} else {
+						result.append("<cfdi:CfdiRelacionado ErrCFDIRel002=\"" + MessageFormat
+								.format(UtilCatalogos.errorMessage.get("ErrCFDIRel002"), currUUID, regExUUID) + "\"/>");
+					}
+				}
+			} else {
+
+				result.append("<cfdi:CfdiRelacionados "
+						+ MessageFormat.format(UtilCatalogos.errorMessage.get("ErrCFDIRel001"), claveTipoRelacion)
+						+ "\">");
+			}
+			result.append("</cfdi:CfdiRelacionados>");
+			tags.claveTipoRelacion = "";
+			tags.uuidsTipoRelacion.clear();
+		} else {
+			tags.claveTipoRelacion = "";
+			tags.uuidsTipoRelacion.clear();
+			result.append("");
+		}
+		String xml = out.toString("UTF-8");
+		 if(xml.indexOf("<cfdi:Emisor") != -1){
+			 String strCfdiRelacion = "";
+			 strCfdiRelacion = result.toString() + "<cfdi:Emisor";
+			 xml = xml.replace("<cfdi:Emisor", strCfdiRelacion);									 
+		 }
+		 return UtilCatalogos.convertStringToOutpuStream(xml);
+	}
+
 
 	public TagsXML getTags() 
 	{	return tags;	}

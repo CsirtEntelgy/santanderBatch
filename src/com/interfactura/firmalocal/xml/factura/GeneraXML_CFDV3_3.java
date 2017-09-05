@@ -414,6 +414,8 @@ public class GeneraXML_CFDV3_3
 				}
 			} else if (tokens[0].equals(conver.getTags()._FACTORAJE)) {
 				this.lstFactoraje.add(conver.factoraje(tokens, numberLineCFD));
+			} else if(tokens[0].equals(conver.getTags()._CFDIREL)) {
+				conver.getInfoCfdiRelacionado(linea);
 			}
 			
 			conver.getTags().lineaAnteriorTokens = tokens;
@@ -727,6 +729,8 @@ public class GeneraXML_CFDV3_3
 	{
 		beginAddenda(out);
 		endAddenda(out);
+		//No aplica para factoraje CDRI Relacionado
+//		out=conver.cfdiRelacionado(out);
 		out.write("\n</cfdi:Comprobante>".getBytes("UTF-8"));
 		// se ha finalizado el xml
 		conver.getTags().isComprobante = false;

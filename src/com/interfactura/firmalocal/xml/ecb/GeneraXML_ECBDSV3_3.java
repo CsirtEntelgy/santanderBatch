@@ -1124,6 +1124,10 @@ public class GeneraXML_ECBDSV3_3 {
 			out.write(conver.movimeinto(linea, contCFD));
 //			System.out.println("Out: Case 11-2 " + out);
 			break;
+		case 13:
+			System.out.println("Case 13:Entra cfdi ");
+			conver.getInfoCfdiRelacionado(linea);
+			break;
 		default:
 			System.out.println("caseBreak");
 			break;
@@ -1814,8 +1818,8 @@ public class GeneraXML_ECBDSV3_3 {
 							root.removeChild(root.getChildNodes().item(i));
 						}
 					}
+				}
 			}
-		}
 		
 		if(nodeAddenda != null){
 			//Recorrer los nodos hijos de cfdi:Comprobante
@@ -2035,6 +2039,7 @@ public class GeneraXML_ECBDSV3_3 {
 	{
 		if (conver.getTags().isComprobante) 
 		{
+			out = conver.cfdiRelacionado(out);
 			out.write("\n</cfdi:Comprobante>".getBytes("UTF-8"));
 			conver.getTags().isComprobante = false;
 			try 
@@ -2105,6 +2110,14 @@ public class GeneraXML_ECBDSV3_3 {
 						 
 						 */
 						out = Util.enconding(out);
+
+						/* Valida Si el ECB esta en Ceros y en caso de ser asi agrega el descuento */
+						if(conver.getTags().isECBEnCeros) {
+							String xml = out.toString("UTF-8");
+							xml = xml.replace("Fecha=", "Descuento=\".01\" Fecha=");
+							out = UtilCatalogos.convertStringToOutpuStream(xml);
+							conver.getTags().isECBEnCeros=false;
+						}
 
 						/*Validaciones 3.3*/
 						UtilCatalogos.lstErrors = new StringBuffer();
