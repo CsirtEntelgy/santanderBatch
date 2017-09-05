@@ -1590,7 +1590,7 @@ public class ConvertirV3_3
 			claveProdServVal = "ErrConClavPro001=\"" + "vacio";
 		}
 		String nodoConcepto = "<cfdi:Concepto "+claveProdServVal+"\" Cantidad=\"1\" ClaveUnidad=\"E48\" Unidad=\""+tags.UNIDAD_MEDIDA+"\" "
-				+ "Descripcion=\"SERVICIOS DE FACTURACIÓN\"  ValorUnitario=\".01\" Importe=\".01\"></cfdi:Concepto>";
+				+ "Descripcion=\"SERVICIOS DE FACTURACIÓN\"  ValorUnitario=\"0.01\" Importe=\"0.01\"></cfdi:Concepto>";
 		return nodoConcepto.getBytes("UTF-8");
 	}
 

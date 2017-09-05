@@ -2114,7 +2114,7 @@ public class GeneraXML_ECBDSV3_3 {
 						/* Valida Si el ECB esta en Ceros y en caso de ser asi agrega el descuento */
 						if(conver.getTags().isECBEnCeros) {
 							String xml = out.toString("UTF-8");
-							xml = xml.replace("Fecha=", "Descuento=\".01\" Fecha=");
+							xml = xml.replace("Fecha=", "Descuento=\"0.01\" Fecha=");
 							out = UtilCatalogos.convertStringToOutpuStream(xml);
 							conver.getTags().isECBEnCeros=false;
 						}
