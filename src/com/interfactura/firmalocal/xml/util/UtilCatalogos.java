@@ -1208,10 +1208,18 @@ public class UtilCatalogos
 			String importeValDer = "";
 			String importeValIzq = "";
 			System.out.println("Entrando funcion Decimales: " + importeval + " : " + decimalesMoneda);
-			if(importeval.contains(".")){
-				//Redondear hacia arriba
+			
+			//Redondear
+			if(importeval!= null && Double.parseDouble(importeval)>0){
+				String dFormat = "";
+				if(decimalesMoneda>0){
+					dFormat=".";
+					for(int i = 0; i<decimalesMoneda;i++){
+						dFormat+="0";
+					}
+				}
 				try{
-					DecimalFormat df = new DecimalFormat("#.##");
+					DecimalFormat df = new DecimalFormat("0"+dFormat);
 					df.setRoundingMode(RoundingMode.HALF_EVEN);
 					Double dImporteValue = new Double(importeval);
 				    importeval = df.format(dImporteValue);
@@ -1220,7 +1228,9 @@ public class UtilCatalogos
 					System.out.print("Error Decimales cause: "+ e.getCause());
 					System.out.print("Error Decimales trace: "+ e.getStackTrace().toString());
 				}
-			    
+			}
+			
+			if(importeval.contains(".")){			    
 				String deci[] = importeval.split("\\.");
 				importeValIzq = deci[0];
 				importeValDer = deci[1];
