@@ -1207,13 +1207,19 @@ public class UtilCatalogos
 			String response = "";
 			String importeValDer = "";
 			String importeValIzq = "";
-//			System.out.println("Entrando funcion Decimales: " + importeval + " : " + decimalesMoneda);
+			System.out.println("Entrando funcion Decimales: " + importeval + " : " + decimalesMoneda);
 			if(importeval.contains(".")){
 				//Redondear hacia arriba
-//				DecimalFormat df = new DecimalFormat("#.##");
-//				df.setRoundingMode(RoundingMode.HALF_EVEN);
-//				Double dImporteValue = new Double(importeval);
-//			    importeval = df.format(dImporteValue);
+				try{
+					DecimalFormat df = new DecimalFormat("#.##");
+					df.setRoundingMode(RoundingMode.HALF_EVEN);
+					Double dImporteValue = new Double(importeval);
+				    importeval = df.format(dImporteValue);
+				}catch(Exception e){
+					System.out.print("Error Decimales message: "+ e.getMessage());
+					System.out.print("Error Decimales cause: "+ e.getCause());
+					System.out.print("Error Decimales trace: "+ e.getStackTrace().toString());
+				}
 			    
 				String deci[] = importeval.split("\\.");
 				importeValIzq = deci[0];
