@@ -3222,7 +3222,9 @@ public class UtilCFDIValidations {
 		
 		return sbError.toString();
 	}
-	
+	public static void main(String[] args) {
+		System.out.println("asd");
+	}
 }
 // TODO: Propiedades en el invoice
 // Serie del comprobante
