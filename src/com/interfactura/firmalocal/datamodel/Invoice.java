@@ -85,6 +85,33 @@ public class Invoice {
 	private String email;
 	private String accountNumber;
 	private String receivingInstitution;
+	
+	private String formaPago;
+	private String motivoDescuento;
+	private double descuento;
+	private String moneda;
+	private String tipoCambio;
+	private String tipoDeComprobante;
+	private String metodoPago;
+	private String regimenFiscal;
+	private String idExtranjero;
+	private String usoCFDI;
+	private String tipoAddenda;
+	private String version;
+	private String ivaDescription;
+	private String direccion;
+	private String residenciaFiscal;
+	private String numRegIdTrib;
+	private double totalImpuestoRetenido;
+	private String numCtaPago;
+	private TimbreFiscal timbreFiscal;
+	private Donataria donataria;
+	private String codigoISO;
+	private String posicioncompraLog;
+	private String cuentacontableFin;
+	private String numerocontratoArr;
+	private String fechavencimientoArr;
+	private String tipoOperacion;
 
 	public String getReference() {
 		return reference;
@@ -555,4 +582,213 @@ public class Invoice {
 	public void setDescriptionIVA(String descriptionIVA) {
 		this.descriptionIVA = descriptionIVA;
 	}
+
+	public String getFormaPago() {
+		return formaPago;
+	}
+
+	public void setFormaPago(String formaPago) {
+		this.formaPago = formaPago;
+	}
+
+	public String getMotivoDescuento() {
+		return motivoDescuento;
+	}
+
+	public void setMotivoDescuento(String motivoDescuento) {
+		this.motivoDescuento = motivoDescuento;
+	}
+
+	public double getDescuento() {
+		return descuento;
+	}
+
+	public void setDescuento(double descuento) {
+		this.descuento = descuento;
+	}
+
+	public String getMoneda() {
+		return moneda;
+	}
+
+	public void setMoneda(String moneda) {
+		this.moneda = moneda;
+	}
+
+	public String getTipoCambio() {
+		return tipoCambio;
+	}
+
+	public void setTipoCambio(String tipoCambio) {
+		this.tipoCambio = tipoCambio;
+	}
+
+	public String getTipoDeComprobante() {
+		return tipoDeComprobante;
+	}
+
+	public void setTipoDeComprobante(String tipoDeComprobante) {
+		this.tipoDeComprobante = tipoDeComprobante;
+	}
+
+	public String getMetodoPago() {
+		return metodoPago;
+	}
+
+	public void setMetodoPago(String metodoPago) {
+		this.metodoPago = metodoPago;
+	}
+
+	public String getRegimenFiscal() {
+		return regimenFiscal;
+	}
+
+	public void setRegimenFiscal(String regimenFiscal) {
+		this.regimenFiscal = regimenFiscal;
+	}
+
+	public String getIdExtranjero() {
+		return idExtranjero;
+	}
+
+	public void setIdExtranjero(String idExtranjero) {
+		this.idExtranjero = idExtranjero;
+	}
+
+	public String getUsoCFDI() {
+		return usoCFDI;
+	}
+
+	public void setUsoCFDI(String usoCFDI) {
+		this.usoCFDI = usoCFDI;
+	}
+
+	public String getTipoAddenda() {
+		return tipoAddenda;
+	}
+
+	public void setTipoAddenda(String tipoAddenda) {
+		this.tipoAddenda = tipoAddenda;
+	}
+
+	public String getVersion() {
+		return version;
+	}
+
+	public void setVersion(String version) {
+		this.version = version;
+	}
+
+	public String getIvaDescription() {
+		return ivaDescription;
+	}
+
+	public void setIvaDescription(String ivaDescription) {
+		this.ivaDescription = ivaDescription;
+	}
+
+	public String getDireccion() {
+		return direccion;
+	}
+
+	public void setDireccion(String direccion) {
+		this.direccion = direccion;
+	}
+
+	public String getResidenciaFiscal() {
+		return residenciaFiscal;
+	}
+
+	public void setResidenciaFiscal(String residenciaFiscal) {
+		this.residenciaFiscal = residenciaFiscal;
+	}
+
+	public String getNumRegIdTrib() {
+		return numRegIdTrib;
+	}
+
+	public void setNumRegIdTrib(String numRegIdTrib) {
+		this.numRegIdTrib = numRegIdTrib;
+	}
+
+	public double getTotalImpuestoRetenido() {
+		return totalImpuestoRetenido;
+	}
+
+	public void setTotalImpuestoRetenido(double totalImpuestoRetenido) {
+		this.totalImpuestoRetenido = totalImpuestoRetenido;
+	}
+
+	public String getNumCtaPago() {
+		return numCtaPago;
+	}
+
+	public void setNumCtaPago(String numCtaPago) {
+		this.numCtaPago = numCtaPago;
+	}
+
+	public TimbreFiscal getTimbreFiscal() {
+		return timbreFiscal;
+	}
+
+	public void setTimbreFiscal(TimbreFiscal timbreFiscal) {
+		this.timbreFiscal = timbreFiscal;
+	}
+
+	public Donataria getDonataria() {
+		return donataria;
+	}
+
+	public void setDonataria(Donataria donataria) {
+		this.donataria = donataria;
+	}
+
+	public String getCodigoISO() {
+		return codigoISO;
+	}
+
+	public void setCodigoISO(String codigoISO) {
+		this.codigoISO = codigoISO;
+	}
+
+	public String getPosicioncompraLog() {
+		return posicioncompraLog;
+	}
+
+	public void setPosicioncompraLog(String posicioncompraLog) {
+		this.posicioncompraLog = posicioncompraLog;
+	}
+
+	public String getCuentacontableFin() {
+		return cuentacontableFin;
+	}
+
+	public void setCuentacontableFin(String cuentacontableFin) {
+		this.cuentacontableFin = cuentacontableFin;
+	}
+
+	public String getNumerocontratoArr() {
+		return numerocontratoArr;
+	}
+
+	public void setNumerocontratoArr(String numerocontratoArr) {
+		this.numerocontratoArr = numerocontratoArr;
+	}
+
+	public String getFechavencimientoArr() {
+		return fechavencimientoArr;
+	}
+
+	public void setFechavencimientoArr(String fechavencimientoArr) {
+		this.fechavencimientoArr = fechavencimientoArr;
+	}
+
+	public String getTipoOperacion() {
+		return tipoOperacion;
+	}
+
+	public void setTipoOperacion(String tipoOperacion) {
+		this.tipoOperacion = tipoOperacion;
+	}
+	
 }

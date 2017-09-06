@@ -13,6 +13,8 @@ public class ElementsInvoice {
 	private List<FarmAccount> cuentaPredial;
 	private List<Part> partes;
 	private String concept;
+	private String claveProdServ;
+	private String claveUnidad;
 
 	public double getQuantity() {
 		return quantity;
@@ -85,4 +87,21 @@ public class ElementsInvoice {
 	public void setConcept(String concept) {
 		this.concept = concept;
 	}
+
+	public String getClaveProdServ() {
+		return claveProdServ;
+	}
+
+	public void setClaveProdServ(String claveProdServ) {
+		this.claveProdServ = claveProdServ;
+	}
+
+	public String getClaveUnidad() {
+		return claveUnidad;
+	}
+
+	public void setClaveUnidad(String claveUnidad) {
+		this.claveUnidad = claveUnidad;
+	}
+	
 }
