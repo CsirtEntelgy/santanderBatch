@@ -1589,8 +1589,12 @@ public class ConvertirV3_3
 		} else {
 			claveProdServVal = "ErrConClavPro001=\"" + "vacio";
 		}
-		String nodoConcepto = "<cfdi:Concepto "+claveProdServVal+"\" Cantidad=\"1\" ClaveUnidad=\"E48\" Unidad=\""+tags.UNIDAD_MEDIDA+"\" "
-				+ "Descripcion=\"SERVICIOS DE FACTURACIÓN\"  ValorUnitario=\"0.01\" Importe=\"0.01\"></cfdi:Concepto>";
+		String nodoConcepto = "<cfdi:Concepto "+claveProdServVal+"\" Cantidad=\"1\" ClaveUnidad=\"E48\" Unidad=\"SERVICIO\" "
+				+ "Descripcion=\"SERVICIOS DE FACTURACIÓN\"  ValorUnitario=\"0.01\" Importe=\"0.01\"><cfdi:Impuestos>" + 
+				"<cfdi:Traslados>" + 
+				"<cfdi:Traslado Base=\"0.00\" Impuesto=\"002\" TipoFactor=\"Tasa\" TasaOCuota=\"0.160000\" Importe=\"0.00\"  />" + 
+				"</cfdi:Traslados>" + 
+				"</cfdi:Impuestos></cfdi:Concepto>";
 		return nodoConcepto.getBytes("UTF-8");
 	}
 
@@ -2457,12 +2461,15 @@ public class ConvertirV3_3
 	public ByteArrayOutputStream cfdiRelacionado(ByteArrayOutputStream out) throws UnsupportedEncodingException {
 		StringBuffer result = new StringBuffer();
 		String regExUUID = "[a-f0-9A-F]{8}-[a-f0-9A-F]{4}-[a-f0-9A-F]{4}-[a-f0-9A-F]{4}-[a-f0-9A-F]{12}";
-		if ((tags.claveTipoRelacion == null || tags.claveTipoRelacion.isEmpty())&& tags.tipoComprobante.equalsIgnoreCase("E") && true) {
-			tags.claveTipoRelacion="01";
-			tags.uuidsTipoRelacion.add("00000000-0000-0000-0000-000000000000");
+		if ((tags.claveTipoRelacion == null || tags.claveTipoRelacion.isEmpty())
+				&& tags.uuidsTipoRelacion.isEmpty()
+				&& tags.tipoComprobante.equalsIgnoreCase("E") && true) {
+			tags.claveTipoRelacion = "01";
+			tags.uuidsTipoRelacion.add("FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF");
 		}
-		
-		if (tags.claveTipoRelacion != null && !tags.claveTipoRelacion.isEmpty()) {
+
+		if (tags.claveTipoRelacion != null && !tags.claveTipoRelacion.isEmpty()
+				&& tags.tipoComprobante.equalsIgnoreCase("E")) {
 			String claveTipoRelacion = tags.claveTipoRelacion;
 			boolean existeTipoRelacion = UtilCatalogos.existClaveInTipoRelacion(tags.mapCatalogos, claveTipoRelacion);
 			if (existeTipoRelacion) {
@@ -2471,12 +2478,14 @@ public class ConvertirV3_3
 					if (!currUUID.isEmpty() && currUUID.matches(regExUUID)) {
 						result.append("<cfdi:CfdiRelacionado UUID=\"" + currUUID.toUpperCase() + "\"/>");
 					} else {
-						result.append("<cfdi:CfdiRelacionado ErrCFDIRel002=\"" + (currUUID.isEmpty()?"Vacio":currUUID) + "\"/>");
+						result.append("<cfdi:CfdiRelacionado ErrCFDIRel002=\""
+								+ (currUUID.isEmpty() ? "Vacio" : currUUID) + "\"/>");
 					}
 				}
 			} else {
 
-				result.append("<cfdi:CfdiRelacionados ErrCFDIRel002=\"" + (tags.claveTipoRelacion.isEmpty()?"Vacio":tags.claveTipoRelacion) + "\">");
+				result.append("<cfdi:CfdiRelacionados ErrCFDIRel002=\""
+						+ (tags.claveTipoRelacion.isEmpty() ? "Vacio" : tags.claveTipoRelacion) + "\">");
 			}
 			result.append("</cfdi:CfdiRelacionados>");
 			tags.claveTipoRelacion = "";
@@ -2487,12 +2496,12 @@ public class ConvertirV3_3
 			result.append("");
 		}
 		String xml = out.toString("UTF-8");
-		 if(xml.indexOf("<cfdi:Emisor") != -1){
-			 String strCfdiRelacion = "";
-			 strCfdiRelacion = result.toString() + "<cfdi:Emisor";
-			 xml = xml.replace("<cfdi:Emisor", strCfdiRelacion);									 
-		 }
-		 return UtilCatalogos.convertStringToOutpuStream(xml);
+		if (xml.indexOf("<cfdi:Emisor") != -1) {
+			String strCfdiRelacion = "";
+			strCfdiRelacion = result.toString() + "<cfdi:Emisor";
+			xml = xml.replace("<cfdi:Emisor", strCfdiRelacion);
+		}
+		return UtilCatalogos.convertStringToOutpuStream(xml);
 	}
 
 	public TagsXML getTags() 

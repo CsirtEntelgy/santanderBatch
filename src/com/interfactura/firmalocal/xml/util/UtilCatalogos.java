@@ -141,8 +141,8 @@ public class UtilCatalogos
         errorMessage.put("ErrConRetImp001", "Clave=\"CFDI33164\" Nodo=\"Retencion\" Mensaje=\"El Valor Del Campo Impuesto Que Corresponde A Retencion No Contiene Un Valor Del Catalogo c_Impuesto\"");
         errorMessage.put("ErrConRetBas001", "Clave=\"CFDI33163\" Nodo=\"Retencion\" Mensaje=\"El Valor Del Campo Base Que Corresponde A Traslado Debe Ser Mayor Que Cero\"");
         errorMessage.put("ErrConRetBas002", "Clave=\"CFDI33162\" Nodo=\"Retencion\" Mensaje=\"El Valor Del Campo Base Que Corresponde A Traslado Debetener Hasta La Cantidad De Decimales Que Sporte La Moneda\"");
-        errorMessage.put("ErrCFDIRel001", "Clave=\"CFDI33168\" Nodo=\"CfdiRelacionados\" Mensaje=\"El Valor Del Campo Tipo Relación, no se encuentra en el catálogo c_TipoRelacion\"");
-        errorMessage.put("ErrCFDIRel002", "Clave=\"CFDI33169\" Nodo=\"CfdiRelacionado\" Mensaje=\"El Valor Del Campo UUID, no concuerda con el patrón\"");
+        errorMessage.put("ErrCFDIRel001", "Clave=\"CFDI33168\" Nodo=\"CfdiRelacionados\" Mensaje=\"El Valor Del Campo Tipo Relación Viene Vacio o no se encuentra en el catálogo c_TipoRelacion\"");
+        errorMessage.put("ErrCFDIRel002", "Clave=\"CFDI33169\" Nodo=\"CfdiRelacionado\" Mensaje=\"El Valor Del Campo UUID Viene Vacio o no concuerda con el patrón [a-f0-9A-F]{8}-[a-f0-9A-F]{4}-[a-f0-9A-F]{4}-[a-f0-9A-F]{4}-[a-f0-9A-F]{12}\"");
 	}
 	// Validacion Tipo de comprobante AMDA
 		public static String findTipoComprobante(Map<String, ArrayList<CatalogosDom>> mapCatalogos, String value){
