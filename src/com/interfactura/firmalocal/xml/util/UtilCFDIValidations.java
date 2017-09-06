@@ -3223,6 +3223,1593 @@ public class UtilCFDIValidations {
 		return sbError.toString();
 	}
 	
+public CfdiComprobanteFiscal fillComprobanteDivisas(CfdiComprobanteFiscal comp,Row row, FiscalEntity fiscalEntity, int factura,Customer customer, int lastCellNum) {
+		
+		/* Emisor Posicion 0--row 0 */
+		if (row.getCell(0) == null) {
+			comp.setEmisor(new CfdiEmisor());
+			comp.getEmisor().setRfc("");
+
+			// sbError.append("(1) Posicion Entidad Fiscal requerida (Null) - Factura " + factura + "\n");
+		} else {
+			comp.setEmisor(new CfdiEmisor());
+			comp.getEmisor().setRfc(row.getCell(0).toString());
+		}
+
+		/* Serie Posicion 1 -- row 1 */
+		comp.setSerie(row.getCell(1).toString().trim());
+		if (row.getCell(1) == null) {
+			comp.setSerie(null);
+		} else {
+			if (row.getCell(1).toString().trim().length() > 0) {
+				comp.setSerie(row.getCell(1).toString().trim());
+			} else {
+				comp.setSerie("");
+			}
+
+		}
+		/* Tipo formato posicion 7 -- row 7 */
+		if (row.getCell(7) == null) {
+			comp.setTipoDeComprobante("I");
+		} else {
+			comp.setTipoDeComprobante(row.getCell(7).toString());
+		}
+
+		/* Posicion 5 Moneda */
+		if (row.getCell(5) != null && row.getCell(5).toString().trim().length() > 0) {
+			Map<String, Object> tipoMon = UtilValidationsXML.validMoneda(tags.mapCatalogos, row.getCell(5).toString());
+			if (!tipoMon.get("value").toString().equalsIgnoreCase("vacio")) {
+				comp.setMoneda(tipoMon.get("value").toString());
+			} else {
+				comp.setMoneda("");
+			}
+		} else {
+			comp.setMoneda(null);
+		}
+
+		/* Tipo de cambio */
+		if (row.getCell(6) != null && row.getCell(6).toString().trim().length() > 0) {
+			if (comp.getMoneda() != null) {
+				if (!comp.getMoneda().trim().equalsIgnoreCase("XXX")) {
+					Map<String, Object> tipoCam = UtilValidationsXML.validTipoCambio(tags.mapCatalogos,
+							row.getCell(6).toString(), comp.getMoneda());
+					if (!tipoCam.get("value").toString().equalsIgnoreCase("vacio")) {
+						comp.setTipoCambio(tipoCam.get("value").toString());
+					} else {
+						comp.setTipoCambio("");
+					}
+				} else {
+					comp.setTipoCambio("");
+				}
+			}
+
+		} else {
+			comp.setTipoCambio(null);
+		}
+
+		/* RFC del cliente */
+		if (row.getCell(10) == null) {
+			comp.setReceptor(new CfdiReceptor());
+		} else {
+
+			if (row.getCell(10).toString().trim().equals("")) {
+				comp.setReceptor(new CfdiReceptor());
+			} else {
+				if (row.getCell(10).toString().trim().toUpperCase().equals("XEXX010101000")
+						|| row.getCell(10).toString().trim().toUpperCase().equals("XAXX010101000")
+						|| row.getCell(10).toString().trim().equals("XEXE010101000")) {
+
+					//evaluacion del id de extranjero
+					if (row.getCell(12) == null || row.getCell(12).toString().trim().length() == 0) {
+						//si null o cero debe tronar...se envia un recepor vacio
+						comp.setReceptor(new CfdiReceptor());
+					} else {
+						String strCellType = checkCellType(row.getCell(12));
+						if (!strCellType.equals("")) {
+							comp.setReceptor(new CfdiReceptor());
+						} else {
+							String strIDExtranjero = row.getCell(12).toString();
+							System.out.println("ID Extranjero: " + strIDExtranjero);
+							customer = customerManager.findByIdExtranjero(strIDExtranjero);
+							comp.setReceptor(new CfdiReceptor());
+							if (customer != null) {
+								comp.getReceptor().setNombre(customer.getPhysicalName());
+								if (row.getCell(14) != null || row.getCell(14).toString().length() > 0) {
+									comp.getReceptor().setNumRegIdTrib(row.getCell(14).toString());
+								} else {
+									comp.getReceptor().setNumRegIdTrib("");
+								}
+								// comp.getReceptor().setResidenciaFiscal(customer.getFiscalEntity().geta);
+								comp.getReceptor().setRfc(customer.getTaxId());
+								if (row.getCell(13) == null || row.getCell(13).toString().trim().length() == 0) {
+									comp.getReceptor().setUsoCFDI("D04");
+								} else {
+									Map<String, Object> tipoUsoCfdi = UtilValidationsXML.validUsoCFDI(tags.mapCatalogos,
+											row.getCell(13).toString());
+									if (!tipoUsoCfdi.get("value").toString().equalsIgnoreCase("vacio")) {
+										comp.getReceptor().setUsoCFDI(tipoUsoCfdi.get("value").toString());
+									} else {
+										comp.getReceptor().setUsoCFDI("");
+									}
+								}
+								if (customer.getAddress() != null) {
+									comp.getReceptor().setDomicilio(new CfdiDomicilio());
+									comp.getReceptor().getDomicilio().setCalle(customer.getAddress().getStreet());
+									comp.getReceptor().getDomicilio()
+											.setCodigoPostal(customer.getAddress().getZipCode());
+									comp.getReceptor().getDomicilio()
+											.setColonia(customer.getAddress().getNeighborhood());
+									comp.getReceptor().getDomicilio()
+											.setEstado(customer.getAddress().getState().getName());
+									comp.getReceptor().getDomicilio().setLocalidad(customer.getAddress().getRegion());
+									comp.getReceptor().getDomicilio().setMunicipio(customer.getAddress().getCity());
+									comp.getReceptor().getDomicilio()
+											.setNoExterior(customer.getAddress().getExternalNumber());
+									comp.getReceptor().getDomicilio()
+											.setNoInterior(customer.getAddress().getInternalNumber());
+									comp.getReceptor().getDomicilio()
+											.setPais(customer.getAddress().getState().getCountry().getName());
+									comp.getReceptor().getDomicilio()
+											.setReferencia(customer.getAddress().getReference());
+								}
+							}
+						}
+					}
+				} else {
+					if (fiscalEntity != null) {
+						customer = customerManager.get(row.getCell(10).toString().trim(),String.valueOf(fiscalEntity.getId()));
+						comp.setReceptor(new CfdiReceptor());
+						if (customer != null) {
+							comp.getReceptor().setNombre(customer.getPhysicalName());
+							if (row.getCell(14) != null || row.getCell(14).toString().length() > 0) {
+								comp.getReceptor().setNumRegIdTrib(row.getCell(14).toString());
+							} else {
+								comp.getReceptor().setNumRegIdTrib("");
+							}
+							// comp.getReceptor().setResidenciaFiscal(customer.getFiscalEntity().geta);
+							comp.getReceptor().setRfc(customer.getTaxId());
+							if (row.getCell(13) == null || row.getCell(13).toString().trim().length() == 0) {
+								comp.getReceptor().setUsoCFDI("D04");
+							} else {
+								Map<String, Object> tipoUsoCfdi = UtilValidationsXML.validUsoCFDI(tags.mapCatalogos,
+										row.getCell(13).toString());
+								if (!tipoUsoCfdi.get("value").toString().equalsIgnoreCase("vacio")) {
+									comp.getReceptor().setUsoCFDI(tipoUsoCfdi.get("value").toString());
+								} else {
+									comp.getReceptor().setUsoCFDI("");
+								}
+							}
+							if (customer.getAddress() != null) {
+								comp.getReceptor().setDomicilio(new CfdiDomicilio());
+								comp.getReceptor().getDomicilio().setCalle(customer.getAddress().getStreet());
+								comp.getReceptor().getDomicilio().setCodigoPostal(customer.getAddress().getZipCode());
+								comp.getReceptor().getDomicilio().setColonia(customer.getAddress().getNeighborhood());
+								comp.getReceptor().getDomicilio().setEstado(customer.getAddress().getState().getName());
+								comp.getReceptor().getDomicilio().setLocalidad(customer.getAddress().getRegion());
+								comp.getReceptor().getDomicilio().setMunicipio(customer.getAddress().getCity());
+								comp.getReceptor().getDomicilio()
+										.setNoExterior(customer.getAddress().getExternalNumber());
+								comp.getReceptor().getDomicilio()
+										.setNoInterior(customer.getAddress().getInternalNumber());
+								comp.getReceptor().getDomicilio()
+										.setPais(customer.getAddress().getState().getCountry().getName());
+								comp.getReceptor().getDomicilio().setReferencia(customer.getAddress().getReference());
+							}
+						}
+					}
+
+				}
+			}
+
+		}
+
+		/* Regimen fiscal */
+		if (row.getCell(9) == null || row.getCell(9).toString().trim().equals("")) {
+			comp.getEmisor().setRegimenFiscal("");
+		} else {
+			Map<String, Object> tipoRegFis = UtilValidationsXML.validRegFiscal(tags.mapCatalogos,row.getCell(9).toString());
+			if (!tipoRegFis.get("value").toString().equalsIgnoreCase("vacio")) {
+				comp.getEmisor().setRegimenFiscal(tipoRegFis.get("value").toString());
+			} else {
+				comp.getEmisor().setRegimenFiscal("");
+			}
+		}
+
+		/* Metodo de pago */
+		if (row.getCell(8) == null || row.getCell(8).toString().trim().equals("")) {
+			comp.setMetodoPago("");
+		}else{
+			Map<String, Object> tipoMetPag = UtilValidationsXML.validMetodPago(tags.mapCatalogos,row.getCell(8).toString());
+			if (tipoMetPag.get("value").toString().equals("vacio")) {
+				comp.setMetodoPago("");
+			} else {
+				comp.setMetodoPago(tipoMetPag.get("value").toString());
+			}
+		}
+		Map<String, Object> tipoFormaPago = UtilValidationsXML.validFormaPago(tags.mapCatalogos,row.getCell(2).toString());
+		/* Forma de pago */
+		if (row.getCell(2) == null || row.getCell(2).toString().trim().equals("")) {
+			comp.setFormaPago("");
+		} else {
+			if (!tipoFormaPago.get("value").toString().equalsIgnoreCase("vacio")) {
+				comp.setFormaPago(tipoFormaPago.get("value").toString());
+			} else {
+				comp.setFormaPago("");
+			}
+		}
+
+		comp.getAddenda().setInformacionPago(new CfdiAddendaInformacionPago());
+		/* Numero de cuenta */
+		if (row.getCell(15) == null || row.getCell(15).toString().trim().equals("")) {
+			comp.getAddenda().getInformacionPago().setNumeroCuenta("");
+		} else {			
+			String strCellType = checkCellType(row.getCell(15));
+			if (!strCellType.equals("")) {
+				comp.getAddenda().getInformacionPago().setNumeroCuenta("");
+			} else {
+				String strNumCtaPago = row.getCell(15).toString();
+				comp.getAddenda().getInformacionPago().setNumeroCuenta(strNumCtaPago);
+			}	
+
+		}
+		// TODO: esta propiedad no se encuentra en el nuevo objecto
+		// if(row.getCell(16) == null){
+		//
+		// comp.setReferencia("");
+		// }else{
+		//
+		// if(row.getCell(16).toString().trim().equals("")){
+		// invoice.setReferencia(row.getCell(16).toString().trim());
+		// }else{
+		// if(validaDatoRE(row.getCell(16).toString(),
+		// RE_CHAR_ALL)){
+		// invoice.setReferencia(row.getCell(16).toString().trim());
+		// System.out.println("Referencia: " +
+		// row.getCell(16).toString());
+		//
+		// }else{
+		//
+		// sbError.append("(11) Referencia con formato incorrecto -
+		// Factura " + factura + "\n");
+		// //System.out.println("(11) Referencia con formato
+		// incorrecto - Factura " + factura + "\n");
+		// fError = true;
+		//
+		// }
+		// }
+		//
+		// }
+		/* Codigo cliente */
+		if (row.getCell(17) == null || row.getCell(17).toString().trim().equals("")) {
+			comp.getAddenda().getInformacionEmision().setCodigoCliente("");
+		} else {
+			String strCellType = checkCellType(row.getCell(17));
+			if (!strCellType.equals("")) {
+				comp.getAddenda().getInformacionEmision().setCodigoCliente("");
+			} else {
+				if (row.getCell(17).toString().trim().length() > 0) {
+					String strCodigoCliente = row.getCell(17).toString();
+					comp.getAddenda().getInformacionEmision().setCodigoCliente(strCodigoCliente);
+				} else {
+					comp.getAddenda().getInformacionEmision().setCodigoCliente(row.getCell(17).toString().trim());
+			
+				}
+			}
+		}
+		/* Contrato */
+		if (row.getCell(18) == null) {
+			comp.getAddenda().getInformacionEmision().setContrato("");
+		} else {
+			if (row.getCell(18).toString().trim().equals("")) {
+				comp.getAddenda().getInformacionEmision().setContrato("");
+			} else {
+				String strCellType = checkCellType(row.getCell(18));
+				if (!strCellType.equals("")) {
+					comp.getAddenda().getInformacionEmision().setContrato("");
+				} else {
+					if (row.getCell(18).toString().trim().length() > 0) {
+						String strContrato = row.getCell(18).toString();
+						comp.getAddenda().getInformacionEmision().setContrato(strContrato);
+					} else {
+						comp.getAddenda().getInformacionEmision().setContrato(row.getCell(18).toString().trim());
+					}
+				}
+			}
+
+		}
+		/* Periodo */
+		if (row.getCell(19) == null) {
+			comp.getAddenda().getInformacionEmision().setPeriodo("");
+		} else {
+			if (row.getCell(19).toString().trim().equals("")) {
+				comp.getAddenda().getInformacionEmision().setPeriodo("");
+			} else {
+				String strCellType = checkCellType(row.getCell(19));
+				if (!strCellType.equals("")) {
+					comp.getAddenda().getInformacionEmision().setPeriodo("");
+				} else {
+					if (row.getCell(19).toString().trim().length() > 0) {
+						String strPeriodo = row.getCell(19).toString();
+						comp.getAddenda().getInformacionEmision().setPeriodo(strPeriodo);
+					} else {
+						comp.getAddenda().getInformacionEmision().setPeriodo(row.getCell(19).toString().trim());
+					}
+				}
+			}
+
+		}
+		/* Centro de costos */
+		if (row.getCell(20) == null) {
+			comp.getAddenda().getInformacionEmision().setCentroCostos("");
+		} else {
+			if (row.getCell(20).toString().trim().equals("")) {
+				comp.getAddenda().getInformacionEmision().setCentroCostos("");
+			} else {
+				String strCellType = checkCellType(row.getCell(20));
+				if (!strCellType.equals("")) {
+					comp.getAddenda().getInformacionEmision().setCentroCostos("");
+				} else {
+					if (row.getCell(21).toString().trim().length() > 0) {
+						String strCentroCostos = row.getCell(20).toString();
+						comp.getAddenda().getInformacionEmision().setCentroCostos(strCentroCostos);
+					} else {
+						comp.getAddenda().getInformacionEmision().setCentroCostos(row.getCell(20).toString().trim());
+					}
+				}
+			}
+
+		}
+		comp.getAddenda().setCampoAdicional(new HashMap<String, String>());
+		/* Descriptcion concepto */
+		if (row.getCell(21) == null) {
+			comp.getAddenda().getCampoAdicional().put("DESCRIPCIÓN CONCEPTO", "");
+		} else {
+			comp.getAddenda().getCampoAdicional().put("DESCRIPCIÓN CONCEPTO", row.getCell(21).toString().trim());
+		}
+
+		/* Iva */
+		//new variable this
+		comp.setIvaCellValue(row.getCell(22).toString());
+
+
+		/* Tipo adenda */
+		comp.setTipoAddendaCellValue(row.getCell(23).toString());
+		comp.getAddenda().setInmuebles(new CfdiAddendaInmuebles());
+		if (row.getCell(23) != null) {
+			if (row.getCell(23).toString().contains(".")) {
+				System.out.println("*** response Dentro IF AMDA: " + row.getCell(23).toString());
+				String words[] = row.getCell(23).toString().split("\\.");
+				row.getCell(23).setCellValue(words[0]);
+				System.out.println("*** response Dentro IF despues AMDA: " + row.getCell(23).toString());
+			}
+			System.out.println("tipoAddenda:" + row.getCell(23).toString());
+
+			if (validaDatoRE(row.getCell(23).toString().trim(), RE_DECIMAL)) {
+				String strTipoAddenda = row.getCell(23).toString();
+				System.out.println("tipoAddendaClean: " + strTipoAddenda);
+				if (strTipoAddenda.equals("1") || strTipoAddenda.equals("2") || strTipoAddenda.equals("3")) {
+					comp.getAddenda().getInformacionPago().setNombreBeneficiario("");
+					comp.getAddenda().getInformacionPago().setInstitucionReceptora("");
+					comp.getAddenda().getInformacionPago().setNumeroCuenta("");
+					comp.getAddenda().getInformacionPago().setNumProveedor("");
+					if (row.getCell(24) == null) {
+						comp.getAddenda().getInformacionPago().setEmail("");
+					} else {
+
+						if (!row.getCell(24).toString().trim().equals("")) {
+							if (validaDatoRE(row.getCell(24).toString().trim(), RE_MAIL)) {
+								comp.getAddenda().getInformacionPago().setEmail(row.getCell(24).toString().trim());
+							} else {
+								comp.getAddenda().getInformacionPago().setEmail("");
+							}
+						} else {
+							comp.getAddenda().getInformacionPago().setEmail("");
+						}
+
+					}
+				}
+				if (strTipoAddenda.equals("1")) {
+					// invoice.setTipoAddenda(strTipoAddenda.trim());
+					if (row.getCell(25) == null) {
+						comp.getAddenda().getInformacionPago().setCodigoISOMoneda(null);
+					} else {
+
+						if (!row.getCell(25).toString().trim().equals("")) {
+							CodigoISO codigoISOLog = new CodigoISO();
+							codigoISOLog = codigoISOManager
+									.findByCodigo(row.getCell(25).toString().trim().toUpperCase());
+							if (codigoISOLog != null) {
+								comp.getAddenda().getInformacionPago()
+										.setCodigoISOMoneda(row.getCell(25).toString().trim().toUpperCase());
+							} else {
+								comp.getAddenda().getInformacionPago().setCodigoISOMoneda("");
+							}
+						} else {
+							comp.getAddenda().getInformacionPago().setCodigoISOMoneda("");
+						}
+
+					}
+
+					if (row.getCell(26) == null) {
+						comp.getAddenda().getInformacionPago().setOrdenCompra(null);
+					} else {
+						if (row.getCell(26).toString().trim().equals("")) {
+							comp.getAddenda().getInformacionPago().setOrdenCompra("");
+						} else {
+							String strCellTypeOrdenLog = checkCellType(row.getCell(26));
+							if (!strCellTypeOrdenLog.equals("")) {
+								comp.getAddenda().getInformacionPago().setOrdenCompra("");
+							} else {
+								String strOrdenCompra = row.getCell(26).toString();
+								if (!strOrdenCompra.equals("")) {
+									comp.getAddenda().getInformacionPago().setOrdenCompra(strOrdenCompra);
+									System.out.println("orden compra log: " + strOrdenCompra);
+								} else {
+									comp.getAddenda().getInformacionPago().setOrdenCompra("");
+								}
+							}
+						}
+
+					}
+
+					if (row.getCell(27) == null) {
+						comp.getAddenda().getInformacionPago().setPosCompra(null);
+					} else {
+						if (row.getCell(27).toString().trim().equals("")) {
+							comp.getAddenda().getInformacionPago().setPosCompra("");
+						} else {
+							String strCellTypePosicionLog = checkCellType(row.getCell(27));
+							if (!strCellTypePosicionLog.equals("")) {
+								comp.getAddenda().getInformacionPago().setPosCompra("");
+							} else {
+								String strPosicionCompra = row.getCell(27).toString();
+								if (!strPosicionCompra.equals("")) {
+									comp.getAddenda().getInformacionPago().setPosCompra(strPosicionCompra);
+									System.out.println("posicion compra: " + strPosicionCompra);
+								} else {
+									comp.getAddenda().getInformacionPago().setPosCompra("");
+								}
+							}
+						}
+
+					}
+
+				} else if (strTipoAddenda.equals("2")) {
+					// invoice.setTipoAddenda(strTipoAddenda.trim());
+					if (row.getCell(25) == null) {
+						comp.getAddenda().getInformacionPago().setCodigoISOMoneda(null);
+					} else {
+
+						if (!row.getCell(25).toString().trim().equals("")) {
+							CodigoISO codigoISOFin = new CodigoISO();
+							codigoISOFin = codigoISOManager
+									.findByCodigo(row.getCell(25).toString().trim().toUpperCase());
+							if (codigoISOFin != null) {
+								comp.getAddenda().getInformacionPago()
+										.setCodigoISOMoneda(row.getCell(25).toString().trim().toUpperCase());
+							} else {
+								comp.getAddenda().getInformacionPago().setCodigoISOMoneda("");
+							}
+						} else {
+							comp.getAddenda().getInformacionPago().setCodigoISOMoneda("");
+						}
+
+					}
+
+					if (row.getCell(28) == null) {
+						comp.getAddenda().getInformacionPago().setCuentaContable(null);
+					} else {
+						if (row.getCell(28).toString().trim().equals("")) {
+							comp.getAddenda().getInformacionPago().setCuentaContable("");
+						} else {
+							String strCellTypeContableFin = checkCellType(row.getCell(28));
+							if (!strCellTypeContableFin.equals("")) {
+								comp.getAddenda().getInformacionPago().setCuentaContable("");
+							} else {
+								String strCuentaContableFin = row.getCell(28).toString();
+								if (!strCuentaContableFin.equals("")) {
+									comp.getAddenda().getInformacionPago().setCuentaContable(strCuentaContableFin);
+									System.out.println("cuenta contable Fin: " + strCuentaContableFin);
+								} else {
+									comp.getAddenda().getInformacionPago().setCuentaContable("");
+								}
+							}
+						}
+
+					}
+
+					if (row.getCell(29) == null) {
+						comp.getAddenda().getInformacionEmision().setCentroCostos("");
+					} else {
+						if (row.getCell(29).toString().trim().equals("")) {
+							comp.getAddenda().getInformacionEmision().setCentroCostos("");
+						} else {
+							String strCellTypeCostosFin = checkCellType(row.getCell(29));
+							if (!strCellTypeCostosFin.equals("")) {
+								comp.getAddenda().getInformacionEmision().setCentroCostos("");
+							} else {
+								if (!row.getCell(29).toString().trim().equals("")) {
+									System.out.println("centro costos: " + row.getCell(29).toString());
+									String strCentroCostosFin = row.getCell(29).toString();
+									if (!strCentroCostosFin.equals(comp.getAddenda().getInformacionEmision().getCentroCostos())) {
+										comp.getAddenda().getInformacionEmision().setCentroCostos("");
+									}
+								} else {
+									comp.getAddenda().getInformacionEmision().setCentroCostos("");
+								}
+							}
+						}
+
+					}
+		
+
+				} else if (strTipoAddenda.equals("3")) {
+					// invoice.setTipoAddenda("3");
+					if (row.getCell(25) == null) {
+						comp.getAddenda().getInformacionPago().setCodigoISOMoneda(null);
+					} else {
+
+						if (!row.getCell(25).toString().trim().equals("")) {
+							CodigoISO codigoISOArr = new CodigoISO();
+							codigoISOArr = codigoISOManager
+									.findByCodigo(row.getCell(25).toString().trim().toUpperCase());
+							if (codigoISOArr != null) {
+								comp.getAddenda().getInformacionPago()
+										.setCodigoISOMoneda(row.getCell(25).toString().trim().toUpperCase());
+							} else {
+								comp.getAddenda().getInformacionPago().setCodigoISOMoneda("");
+							}
+						} else {
+							comp.getAddenda().getInformacionPago().setCodigoISOMoneda("");
+						}
+
+					}
+
+					if (row.getCell(30) == null) {
+						comp.getAddenda().getInmuebles().setNumContrato(null);
+					} else {
+						if (row.getCell(30).toString().trim().equals("")) {
+							comp.getAddenda().getInmuebles().setNumContrato("");
+						} else {
+							String strCellTypeContratoArr = checkCellType(row.getCell(30));
+							if (!strCellTypeContratoArr.equals("")) {
+								comp.getAddenda().getInmuebles().setNumContrato("");
+							} else {
+								String strNumeroContratoArr = row.getCell(30).toString();
+								if (!strNumeroContratoArr.equals("")) {
+									comp.getAddenda().getInmuebles().setNumContrato(strNumeroContratoArr);
+								} else {
+									comp.getAddenda().getInmuebles().setNumContrato("");
+								}
+							}
+						}
+
+					}
+					if (row.getCell(31) == null) {
+						comp.getAddenda().getInmuebles().setFechaVencimiento(null);
+
+					} else {
+						if (row.getCell(31).toString().trim().equals("")) {
+							comp.getAddenda().getInmuebles().setFechaVencimiento("");
+						} else {
+							String strCellTypeVencimientoArr = checkCellType(row.getCell(31));
+							if (!strCellTypeVencimientoArr.equals("")) {
+								comp.getAddenda().getInmuebles().setFechaVencimiento("");
+							} else {
+								String strFechaVencimientoArr = row.getCell(31).toString();
+								if (!strFechaVencimientoArr.equals("")) {
+									comp.getAddenda().getInmuebles().setFechaVencimiento(strFechaVencimientoArr);
+									System.out.println("fecha vencimiento Arr:" + strFechaVencimientoArr);
+								} else {
+									comp.getAddenda().getInmuebles().setFechaVencimiento("");
+								}
+							}
+						}
+
+					}
+
+				} else if(strTipoAddenda.equals("0")) {
+					comp.getAddenda().getInformacionPago().setEmail("");
+					comp.getAddenda().getInformacionPago().setOrdenCompra("");
+					// invoice.setTipoAddenda(strTipoAddenda.trim());
+					if (row.getCell(32) == null) {
+						comp.getAddenda().getInformacionPago().setNombreBeneficiario("");
+					} else {
+						comp.getAddenda().getInformacionPago().setNombreBeneficiario(row.getCell(32).toString().trim());
+					}
+					if (row.getCell(33) == null) {
+						comp.getAddenda().getInformacionPago().setInstitucionReceptora("");
+					} else {
+						comp.getAddenda().getInformacionPago()
+								.setInstitucionReceptora(row.getCell(33).toString().trim());
+					}
+
+					if (row.getCell(34) == null) {
+						comp.getAddenda().getInformacionPago().setNumeroCuenta("");
+					} else {
+						if (row.getCell(34).toString().trim().equals("")) {
+							comp.getAddenda().getInformacionPago().setNumeroCuenta(row.getCell(34).toString().trim());
+						} else {
+							String strCellTypeC = checkCellType(row.getCell(34));
+							if (!strCellTypeC.equals("")) {
+								comp.getAddenda().getInformacionPago().setNumeroCuenta("");
+							} else {
+								comp.getAddenda().getInformacionPago()
+										.setNumeroCuenta(row.getCell(34).toString().trim());
+							}
+						}
+					}
+					if (row.getCell(35) == null) {
+						comp.getAddenda().getInformacionPago().setNumProveedor("");
+					} else {
+						if (row.getCell(35).toString().trim().equals("")) {
+							comp.getAddenda().getInformacionPago().setNumProveedor(row.getCell(35).toString().trim());
+						} else {
+							String strCellTypeP = checkCellType(row.getCell(35));
+							if (!strCellTypeP.equals("")) {
+								comp.getAddenda().getInformacionPago().setNumProveedor("");
+							} else {
+								comp.getAddenda().getInformacionPago()
+										.setNumProveedor(row.getCell(35).toString().trim());
+							}
+						}
+					}
+
+				} 
+			} else {
+				if (row.getCell(17).toString().trim().equals("")) {
+					comp.getAddenda().getInformacionPago().setEmail("");
+					comp.getAddenda().getInformacionPago().setOrdenCompra("");
+					// invoice.setTipoAddenda("0");
+					if (row.getCell(32) == null) {
+						comp.getAddenda().getInformacionPago().setNombreBeneficiario("");
+					} else {
+						comp.getAddenda().getInformacionPago().setNombreBeneficiario(row.getCell(32).toString().trim());
+					}
+					if (row.getCell(33) == null) {
+						comp.getAddenda().getInformacionPago().setInstitucionReceptora("");
+					} else {
+						comp.getAddenda().getInformacionPago()
+								.setInstitucionReceptora(row.getCell(33).toString().trim());
+					}
+
+					if (row.getCell(34) == null) {
+						comp.getAddenda().getInformacionPago().setNumeroCuenta("");
+					} else {
+						if (row.getCell(34).toString().trim().equals("")) {
+							comp.getAddenda().getInformacionPago().setNumeroCuenta(row.getCell(34).toString().trim());
+						} else {
+							String strCellTypeP = checkCellType(row.getCell(34));
+							if (!strCellTypeP.equals("")) {
+								comp.getAddenda().getInformacionPago().setNumeroCuenta("");
+							} else {
+								comp.getAddenda().getInformacionPago()
+										.setNumeroCuenta(row.getCell(34).toString().trim());
+							}
+						}
+
+					}
+					if (row.getCell(35) == null) {
+						comp.getAddenda().getInformacionPago().setNumProveedor("");
+					} else {
+						if (row.getCell(35).toString().trim().equals("")) {
+							comp.getAddenda().getInformacionPago().setNumProveedor(row.getCell(35).toString().trim());
+						} else {
+							String strCellTypeP = checkCellType(row.getCell(35));
+							if (!strCellTypeP.equals("")) {
+								comp.getAddenda().getInformacionPago().setNumProveedor("");
+							} else {
+								comp.getAddenda().getInformacionPago()
+										.setNumProveedor(row.getCell(35).toString().trim());
+							}
+						}
+
+					}
+
+				}
+			}
+
+		} else {
+			comp.getAddenda().getInformacionPago().setEmail("");
+			comp.getAddenda().getInformacionPago().setOrdenCompra("");
+			// invoice.setTipoAddenda("0");
+			if (row.getCell(32) == null) {
+				comp.getAddenda().getInformacionPago().setNombreBeneficiario("");
+			} else {
+				comp.getAddenda().getInformacionPago().setNombreBeneficiario(row.getCell(32).toString().trim());
+			}
+			if (row.getCell(33) == null) {
+				comp.getAddenda().getInformacionPago().setInstitucionReceptora("");
+			} else {
+				comp.getAddenda().getInformacionPago().setInstitucionReceptora(row.getCell(33).toString().trim());
+			}
+			if (row.getCell(34) == null) {
+				comp.getAddenda().getInformacionPago().setNumeroCuenta("");
+			} else {
+				if (row.getCell(34).toString().trim().equals("")) {
+					comp.getAddenda().getInformacionPago().setNumeroCuenta(row.getCell(34).toString().trim());
+				} else {
+					String strCellTypeP = checkCellType(row.getCell(34));
+					if (!strCellTypeP.equals("")) {
+						comp.getAddenda().getInformacionPago().setNumeroCuenta("");
+					} else {
+						comp.getAddenda().getInformacionPago().setNumeroCuenta(row.getCell(34).toString().trim());
+					}
+				}
+
+			}
+			if (row.getCell(35) == null) {
+				comp.getAddenda().getInformacionPago().setNumProveedor("");
+			} else {
+				if (row.getCell(25).toString().trim().equals("")) {
+					comp.getAddenda().getInformacionPago().setNumProveedor(row.getCell(35).toString().trim());
+				} else {
+					String strCellTypeP = checkCellType(row.getCell(35));
+					if (!strCellTypeP.equals("")) {
+						comp.getAddenda().getInformacionPago().setNumProveedor("");
+					} else {
+						comp.getAddenda().getInformacionPago().setNumProveedor(row.getCell(35).toString().trim());
+					}
+				}
+
+			}
+		}
+
+		/* Tipo de operacion */
+		if (!row.getCell(36).toString().trim().equals("")) {
+			if (row.getCell(36).toString().trim().toLowerCase().equals("compra")
+					|| row.getCell(36).toString().trim().toLowerCase().equals("venta")) {
+				comp.getComplemento().setDivisaTipoOperacion(row.getCell(36).toString().toLowerCase().trim());
+			} else {
+				comp.getComplemento().setDivisaTipoOperacion("");
+			}
+		} else {
+			comp.getComplemento().setDivisaTipoOperacion("");
+		}
+
+		/* Motivo descuento */
+		String motivoDesc;
+		if (row.getCell(3) == null) { // Antes 31 ahora 3 AMDA V3.3
+			motivoDesc = "";
+			System.out.println("row.getCell(31) == null");
+		} else {
+			motivoDesc = row.getCell(3).toString().trim();
+			System.out.println("row.getCell(31) != null");
+		}
+		if (motivoDesc.equals("")) {
+			// invoice.setMotivoDescuento("");
+			if (row.getCell(4) == null) {
+				comp.setDescuento(BigDecimal.ZERO);
+				System.out.println("Descuento cero");
+			} else {
+				if (!row.getCell(4).toString().trim().equals("")) {
+					String strCellTypeDesc = checkCellType(row.getCell(4));
+					if (strCellTypeDesc.equals("")) {
+						if (validaDatoRE(row.getCell(4).toString().trim(), RE_DECIMAL_NEGATIVO)) {
+							if (Double.parseDouble(row.getCell(4).toString().trim()) > 0) {
+								comp.setDescuento(BigDecimal.ZERO);
+							} else {
+								comp.setDescuento(BigDecimal.ZERO);
+							}
+
+						} else {
+							comp.setDescuento(BigDecimal.ZERO);
+						}
+					} else {
+						comp.setDescuento(BigDecimal.ZERO);
+					}
+				} else {
+					comp.setDescuento(BigDecimal.ZERO);
+				}
+			}
+
+		} else {
+			if (motivoDesc.length() > 0 && motivoDesc.length() <= 1500) {
+				// invoice.setMotivoDescuento(motivoDesc);
+				if (row.getCell(4) == null) {
+					comp.setDescuento(BigDecimal.ZERO);
+				} else {
+					if (row.getCell(4).toString().trim().equals("")) {
+						comp.setDescuento(BigDecimal.ZERO);
+					} else {
+						String strCellTypeDesc = checkCellType(row.getCell(4));
+						if (!strCellTypeDesc.equals("")) {
+							comp.setDescuento(BigDecimal.ZERO);
+						} else {
+							if (validaDatoRE(row.getCell(4).toString().trim(), RE_DECIMAL_NEGATIVO)) {
+								if (Double.parseDouble(row.getCell(4).toString().trim()) > 0) {
+									comp.setDescuento(
+											new BigDecimal(Double.parseDouble(row.getCell(4).toString().trim())));
+								} else {
+									comp.setDescuento(BigDecimal.ZERO);
+								}
+							} else {
+								comp.setDescuento(BigDecimal.ZERO);
+							}
+						}
+					}
+				}
+
+			} else {
+				comp.setDescuento(BigDecimal.ZERO);
+			}
+		}
+
+		/* Valida rfc cliente extranjero */
+		if (comp.getReceptor().getRfc() != null){ 
+			if (comp.getReceptor().getRfc().toUpperCase().equals("XEXX010101000")
+					|| comp.getReceptor().getRfc().toUpperCase().equals("XAXX010101000")
+					|| comp.getReceptor().getRfc().toUpperCase().equals("XEXE010101000")) {
+				if (comp.getReceptor().getDomicilio().getPais() != null) {
+					Map<String, Object> tipoClaveProdServ = UtilValidationsXML.validPais(tags.mapCatalogos,
+							comp.getReceptor().getDomicilio().getPais());
+					System.out.println("*********AMDAController Divisas Validando Pais RFC Respuesta: "
+							+ tipoClaveProdServ.get("value").toString());
+					if (!tipoClaveProdServ.get("value").toString().equalsIgnoreCase("vacio")) {
+						comp.getReceptor().setResidenciaFiscal(tipoClaveProdServ.get("value").toString());
+					}
+						//otro metodo de asriel realiza la evaluacion si es mexico usando la residencia fiscal
+					Map<String, Object> tipoRFC = UtilValidationsXML.validRFCNumRegIdTrib(tags.mapCatalogos,
+							comp.getReceptor().getRfc(), comp.getReceptor().getResidenciaFiscal(),
+							row.getCell(12).toString(), comp.getReceptor().getNombre(),
+							comp.getReceptor().getNumRegIdTrib());
+					if (!tipoRFC.get("value").toString().equalsIgnoreCase("vacio")) {
+						// invoice.setIdExtranjero(tipoRFC.get("value").toString());
+						comp.getReceptor().setNumRegIdTrib(tipoRFC.get("value").toString());
+					} else {
+						comp.getReceptor().setNumRegIdTrib("");
+					}
+				}
+			}
+		}
+		// TODO: Este campo no esta en el nuevo objeto
+		if (row.getCell(34) != null || row.getCell(34).toString().length() > 0) {
+			// invoice.setAccountNumber(row.getCell(34).toString());
+		}
+
+		if (row.getCell(28) != null || row.getCell(28).toString().length() > 0) {
+			comp.getAddenda().getInformacionPago().setCuentaContable(row.getCell(28).toString());
+		}
+
+		if (row.getCell(29) != null || row.getCell(29).toString().length() > 0) {
+			comp.getAddenda().getInformacionEmision().setCentroCostos(row.getCell(29).toString());
+		}
+		if (row.getCell(30) != null || row.getCell(30).toString().length() > 0) {
+			comp.getAddenda().getInmuebles().setNumContrato(row.getCell(30).toString());
+		}
+		if (row.getCell(31) != null || row.getCell(31).toString().length() > 0) {
+			comp.getAddenda().getInmuebles().setFechaVencimiento(row.getCell(31).toString());
+		}
+
+		if (row.getCell(32) != null || row.getCell(32).toString().length() > 0) {
+			comp.getAddenda().getInformacionPago().setNombreBeneficiario(row.getCell(32).toString());
+		}
+		if (row.getCell(33) != null || row.getCell(33).toString().length() > 0) {
+			comp.getAddenda().getInformacionPago().setInstitucionReceptora(row.getCell(33).toString());
+		}
+		if (row.getCell(35) != null || row.getCell(35).toString().length() > 0) {
+			comp.getAddenda().getInformacionPago().setNumProveedor(row.getCell(35).toString());
+		}
+		int posicionConcepto = 0;
+		int posicion = 37;
+		int contadorConceptos = 0;
+		boolean fPermisoVector = true;
+		boolean fFinFactura = false;
+		String strItemConcepto = "";
+		Integer numeroCelda = 0;
+		Integer cicloNum = 0;
+		Integer cicloNumRet = 0;
+		String tipoFactorValRow = "";
+		String impuestoValRow = "";
+		String tipoFactorValRowRet = "";
+		String impuestoValRowRet = "";
+		while (posicion < lastCellNum && !fFinFactura) {
+			numeroCelda += 1;
+			contadorConceptos = contadorConceptos + 1;
+			if (row.getCell(posicion).toString().equals("||FINFACTURA||")) {
+				fFinFactura = true;
+				break;
+			}
+			if (numeroCelda == 1) {
+				numeroCelda = numeroCelda + 7;
+
+				if (numeroCelda == 8) {
+					posicion = posicion + 7;
+					if (row.getCell(posicion).toString().equalsIgnoreCase("Traslado")) {
+						//new vvector added vectorTipoImpuesto
+						vectorTipoImpuesto.add("Traslado");
+						trasladoBol = true;
+						retencionBol = false;
+					} else if (row.getCell(posicion).toString().equalsIgnoreCase("Retencion")) {
+						//new vvector added vectorTipoImpuesto
+						vectorTipoImpuesto.add("Retencion");
+						retencionBol = true;
+						trasladoBol = false;
+					} else {
+						fPermisoVector = false;
+						// sbError.append("(" + (1) + ") " + "No se encontro un Tipo de Impuesto (Traslado o Retencion)"
+						// 		+ " en el Concepto " + contadorConceptos + " - factura " + factura + "\n");
+					}
+					posicion = posicion - 7;
+					numeroCelda = numeroCelda - 7;
+				}
+
+			} else if (numeroCelda == 8) {
+				if (row.getCell(posicion).toString().equalsIgnoreCase("Traslado")) {
+					//new vvector added vectorTipoImpuesto
+					vectorTipoImpuesto.add("Traslado");
+					trasladoBol = true;
+					retencionBol = false;
+				} else if (row.getCell(posicion).toString().equalsIgnoreCase("Retencion")) {
+					//new vvector added vectorTipoImpuesto
+					vectorTipoImpuesto.add("Retencion");
+					retencionBol = true;
+					trasladoBol = false;
+				} else {
+				}
+			}
+
+			if (trasladoBol) {
+
+				if (numeroCelda == 1) {
+					if (row.getCell(posicion) != null || row.getCell(posicion).toString().length() > 0) {
+
+						Map<String, Object> tipoClaveProdServ = UtilValidationsXML.validClaveProdServ(tags.mapCatalogos,
+								row.getCell(posicion).toString());
+						if (tipoClaveProdServ.get("value").toString().equalsIgnoreCase("vacio")) {
+							fPermisoVector = false;
+							vectorClaveProdServ.add("");
+							// sbError.append("(" + (1) + ") " + tipoClaveProdServ.get("message").toString()
+							// 		+ " en el Concepto " + contadorConceptos + " - factura " + factura + "\n");
+						} else {
+							vectorClaveProdServ.add(tipoClaveProdServ.get("value").toString());
+						}
+					} else {
+						fPermisoVector = false;
+						vectorClaveProdServ.add(null);
+						// sbError.append("(" + (1) + ") " + "ClaveProdServ con formato incorrecto " + " en el Concepto "
+						// 		+ contadorConceptos + " - factura " + factura + "\n");
+					}
+				}
+
+				if (numeroCelda == 2) {
+					if (row.getCell(posicion) != null || row.getCell(posicion).toString().length() > 0) {
+						vectorCantidad.add(row.getCell(posicion).toString());
+					} else {
+						fPermisoVector = false;
+						vectorCantidad.add(null);
+						// sbError.append("(" + (1) + ") " + "Cantidad con formato incorrecto " + " en el Concepto "
+						// 		+ contadorConceptos + " - factura " + factura + "\n");
+					}
+				}
+
+				if (numeroCelda == 3) {
+					if (row.getCell(posicion) != null || row.getCell(posicion).toString().length() > 0) {
+
+						Map<String, Object> tipoClaveUnidad = UtilValidationsXML.validClaveUnidad(tags.mapCatalogos,
+								row.getCell(posicion).toString());
+						if (tipoClaveUnidad.get("value").toString().equalsIgnoreCase("vacio")) {
+							fPermisoVector = false;
+							vectorClaveUnidad.add("");
+							// sbError.append("(" + (1) + ") " + tipoClaveUnidad.get("message").toString()
+							// 		+ " en el Concepto " + contadorConceptos + " - factura " + factura + "\n");
+						} else {
+							vectorClaveUnidad.add(tipoClaveUnidad.get("value").toString());
+						}
+					} else {
+						fPermisoVector = false;
+						vectorClaveUnidad.add(null);
+						// sbError.append("(" + (1) + ") " + "ClaveUnidad con formato incorrecto " + " en el Concepto "
+						// 		+ contadorConceptos + " - factura " + factura + "\n");
+					}
+				}
+
+				if (numeroCelda == 4) {
+					if (row.getCell(posicion) != null || row.getCell(posicion).toString().length() > 0) {
+						vectorUM.add(row.getCell(posicion).toString());
+					} else {
+						fPermisoVector = false;
+						vectorUM.add(null);
+						// sbError.append("(" + (1) + ") " + "UM con formato incorrecto " + " en el Concepto "
+						// 		+ contadorConceptos + " - factura " + factura + "\n");
+					}
+				}
+
+				if (numeroCelda == 5) {
+					if (row.getCell(posicion) != null || row.getCell(posicion).toString().length() > 0) {
+						vectorDesc.add(row.getCell(posicion).toString());
+					} else {
+						fPermisoVector = false;
+						vectorDesc.add(null);
+						// sbError.append("(" + (1) + ") " + "Concepto Expedicion con formato incorrecto "
+						// 		+ " en el Concepto " + contadorConceptos + " - factura " + factura + "\n");
+					}
+				}
+
+				if (numeroCelda == 6) {
+					if (row.getCell(posicion) != null || row.getCell(posicion).toString().length() > 0) {
+						Map<String, Object> tipoPrecioUnit = UtilValidationsXML.validValorUnitario(tags.mapCatalogos,
+								row.getCell(posicion).toString(), tags.decimalesMoneda, comp.getTipoDeComprobante());
+						if (!tipoPrecioUnit.get("value").toString().equalsIgnoreCase("vacio")) {
+							vectorPrecioUnitario.add(Double.parseDouble(row.getCell(posicion).toString()));
+						} else {
+							fPermisoVector = false;
+							vectorPrecioUnitario.add(0.0);
+							// sbError.append("(" + (1) + ") " + tipoPrecioUnit.get("message").toString()
+							// 		+ " en el Concepto " + contadorConceptos + " - factura " + factura + "\n");
+						}
+
+					} else {
+						fPermisoVector = false;
+						vectorPrecioUnitario.add(null);
+						// sbError.append("(" + (1) + ") " + "Precio Unitario con formato incorrecto " + " en el Concepto "
+						// 		+ contadorConceptos + " - factura " + factura + "\n");
+					}
+				}
+
+				if (numeroCelda == 7) {
+					if (row.getCell(posicion).toString().equals("1")) {
+						if (fPermisoVector)
+							vectorAplicaIVA.add(row.getCell(posicion).toString());
+					} else {
+						fPermisoVector = false;
+						vectorAplicaIVA.add(null);
+						// sbError.append("(" + (1) + ") " + "APLICA IVA con formato incorrecto " + " en el Concepto "
+						// 		+ contadorConceptos + " - factura " + factura + "\n");
+					}
+				}
+				if (numeroCelda == 9) {
+					if (row.getCell(posicion) != null || row.getCell(posicion).toString().length() > 0) {
+						impuestoValRow = row.getCell(posicion).toString();
+						String tipoImp = UtilCatalogos.findValClaveImpuesto(tags.mapCatalogos,
+								row.getCell(posicion).toString());
+						if (!tipoImp.equalsIgnoreCase("vacio")) {
+							vectorImpuesto.add(tipoImp);
+							impuestoValRow = row.getCell(posicion).toString();
+						} else {
+							fPermisoVector = false;
+							vectorImpuesto.add("");
+							// sbError.append("(" + (1) + ") " + "No se encotro el Impuesto en el catalogo C_Impuestos "
+							// 		+ " en el Concepto " + contadorConceptos + " - factura " + factura + "\n");
+						}
+
+					} else {
+						fPermisoVector = false;
+						vectorImpuesto.add(null);
+						// sbError.append("(" + (1) + ") " + "Impuesto con formato incorrecto " + " en el Concepto "
+						// 		+ contadorConceptos + " - factura " + factura + "\n");
+					}
+				}
+				if (numeroCelda == 10) {
+					if (row.getCell(posicion) != null || row.getCell(posicion).toString().length() > 0) {
+						if (!row.getCell(posicion).toString().equalsIgnoreCase("Exento")
+								&& !row.getCell(posicion).toString().equalsIgnoreCase("Excento")) {
+							Map<String, Object> tipoTipoFact = UtilValidationsXML.validTipoFactorTra(tags.mapCatalogos,
+									row.getCell(posicion).toString());
+							if (!tipoTipoFact.get("value").toString().equalsIgnoreCase("vacio")) {
+								tipoFactorValRow = row.getCell(posicion).toString();
+								vectorTipFactor.add(row.getCell(posicion).toString());
+							} else {
+								fPermisoVector = false;
+								vectorTipFactor.add("");
+								// sbError.append("(" + (1) + ") " + tipoTipoFact.get("message").toString()
+								// 		+ " en el Concepto " + contadorConceptos + " - factura " + factura + "\n");
+							}
+						} else {
+							tipoFactorValRow = row.getCell(posicion).toString();
+							vectorTipFactor.add(row.getCell(posicion).toString());
+						}
+
+					} else {
+						fPermisoVector = false;
+						vectorTipFactor.add(null);
+						// sbError.append("(" + (1) + ") "
+						// 		+ "El valor del campo TipoFactor que corresponde a Traslado no contiene un valor del catálogo c_TipoFactor "
+						// 		+ " en el Concepto " + contadorConceptos + " - factura " + factura + "\n");
+					}
+				}
+
+				if (numeroCelda == 11) {
+					if (row.getCell(posicion) != null || row.getCell(posicion).toString().length() > 0) {
+						if (!tipoFactorValRow.equalsIgnoreCase("Exento")
+								&& !tipoFactorValRow.equalsIgnoreCase("Excento")) {
+							Map<String, Object> tipoTasaOCuota = UtilValidationsXML.validTasaOCuotaTra(
+									tags.mapCatalogos, impuestoValRow, tipoFactorValRow,
+									row.getCell(posicion).toString(), tipoFactorValRow);
+							if (!tipoTasaOCuota.get("value").toString().equalsIgnoreCase("vacio")) {
+								vectorTasaOCuota.add(Double.parseDouble(row.getCell(posicion).toString()));
+								cicloNum = cicloNum + 1;
+							} else {
+								fPermisoVector = false;
+								vectorTasaOCuota.add(Double.parseDouble("0"));
+								// sbError.append("(" + (1) + ") " + tipoTasaOCuota.get("message").toString()
+								// 		+ " en el Concepto " + contadorConceptos + " - factura " + factura + "\n");
+							}
+						} else {
+							vectorTasaOCuota.add(Double.parseDouble("0.00"));
+							cicloNum = cicloNum + 1;
+						}
+
+					} else {
+						fPermisoVector = false;
+						vectorTasaOCuota.add(Double.parseDouble("0"));
+						// sbError.append("(" + (1) + ") "
+						// 		+ "El valor del campo Tasa o Cuota que corresponde a Traslado no contiene un valor del catalogo c_Tasa o Cuota "
+						// 		+ " en el Concepto " + contadorConceptos + " - factura " + factura + "\n");
+					}
+					numeroCelda = 0;
+
+					if (!vectorTasaOCuota.isEmpty() && !vectorPrecioUnitario.isEmpty()) {
+						if (vectorTasaOCuota.size() == cicloNum && vectorPrecioUnitario.size() == cicloNum) {
+							vectorBase.add(vectorPrecioUnitario.get(cicloNum - 1));
+							Map<String, Object> tipoBaseTra = UtilValidationsXML.validBaseTra(tags.mapCatalogos,
+									vectorPrecioUnitario.get(cicloNum - 1).toString());
+							if (tipoBaseTra.get("value").toString().equalsIgnoreCase("vacio")) {
+								fPermisoVector = false;
+							}
+						}
+
+					} else {
+						fPermisoVector = false;
+					}
+
+					if (!vectorBase.isEmpty() && !vectorTasaOCuota.isEmpty() && !vectorCantidad.isEmpty()) {
+						if (vectorBase.size() == cicloNum && vectorTasaOCuota.size() == cicloNum) {
+							if (!tipoFactorValRow.equalsIgnoreCase("Exento")
+									&& !tipoFactorValRow.equalsIgnoreCase("Excento")) {
+								vectorImporte.add((vectorBase.get(cicloNum - 1)
+										* Double.valueOf(vectorCantidad.get(cicloNum - 1)))
+										* vectorTasaOCuota.get(cicloNum - 1)); // vectorTasaOCuota.get(cicloNum-1)
+							} else {
+								vectorImporte.add(0.00); // vectorTasaOCuota.get(cicloNum-1)
+							}
+
+						}
+					} else {
+						vectorImporte.add(0.00);
+					}
+
+				}
+
+			} else if (retencionBol) {
+
+				if (numeroCelda == 1) {
+					if (row.getCell(posicion) != null || row.getCell(posicion).toString().length() > 0) {
+						Map<String, Object> tipoClaveProdServ = UtilValidationsXML.validClaveProdServ(tags.mapCatalogos,
+								row.getCell(posicion).toString());
+						if (tipoClaveProdServ.get("value").toString().equalsIgnoreCase("vacio")) {
+							fPermisoVector = false;
+							vectorClaveProdServRet.add("");
+							// sbError.append("(" + (1) + ") " + tipoClaveProdServ.get("message").toString()
+							// 		+ " en el Concepto " + contadorConceptos + " - factura " + factura + "\n");
+						} else {
+							vectorClaveProdServRet.add(tipoClaveProdServ.get("value").toString());
+						}
+					} else {
+						fPermisoVector = false;
+						vectorClaveProdServRet.add(null);
+						// sbError.append("(" + (1) + ") " + "ClaveProdServ con formato incorrecto " + " en el Concepto "
+						// 		+ contadorConceptos + " - factura " + factura + "\n");
+					}
+				}
+
+				if (numeroCelda == 2) {
+					if (row.getCell(posicion) != null || row.getCell(posicion).toString().length() > 0) {
+						vectorCantidadRet.add(row.getCell(posicion).toString());
+					} else {
+						fPermisoVector = false;
+						vectorCantidadRet.add(null);
+						// sbError.append("(" + (1) + ") " + "Cantidad con formato incorrecto " + " en el Concepto "
+						// 		+ contadorConceptos + " - factura " + factura + "\n");
+					}
+				}
+
+				if (numeroCelda == 3) {
+					if (row.getCell(posicion) != null || row.getCell(posicion).toString().length() > 0) {
+
+						Map<String, Object> tipoClaveUnidad = UtilValidationsXML.validClaveUnidad(tags.mapCatalogos,
+								row.getCell(posicion).toString());
+						if (tipoClaveUnidad.get("value").toString().equalsIgnoreCase("vacio")) {
+							fPermisoVector = false;
+							vectorClaveUnidadRet.add("");
+							// sbError.append("(" + (1) + ") " + tipoClaveUnidad.get("message").toString()
+							// 		+ " en el Concepto " + contadorConceptos + " - factura " + factura + "\n");
+						} else {
+							vectorClaveUnidadRet.add(tipoClaveUnidad.get("value").toString());
+						}
+					} else {
+						fPermisoVector = false;
+						vectorClaveUnidadRet.add(null);
+						// sbError.append("(" + (1) + ") " + "ClaveUnidad con formato incorrecto " + " en el Concepto "
+						// 		+ contadorConceptos + " - factura " + factura + "\n");
+					}
+				}
+
+				if (numeroCelda == 4) {
+					if (row.getCell(posicion) != null || row.getCell(posicion).toString().length() > 0) {
+						vectorUMRet.add(row.getCell(posicion).toString());
+					} else {
+						fPermisoVector = false;
+						vectorUMRet.add(null);
+						// sbError.append("(" + (1) + ") " + "UM con formato incorrecto " + " en el Concepto "
+						// 		+ contadorConceptos + " - factura " + factura + "\n");
+					}
+				}
+
+				if (numeroCelda == 5) {
+					if (row.getCell(posicion) != null || row.getCell(posicion).toString().length() > 0) {
+						vectorDescRet.add(row.getCell(posicion).toString());
+					} else {
+						fPermisoVector = false;
+						vectorDescRet.add(null);
+						// sbError.append("(" + (1) + ") " + "Concepto Expedicion con formato incorrecto "
+						// 		+ " en el Concepto " + contadorConceptos + " - factura " + factura + "\n");
+					}
+				}
+
+				if (numeroCelda == 6) {
+					if (row.getCell(posicion) != null || row.getCell(posicion).toString().length() > 0) {
+						Map<String, Object> tipoPrecioUnit = UtilValidationsXML.validValorUnitario(tags.mapCatalogos,
+								row.getCell(posicion).toString(), tags.decimalesMoneda, comp.getTipoDeComprobante());
+						if (!tipoPrecioUnit.get("value").toString().equalsIgnoreCase("vacio")) {
+							vectorPrecioUnitarioRet.add(Double.parseDouble(row.getCell(posicion).toString()));
+						} else {
+							fPermisoVector = false;
+							vectorPrecioUnitarioRet.add(Double.parseDouble("0"));
+							// sbError.append("(" + (1) + ") " + tipoPrecioUnit.get("message").toString()
+							// 		+ " en el Concepto " + contadorConceptos + " - factura " + factura + "\n");
+						}
+					} else {
+						fPermisoVector = false;
+						vectorPrecioUnitarioRet.add(Double.parseDouble("0"));
+						// sbError.append("(" + (1) + ") " + "Precio Unitario con formato incorrecto " + " en el Concepto "
+						// 		+ contadorConceptos + " - factura " + factura + "\n");
+					}
+				}
+
+				if (numeroCelda == 7) {
+					if (row.getCell(posicion).toString().equals("1")) {
+						if (fPermisoVector)
+							vectorAplicaIVARet.add(row.getCell(posicion).toString());
+					} else {
+						fPermisoVector = false;
+						vectorAplicaIVARet.add(null);
+						// sbError.append("(" + (1) + ") " + "APLICA IVA con formato incorrecto " + " en el Concepto "
+						// 		+ contadorConceptos + " - factura " + factura + "\n");
+					}
+				}
+				if (numeroCelda == 9) {
+					if (row.getCell(posicion) != null || row.getCell(posicion).toString().length() > 0) {
+						String tipoImp = UtilCatalogos.findValClaveImpuesto(tags.mapCatalogos,
+								row.getCell(posicion).toString());
+						if (!tipoImp.equalsIgnoreCase("vacio")) {
+							vectorImpuestoRet.add(tipoImp);
+							impuestoValRowRet = row.getCell(posicion).toString();
+						} else {
+							fPermisoVector = false;
+							vectorImpuestoRet.add("");
+							// sbError.append("(" + (1) + ") " + "No se encotro el Impuesto en el catalogo C_Impuestos "
+							// 		+ " en el Concepto " + contadorConceptos + " - factura " + factura + "\n");
+						}
+
+					} else {
+						fPermisoVector = false;
+						vectorImpuestoRet.add(null);
+						// sbError.append("(" + (1) + ") " + "Impuesto con formato incorrecto " + " en el Concepto "
+						// 		+ contadorConceptos + " - factura " + factura + "\n");
+					}
+				}
+				if (numeroCelda == 10) {
+					if (row.getCell(posicion) != null || row.getCell(posicion).toString().length() > 0) {
+						Map<String, Object> tipoTipoFact = UtilValidationsXML.validTipoFactorRet(tags.mapCatalogos,
+								row.getCell(posicion).toString());
+						if (!tipoTipoFact.get("value").toString().equalsIgnoreCase("vacio")) {
+							tipoFactorValRowRet = row.getCell(posicion).toString();
+							vectorTipFactorRet.add(row.getCell(posicion).toString());
+						} else {
+							fPermisoVector = false;
+							vectorTipFactorRet.add("");
+							// sbError.append("(" + (1) + ") " + tipoTipoFact.get("message").toString()
+							// 		+ " en el Concepto " + contadorConceptos + " - factura " + factura + "\n");
+						}
+
+					} else {
+						fPermisoVector = false;
+						vectorTipFactorRet.add(null);
+						// sbError.append("(" + (1) + ") "
+						// 		+ "El valor del campo TipoFactor que corresponde a Retencion no contiene un valor del catalogo c_TipoFactor "
+						// 		+ " en el Concepto " + contadorConceptos + " - factura " + factura + "\n");
+					}
+				}
+
+				if (numeroCelda == 11) {
+					if (row.getCell(posicion) != null || row.getCell(posicion).toString().length() > 0) {
+						Map<String, Object> tipoTasaOCuota = UtilValidationsXML.validTasaOCuotaRet(tags.mapCatalogos,
+								impuestoValRowRet, tipoFactorValRowRet, row.getCell(posicion).toString(),
+								tipoFactorValRowRet);
+						if (!tipoTasaOCuota.get("value").toString().equalsIgnoreCase("vacio")) {
+							vectorTasaOCuotaRet.add(Double.parseDouble(row.getCell(posicion).toString()));
+							cicloNumRet = cicloNumRet + 1;
+						} else {
+							fPermisoVector = false;
+							vectorTasaOCuotaRet.add(Double.parseDouble("0"));
+							// sbError.append("(" + (1) + ") " + tipoTasaOCuota.get("message").toString()
+							// 		+ " en el Concepto " + contadorConceptos + " - factura " + factura + "\n");
+						}
+
+					} else {
+						fPermisoVector = false;
+						vectorTasaOCuotaRet.add(Double.parseDouble("0"));
+						// sbError.append("(" + (1) + ") "
+						// 		+ "El valor del campo Tasa o Cuota que corresponde a Retencion no contiene un valor del catalogo c_Tasa o Cuota "
+						// 		+ " en el Concepto " + contadorConceptos + " - factura " + factura + "\n");
+					}
+					numeroCelda = 0;
+
+					if (!vectorTasaOCuotaRet.isEmpty() && !vectorPrecioUnitarioRet.isEmpty()) {
+						if (vectorTasaOCuotaRet.size() == cicloNumRet
+								&& vectorPrecioUnitarioRet.size() == cicloNumRet) {
+							vectorBaseRet.add(vectorPrecioUnitarioRet.get(cicloNumRet - 1));
+							Map<String, Object> tipoBaseRet = UtilValidationsXML.validBaseRet(tags.mapCatalogos,
+									vectorPrecioUnitarioRet.get(cicloNumRet - 1).toString());
+							if (tipoBaseRet.get("value").toString().equalsIgnoreCase("vacio")) {
+								fPermisoVector = false;
+								vectorBaseRet.add(Double.parseDouble("0"));
+								// sbError.append("(" + (48 + 1) + ") " + tipoBaseRet.get("message").toString()
+								// 		+ " en el Concepto " + contadorConceptos + " - factura " + factura + "\n");
+							}
+						}
+
+					} else {
+						fPermisoVector = false;
+						vectorBaseRet.add(Double.parseDouble("0"));
+						// sbError.append("(" + (48 + 1) + ") " + "No se pudo calcular Base para el Impuesto Traslado "
+						// 		+ " en el Concepto " + contadorConceptos + " - factura " + factura + "\n");
+					}
+
+					if (!vectorBaseRet.isEmpty() && !vectorTasaOCuotaRet.isEmpty() && !vectorCantidadRet.isEmpty()) {
+						if (vectorBaseRet.size() == cicloNumRet && vectorTasaOCuotaRet.size() == cicloNumRet) {
+							vectorImporteRet.add((vectorBaseRet.get(cicloNumRet - 1)
+									* Double.valueOf(vectorCantidadRet.get(cicloNumRet - 1)))
+									* vectorTasaOCuotaRet.get(cicloNumRet - 1)); // vectorTasaOCuotaRet.get(cicloNumRet-1)
+						}
+					} else {
+						vectorImporteRet.add(0.00);
+					}
+
+				}
+
+				if (row.getCell(posicion).toString().equals("||FINFACTURA||")) {
+					fFinFactura = true;
+				}
+
+			}
+
+			posicion = posicion + 1;
+
+		}
+		boolean fAplicaIVA = false;
+		if (fPermisoVector) {
+			List<ElementsInvoice> elementosIn = new ArrayList<ElementsInvoice>();
+			Vector<Double> vectorIVA = new Vector<Double>();
+			if (vectorCantidad != null && vectorUM != null && vectorDesc != null && vectorPrecioUnitario != null
+					&& vectorAplicaIVA != null && vectorCantidad.size() == vectorUM.size()
+					&& vectorUM.size() == vectorDesc.size() && vectorDesc.size() == vectorPrecioUnitario.size()
+					&& vectorPrecioUnitario.size() == vectorAplicaIVA.size() && vectorCantidadRet != null
+					&& vectorUMRet != null && vectorDescRet != null && vectorPrecioUnitarioRet != null
+					&& vectorAplicaIVARet != null && vectorCantidadRet.size() == vectorUMRet.size()
+					&& vectorUMRet.size() == vectorDescRet.size()
+					&& vectorDescRet.size() == vectorPrecioUnitarioRet.size()
+					&& vectorPrecioUnitarioRet.size() == vectorAplicaIVARet.size()) {
+
+				List<Traslados> tras = new ArrayList<Traslados>();
+				List<Retenciones> ret = new ArrayList<Retenciones>();
+				Retenciones retMod = new Retenciones();
+
+				Integer size = 0;
+				if (vectorCantidad.size() > 0) {
+					if (vectorCantidad.size() >= vectorCantidadRet.size()) {
+						System.out.println("*********AMDAController Divisas Vector Dentro Traslado Size: ");
+						size = vectorCantidad.size();
+					}
+				}
+
+				if (vectorCantidadRet.size() > 0) {
+					if (vectorCantidadRet.size() >= vectorCantidad.size()) {
+						System.out.println("*********AMDAController Divisas Vector Dentro Retencion Size: ");
+						size = vectorCantidadRet.size();
+					}
+
+				}
+				Double sumatoriaImporte = 0.00;
+				Double sumatoriaImporteRet = 0.00;
+				Integer idRow = 0;
+				for (int v = 0; v < size; v++) {
+					if ((vectorCantidad != null && vectorUM != null && vectorDesc != null
+							&& vectorPrecioUnitario != null && vectorAplicaIVA != null && vectorClaveProdServ != null
+							&& vectorClaveUnidad != null)
+							&& (vectorCantidad.size() > 0 && vectorUM.size() > 0 && vectorDesc.size() > 0
+									&& vectorPrecioUnitario.size() > 0 && vectorAplicaIVA.size() > 0
+									&& vectorClaveProdServ.size() > 0 && vectorClaveUnidad.size() > 0)) {
+						ElementsInvoice ei = new ElementsInvoice();
+						ei.setQuantity(Double.valueOf(vectorCantidad.get(v)));
+						ei.setUnitMeasure(vectorUM.get(v));
+						ei.setDescription(vectorDesc.get(v));
+						ei.setUnitPrice(vectorPrecioUnitario.get(v));
+						ei.setClaveProdServ(vectorClaveProdServ.get(v));
+						ei.setClaveUnidad(vectorClaveUnidad.get(v));
+
+						ei.setAmount(ei.getQuantity() * ei.getUnitPrice());
+						if (vectorAplicaIVA.get(v).trim().equals("1")) {
+							// No Aplica IVA
+							vectorIVA.add(0.0);
+						} else {
+							// Aplica IVA
+							fAplicaIVA = true;
+							Double ivaItem = 0.0;
+							// ivaItem = ei.getQuantity() *
+							// ei.getUnitPrice() *
+							// (invoice.getPorcentaje()/100);TODO:Falta
+							// este campo
+							vectorIVA.add(ivaItem);
+							// invoice.setSiAplicaIva(true); TODO:
+							// Falta este campo
+						}
+						elementosIn.add(ei);
+					}
+
+					if ((vectorCantidadRet != null && vectorUMRet != null && vectorDescRet != null
+							&& vectorPrecioUnitarioRet != null && vectorAplicaIVARet != null
+							&& vectorClaveProdServRet != null && vectorClaveUnidadRet != null)
+							&& (vectorCantidadRet.size() > 0 && vectorUMRet.size() > 0 && vectorDescRet.size() > 0
+									&& vectorPrecioUnitarioRet.size() > 0 && vectorAplicaIVARet.size() > 0
+									&& vectorClaveProdServRet.size() > 0 && vectorClaveUnidadRet.size() > 0)) {
+						ElementsInvoice eiRet = new ElementsInvoice();
+						eiRet.setQuantity(Double.valueOf(vectorCantidadRet.get(v)));
+						eiRet.setUnitMeasure(vectorUMRet.get(v));
+						eiRet.setDescription(vectorDescRet.get(v));
+						eiRet.setUnitPrice(vectorPrecioUnitarioRet.get(v));
+						eiRet.setClaveProdServ(vectorClaveProdServRet.get(v));
+						eiRet.setClaveUnidad(vectorClaveUnidadRet.get(v));
+
+						eiRet.setAmount(eiRet.getQuantity() * eiRet.getUnitPrice());
+						if (vectorAplicaIVARet.get(v).trim().equals("1")) {
+							// No Aplica IVA
+							vectorIVA.add(0.0);
+						} else {
+							// Aplica IVA
+							fAplicaIVA = true;
+							Double ivaItem = 0.0;
+							// ivaItem = eiRet.getQuantity() *
+							// eiRet.getUnitPrice() *
+							// (invoice.getPorcentaje()/100); TODO:
+							// Falta este campo
+							vectorIVA.add(ivaItem);
+							// invoice.setSiAplicaIva(true); TODO:
+							// Falta este campo
+						}
+						elementosIn.add(eiRet);
+					}
+
+					if (vectorImpuesto != null && vectorImpuesto.size() > 0) {
+						Traslados traMod = new Traslados();
+						if (vectorBase != null && vectorImpuesto != null && vectorTipFactor != null
+								&& vectorTasaOCuota != null && vectorImporte != null) {
+							String tasaCoutaFormat = "0.000000";
+							if (vectorTasaOCuota.get(v).toString().length() == 4) {
+								tasaCoutaFormat = vectorTasaOCuota.get(v).toString() + "0000";
+							} else if (vectorTasaOCuota.get(v).toString().length() == 5) {
+								tasaCoutaFormat = vectorTasaOCuota.get(v).toString() + "000";
+							} else if (vectorTasaOCuota.get(v).toString().length() == 6) {
+								tasaCoutaFormat = vectorTasaOCuota.get(v).toString() + "00";
+							} else if (vectorTasaOCuota.get(v).toString().length() == 7) {
+								tasaCoutaFormat = vectorTasaOCuota.get(v).toString() + "0";
+							} else if (vectorTasaOCuota.get(v).toString().length() == 8) {
+								tasaCoutaFormat = vectorTasaOCuota.get(v).toString();
+							} else if (vectorTasaOCuota.get(v).toString().length() == 3) {
+								tasaCoutaFormat = vectorTasaOCuota.get(v).toString() + "00000";
+							}
+
+							traMod.setTipoImpuestos("1"); // BASE
+							traMod.setImpuesto(vectorImpuesto.get(v));
+							traMod.setTipoFactor(vectorTipFactor.get(v));
+							traMod.setTasaOCuota(tasaCoutaFormat);
+							traMod.setImporte(vectorImporte.get(v).toString());
+							idRow = idRow + 1;
+							traMod.setId(String.valueOf(idRow));
+							tras.add(traMod);
+							sumatoriaImporte = sumatoriaImporte + vectorImporte.get(v);
+						}
+
+					}
+					if (vectorImpuestoRet != null && vectorImpuestoRet.size() > 0) {
+						Traslados traModRet = new Traslados();
+						if (vectorBaseRet != null && vectorImpuestoRet != null && vectorTipFactorRet != null
+								&& vectorTasaOCuotaRet != null && vectorImporteRet != null) {
+							String tasaCoutaFormat = "0.000000";
+							if (vectorTasaOCuotaRet.get(v).toString().length() == 4) {
+								tasaCoutaFormat = vectorTasaOCuotaRet.get(v).toString() + "0000";
+							} else if (vectorTasaOCuotaRet.get(v).toString().length() == 5) {
+								tasaCoutaFormat = vectorTasaOCuotaRet.get(v).toString() + "000";
+							} else if (vectorTasaOCuotaRet.get(v).toString().length() == 6) {
+								tasaCoutaFormat = vectorTasaOCuotaRet.get(v).toString() + "00";
+							} else if (vectorTasaOCuotaRet.get(v).toString().length() == 7) {
+								tasaCoutaFormat = vectorTasaOCuotaRet.get(v).toString() + "0";
+							} else if (vectorTasaOCuotaRet.get(v).toString().length() == 8) {
+								tasaCoutaFormat = vectorTasaOCuotaRet.get(v).toString();
+							} else if (vectorTasaOCuotaRet.get(v).toString().length() == 3) {
+								tasaCoutaFormat = vectorTasaOCuotaRet.get(v).toString() + "00000";
+							}
+							traModRet.setTipoImpuestos("0"); // BASE
+							traModRet.setImpuesto(vectorImpuestoRet.get(v));
+							traModRet.setTipoFactor(vectorTipFactorRet.get(v));
+							traModRet.setTasaOCuota(tasaCoutaFormat);
+							traModRet.setImporte(vectorImporteRet.get(v).toString());
+							idRow = idRow + 1;
+							traModRet.setId(String.valueOf(idRow));
+							tras.add(traModRet);
+							sumatoriaImporteRet = sumatoriaImporteRet + vectorImporteRet.get(v);
+						}
+					}
+
+				}
+				// invoice.setTraslados(tras); TODO: Falta este
+				// campo
+
+
+				Double subtotal = 0.0;
+				Double iva = 0.0;
+
+				for (int iSub = 0; iSub < elementosIn.size(); iSub++) {
+					subtotal += elementosIn.get(iSub).getAmount();
+					iva += vectorIVA.get(iSub);
+				}
+
+				// Double porcentajeDescuento =
+				// comp.getDescuento()*(invoice.getPorcentaje()/100);
+				// TODO: falta campo porcentaje
+
+				Double Total = 0.0;
+				// TODO: porcentaje 1776
+				// if(iva -porcentajeDescuento < 0){
+				// iva = 0.0;
+				// }else {
+				// iva = iva -porcentajeDescuento;
+				// }
+
+				Total = subtotal + iva;
+				// invoice.setSubTotal(subtotal); TODO: falta campo
+				// invoice.setIva(Util.castToDouble(row.getCell(22).toString()));
+				// TODO: falta campo
+				BigDecimal totalDou = BigDecimal.ZERO;
+				totalDou = new BigDecimal(Total).subtract(comp.getDescuento());
+				if (vectorImporte != null && vectorImporte.size() > 0) {
+					// invoice.setTotal((Total -
+					// invoice.getDescuento()) +
+					// (sumatoriaImporte));TODO: falta campo
+					totalDou = totalDou.add(new BigDecimal(sumatoriaImporte));
+				}
+
+				if (vectorImporteRet != null && vectorImporteRet.size() > 0) {
+					// invoice.setTotal((Total -
+					// invoice.getDescuento()) -
+					// (sumatoriaImporteRet));TODO: falta campo
+					totalDou = totalDou.subtract(new BigDecimal(sumatoriaImporteRet));
+				}
+				comp.setTotal(totalDou);
+				// invoice.setElements(elementosIn);TODO:Falta ver
+				// informacion
+			}
+		}
+
+		if (!fFinFactura) {
+			// sbError.append(
+			// 		"Estructura de Renglon incorrecta, no fue encontrada la etiqueta de control ||FINFACTURA||, en el Renglon "
+			// 				+ factura + "\n");
+		}
+		return comp;
+	}
+
 }
 // TODO: Propiedades en el invoice
 // Serie del comprobante
