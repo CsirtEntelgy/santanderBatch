@@ -995,134 +995,72 @@ public class GeneraXML_ECBDSV3_3 {
 		{	logger.error("No empieza con un numero " + linea);	} 
 		// Metodo Prueba AMDA Version 3.3
 		conver.loadInfoV33(numElement, linea, campos22, lstFiscal);
-		System.out.println("GENERA XML Despues de LOADINFO AMDA: ");
 		switch (numElement) 
 		{
 		case 1:
-			//System.out.println("case1");
 			if (conver.getTags().isComprobante) 
-			{	//System.out.println("endIMPUESTOS");
+			{	
 				this.endIMPUESTOS();
-				//System.out.println("endMOVIMIENTOS");
 				this.endMOVIMIENTOS();
-				System.out.println("Case 1:Entra Addenda ");
 				this.addenda();
-				System.out.println("Case 1:Sale Addenda ");
 				
 				System.out.println("filenamesContabilizar:" + fileNames);				
 				
 				
-				//System.out.println("end");
 				this.end(1, idProceso, fecha, fileNames, numeroMalla);
-				//System.out.println("generaXmlTime");
 				long t2 = generaXmlTime - System.currentTimeMillis();
 				System.out.println("TIME: Genera XMLTime " + t2 + " ms");
-				//System.out.println("generaXmlTime2");
 				generaXmlTime = System.currentTimeMillis();
-				//System.out.println("begin");
 				this.begin();
 			}
 			startLine = "" + contCFD;
 			endLine = null;
 			conver.getTags().isComprobante = true;
-			//System.out.println("conver.set");
 			conver.set(linea, contCFD, fileNames, getNombresApps(), numeroMalla);
 			
 			break;
 		case 2:
-//			System.out.println("case2");
-//			if(!versionTypo) // Validando a que tipo de version apunta AMDA
 				out.write(conver.fComprobante(linea, contCFD, tipoCambio, lstFiscal, campos22, fileNames));
-//			else
-//				//Entra a la version 3.3
-//				out.write(conver.fComprobante(linea, contCFD, tipoCambio, lstFiscal, campos22, fileNames));
-//				System.out.println("Out: Case 2 " + out);
 			break;
 		case 3:
-//			System.out.println("case3");
 			out.write(conver.emisor(linea, lstFiscal, contCFD, campos22));
-//			System.out.println("Out: Case 3 " + out);
 			break;
 		case 4:
-//			System.out.println("case4");
-			//out.write(conver.receptor(linea, contCFD));
-//			System.out.println("Out: Case 4 " + out);
 			break;
 		case 5:
 			out.write(conver.receptor(conver.getTags().lineaAnterior, conver.getTags().contCFDAnterior));
-//			System.out.println("case5");
 			out.write(conver.domicilio(linea, contCFD));
-//			System.out.println("Out: Case 5 " + out);
 			this.beginCONCEPTOS();
-//			System.out.println("Out: Case 5-1 " + out);
 			break;
 		case 6:
-//			System.out.println("case6");
 			out.write(conver.concepto(linea, contCFD, lstFiscal, campos22));
-//			System.out.println("Out: Case 6 " + out);
 			break;
 		case 7:
-//			System.out.println("case7");
-//			System.out.println("Conver Tags Tipo Comprobante: " + conver.getTags().tipoComprobante);
 			if(!conver.getTags().tipoComprobante.equalsIgnoreCase("T") && !conver.getTags().tipoComprobante.equalsIgnoreCase("P")){
-//				System.out.println("Conver Tags Tipo Comprobante DEntro De Impuestos: " + conver.getTags().tipoComprobante);
 				out.write(conver.impuestos(linea, contCFD));
 			}
-//			System.out.println("Out: Case 7 " + out);
 			break;
 		case 8:
-//			System.out.println("case8");
 			if(!conver.getTags().tipoComprobante.equalsIgnoreCase("T") && !conver.getTags().tipoComprobante.equalsIgnoreCase("P")){
-//				System.out.println("Conver Tags Tipo Comprobante DEntro De retencion: " + conver.getTags().tipoComprobante);
-				/*SMS-Comentado 22/08/2017 Generaba nodos en impuestos
-				this.beginRETENCIONES();
-				out.write(conver.retenciones(linea, contCFD));
-				*/
 			}
-//			System.out.println("Out: Case 8-1 " + out);
 			break;
 		case 9:
-//			System.out.println("case9");
-//			System.out.println("Out: Case 9 " + out);
 			if(!conver.getTags().tipoComprobante.equalsIgnoreCase("T") && !conver.getTags().tipoComprobante.equalsIgnoreCase("P")){
 				System.out.println("Conver Tags Tipo Comprobante DEntro De Ret y Tra: " + conver.getTags().tipoComprobante);
-				/*SMS-Comentado 22/08/2017 Generaba nodos en impuestos
-				this.endRETENCIONES();
-				this.beginTRASLADOS();
-				out.write(conver.traslados(linea, contCFD));	
-				*/
 			}
-//			System.out.println("Out: Case 9-3 " + out);
 			break;
 		case 10:
-//			System.out.println("case10");
-//			System.out.println("Out: Case 10 " + out);
 			this.endCONCEPTOS();
-//			System.out.println("Out: Case 10-1 " + out);
-			/*SMS-Comentado 22/08/2017 Generaba nodos en impuestos
-			this.endRETENCIONES();
-			this.endTRALADOS();
-			*/
-//			System.out.println("Out: Case 10-3 " + out);
 			if (conver.getTags().isImpuestos) 
 			{	this.endIMPUESTOS();	} 
 			else if (!conver.getTags().isImpuestos) 
 			{	out.write("\n<cfdi:Impuestos/>".getBytes());		}
-//			System.out.println("Out: Case 10-4 " + out);
 			this.endMOVIMIENTOS();
-//			System.out.println("Out: Case 10-5 " + out);
-			System.out.println("Case 10:Entra Addenda ");
 			this.addenda();
-			System.out.println("Case 10:Entra Addenda ");
-//			System.out.println("Out: Case 10-6 " + out);
 			break;
 		case 11:
-//			System.out.println("case11");
-//			System.out.println("Out: Case 11 " + out);
 			this.beginMOVIMIENTOS(); 
-//			System.out.println("Out: Case 11-1 " + out);
 			out.write(conver.movimeinto(linea, contCFD));
-//			System.out.println("Out: Case 11-2 " + out);
 			break;
 		case 13:
 			System.out.println("Case 13:Entra cfdi ");
@@ -1309,17 +1247,11 @@ public class GeneraXML_ECBDSV3_3 {
 	 * @throws IOException
 	 */
 	public void addenda() throws IOException {
-		System.out.println("SMS:ADDENDA:Entra addenda");
 		if (conver.getTags().isAddenda) {
-			System.out.println("SMS:ADDENDA:Antes end addenda");
 			this.endADDENDA();
-			System.out.println("SMS:ADDENDA:Despues End addenda");
 		} else if (!conver.getTags().isAddenda) {
-			System.out.println("Antes begin addenda");
 			this.beginADDENDA();
-			System.out.println("Despues begin addenda");
 		}
-		System.out.println("Sale addenda");
 	}
 
 	/**
@@ -1358,51 +1290,33 @@ public class GeneraXML_ECBDSV3_3 {
 	public void endADDENDA() 
 		throws IOException 
 	{
-		System.out.println("SMS:ADDENDA:Entra end addenda");
 		if (conver.getTags().isAddenda) 
 		{
 			out.write("\n</Santander:EstadoDeCuentaBancario>".getBytes());
 			out.write("\n</Santander:addendaECB>".getBytes());
 			out.write("\n</cfdi:Addenda>".getBytes());
 			conver.getTags().isAddenda = false;
-			System.out.println("SMS:ADDENDA:Antes addenda domicilio");
 			this.addendaDomicilios();
-			System.out.println("SMS:ADDENDA:Despues addenda domicilio");
 		}
-		System.out.println("SMS:ADDENDA:Sale end addenda");
 	}
 	
 	/**
 	 * Metodo para generar addenda de domicilios
 	 */
 	public void addendaDomicilios() throws IOException {
-		System.out.println("SMS:ADDENDA:Entra addenda domicilios");
-		System.out.println("SMS:ADDENDA:Antes begin addenda domicilios");
 		this.beginAddendaDomicilios();
-		System.out.println("SMS:ADDENDA:Despues begin addenda domicilios");
-		System.out.println("SMS:ADDENDA:Antes domicilio emisor");
 		out.write(conver.domicilioEmisor());		
-		System.out.println("SMS:ADDENDA:Despues domicilio emisor");
-		System.out.println("SMS:ADDENDA:Antes domicilio receptor");
 		out.write(conver.domicilioReceptor());		
-		System.out.println("SMS:ADDENDA:Despues domicilio receptor");
-		System.out.println("SMS:ADDENDA:Antes end domicilio ");
 		this.endAddendaDomicilios();
-		System.out.println("SMS:ADDENDA:Despues end domicilio ");
-		System.out.println("SMS:ADDENDA:Entra addenda domicilios");
 	}
 	private void beginAddendaDomicilios() throws IOException {
-		System.out.println("SMS:ADDENDA:Entra begin addenda domicilios");
 		out.write("\n<cfdi:Addenda>".getBytes("UTF-8"));
 		out.write(conver.getTags().addenda.getBytes("UTF-8"));
-		System.out.println("SMS:ADDENDA:Sale begin addenda domicilios");
 	}
 	
 	private void endAddendaDomicilios() throws IOException {
-		System.out.println("SMS:ADDENDA:Entra end addenda domicilios");
 		out.write("\n</as:AddendaSantanderV1>".getBytes("UTF-8"));
 		out.write("\n</cfdi:Addenda>".getBytes("UTF-8"));
-		System.out.println("SMS:ADDENDA:Sale end addenda domicilios");
 	}
 	/**
 	 * 
@@ -2116,6 +2030,9 @@ public class GeneraXML_ECBDSV3_3 {
 							String xml = out.toString("UTF-8");
 							xml = xml.replace("Fecha=", "Descuento=\"0.01\" Fecha=");
 							out = UtilCatalogos.convertStringToOutpuStream(xml);
+							Document docChangeSubTotal = byteArrayOutputStreamToDocument(out);
+							UtilCatalogos.setValueOnDocumentElement(docChangeSubTotal, "//Comprobante/@SubTotal", "0.00");
+							out = UtilCatalogos.convertStringToOutpuStream(UtilCatalogos.convertDocumentXmlToString(docChangeSubTotal));
 							conver.getTags().isECBEnCeros=false;
 						}
 

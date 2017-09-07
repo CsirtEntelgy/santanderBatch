@@ -2143,18 +2143,6 @@ public class ConvertirV3_3
 	public byte[] domicilioReceptor() 
 			throws UnsupportedEncodingException 
 	{
-		System.out.println("SMS:ADDENDA:Entra domicilioReceptor");
-		System.out.println("Domicilio Receptor Calle"+tags._Calle);
-		System.out.println("Domicilio Receptor #Exterior"+tags._NoExterior);
-		System.out.println("Domicilio Receptor #Interior"+tags._NoInterior);
-		System.out.println("Domicilio Receptor Colonia"+tags._Colonia);
-		System.out.println("Domicilio Receptor Localidad"+tags._Localidad);
-		System.out.println("Domicilio Receptor Referencia"+tags._Referencia);
-		System.out.println("Domicilio Receptor Municipio"+tags._Municipio);
-		System.out.println("Domicilio Receptor Estado"+tags._Estado);
-		System.out.println("Domicilio Receptor Pais"+tags._Pais);
-		System.out.println("Domicilio Receptor CP"+tags._CodigoPostal);
-		System.out.println("SMS:ADDENDA:Sale domicilioReceptor");
 			return
 					Util
 					.conctatArguments(
@@ -2178,7 +2166,6 @@ public class ConvertirV3_3
 	 * Metodo para agregar el domicilio del emisor a la addenda
 	 */
 	public byte[] domicilioEmisor() throws UnsupportedEncodingException {
-		System.out.println("SMS:ADDENDA:Entra domicilioEmisor");
 		StringBuffer sb = new StringBuffer();
 		if (tags.fis.getAddress() != null) {
 			if (tags.fis.getAddress().getStreet() != null) {
@@ -2218,8 +2205,6 @@ public class ConvertirV3_3
 			}
 
 		}
-		System.out.println("SMS:Datos Domicilio Emisor"+sb.toString());
-		System.out.println("SMS:ADDENDA:Sale domicilioEmisor");
 		return Util.conctatArguments("\n<as:DomicilioEmisor ", sb.toString(), "/>").toString().getBytes("UTF-8");
 	}
 

@@ -291,7 +291,6 @@ public class GeneraXML_CFDV3_3
 //			{	logger.error("No empieza con un numero " + linea);	}
 //			
 			conver.loadInfoV33(linea);
-			System.out.println("GENERA XML Despues de LOADINFO FACT AMDA: ");
 			// AMDA termina fucnion prueba
 
 			if (tokens[0].equals(conver.getTags()._CONTROLCFD)) 
@@ -393,11 +392,8 @@ public class GeneraXML_CFDV3_3
 					System.out.println("numberLineCFDCTr AMDA:  " + numberLineCFDCTr);
 					
 					String[] tokenKe = (String[])conver.getTags().mapConcep.get(tokenCTr);
-					System.out.println("Despues de Token Ke AMDA: ");
 					Long valMap = conver.getTags().mapConcepL.get(numberLineCFDCTr);
-					System.out.println("Despues Long 1 AMDA: ");
 //			        Long valMapLongLong = Long.parseLong(valMap);
-			        System.out.println("Despues Long 2 AMDA: ");
 					out.write(conver.concepto(tokenKe, valMap));
 				}
 				
