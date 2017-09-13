@@ -5,6 +5,9 @@
  */
 package com.interfactura.firmalocal.datamodel;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  *
  * @author Maximino Llovera
@@ -17,6 +20,10 @@ public class CfdiReceptor {
     private String rfc;
     private String usoCFDI;
     private CfdiDomicilio domicilio;
+    
+    private static final String rfcPattern = "[A-Z,Ñ,&]{3,4}[0-9]{2}[0-1][0-9][0-3][0-9][A-Z,0-9]?[A-Z,0-9]?[0-9,A-Z]?";
+    private Pattern pattern;
+    private Matcher matcher;
 
     public String getNombre() {
         return nombre;
@@ -47,7 +54,16 @@ public class CfdiReceptor {
     }
 
     public void setRfc(String rfc) {
-        this.rfc = rfc;
+    	
+    	this.pattern = Pattern.compile(rfcPattern);
+		this.matcher = this.pattern.matcher(rfc);
+		
+		if(this.matcher.matches()){
+			this.rfc = rfc;
+		}else{
+			System.out.println("RFC: "+rfc+" no cumple con el formato, es reemplazado por: XAXX010101000");
+			this.rfc = "XAXX010101000";
+		}
     }
 
     public String getUsoCFDI() {
