@@ -56,7 +56,11 @@ public class ConvertirImplV3_3
 	private String tmp;
 	private Util util = new Util();
 	private List<String> descriptionFormat;
-
+	
+	private static final String RFC_PATTERN = "[A-Z,Ñ,&]{3,4}[0-9]{2}[0-1][0-9][0-3][0-9][A-Z,0-9]?[A-Z,0-9]?[0-9,A-Z]?";
+	private Pattern pattern;
+	private Matcher matcher;
+	
 	public ConvertirImplV3_3() 
 	{
 		// tags = new TagsXML();
@@ -747,6 +751,19 @@ public class ConvertirImplV3_3
 	{
 		if (tokens.length >= 4) 
 		{
+			//reempazar RFC incorrecto por generico
+			if (tokens[1].trim().length() > 0){
+				pattern = Pattern.compile(RFC_PATTERN);
+				matcher = pattern.matcher(tokens[1].trim());
+				
+				if(matcher.matches()){
+					System.out.println("RFC valido:"+tokens[1].trim());
+				}else{
+					System.out.println("Reemplazar RFC incorrecto: "+tokens[1].trim()+" por generico: XAXX010101000");
+					tokens[1] = "XAXX010101000";
+				}
+			}
+			
 			tags.RECEPCION_RFC = tokens[1].trim();
 			if(tags.RECEPCION_RFC.trim().length() == 0){ // Validacion AMDA Version 3.3
 				tags.RECEPCION_RFC = "RFCNecesario";
