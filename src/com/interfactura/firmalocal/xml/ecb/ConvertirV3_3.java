@@ -1058,9 +1058,11 @@ public class ConvertirV3_3
 	{
 		lineas = linea.split("\\|");
 		System.out.println("Entrando a Receptor: ");
+		System.out.println("ECB:Antes de reemplazo RFC Generico Receptor: ");
 		if (lineas.length >= 3) 
 		{
 			//reempazar RFC incorrecto por generico
+			System.out.println("ECB:Entrando a reemplazo RFC Generico Receptor: ");
 			if (lineas[1].trim().length() > 0){
 				pattern = Pattern.compile(RFC_PATTERN);
 				matcher = pattern.matcher(lineas[1].trim());

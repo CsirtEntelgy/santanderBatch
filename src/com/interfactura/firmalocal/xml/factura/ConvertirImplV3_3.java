@@ -749,9 +749,11 @@ public class ConvertirImplV3_3
 	public byte[] receptor(String tokens[], long numberLine) 
 		throws UnsupportedEncodingException 
 	{
+		System.out.println("Factura:Antes de reemplazo RFC Generico Receptor: ");
 		if (tokens.length >= 4) 
 		{
 			//reempazar RFC incorrecto por generico
+			System.out.println("Factura:Antes a reemplazo RFC Generico Receptor: ");
 			if (tokens[1].trim().length() > 0){
 				pattern = Pattern.compile(RFC_PATTERN);
 				matcher = pattern.matcher(tokens[1].trim());
