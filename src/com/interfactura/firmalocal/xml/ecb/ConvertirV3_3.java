@@ -58,6 +58,10 @@ public class ConvertirV3_3
 	private String valImporteRetencion;
 	private String valImporteTraslado;
 	
+	private static final String RFC_PATTERN = "[A-Z,Ñ,&]{3,4}[0-9]{2}[0-1][0-9][0-3][0-9][A-Z,0-9]?[A-Z,0-9]?[0-9,A-Z]?";
+	private Pattern pattern;
+	private Matcher matcher;
+	
 	public void set(String linea, long numberLine, String fileNames, HashMap<String, String> hashApps, String numeroMalla) 
 	{
 		lineas = linea.split("\\|");
@@ -1054,8 +1058,23 @@ public class ConvertirV3_3
 	{
 		lineas = linea.split("\\|");
 		System.out.println("Entrando a Receptor: ");
+		System.out.println("ECB:Antes de reemplazo RFC Generico Receptor: ");
 		if (lineas.length >= 3) 
 		{
+			//reempazar RFC incorrecto por generico
+			System.out.println("ECB:Entrando a reemplazo RFC Generico Receptor: ");
+			if (lineas[1].trim().length() > 0){
+				pattern = Pattern.compile(RFC_PATTERN);
+				matcher = pattern.matcher(lineas[1].trim());
+				
+				if(matcher.matches()){
+					System.out.println("RFC valido:"+lineas[1].trim());
+				}else{
+					System.out.println("Reemplazar RFC incorrecto: "+lineas[1].trim()+" por generico: XAXX010101000");
+					lineas[1] = "XAXX010101000";
+				}
+			}
+			
 			tags.RECEPCION_RFC = lineas[1].trim();
 			if(tags.RECEPCION_RFC.trim().length() == 0){ // Validacion AMDA Version 3.3
 				tags.RECEPCION_RFC = "RFCNecesario";
