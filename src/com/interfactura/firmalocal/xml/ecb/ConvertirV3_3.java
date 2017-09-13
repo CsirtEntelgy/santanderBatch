@@ -1580,21 +1580,22 @@ public class ConvertirV3_3
 	public byte[] conceptoEnCeros()
 			throws UnsupportedEncodingException {
 		tags.isECBEnCeros = true;
-		String claveProdServVal = ""; 
+		tags.subtotalDoubleTag = 0.0;
+		String claveProdServVal = "";
 
 		if (!UtilCatalogos.findClaveProdServbyDesc(tags.mapCatalogos, "Instituciones bancarias")
 				.equalsIgnoreCase("vacio")) {
 			claveProdServVal = "ClaveProdServ=\""
-					+ UtilCatalogos.findClaveProdServbyDesc(tags.mapCatalogos, "Instituciones bancarias"); 
+					+ UtilCatalogos.findClaveProdServbyDesc(tags.mapCatalogos, "Instituciones bancarias");
 		} else {
 			claveProdServVal = "ErrConClavPro001=\"" + "vacio";
 		}
-		String nodoConcepto = "<cfdi:Concepto "+claveProdServVal+"\" Cantidad=\"1\" ClaveUnidad=\"E48\" Unidad=\"SERVICIO\" "
-				+ "Descripcion=\"SERVICIOS DE FACTURACIÓN\"  ValorUnitario=\"0.01\" Importe=\"0.01\"><cfdi:Impuestos>" + 
-				"<cfdi:Traslados>" + 
-				"<cfdi:Traslado Base=\"0.00\" Impuesto=\"002\" TipoFactor=\"Tasa\" TasaOCuota=\"0.160000\" Importe=\"0.00\"  />" + 
-				"</cfdi:Traslados>" + 
-				"</cfdi:Impuestos></cfdi:Concepto>";
+		String nodoConcepto = "<cfdi:Concepto " + claveProdServVal
+				+ "\" Cantidad=\"1\" ClaveUnidad=\"E48\" Unidad=\"SERVICIO\" "
+				+ "Descripcion=\"SERVICIOS DE FACTURACIÓN\"  ValorUnitario=\"0.01\" Importe=\"0.01\"><cfdi:Impuestos>"
+				+ "<cfdi:Traslados>"
+				+ "<cfdi:Traslado Base=\"1.00\" Impuesto=\"002\" TipoFactor=\"Tasa\" TasaOCuota=\"0.000000\" Importe=\"0.00\"  />"
+				+ "</cfdi:Traslados>" + "</cfdi:Impuestos></cfdi:Concepto>";
 		return nodoConcepto.getBytes("UTF-8");
 	}
 

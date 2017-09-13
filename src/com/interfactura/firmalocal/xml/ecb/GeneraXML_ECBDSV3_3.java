@@ -1727,7 +1727,6 @@ public class GeneraXML_ECBDSV3_3 {
 								int iEnd = domStr.indexOf("</as:AddendaSantanderV1>");
 								iEnd = iEnd + 24;
 								addendaDomiciliosNodeStr.add(domStr.substring(iStart, iEnd));
-								System.out.println("SMS:Addenda:Corte:: " + addendaDomiciliosNodeStr);
 							}
 							root.removeChild(root.getChildNodes().item(i));
 						}
@@ -1923,13 +1922,11 @@ public class GeneraXML_ECBDSV3_3 {
 			} catch (TransformerException e) {
 				e.printStackTrace();
 			}
-			System.out.println("SMS-Antes agregar addenda domicilio::" + xmlString2);
 			String strAddendaComp = "";
 			strAddendaComp = "<cfdi:Addenda>"+addendaDomiciliosNodeStr.poll() + "</cfdi:Addenda></cfdi:Comprobante>";
 			String strXmlString = "";
 			strXmlString = xmlString2.replace("</cfdi:Comprobante>", strAddendaComp);
 			xmlFinal = strXmlString.replaceAll("[\n\r]", "");
-			System.out.println("SMS-Despues agregar addenda domicilio::" + xmlString2);
 			try {
 				domResultado = UtilCatalogos.convertStringToDocument(xmlFinal);
 			} catch (ParserConfigurationException e) {
@@ -2031,7 +2028,7 @@ public class GeneraXML_ECBDSV3_3 {
 							xml = xml.replace("Fecha=", "Descuento=\"0.01\" Fecha=");
 							out = UtilCatalogos.convertStringToOutpuStream(xml);
 							Document docChangeSubTotal = byteArrayOutputStreamToDocument(out);
-							UtilCatalogos.setValueOnDocumentElement(docChangeSubTotal, "//Comprobante/@SubTotal", "0.00");
+							UtilCatalogos.setValueOnDocumentElement(docChangeSubTotal, "//Comprobante/@SubTotal", "0.01");
 							out = UtilCatalogos.convertStringToOutpuStream(UtilCatalogos.convertDocumentXmlToString(docChangeSubTotal));
 							conver.getTags().isECBEnCeros=false;
 						}
