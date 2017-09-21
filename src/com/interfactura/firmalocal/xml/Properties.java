@@ -180,11 +180,11 @@ public class Properties
 
 	
 	//Variables para acceso de WS Cancelacion
-	@Value("${url.webservice.cancelacion}")
+//	@Value("${url.webservice.cancelacion}")
     private String urlWebServiceCancelacion;
 	
 	//Variable para acceso a WS de Cifras Control
-	@Value("${url.webservice.cifrasControl}")
+//	@Value("${url.webservice.cifrasControl}")
     private String urlWebServiceCifrasControl;
 	
 	//Variable de ubicacion a archivo XLS catalogos AMDA
