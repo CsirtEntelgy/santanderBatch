@@ -385,17 +385,19 @@ public class ConvertirV3_3 {
 										// concat.append(" TipoCambioNoEntonctradoParaElTipoDeMoneda=\"" +
 										// tags.TIPO_MONEDA + "\"");
 										// }
-
+										concat.append(" TipoCambio=\"" + tags.TIPO_CAMBIO + "\"");
+										//@Samuel:Se quita validacion de variacion del tipo de cambio
+										/*
 										String resultadoRipoCam = UtilCatalogos.findTipoCambioPorcentaje(
 												tags.mapCatalogos, tags.TIPO_MONEDA, tags.TIPO_CAMBIO);
 										if (resultadoRipoCam.equalsIgnoreCase("OK")) {
 											// System.out.println("Tipo Cambio Bien");
-											concat.append(" TipoCambio=\"" + tags.TIPO_CAMBIO + "\"");
 										} else {
 											// System.out.println("Tipo Cambio No dentro de limites");
 											concat.append(" ErrCompTipoCambio002" + tags.TIPO_MONEDA + "=\""
 													+ tags.TIPO_CAMBIO + "\"");
 										}
+										*/
 
 										// Double valMinimo = 0.000001;
 										// try{
@@ -496,16 +498,19 @@ public class ConvertirV3_3 {
 										// tipo de moneda" + tags.TIPO_MONEDA + "\"");
 										// }
 
+										concat.append(" TipoCambio=\"" + tags.TIPO_CAMBIO + "\"");
+										//@Samuel:Se quita validacion de variacion del tipo de cambio
+										/*
 										String resultadoRipoCam = UtilCatalogos.findTipoCambioPorcentaje(
 												tags.mapCatalogos, tags.TIPO_MONEDA, tags.TIPO_CAMBIO);
 										if (resultadoRipoCam.equalsIgnoreCase("OK")) {
 											// System.out.println("Tipo Cambio Bien");
-											concat.append(" TipoCambio=\"" + tags.TIPO_CAMBIO + "\"");
 										} else {
 											// System.out.println("Tipo Cambio No dentro de limites");
 											concat.append(" ErrCompTipoCambio002" + tags.TIPO_MONEDA + "=\""
 													+ tags.TIPO_CAMBIO + "\"");
 										}
+										*/
 
 									} else {
 										concat.append(" ErrCompTipoCambio005=\"" + tags.TIPO_CAMBIO + tags.TIPO_MONEDA
@@ -632,15 +637,18 @@ public class ConvertirV3_3 {
 								// tags.TIPO_CAMBIO + "\"");
 								// }
 
+								concat.append(" TipoCambio=\"" + tags.TIPO_CAMBIO + "\"");
+								//@Samuel:Se quita validacion de variacion del tipo de cambio
+								/*
 								String resultadoRipoCam = UtilCatalogos.findTipoCambioPorcentaje(tags.mapCatalogos,
 										tags.TIPO_MONEDA, tags.TIPO_CAMBIO);
 								if (resultadoRipoCam.equalsIgnoreCase("OK")) {
 									// System.out.println("Tipo Cambio Bien");
-									concat.append(" TipoCambio=\"" + tags.TIPO_CAMBIO + "\"");
 								} else {
 									// System.out.println("Tipo Cambio No dentro de limites");
 									concat.append(" ErrCompTipoCambio002=\"" + tags.TIPO_CAMBIO + "\"");
 								}
+								*/
 
 							} else if (tags.TIPO_MONEDA.equalsIgnoreCase("MXN")) {
 								// System.out.println("Cuendo es MXN La Moneda AMDA" + valueTipoCambioDoubl + "
