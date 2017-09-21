@@ -58,6 +58,7 @@ public class ConvertirImplV3_3
 	private List<String> descriptionFormat;
 	
 	private static final String RFC_PATTERN = "[A-Z,Ñ,&]{3,4}[0-9]{2}[0-1][0-9][0-3][0-9][A-Z,0-9]?[A-Z,0-9]?[0-9,A-Z]?";
+	private static final String RFC_PATTERN_TWO = "[A-Z&Ñ]{3,4}[0-9]{2}(0[1-9]|1[012])(0[1-9]|[12][0-9]|3[01])[A-Z0-9]{2}[0-9A]";
 	private Pattern pattern;
 	private Matcher matcher;
 	
@@ -759,7 +760,14 @@ public class ConvertirImplV3_3
 				matcher = pattern.matcher(tokens[1].trim());
 				
 				if(matcher.matches()){
-					System.out.println("RFC valido:"+tokens[1].trim());
+					pattern = Pattern.compile(RFC_PATTERN_TWO);
+					matcher = pattern.matcher(tokens[1].trim());
+					if(matcher.matches()){
+						System.out.println("RFC valido:"+tokens[1].trim());
+					}else{
+						System.out.println("Reemplazar RFC incorrecto: "+tokens[1].trim()+" por generico: XAXX010101000");
+						tokens[1] = "XAXX010101000";
+					}
 				}else{
 					System.out.println("Reemplazar RFC incorrecto: "+tokens[1].trim()+" por generico: XAXX010101000");
 					tokens[1] = "XAXX010101000";
