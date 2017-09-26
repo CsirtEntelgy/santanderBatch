@@ -36,6 +36,7 @@ import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
 
 import com.interfactura.firmalocal.controllers.MassiveReadController;
+import com.interfactura.firmalocal.datamodel.CfdiComprobanteFiscal;
 import com.interfactura.firmalocal.datamodel.ElementsInvoice;
 import com.interfactura.firmalocal.datamodel.Invoice_Masivo;
 import com.interfactura.firmalocal.domain.entities.CFDFieldsV22;
@@ -65,6 +66,7 @@ import com.interfactura.firmalocal.xml.WebServiceClienteUnicoDivisas;
 import com.interfactura.firmalocal.xml.file.GeneraArchivo_Masivo;
 import com.interfactura.firmalocal.xml.file.XMLProcess;
 import com.interfactura.firmalocal.xml.util.Util;
+import com.interfactura.firmalocal.xml.util.UtilCFDIValidations;
 
 @Component
 public class GeneraXMLProceso_Masivo {
@@ -106,6 +108,9 @@ public class GeneraXMLProceso_Masivo {
 	private GeneraArchivo_Masivo generaXML;
 	@Autowired
 	private IvaManager ivaManager;
+	
+	@Autowired(required = true)
+	private UtilCFDIValidations validations;
 
 	@Value("${invoice.status.active}")
 	private String statusActive;
@@ -348,9 +353,16 @@ public class GeneraXMLProceso_Masivo {
 								}else{
 									this.listIn = new ArrayList<Invoice_Masivo>();
 									
-									StringBuilder sbErrorFile = this.processRowExcel(arrayValues, factura+1, hashIvas, hashcodigoISO, hashmoneda, hashEmisores, hashClientes, hashCfdFieldsV22);
+									CfdiComprobanteFiscal comp = new CfdiComprobanteFiscal();
+									//antiguo metodo fill y validate
+									//StringBuilder sbErrorFile = this.processRowExcel(arrayValues, factura+1, hashIvas, hashcodigoISO, hashmoneda, hashEmisores, hashClientes, hashCfdFieldsV22);
+									StringBuilder sbErrorFile = new StringBuilder();
 									
-									if(sbErrorFile != null){
+									sbErrorFile.append(validations.validateComprobante(comp, factura));
+									
+									//convertir comprobante a invoice
+									
+									if(sbErrorFile.toString().length() > 0 ){
 										//salidaINC.write(("ErrorArchivo|" + sbErrorFile.toString() + "\n").getBytes("UTF-8"));
 										sbStatusNoOK.append("ErrorArchivo|" + sbErrorFile.toString() + "\n");
 										

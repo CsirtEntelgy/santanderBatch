@@ -21,6 +21,8 @@ public class CfdiConcepto {
     private String unidad;
     private BigDecimal valorUnitario;
     private CfdiConceptoImpuesto impuestos;
+    
+    private String aplicaIva;
 
     public BigDecimal getCantidad() {
         return cantidad;
@@ -85,5 +87,13 @@ public class CfdiConcepto {
     public void setImpuestos(CfdiConceptoImpuesto impuestos) {
         this.impuestos = impuestos;
     }
+
+	public String getAplicaIva() {
+		return aplicaIva;
+	}
+
+	public void setAplicaIva(String aplicaIva) {
+		this.aplicaIva = aplicaIva;
+	}
 
 }

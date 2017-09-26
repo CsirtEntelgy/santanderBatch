@@ -47,6 +47,7 @@ public class ReadExcelSax {
 	
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
+		System.out.println("--Entrando a main de ReadExcelSax--");
 		try {
 			readIdFileProcess(args[0], args[1]);
 		}catch(Exception e){

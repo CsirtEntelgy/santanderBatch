@@ -41,6 +41,16 @@ public class CfdiComprobanteFiscal {
     private String ivaCellValue;
     private String tipoAddendaCellValue;
     private String motivoDescCellValue;
+    private String strIDExtranjero;
+    private String customerRfcCellValue;
+    private String tipoEmision;
+    private String numeroCuenta;
+    private boolean finFactura;
+    private String noAutorizacion;
+    private String numEmpledo;
+    private Integer decimalesMoneda;
+    //private List<ComplementoPago> complementPagos;
+    private String numeroCuentaPago;
 
     public BigDecimal getDescuento() {
         return descuento;
@@ -248,6 +258,78 @@ public class CfdiComprobanteFiscal {
 
 	public void setMotivoDescCellValue(String motivoDescCellValue) {
 		this.motivoDescCellValue = motivoDescCellValue;
+	}
+
+	public String getStrIDExtranjero() {
+		return strIDExtranjero;
+	}
+
+	public void setStrIDExtranjero(String strIDExtranjero) {
+		this.strIDExtranjero = strIDExtranjero;
+	}
+
+	public String getCustomerRfcCellValue() {
+		return customerRfcCellValue;
+	}
+
+	public void setCustomerRfcCellValue(String customerRfcCellValue) {
+		this.customerRfcCellValue = customerRfcCellValue;
+	}
+
+	public String getTipoEmision() {
+		return tipoEmision;
+	}
+
+	public void setTipoEmision(String tipoEmision) {
+		this.tipoEmision = tipoEmision;
+	}
+
+	public String getNumeroCuenta() {
+		return numeroCuenta;
+	}
+
+	public void setNumeroCuenta(String numeroCuenta) {
+		this.numeroCuenta = numeroCuenta;
+	}
+
+	public boolean getFinFactura() {
+		return finFactura;
+	}
+
+	public void setFinFactura(boolean finFactura) {
+		this.finFactura = finFactura;
+	}
+
+	public String getNoAutorizacion() {
+		return noAutorizacion;
+	}
+
+	public void setNoAutorizacion(String noAutorizacion) {
+		this.noAutorizacion = noAutorizacion;
+	}
+
+	public String getNumEmpledo() {
+		return numEmpledo;
+	}
+
+	public void setNumEmpledo(String numEmpledo) {
+		this.numEmpledo = numEmpledo;
+	}
+
+	public Integer getDecimalesMoneda() {
+		return decimalesMoneda;
+	}
+
+	public void setDecimalesMoneda(Integer decimalesMoneda) {
+		this.decimalesMoneda = decimalesMoneda;
+	}
+
+	public String getNumeroCuentaPago() {
+		return numeroCuentaPago;
+	}
+
+	public void setNumeroCuentaPago(String numeroCuentaPago) {
+		this.numeroCuentaPago = numeroCuentaPago;
 	}
 
 	@Override
