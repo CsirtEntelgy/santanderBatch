@@ -73,6 +73,7 @@ public class Invoice_Masivo {
 	private String[] description;
 	private String[] unitPrice;
 	private String[] amount;
+	private String[] aplicaIva;
 	private double exchange;
 	private String folio;
 	private String serie;
@@ -124,7 +125,7 @@ public class Invoice_Masivo {
     private String direccion;
 
     //private TimbreFiscal timbreFiscal;
-    //private Donataria donataria;
+    private Donataria donataria;
     private Date fechaRecepcion;
     private String numeroEmpleado;
 
@@ -142,9 +143,38 @@ public class Invoice_Masivo {
     
     private boolean siAplicaIva = false;
     
+    private String addendaList;
+    
+    private String addendaValues;
+    
+    private String checkOtrasAddendas; 
+    
     //Atributos de descuento
     private double descuento;
     private String motivoDescuento;
+    
+    //V3.3
+    private String usoCFDI;
+	private String[] impuestoTraslado;
+	private String[] tipoImpuestoTraslado;
+	private String[] tipoFactorTraslado;
+	private String[] tasaOCuotaTraslado;
+	private String [] importesTraslado;
+	private List<Traslados> traslados;  
+	private String [] trasladosId;
+	private String numRegIdTrib;
+	private double totalImpuestoRetenido;
+	private int decimals = 2;
+	private String residenciaFiscal;
+	private String[] claveProdServ;
+	private String[] claveUnidad;
+	private String rfcEmisor;
+	private String numAutorizacion;
+	private String cfdiRelacional;
+	private String tipoRelacion;
+	private String estadoEmisor;
+	
+	ArrayList<ComplementoPago> pagos;
     
     public String getNumCtaPago() {
         return numCtaPago;
@@ -818,7 +848,7 @@ public class Invoice_Masivo {
     public void setDireccion(String direccion) {
         this.direccion = direccion;
     }
-/*
+
     public Donataria getDonataria() {
         return donataria;
     }
@@ -826,7 +856,7 @@ public class Invoice_Masivo {
     public void setDonataria(Donataria donataria) {
         this.donataria = donataria;
     }
-
+/*
     public TimbreFiscal getTimbreFiscal() {
         return timbreFiscal;
     }
@@ -980,4 +1010,197 @@ public class Invoice_Masivo {
 	public void setMotivoDescuento(String motivoDescuento) {
 		this.motivoDescuento = motivoDescuento;
 	}
+
+	public String[] getAplicaIva() {
+		return aplicaIva;
+	}
+
+	public void setAplicaIva(String[] aplicaIva) {
+		this.aplicaIva = aplicaIva;
+	}
+
+	public String getAddendaList() {
+		return addendaList;
+	}
+
+	public void setAddendaList(String addendaList) {
+		this.addendaList = addendaList;
+	}
+
+	public String getAddendaValues() {
+		return addendaValues;
+	}
+
+	public void setAddendaValues(String addendaValues) {
+		this.addendaValues = addendaValues;
+	}
+
+	public String getCheckOtrasAddendas() {
+		return checkOtrasAddendas;
+	}
+
+	public void setCheckOtrasAddendas(String checkOtrasAddendas) {
+		this.checkOtrasAddendas = checkOtrasAddendas;
+	}
+
+	public String getUsoCFDI() {
+		return usoCFDI;
+	}
+
+	public void setUsoCFDI(String usoCFDI) {
+		this.usoCFDI = usoCFDI;
+	}
+
+	public String[] getImpuestoTraslado() {
+		return impuestoTraslado;
+	}
+
+	public void setImpuestoTraslado(String[] impuestoTraslado) {
+		this.impuestoTraslado = impuestoTraslado;
+	}
+
+	public String[] getTipoImpuestoTraslado() {
+		return tipoImpuestoTraslado;
+	}
+
+	public void setTipoImpuestoTraslado(String[] tipoImpuestoTraslado) {
+		this.tipoImpuestoTraslado = tipoImpuestoTraslado;
+	}
+
+	public String[] getTipoFactorTraslado() {
+		return tipoFactorTraslado;
+	}
+
+	public void setTipoFactorTraslado(String[] tipoFactorTraslado) {
+		this.tipoFactorTraslado = tipoFactorTraslado;
+	}
+
+	public String[] getTasaOCuotaTraslado() {
+		return tasaOCuotaTraslado;
+	}
+
+	public void setTasaOCuotaTraslado(String[] tasaOCuotaTraslado) {
+		this.tasaOCuotaTraslado = tasaOCuotaTraslado;
+	}
+
+	public String[] getImportesTraslado() {
+		return importesTraslado;
+	}
+
+	public void setImportesTraslado(String[] importesTraslado) {
+		this.importesTraslado = importesTraslado;
+	}
+
+	public List<Traslados> getTraslados() {
+		return traslados;
+	}
+
+	public void setTraslados(List<Traslados> traslados) {
+		this.traslados = traslados;
+	}
+
+	public String[] getTrasladosId() {
+		return trasladosId;
+	}
+
+	public void setTrasladosId(String[] trasladosId) {
+		this.trasladosId = trasladosId;
+	}
+
+	public String getNumRegIdTrib() {
+		return numRegIdTrib;
+	}
+
+	public void setNumRegIdTrib(String numRegIdTrib) {
+		this.numRegIdTrib = numRegIdTrib;
+	}
+
+	public double getTotalImpuestoRetenido() {
+		return totalImpuestoRetenido;
+	}
+
+	public void setTotalImpuestoRetenido(double totalImpuestoRetenido) {
+		this.totalImpuestoRetenido = totalImpuestoRetenido;
+	}
+
+	public int getDecimals() {
+		return decimals;
+	}
+
+	public void setDecimals(int decimals) {
+		this.decimals = decimals;
+	}
+
+	public String getResidenciaFiscal() {
+		return residenciaFiscal;
+	}
+
+	public void setResidenciaFiscal(String residenciaFiscal) {
+		this.residenciaFiscal = residenciaFiscal;
+	}
+
+	public String[] getClaveProdServ() {
+		return claveProdServ;
+	}
+
+	public void setClaveProdServ(String[] claveProdServ) {
+		this.claveProdServ = claveProdServ;
+	}
+
+	public String[] getClaveUnidad() {
+		return claveUnidad;
+	}
+
+	public void setClaveUnidad(String[] claveUnidad) {
+		this.claveUnidad = claveUnidad;
+	}
+
+	public String getRfcEmisor() {
+		return rfcEmisor;
+	}
+
+	public void setRfcEmisor(String rfcEmisor) {
+		this.rfcEmisor = rfcEmisor;
+	}
+
+	public String getNumAutorizacion() {
+		return numAutorizacion;
+	}
+
+	public void setNumAutorizacion(String numAutorizacion) {
+		this.numAutorizacion = numAutorizacion;
+	}
+
+	public String getCfdiRelacional() {
+		return cfdiRelacional;
+	}
+
+	public void setCfdiRelacional(String cfdiRelacional) {
+		this.cfdiRelacional = cfdiRelacional;
+	}
+
+	public String getTipoRelacion() {
+		return tipoRelacion;
+	}
+
+	public void setTipoRelacion(String tipoRelacion) {
+		this.tipoRelacion = tipoRelacion;
+	}
+
+	public String getEstadoEmisor() {
+		return estadoEmisor;
+	}
+
+	public void setEstadoEmisor(String estadoEmisor) {
+		this.estadoEmisor = estadoEmisor;
+	}
+
+	public ArrayList<ComplementoPago> getPagos() {
+		return pagos;
+	}
+
+	public void setPagos(ArrayList<ComplementoPago> pagos) {
+		this.pagos = pagos;
+	}
+	
 }

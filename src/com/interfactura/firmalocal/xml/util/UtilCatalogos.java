@@ -14,6 +14,8 @@ import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -42,6 +44,20 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import com.interfactura.firmalocal.datamodel.CfdiComprobanteFiscal;
+import com.interfactura.firmalocal.datamodel.CfdiConcepto;
+import com.interfactura.firmalocal.datamodel.CfdiConceptoImpuestoTipo;
+import com.interfactura.firmalocal.datamodel.CfdiDomicilio;
+import com.interfactura.firmalocal.datamodel.CfdiReceptor;
+import com.interfactura.firmalocal.datamodel.ComplementoPago;
+import com.interfactura.firmalocal.datamodel.CustomsInformation;
+import com.interfactura.firmalocal.datamodel.ElementsInvoice;
+import com.interfactura.firmalocal.datamodel.FarmAccount;
+import com.interfactura.firmalocal.datamodel.Invoice;
+import com.interfactura.firmalocal.datamodel.Invoice_Masivo;
+import com.interfactura.firmalocal.datamodel.Part;
+import com.interfactura.firmalocal.datamodel.TimbreFiscal;
+import com.interfactura.firmalocal.pdf.util.NumberToLetterConverter;
 import com.interfactura.firmalocal.xml.CatalogosDom;
 
 public class UtilCatalogos 
@@ -1793,4 +1809,268 @@ public class UtilCatalogos
 			return response;
 		}
 	    
+		public static Invoice_Masivo fillInvoice(CfdiComprobanteFiscal comprobante) {
+			Invoice_Masivo invoice = new Invoice_Masivo();
+	        invoice.setPorcentaje(0.00);
+	        invoice.setVersion(comprobante.getVersion());
+	        invoice.setMoneda("");
+	        invoice.setIvaDescription("");
+	        
+	        for (String key : comprobante.getAddenda().getCampoAdicional().keySet()) {
+	            if (key.equalsIgnoreCase("MONEDA")) {
+	                invoice.setMoneda(comprobante.getAddenda().getCampoAdicional().get(key));
+	            } else if (key.equalsIgnoreCase("DESCRIPCI�N CONCEPTO") || key.equalsIgnoreCase("DESCRIPCION CONCEPTO") ) {
+	                invoice.setDescriptionConcept(comprobante.getAddenda().getCampoAdicional().get(key));
+	            } else if (key.equalsIgnoreCase("DESCRIPCI�N IVA")) {
+	                invoice.setIvaDescription(comprobante.getAddenda().getCampoAdicional().get(key));
+	            } else if (key.equalsIgnoreCase("TIPO CAMBIO")) {
+	                invoice.setTipoCambio(comprobante.getAddenda().getCampoAdicional().get(key));
+	            }else if (key.equalsIgnoreCase("NumeroEmpleado")){
+	            	invoice.setNumeroEmpleado(comprobante.getAddenda().getCampoAdicional().get(key));
+	            }
+	        }
+
+	        StringBuffer direccion = new StringBuffer(comprobante.getEmisor().getNombre());
+	        direccion.append("    ");
+	        CfdiDomicilio emDomicilio = comprobante.getEmisor().getDomicilio();
+	        if (emDomicilio != null) {
+	            direccion.append(emDomicilio.getCalle());
+	            if (!Util.isNullEmpty(emDomicilio.getNoExterior())) {
+	                direccion.append(" ").append(emDomicilio.getNoExterior());
+	            }
+	            if (!Util.isNullEmpty(emDomicilio.getNoInterior())) {
+	                direccion.append(" ").append(emDomicilio.getNoInterior());
+	            }
+	            if (!Util.isNullEmpty(emDomicilio.getReferencia())) {
+	                direccion.append(", ").append(emDomicilio.getReferencia());
+	            }
+	            if (!Util.isNullEmpty(emDomicilio.getColonia())) {
+	                direccion.append(" COL. ").append(emDomicilio.getColonia());
+	                if (!Util.isNullEmpty(emDomicilio.getMunicipio())) {
+	                    direccion.append(", ").append(emDomicilio.getMunicipio());
+	                }
+	            }
+	            if (!Util.isNullEmpty(emDomicilio.getCodigoPostal())) {
+	                direccion.append(", C.P. ").append(emDomicilio.getCodigoPostal());
+	            }
+	            if (!Util.isNullEmpty(emDomicilio.getEstado())) {
+	                direccion.append(", ").append(emDomicilio.getEstado());
+	            }
+	            if (!Util.isNullEmpty(emDomicilio.getPais())) {
+	                direccion.append(", ").append(emDomicilio.getPais());
+	            }
+	        }
+	        direccion.append(" R.F.C.").append(comprobante.getEmisor().getRfc());
+	        invoice.setDireccion(direccion.toString());
+	        invoice.setEstadoEmisor(emDomicilio.getEstado());
+	        invoice.setNoCertificado(comprobante.getNoCertificado());
+	        invoice.setFechaHora(comprobante.getFecha());
+
+	        invoice.setFolio(comprobante.getFolio());
+	        invoice.setDate(comprobante.getFecha());
+	        invoice.setNoAprobacion(comprobante.getConfirmacion());
+
+	        CfdiReceptor receptor = comprobante.getReceptor();
+
+	        invoice.setRfc(receptor.getRfc());
+	        invoice.setFormaPago(comprobante.getFormaPago());
+	        invoice.setName(receptor.getNombre());
+	        invoice.setUsoCFDI(receptor.getUsoCFDI());
+	        invoice.setResidenciaFiscal(receptor.getResidenciaFiscal());
+	        invoice.setNumRegIdTrib(receptor.getNumRegIdTrib());
+	        if (receptor.getDomicilio() != null) {
+	            CfdiDomicilio tUbicacion = receptor.getDomicilio();
+	            invoice.setCalle(Util.isNull(tUbicacion.getCalle()));
+	            invoice.setCodigoPostal(Util.isNull(tUbicacion.getCodigoPostal()));
+	            invoice.setColonia(Util.isNull(tUbicacion.getColonia()));
+	            invoice.setEstado(Util.isNull(tUbicacion.getEstado()));
+	            invoice.setExterior(Util.isNull(tUbicacion.getNoExterior()));
+	            invoice.setInterior(Util.isNull(tUbicacion.getNoInterior()));
+	            invoice.setMunicipio(Util.isNull(tUbicacion.getMunicipio()));
+	            invoice.setReferencia(Util.isNull(tUbicacion.getReferencia()));
+	            invoice.setLocalidad(Util.isNull(tUbicacion.getLocalidad()));
+	            invoice.setPais(tUbicacion.getPais());
+	        }
+
+	        invoice.setSubTotal(comprobante.getSubTotal().doubleValue());
+
+	        if (comprobante.getDescuento() != null) {
+	            invoice.setDescuento(comprobante.getDescuento().doubleValue());
+	        }
+
+	        invoice.setTotal(comprobante.getTotal().doubleValue());
+
+	        if (comprobante.getImpuestos().getTotalImpuestosTrasladados() != null) {
+	            invoice.setIvaDescription("TOTAL IMP TRASLADO");
+	            invoice.setIva(comprobante.getImpuestos().getTotalImpuestosTrasladados().doubleValue());
+	            invoice.setTotalImpuestoRetenido(comprobante.getImpuestos().getTotalImpuestosRetenidos().doubleValue());
+	        } else {
+	            invoice.setIva(0.0);
+	        }
+
+	        invoice.setQuantityWriting(NumberToLetterConverter.convertNumberToLetter(invoice.getTotal()));
+	        invoice.setMetodoPago(comprobante.getMetodoPago());
+	        /**
+	         * **********CFDI Relacionado********************
+	         */
+	        if(comprobante.getCfdiRelacionados() != null 
+	        		&& comprobante.getCfdiRelacionados().getRelacionado() != null
+	        		&& !comprobante.getCfdiRelacionados().getRelacionado().isEmpty()){
+	        	/*Solo obtenemos el primero ya que se preparo solo para uno.*/
+	        	invoice.setTipoRelacion(comprobante.getCfdiRelacionados().getTipoRelacion());
+	        	invoice.setCfdiRelacional(comprobante.getCfdiRelacionados().getRelacionado().get(0));
+	        }
+	        /**
+	         * **********Conceptos********************
+	         */
+	        List<ElementsInvoice> elements = new LinkedList<ElementsInvoice>();
+	        String breakLine = new String("\n");
+	        for (CfdiConcepto objConcepto : comprobante.getConceptos()) {
+	            ElementsInvoice element = new ElementsInvoice();
+	            List<CustomsInformation> informacionAduanera = new LinkedList<CustomsInformation>();
+	            List<FarmAccount> cuentaPredial = new LinkedList<FarmAccount>();
+	            List<Part> partes = new LinkedList<Part>();
+	            element.setAmount(objConcepto.getImporte().doubleValue());
+	            StringBuffer desc = new StringBuffer(objConcepto.getDescripcion());
+	            if (objConcepto.getImpuestos() != null) {
+	                if (objConcepto.getImpuestos().getTraslados() != null
+	                        && objConcepto.getImpuestos().getTraslados().size() > 0) {
+	                    desc.append(breakLine.intern()).append("Traslados");
+	                    for (CfdiConceptoImpuestoTipo item : objConcepto.getImpuestos().getTraslados()) {
+	                        desc.append(breakLine.intern()).append("Base: ").append(item.getBase());
+	                        if (!Util.isNullEmpty(item.getImpuesto())) {
+	                            desc.append(", Impuesto: ").append(item.getImpuesto());
+	                        }
+	                        if (!Util.isNullEmpty(item.getTasaOCuota())) {
+	                            desc.append(", TasaOCuota: ").append(item.getTasaOCuota());
+	                        }
+	                        if (!Util.isNullEmpty(item.getTipoFactor())) {
+	                            desc.append(", TipoFactor: ").append(item.getTipoFactor());
+	                        }
+	                        if (!Util.isNullEmpty(item.getImporte())) {
+	                            desc.append(", Importe: ").append(item.getImporte());
+	                        }
+	                    }
+	                }
+	                if (objConcepto.getImpuestos().getRetenciones() != null
+	                        && objConcepto.getImpuestos().getRetenciones().size() > 0) {
+	                    desc.append(breakLine.intern()).append("Retenciones");
+	                    for (CfdiConceptoImpuestoTipo item : objConcepto.getImpuestos().getRetenciones()) {
+	                        desc.append(breakLine.intern()).append("Base: ").append(item.getBase());
+	                        if (!Util.isNullEmpty(item.getImpuesto())) {
+	                            desc.append(", Impuesto: ").append(item.getImpuesto());
+	                        }
+	                        if (!Util.isNullEmpty(item.getTasaOCuota())) {
+	                            desc.append(", TasaOCuota: ").append(item.getTasaOCuota());
+	                        }
+	                        if (!Util.isNullEmpty(item.getTipoFactor())) {
+	                            desc.append(", TipoFactor: ").append(item.getTipoFactor());
+	                        }
+	                        if (!Util.isNullEmpty(item.getImporte())) {
+	                            desc.append(", Importe: ").append(item.getImporte());
+	                        }
+	                    }
+	                }
+	            }
+	            element.setDescription(desc.toString());
+	            element.setQuantity(objConcepto.getCantidad().doubleValue());
+	            element.setUnitMeasure(objConcepto.getUnidad());
+	            element.setUnitPrice(objConcepto.getValorUnitario().doubleValue());
+	            /*TODO:Falta asignar esta seccion que no se tiene*/
+	            elements.add(element);
+	        }
+	        boolean descuento = false;
+	        if (comprobante.getDescuento().doubleValue() > 0) {
+	            //invoice.setMotivoDescuento(docEle.getAttribute("motivoDescuento"));
+	            invoice.setDescuento(comprobante.getDescuento().doubleValue());
+	            descuento = true;
+	        }
+
+	        if (descuento) {
+	            ElementsInvoice elementDescuento = new ElementsInvoice();
+//	            elementDescuento.setDescription(invoice.getMotivoDescuento());
+	            elementDescuento.setDescription("Descuento aplicado");
+	            elementDescuento.setUnitPrice(invoice.getDescuento());
+	            elementDescuento.setAmount(invoice.getDescuento());
+	            elementDescuento.setQuantity(1);
+	            elements.add(elementDescuento);
+	        }
+	        invoice.setElements(elements);
+
+	        /*Elementos faltantes*/
+	        invoice.setMetodoPago(comprobante.getMetodoPago());
+	        invoice.setLugarExpedicion(comprobante.getLugarExpedicion()); 
+	        invoice.setNumCtaPago("");//No existe en 3.3 docEle.getAttribute("NumCtaPago"));
+	        invoice.setRegimenFiscal(comprobante.getEmisor().getRegimenFiscal());
+	        invoice.setRfcEmisor(comprobante.getEmisor().getRfc());
+	        TimbreFiscal timbre = new TimbreFiscal();
+	        timbre.setVersion(comprobante.getComplemento().getTimbreFiscalDigital().getVersion());
+	        timbre.setUuid(comprobante.getComplemento().getTimbreFiscalDigital().getUuid());
+	        invoice.setSello(comprobante.getComplemento().getTimbreFiscalDigital().getSelloCFD());
+	        timbre.setSelloSat(comprobante.getComplemento().getTimbreFiscalDigital().getSelloSAT());
+	        timbre.setNoCertificadoSat(comprobante.getComplemento().getTimbreFiscalDigital().getNoCertificadoSAT());
+	        timbre.setFechaTimbrado(comprobante.getComplemento().getTimbreFiscalDigital().getFechaTimbrado());
+	        invoice.setTimbreFiscal(timbre);
+	        invoice.setDonataria(comprobante.getComplemento().getDonataria());
+
+	        invoice.setCostCenter(comprobante.getAddenda().getInformacionEmision().getCentroCostos());
+	        invoice.setCustomerCode(comprobante.getAddenda().getInformacionEmision().getCodigoCliente());
+	        invoice.setContractNumber(comprobante.getAddenda().getInformacionEmision().getContrato());
+	        invoice.setPeriod(comprobante.getAddenda().getInformacionEmision().getPeriodo());
+	        //Datos Addendas Filiales
+	        invoice.setTipoAddenda("0");
+	        //Va para la addenda logistica
+	        invoice.setCodigoISO(comprobante.getAddenda().getInformacionPago().getCodigoISOMoneda());
+	        //Va para las tres addendas filiales
+	        if (!comprobante.getAddenda().getInformacionPago().getPosCompra().equals("")) {
+	            invoice.setTipoAddenda("1");
+	            invoice.setPosicioncompraLog(comprobante.getAddenda().getInformacionPago().getPosCompra());
+	        }
+	        //Va para la addenda financiera
+	        if(comprobante.getAddenda().getInformacionPago().getCuentaContable() != null){
+		        if (!comprobante.getAddenda().getInformacionPago().getCuentaContable().equals("")) {
+		            invoice.setTipoAddenda("2");
+		            invoice.setCuentacontableFin(comprobante.getAddenda().getInformacionPago().getCuentaContable());
+		        }
+	        }
+	        //Va para la addenda arrendamiento
+	        if(comprobante.getAddenda().getInmuebles().getNumContrato() != null){
+		        if (!comprobante.getAddenda().getInmuebles().getNumContrato().equals("")
+		                && !comprobante.getAddenda().getInmuebles().getFechaVencimiento().equals("")) {
+		            invoice.setTipoAddenda("3");
+		            invoice.setNumerocontratoArr(comprobante.getAddenda().getInmuebles().getNumContrato());
+		            invoice.setFechavencimientoArr(comprobante.getAddenda().getInmuebles().getFechaVencimiento());
+		        }
+	        }
+
+	        invoice.setTipoDeComprobante(comprobante.getTipoDeComprobante());
+	        invoice.setSerie(comprobante.getSerie());
+
+	        invoice.setEmail(comprobante.getAddenda().getInformacionPago().getEmail());
+	        invoice.setPurchaseOrder(comprobante.getAddenda().getInformacionPago().getOrdenCompra());
+	        invoice.setBeneficiaryName(comprobante.getAddenda().getInformacionPago().getNombreBeneficiario());
+	        invoice.setReceivingInstitution(comprobante.getAddenda().getInformacionPago().getInstitucionReceptora());
+//	        invoice.setNumCtaPago(comprobante.getAddenda().getInformacionPago().getNumeroCuenta());
+	        System.out.println("*** Id Fiscal Util Catalogos: " + comprobante.getAddenda().getInformacionPago().getCuentaContable());
+	        if(comprobante.getAddenda().getInformacionPago().getCuentaContable() != null){
+	        	invoice.setNumCtaPago(comprobante.getAddenda().getInformacionPago().getCuentaContable());
+	        }
+	        invoice.setProviderNumber(comprobante.getAddenda().getInformacionPago().getNumProveedor());
+
+	        //añadir pagos en complemento
+	        invoice.setTipoOperacion(comprobante.getComplemento().getDivisaTipoOperacion());
+	        if(comprobante.getComplementPagos() != null && comprobante.getComplementPagos().size() > 0){
+	        	invoice.setPagos(new ArrayList<ComplementoPago>());
+	        	for(ComplementoPago pago : comprobante.getComplementPagos()){
+	        		invoice.getPagos().add(pago);
+	        	}
+	        }
+	        if(comprobante.getMoneda() != null){
+	        	invoice.setTipoMoneda(comprobante.getMoneda());
+	        }
+	        if(comprobante.getTipoDeComprobante() != null){
+	        	invoice.setTipoFormato(comprobante.getTipoDeComprobante());
+	        }
+	        return invoice;
+	    }
 }

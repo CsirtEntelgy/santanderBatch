@@ -65,8 +65,12 @@ import com.interfactura.firmalocal.xml.Properties_FD;
 import com.interfactura.firmalocal.xml.WebServiceClienteUnicoDivisas;
 import com.interfactura.firmalocal.xml.file.GeneraArchivo_Masivo;
 import com.interfactura.firmalocal.xml.file.XMLProcess;
+import com.interfactura.firmalocal.xml.file.XMLProcess_Masivo;
+import com.interfactura.firmalocal.xml.util.GeneraXmlFacturaCfdiV3_3;
 import com.interfactura.firmalocal.xml.util.Util;
 import com.interfactura.firmalocal.xml.util.UtilCFDIValidations;
+import com.interfactura.firmalocal.xml.util.UtilCatalogos;
+import com.interfactura.firmalocal.xml.util.XMLProcessGeneral;
 
 @Component
 public class GeneraXMLProceso_Masivo {
@@ -111,6 +115,12 @@ public class GeneraXMLProceso_Masivo {
 	
 	@Autowired(required = true)
 	private UtilCFDIValidations validations;
+	
+	@Autowired(required = true)
+	private GeneraXmlFacturaCfdiV3_3 xmlGenerator;
+	
+	@Autowired
+	private XMLProcessGeneral xmlProcessGeneral;
 
 	@Value("${invoice.status.active}")
 	private String statusActive;
@@ -358,9 +368,52 @@ public class GeneraXMLProceso_Masivo {
 									//StringBuilder sbErrorFile = this.processRowExcel(arrayValues, factura+1, hashIvas, hashcodigoISO, hashmoneda, hashEmisores, hashClientes, hashCfdFieldsV22);
 									StringBuilder sbErrorFile = new StringBuilder();
 									
+									//llenar comprobante desde archivo
+									//falta
+									
+									//validar comprobante
 									sbErrorFile.append(validations.validateComprobante(comp, factura));
 									
+									
+									//Invoice_Masivo invoice = new Invoice_Masivo();
+									
 									//convertir comprobante a invoice
+									invoice = UtilCatalogos.fillInvoice(comp);
+									
+									if(sbErrorFile.toString().length() > 0){
+										sb.append("Factura: " + factura + " -- Lista de Errores: " + "\n" + sbErrorFile.toString() + "\n");								
+										System.out.println("fError EmisionMasivaFacturas: " + sb.toString());							
+										invoice.setSbError(sbErrorFile);
+										listIn.add(invoice);
+									}else{								
+										
+										try{
+											System.out.println("AntesfacturaOK - " + factura);
+											System.out.println("Antes de crearFac");
+											
+											if(!invoice.getSiAplicaIva())								
+												invoice.setDescriptionIVA("EXENTO");
+											
+											//generar xml y asignarlo a invoice
+											byte[] xmlBytes = xmlGenerator.convierte(comp).getBytes("UTF-8");
+											ByteArrayOutputStream baosXml = new ByteArrayOutputStream(xmlBytes.length);
+											baosXml.write(xmlBytes, 0, xmlBytes.length);
+											invoice.setByteArrXMLSinAddenda(baosXml);
+											
+											crearFactura(factura);
+											
+											System.out.println("facturaOK - " + factura);
+											listIn.add(invoice);
+										}catch (Exception e) {								
+											sb.append("Factura: " + factura + " --Exception: " + "\n" + e.getMessage() + "\n");
+											System.out.println("Factura: " + factura + " --Exception: " + "\n" + e.getMessage());
+											invoice.setSbError(new StringBuilder("Factura: " + factura + " --Exception: " + e.getMessage() + "\n"));
+											listIn.add(invoice);
+										}
+										
+										
+									}
+									
 									
 									if(sbErrorFile.toString().length() > 0 ){
 										//salidaINC.write(("ErrorArchivo|" + sbErrorFile.toString() + "\n").getBytes("UTF-8"));
@@ -2417,8 +2470,26 @@ public class GeneraXMLProceso_Masivo {
 		 //try {
 		 	
 		 	System.out.println("antes generaXML");
+		 	String nameFile = "";
+			//nameFile = generaXML.generaXMLHandler(invoice, fiscalEntity, fecha);
+		 	nameFile = xmlProcessGeneral.generateFileName(fecha, false, 0, false);
+		 	ByteArrayOutputStream out = invoice.getByteArrXMLSinAddenda();
+		 	generaXML.setOut(out);
 		 	
-			String nameFile = generaXML.generaXMLHandler(invoice, fiscalEntity, fecha);
+		 	//validar xml
+		 	if(generaXML.getOut().size()==0){
+				logger.debug("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ Archivo Vacio");
+				System.out.println("El archivo esta vacio ++++");
+			} else {
+				logger.debug("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ Archivo");
+				logger.debug("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ Validando Archivo");
+				System.out.println("El archivo pesa ++++ "+generaXML.getOut().size());
+				//xmlProcess.valida22(out);
+				
+				System.out.println("XML antes de validar: "+generaXML.getOut().toString("UTF-8"));
+				xmlProcessGeneral.validaCFDI33(generaXML.getOut());
+			}
+			
 			System.out.println("despues generaXML");
 			cFDIssued.setCreationDate(date);
 			cFDIssued.setIssueDate(date);

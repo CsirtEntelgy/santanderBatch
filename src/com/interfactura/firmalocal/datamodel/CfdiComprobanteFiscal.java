@@ -49,7 +49,7 @@ public class CfdiComprobanteFiscal {
     private String noAutorizacion;
     private String numEmpledo;
     private Integer decimalesMoneda;
-    //private List<ComplementoPago> complementPagos;
+    private List<ComplementoPago> complementPagos;
     private String numeroCuentaPago;
 
     public BigDecimal getDescuento() {
@@ -322,6 +322,14 @@ public class CfdiComprobanteFiscal {
 
 	public void setDecimalesMoneda(Integer decimalesMoneda) {
 		this.decimalesMoneda = decimalesMoneda;
+	}
+
+	public List<ComplementoPago> getComplementPagos() {
+		return complementPagos;
+	}
+
+	public void setComplementPagos(List<ComplementoPago> complementPagos) {
+		this.complementPagos = complementPagos;
 	}
 
 	public String getNumeroCuentaPago() {

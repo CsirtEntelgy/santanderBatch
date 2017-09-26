@@ -1,0 +1,432 @@
+package com.interfactura.firmalocal.xml.util;
+
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map.Entry;
+
+import org.springframework.stereotype.Component;
+import com.interfactura.firmalocal.datamodel.CfdiComprobanteFiscal;
+import com.interfactura.firmalocal.datamodel.CfdiConcepto;
+import com.interfactura.firmalocal.datamodel.CfdiConceptoImpuestoTipo;
+import com.interfactura.firmalocal.datamodel.ComplementoPago;
+import com.interfactura.firmalocal.xml.util.UtilCatalogos;
+
+@Component
+public class ConvertirCfdiImplV3_3 {
+
+	public String startXml(){
+		return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
+	}
+	public String closeFComprobante(){
+		return "\n</cfdi:Comprobante> ";
+	}
+	public String fComprobante(CfdiComprobanteFiscal comp , Date date){
+		StringBuilder concat =  new StringBuilder();
+		
+		concat.append("xmlns:cfdi=\"http://www.sat.gob.mx/cfd/3\" ");
+		concat.append("xmlns:ecb=\"http://www.sat.gob.mx/ecb\" ");
+		concat.append("xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" ");
+		if (comp.getDescuento() != null && comp.getDescuento().doubleValue() > 0){
+			concat.append("Descuento=\"" + comp.getDescuento() + "\" ");
+		}
+		concat.append("Fecha=\"" + Util.convertirFecha(date) + "\" ");
+		concat.append(Util.isNullEmpity(comp.getFolio(), "Folio"));
+		concat.append("FormaPago=\"" + comp.getFormaPago() + "\" ");
+		concat.append("LugarExpedicion=\"" + "01219" + "\" ");
+		concat.append("MetodoPago=\"" + comp.getMetodoPago() + "\" ");
+		concat.append("Moneda=\"" + comp.getMoneda() + "\" ");
+		if(comp.getSerie() != null){
+			concat.append("Serie=\"" + comp.getSerie() + "\" ");
+		}
+		concat.append("SubTotal=\"" + comp.getSubTotal() + "\" ");
+		concat.append("TipoCambio=\"" + comp.getTipoCambio() + "\" ");
+		concat.append("TipoDeComprobante=\"" + comp.getTipoDeComprobante() + "\" ");
+		concat.append("Total=\"" + comp.getTotal() + "\" ");
+		concat.append("Version=\"" + "3.3" + "\" ");
+		
+		return Util
+				.conctatArguments(
+						"\n<cfdi:Comprobante ",
+						concat.toString(),
+						"xsi:schemaLocation=\"http://www.sat.gob.mx/cfd/3 ", 
+						"http://www.sat.gob.mx/sitio_internet/cfd/3/cfdv33.xsd ",
+						"http://www.sat.gob.mx/ecb ",
+						"http://www.sat.gob.mx/sitio_internet/cfd/ecb/ecb.xsd\">")
+				.toString();
+	}
+	
+	public String emisor(CfdiComprobanteFiscal comp){
+		StringBuilder concat =  new StringBuilder();
+		
+		String valNombre = comp.getEmisor().getNombre().trim().toUpperCase().replaceAll("\\.", "");
+		valNombre = valNombre.replaceAll("\\(", "");
+		valNombre = valNombre.replaceAll("\\)", "");
+		valNombre = valNombre.replace("/", "");
+		concat.append("Nombre=\" "+Util.convierte(valNombre).toUpperCase()+"\" ");
+		concat.append("RegimenFiscal=\""+comp.getEmisor().getRegimenFiscal().trim()+"\" ");
+		concat.append("Rfc=\""+comp.getEmisor().getRfc().trim()+"\" ");
+		
+		return Util
+				.conctatArguments("\n<cfdi:Emisor ",
+						concat.toString(),
+						"/>").toString();
+	}
+	
+	public String receptor(CfdiComprobanteFiscal comp){
+		StringBuilder concat =  new StringBuilder();
+		
+		String valNombre = comp.getReceptor().getNombre().trim().toUpperCase().replaceAll("\\.", "");
+		valNombre = valNombre.replaceAll("\\(", "");
+		valNombre = valNombre.replaceAll("\\)", "");
+		valNombre = valNombre.replace("/", "");
+		concat.append("Nombre=\""+ Util.convierte(valNombre).toUpperCase() +"\" ");
+		if(comp.getReceptor().getNumRegIdTrib() != null && comp.getReceptor().getNumRegIdTrib() != ""){
+			concat.append("NumRegIdTrib=\"" + comp.getReceptor().getNumRegIdTrib() + "\" ");
+		}
+		concat.append("Rfc=\""+ comp.getReceptor().getRfc() +"\" ");
+		
+		if(comp.getReceptor().getResidenciaFiscal() != null && comp.getReceptor().getResidenciaFiscal() != ""){
+			concat.append("ResidenciaFiscal=\""+ comp.getReceptor().getResidenciaFiscal() +"\" ");
+		}
+		concat.append("UsoCFDI=\""+ comp.getReceptor().getUsoCFDI() +"\" ");
+		
+		return Util.conctatArguments(
+				"\n<cfdi:Receptor ",
+				concat.toString(),
+				"/>").toString();
+	}
+	
+	public String startConcepto(CfdiComprobanteFiscal comp){
+		StringBuilder concatConceptos =  new StringBuilder();		
+		concatConceptos.append(conceptos(comp));		
+		return Util
+				.conctatArguments(
+						"\n<cfdi:Conceptos>",
+						concatConceptos.toString(),
+						"\n</cfdi:Conceptos>")
+				.toString();
+	}
+	
+	public String conceptos(CfdiComprobanteFiscal comp){
+		StringBuilder sbConceptos = new StringBuilder();
+		
+		if(comp.getConceptos() != null && comp.getConceptos().size() > 0){
+			for(CfdiConcepto concepto : comp.getConceptos()){
+				
+				sbConceptos.append("\n<cfdi:Concepto ");
+				sbConceptos.append("Cantidad=\"" + concepto.getCantidad() + "\" ");
+				sbConceptos.append("ClaveProdServ=\"" + concepto.getClaveProdServ() + "\" ");
+				sbConceptos.append("ClaveUnidad=\"" + concepto.getClaveUnidad() + "\" ");
+				sbConceptos.append("Descripcion=\"" + concepto.getDescripcion() + "\" ");
+				if(comp.getDescuento() != null && comp.getDescuento().doubleValue() > 0){
+					sbConceptos.append(" Descuento=\"" + comp.getDescuento()+ "\" ");
+				}
+				sbConceptos.append("Importe=\"" + concepto.getImporte() + "\" ");
+				sbConceptos.append("Unidad=\"" + concepto.getUnidad() + "\" ");
+				sbConceptos.append("ValorUnitario=\"" + concepto.getValorUnitario() + "\"");
+				sbConceptos.append(">");
+				sbConceptos.append(conceptoImpuesto(concepto));
+				sbConceptos.append("\n</cfdi:Concepto>");
+			}
+		}
+		return sbConceptos.toString();
+	}
+	public String conceptoImpuesto(CfdiConcepto concepto){
+		StringBuilder sbConceptoImpuesto = new StringBuilder();
+		if(concepto.getImpuestos() != null){
+			if((concepto.getImpuestos().getTraslados() != null && concepto.getImpuestos().getTraslados().size() > 0)
+					|| (concepto.getImpuestos().getRetenciones() != null && concepto.getImpuestos().getRetenciones().size() > 0)){
+				
+				sbConceptoImpuesto.append("\n<cfdi:Impuestos>");
+				
+				if(concepto.getImpuestos().getTraslados() != null && 
+						concepto.getImpuestos().getTraslados().size() > 0){
+					
+					sbConceptoImpuesto.append("\n<cfdi:Traslados>");
+					for(CfdiConceptoImpuestoTipo impuestoTipo : concepto.getImpuestos().getTraslados()){
+						sbConceptoImpuesto.append("\n<cfdi:Traslado ");
+						sbConceptoImpuesto.append("Base=\"" + impuestoTipo.getBase() + "\" ");
+						sbConceptoImpuesto.append("Importe=\"" + impuestoTipo.getImporte() + "\" ");
+						sbConceptoImpuesto.append("Impuesto=\"" + impuestoTipo.getImpuesto() + "\" ");
+						sbConceptoImpuesto.append("TasaOCuota=\"" + impuestoTipo.getTasaOCuota() + "\" ");
+						sbConceptoImpuesto.append("TipoFactor=\"" + impuestoTipo.getTipoFactor() + "\" ");
+						sbConceptoImpuesto.append("/>");
+					}
+					sbConceptoImpuesto.append("\n</cfdi:Traslados>");
+					
+				}
+				if(concepto.getImpuestos().getRetenciones() != null 
+						&& concepto.getImpuestos().getRetenciones().size() > 0){
+					
+					sbConceptoImpuesto.append("\n<cfdi:Retenciones>");
+					for(CfdiConceptoImpuestoTipo impuestoTipo : concepto.getImpuestos().getRetenciones()){
+						sbConceptoImpuesto.append("\n<cfdi:Retencion ");
+						sbConceptoImpuesto.append("Base=\"" + impuestoTipo.getBase() + "\" ");
+						sbConceptoImpuesto.append("Importe=\"" + impuestoTipo.getImporte() + "\" ");
+						sbConceptoImpuesto.append("Impuesto=\"" + impuestoTipo.getImpuesto() + "\" ");
+						sbConceptoImpuesto.append("TasaOCuota=\"" + impuestoTipo.getTasaOCuota() + "\" ");
+						sbConceptoImpuesto.append("TipoFactor=\"" + impuestoTipo.getTipoFactor() + "\" ");
+						sbConceptoImpuesto.append("/>");
+					}
+					sbConceptoImpuesto.append("\n</cfdi:Retenciones>");
+					
+				}
+					
+				sbConceptoImpuesto.append("\n</cfdi:Impuestos>");
+			}
+		}
+		return sbConceptoImpuesto.toString();
+	}
+	
+	public String impuestos(CfdiComprobanteFiscal comp){
+		StringBuilder concat = new StringBuilder();
+		BigDecimal totalTraslados = new BigDecimal("0.00");
+		BigDecimal totalRetenciones = new BigDecimal("0.00");
+		if(comp.getConceptos() != null && comp.getConceptos().size() > 0){
+			for(CfdiConcepto concepto : comp.getConceptos()){
+				if(concepto.getImpuestos() != null){
+					
+					if(concepto.getImpuestos().getTraslados() != null 
+							&& concepto.getImpuestos().getTraslados().size() > 0){
+						for(CfdiConceptoImpuestoTipo impuestoTipo : concepto.getImpuestos().getTraslados()){
+							totalTraslados = totalTraslados.add(new BigDecimal(impuestoTipo.getImporte()));
+						}
+					}
+					if(concepto.getImpuestos().getRetenciones() != null 
+							&& concepto.getImpuestos().getRetenciones().size() > 0){
+						for(CfdiConceptoImpuestoTipo impuestoTipo : concepto.getImpuestos().getRetenciones()){
+							totalRetenciones = totalRetenciones.add(new BigDecimal(impuestoTipo.getImporte()));
+						}
+					}
+
+					concat.append("\n<cfdi:Impuestos ");
+					concat.append("TotalImpuestosRetenidos=\"" 
+							+ UtilCatalogos.decimales(totalRetenciones.toString(), comp.getDecimalesMoneda()) + "\" ");
+					concat.append("TotalImpuestosTrasladados=\"" 
+							+ UtilCatalogos.decimales(totalTraslados.toString(), comp.getDecimalesMoneda()) + "\" ");
+					concat.append("/>");
+				}
+			}
+		}
+		return concat.toString();
+	}
+	
+	public String complemento(CfdiComprobanteFiscal comp){
+		StringBuilder concat = new StringBuilder();
+		StringBuilder childs = new StringBuilder();
+		
+		childs.append(pagos(comp));
+		
+		if(childs.toString().trim().length() > 0){
+			concat.append("<cfdi:Complemento>");
+			concat.append(childs.toString());
+			concat.append("</cfdi:Complemento>");
+		}
+		return concat.toString();
+	}
+	public String pagos(CfdiComprobanteFiscal comp){
+		StringBuilder concat = new StringBuilder();
+		StringBuilder pagos = new StringBuilder();
+		if(comp.getComplementPagos() != null && comp.getComplementPagos().size() > 0){
+			for(ComplementoPago pago : comp.getComplementPagos()){
+				pagos.append(pago(pago));
+			}
+		}
+		if(pagos.toString().trim().length() > 0){
+			concat.append("\n<pago10:Pagos ");
+			concat.append("xmlns:catCFDI=\""+"http://www.sat.gob.mx/sitio_internet/cfd/catalogos"+"\" ");
+			concat.append("xmlns:catPagos=\""+"http://www.sat.gob.mx/sitio_internet/cfd/catalogos/Pagos"+"\" ");
+			concat.append("xmlns:pago10=\""+"http://www.sat.gob.mx/Pagos"+"\" ");
+			concat.append("xmlns:tdCFDI=\""+"http://www.sat.gob.mx/sitio_internet/cfd/tipoDatos/tdCFDI"+"\" ");
+			concat.append("Version=\""+"1.0"+"\" ");
+			concat.append(">");
+			concat.append(pagos.toString());
+			concat.append("</pago10:Pagos>");
+		}
+		return concat.toString();
+	}
+	
+	public String pago(ComplementoPago pago){
+		StringBuilder concat = new StringBuilder();
+		StringBuilder attributes = new StringBuilder();
+		StringBuilder doctoRelacionado = new StringBuilder();
+		
+		if(pago.getFechaPago() != null){
+			attributes.append("FechaPago=\"" + Util.convertirFecha(pago.getFechaPago()) + "\" ");
+		}
+		attributes.append(Util.isNullEmpity(pago.getFormaPagoP(), "FormaDePagoP"));
+		attributes.append(Util.isNullEmpity(pago.getMonedaPago(), "MonedaP"));
+		if(pago.getMonto() != null){
+			attributes.append(Util.isNullEmpity(pago.getMonto().toString(), "Monto"));
+		}
+		
+		attributes.append(Util.isNullEmpity(pago.getNumeroOperacion(), "NumOperacion"));
+		
+		doctoRelacionado.append(doctoRelacionado(pago));
+		
+		if(attributes.toString().trim().length() > 0){
+			concat.append("\n<pago10:Pago ");
+			concat.append(attributes.toString());
+			concat.append(">");
+			concat.append(doctoRelacionado.toString());
+			concat.append("\n</pago10:Pago>");
+		}
+		return concat.toString();
+	}
+	
+	public String doctoRelacionado(ComplementoPago pago){
+		StringBuilder concat = new StringBuilder();
+		StringBuilder attributes = new StringBuilder();
+		
+		attributes.append(Util.isNullEmpity(pago.getIdDocumento(), "IdDocumento"));
+		if(pago.getImpuestoPagado() != null){
+			attributes.append(Util.isNullEmpity(pago.getImpuestoPagado().toString(), "ImpPagado"));
+		}
+		if(pago.getImpSaldoAnterior() != null){
+			attributes.append(Util.isNullEmpity(pago.getImpSaldoAnterior().toString(), "ImpSaldoAnt"));
+		}
+		if(pago.getImpSaldoInsoluto() != null){
+			attributes.append(Util.isNullEmpity(pago.getImpSaldoInsoluto().toString(), "ImpSaldoInsoluto"));
+		}
+		attributes.append(Util.isNullEmpity(pago.getMetodoPagoDR(), "MetodoDePagoDR"));
+		attributes.append(Util.isNullEmpity(pago.getMonedaDR(), "MonedaDR"));
+		attributes.append(Util.isNullEmpity(pago.getNumParcialidad(), "NumParcialidad"));
+		
+		
+		if(attributes.toString().trim().length() > 0){
+			concat.append("\n<pago10:DoctoRelacionado ");
+			concat.append(attributes.toString());
+			concat.append("/>");
+		}
+		return concat.toString();
+	}
+	
+	public String addenda(CfdiComprobanteFiscal comp){
+		StringBuilder concat = new StringBuilder();
+		if(comp.getAddenda() != null){
+			concat.append("\n<cfdi:Addenda>");
+			concat.append("\n<as:AddendaSantanderV1 ");
+			concat.append("xmlns:as=\"http://www.santander.com.mx/schemas/xsd/AddendaSantanderV1\">");
+			concat.append(informacionPago(comp));
+			concat.append(informacionEmision(comp));
+			concat.append(camposAdicionales(comp));
+			concat.append(domicilioEmisor(comp));
+			concat.append(domicilioReceptor(comp));
+			concat.append("\n</as:AddendaSantanderV1>");
+			concat.append("\n</cfdi:Addenda>");
+		}
+		
+		return concat.toString();
+	}
+	
+	public String informacionPago(CfdiComprobanteFiscal comp){
+		StringBuilder concat = new StringBuilder();
+		StringBuilder attributes = new StringBuilder();
+		if(comp.getAddenda().getInformacionPago() != null){
+			attributes.append(Util.isNullEmpity(comp.getAddenda().getInformacionPago().getEmail(), "email"));
+			attributes.append(Util.isNullEmpity(comp.getAddenda().getInformacionPago().getInstitucionReceptora()
+					, "institucionReceptora"));
+			attributes.append(Util.isNullEmpity(comp.getAddenda().getInformacionPago().getNombreBeneficiario()
+					, "nombreBeneficiario"));
+			attributes.append(Util.isNullEmpity(comp.getAddenda().getInformacionPago().getNumeroCuenta()
+					, "numeroCuenta"));
+			attributes.append(Util.isNullEmpity(comp.getAddenda().getInformacionPago().getNumProveedor(), "numProveedor"));
+			attributes.append(Util.isNullEmpity(comp.getAddenda().getInformacionPago().getOrdenCompra(), "ordenCompra"));
+			attributes.append(Util.isNullEmpity(comp.getAddenda().getInformacionPago().getPosCompra(), "posCompra"));
+		}
+		
+		if(attributes.toString().trim().length() > 0){
+			concat.append("\n<as:InformacionPago ");
+			concat.append(attributes.toString());
+			concat.append("/>");
+		}
+		
+		return concat.toString();
+	}
+	
+	public String informacionEmision(CfdiComprobanteFiscal comp){
+		StringBuilder concat = new StringBuilder();
+		StringBuilder attributes = new StringBuilder();
+		
+		if(comp.getAddenda().getInformacionEmision() != null){
+			attributes.append(Util.isNullEmpity(comp.getAddenda().getInformacionEmision().getCodigoCliente(), "codigoCliente"));
+			attributes.append(Util.isNullEmpity(comp.getAddenda().getInformacionEmision().getContrato(), "contrato"));
+			attributes.append(Util.isNullEmpity(comp.getAddenda().getInformacionEmision().getPeriodo(), "periodo"));
+			attributes.append(Util.isNullEmpity(comp.getAddenda().getInformacionEmision().getCentroCostos(), "centroCostos"));
+			attributes.append(Util.isNullEmpity(comp.getAddenda().getInformacionEmision().getFolioInterno(), "folioInterno"));
+			attributes.append(Util.isNullEmpity(comp.getAddenda().getInformacionEmision().getClaveSantander(), "claveSantander"));
+		}
+		if(attributes.toString().trim().length() > 0){
+			concat.append("\n<as:InformacionEmision ");
+			concat.append(attributes.toString());
+			concat.append(">");
+			//Informacion factoraje??
+			concat.append("\n</as:InformacionEmision>");
+		}
+		
+		return concat.toString();
+	}
+	
+	public String camposAdicionales(CfdiComprobanteFiscal comp){
+		StringBuilder concat = new StringBuilder();
+		if(comp.getAddenda().getCampoAdicional() != null 
+				&& comp.getAddenda().getCampoAdicional().size() > 0){
+			for (Entry<String, String> entry : comp.getAddenda().getCampoAdicional().entrySet()) {
+				String campo = "\n<as:CampoAdicional campo=\"" + entry.getKey()
+						+ "\" valor=\"" + entry.getValue() + "\" />";
+			    concat.append(campo);
+			}
+		}
+		return concat.toString();
+	}
+	
+	public String domicilioEmisor(CfdiComprobanteFiscal comp){
+		StringBuilder concat = new StringBuilder();
+		//Domicilio Emisor
+		StringBuilder attributes = new StringBuilder();
+		attributes.append(Util.isNullEmpity(comp.getEmisor().getDomicilio().getCalle(), "Calle"));
+		attributes.append(Util.isNullEmpity(comp.getEmisor().getDomicilio().getLocalidad(), "Ciudad"));
+		attributes.append(Util.isNullEmpity(comp.getEmisor().getDomicilio().getCodigoPostal(), "CodigoPostal"));
+		attributes.append(Util.isNullEmpity(comp.getEmisor().getDomicilio().getColonia(), "Colonia"));
+		attributes.append(Util.isNullEmpity(comp.getEmisor().getDomicilio().getEstado(), "Estado"));
+		attributes.append(Util.isNullEmpity(comp.getEmisor().getDomicilio().getMunicipio(), "Municipio"));
+		attributes.append(Util.isNullEmpity(comp.getEmisor().getDomicilio().getNoExterior(), "NoExterior"));
+		attributes.append(Util.isNullEmpity(comp.getEmisor().getDomicilio().getNoInterior(), "NoInterior"));
+		attributes.append(Util.isNullEmpity(comp.getEmisor().getDomicilio().getPais(), "Pais"));
+		attributes.append(Util.isNullEmpity(comp.getEmisor().getDomicilio().getReferencia(), "Referecncia"));
+		
+		if(attributes.toString().trim().length() > 0){
+			concat.append("\n<as:DomicilioEmisor ");
+			concat.append(attributes.toString());
+			concat.append("/>");
+		}
+		return concat.toString();
+	}
+	
+	public String domicilioReceptor(CfdiComprobanteFiscal comp){
+		StringBuilder concat = new StringBuilder();
+		StringBuilder attributes = new StringBuilder();
+		//DomicilioReceptor
+		attributes.append(Util.isNullEmpity(comp.getReceptor().getDomicilio().getCalle(), "Calle"));
+		attributes.append(Util.isNullEmpity(comp.getReceptor().getDomicilio().getLocalidad(), "Ciudad"));
+		attributes.append(Util.isNullEmpity(comp.getReceptor().getDomicilio().getCodigoPostal(), "CodigoPostal"));
+		attributes.append(Util.isNullEmpity(comp.getReceptor().getDomicilio().getColonia(), "Colonia"));
+		attributes.append(Util.isNullEmpity(comp.getReceptor().getDomicilio().getEstado(), "Estado"));
+		attributes.append(Util.isNullEmpity(comp.getReceptor().getDomicilio().getMunicipio(), "Municipio"));
+		attributes.append(Util.isNullEmpity(comp.getReceptor().getDomicilio().getNoExterior(), "NoExterior"));
+		attributes.append(Util.isNullEmpity(comp.getNumeroCuentaPago(), "NumCtaPagoEntidad"));
+		attributes.append(Util.isNullEmpity(comp.getNumeroCuenta(), "NumCtaPagoEntidad"));
+		attributes.append(Util.isNullEmpity(comp.getReceptor().getDomicilio().getNoInterior(), "NoInterior"));
+		attributes.append(Util.isNullEmpity(comp.getReceptor().getDomicilio().getPais(), "Pais"));
+		attributes.append(Util.isNullEmpity(comp.getReceptor().getDomicilio().getReferencia(), "Referencia"));
+		
+		if(attributes.toString().trim().length() > 0){
+			concat.append("\n<as:DomicilioReceptor ");
+			concat.append(attributes.toString());
+			concat.append("/>");
+		}
+		
+		return concat.toString();
+	}
+}

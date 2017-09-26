@@ -191,6 +191,37 @@ public class Properties
 	@Value("${url.archivo.catalogs}")
 	private String urlArchivoCatalogs;
 	
+	//
+	@Value("${xml.xsdCFD22}")
+    private String pathFileValidation22;
+	@Value("${xml.xsdCFDI}")
+    private String pathFileValidationCFDI;
+	@Value("${xml.xsdTFD}")
+    private String pathTimbres;
+	@Value("${xml.xsdCFDI32}")
+    private String pathFileValidationCFDI32;
+	@Value("${xml.xsdTFD2}")
+    private String pathTimbres2;
+	@Value("${xml.xsdDonataria}")
+    private String pathDonataria;
+	@Value("${xml.xsdCFDI33}")
+    private String pathFileValidationCFDI33;
+	@Value("${xml.xsdTFD33}")
+    private String pathTimbres33;
+	@Value("${xml.xsdDivisas}")
+    private String pathDivisas;
+	@Value("${xml.xsdPagos}")
+    private String pathPagos;
+	@Value("${xml.name.cadenaoriginal22}")
+    private String pathFileSello22;
+	@Value("${xml.name.cadenaoriginalCFDI22}")
+    private String pathFileSelloCFDI32;
+	@Value("${xml.name.cadenaoriginalCFDI}")
+    private String pathFileSelloCFDI;
+	@Value("${xml.name.cadenaoriginalCFDI33}")
+    private String pathFileSelloCFDI33;
+	
+	
 	public String getInterfaces() {
 		return interfaces;
 	}
@@ -875,6 +906,118 @@ public class Properties
 
 	public void setUrlArchivoCatalogs(String urlArchivoCatalogs) {
 		this.urlArchivoCatalogs = urlArchivoCatalogs;
+	}
+
+	public String getPathFileValidation22() {
+		return pathFileValidation22;
+	}
+
+	public void setPathFileValidation22(String pathFileValidation22) {
+		this.pathFileValidation22 = pathFileValidation22;
+	}
+
+	public String getPathFileValidationCFDI() {
+		return pathFileValidationCFDI;
+	}
+
+	public void setPathFileValidationCFDI(String pathFileValidationCFDI) {
+		this.pathFileValidationCFDI = pathFileValidationCFDI;
+	}
+
+	public String getPathTimbres() {
+		return pathTimbres;
+	}
+
+	public void setPathTimbres(String pathTimbres) {
+		this.pathTimbres = pathTimbres;
+	}
+
+	public String getPathFileValidationCFDI32() {
+		return pathFileValidationCFDI32;
+	}
+
+	public void setPathFileValidationCFDI32(String pathFileValidationCFDI32) {
+		this.pathFileValidationCFDI32 = pathFileValidationCFDI32;
+	}
+
+	public String getPathTimbres2() {
+		return pathTimbres2;
+	}
+
+	public void setPathTimbres2(String pathTimbres2) {
+		this.pathTimbres2 = pathTimbres2;
+	}
+
+	public String getPathDonataria() {
+		return pathDonataria;
+	}
+
+	public void setPathDonataria(String pathDonataria) {
+		this.pathDonataria = pathDonataria;
+	}
+
+	public String getPathFileValidationCFDI33() {
+		return pathFileValidationCFDI33;
+	}
+
+	public void setPathFileValidationCFDI33(String pathFileValidationCFDI33) {
+		this.pathFileValidationCFDI33 = pathFileValidationCFDI33;
+	}
+
+	public String getPathTimbres33() {
+		return pathTimbres33;
+	}
+
+	public void setPathTimbres33(String pathTimbres33) {
+		this.pathTimbres33 = pathTimbres33;
+	}
+
+	public String getPathDivisas() {
+		return pathDivisas;
+	}
+
+	public void setPathDivisas(String pathDivisas) {
+		this.pathDivisas = pathDivisas;
+	}
+
+	public String getPathPagos() {
+		return pathPagos;
+	}
+
+	public void setPathPagos(String pathPagos) {
+		this.pathPagos = pathPagos;
+	}
+
+	public String getPathFileSello22() {
+		return pathFileSello22;
+	}
+
+	public void setPathFileSello22(String pathFileSello22) {
+		this.pathFileSello22 = pathFileSello22;
+	}
+
+	public String getPathFileSelloCFDI32() {
+		return pathFileSelloCFDI32;
+	}
+
+	public void setPathFileSelloCFDI32(String pathFileSelloCFDI32) {
+		this.pathFileSelloCFDI32 = pathFileSelloCFDI32;
+	}
+
+	public String getPathFileSelloCFDI() {
+		return pathFileSelloCFDI;
+	}
+
+	public void setPathFileSelloCFDI(String pathFileSelloCFDI) {
+		this.pathFileSelloCFDI = pathFileSelloCFDI;
+	}
+
+	public String getPathFileSelloCFDI33() {
+		return pathFileSelloCFDI33;
+	}
+
+	public void setPathFileSelloCFDI33(String pathFileSelloCFDI33) {
+		this.pathFileSelloCFDI33 = pathFileSelloCFDI33;
 	}
 	
 }

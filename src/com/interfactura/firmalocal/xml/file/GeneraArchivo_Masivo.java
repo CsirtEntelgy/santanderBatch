@@ -1422,4 +1422,11 @@ private Logger logger = Logger.getLogger(GeneraArchivo_Masivo.class);
 	public void setUUID(String uUID) {
 		UUID = uUID;
 	}
+	
+	public ByteArrayOutputStream getOut(){
+		return out;
+	}
+	public void setOut(ByteArrayOutputStream out){
+		this.out = out;
+	}
 }
