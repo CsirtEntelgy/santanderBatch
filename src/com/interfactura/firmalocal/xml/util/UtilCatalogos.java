@@ -17,6 +17,8 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -2072,5 +2074,207 @@ public class UtilCatalogos
 	        	invoice.setTipoFormato(comprobante.getTipoDeComprobante());
 	        }
 	        return invoice;
+	    }
+		
+		public static String validateCfdiDocument(Document doc, int maxDecimals) throws XPathExpressionException, TransformerConfigurationException, TransformerException{
+	    	logger.info("validateCfdiDocument:"+convertDocumentXmlToString(doc));
+	    	System.out.println("******************************************************");
+	    	StringBuilder sbError = new StringBuilder();
+	    	sbError.append(validateDecimals(doc, maxDecimals));
+	    	logger.info("validateCfdiDocument:"+convertDocumentXmlToString(doc));
+	    	System.out.println("******************************************************");
+	    	/*En esta seccion se agregaran todas las validciones que se les necesite hacer al comprobante*/
+	    	sbError.append(evaluateCalulationMasiva(doc, maxDecimals));
+	    	logger.info("validateCfdiDocument:"+convertDocumentXmlToString(doc));
+	    	System.out.println("******************************************************");
+	    	return sbError.toString();
+	    }
+		
+		public static String validateDecimals(Document doc, int maxDecimals) throws XPathExpressionException {
+	        StringBuilder sbError = new StringBuilder();
+	        evaluateDecimals(doc, "//Comprobante/@SubTotal", maxDecimals, "Subtotal", sbError);
+	        evaluateDecimals(doc, "//Comprobante/@Total", maxDecimals, "Total", sbError);
+	        if (!Util.isNullEmpty(getStringValByExpression(doc, "//Comprobante/@TipoCambio"))) {
+	            evaluateDecimals(doc, "//Comprobante/@TipoCambio", maxDecimals, "Tipo de Cambio", sbError);
+	        }
+	        if (!Util.isNullEmpty(getStringValByExpression(doc, "//Comprobante/@Descuento"))) {
+	            evaluateDecimals(doc, "//Comprobante/@Descuento", maxDecimals, "Descuento", sbError);
+	        }
+	        String concepts = "//Comprobante/Conceptos/Concepto";
+	        BigDecimal totalConcept = BigDecimal.valueOf(getDoubleByExpression(doc, "count(".concat(concepts.intern()).concat(")")));
+	        if (totalConcept.intValue() > 0) {
+	            for (int idxConcept = 0; idxConcept < totalConcept.intValue(); idxConcept++) {
+	                String currentConcept = concepts.intern().concat("[" + (idxConcept + 1) + "]");
+	                String currDescConcept = "Concepto[" + (idxConcept + 1) + "]";
+	                evaluateDecimals(doc, currentConcept.intern().concat("/@Importe"), maxDecimals, currDescConcept.concat("-Importe"), sbError);
+	                evaluateDecimals(doc, currentConcept.intern().concat("/@ValorUnitario"), maxDecimals, currDescConcept.concat("-Importe"), sbError);
+	                String traslados = currentConcept.intern().concat("/Impuestos/Traslados/Traslado");
+	                String retenciones = currentConcept.intern().concat("/Impuestos/Retenciones/Retencion");
+	                BigDecimal totalTraslados = BigDecimal.valueOf(getDoubleByExpression(doc, "count(".concat(traslados.intern()).concat(")")));
+	                BigDecimal totalRetenciones = BigDecimal.valueOf(getDoubleByExpression(doc, "count(".concat(retenciones.intern()).concat(")")));
+	                for (int idxTras = 0; idxTras < totalTraslados.intValue(); idxTras++) {
+	                    String currentTras = traslados.concat("[" + (idxTras + 1) + "]");
+	                    String currDescTras = currDescConcept.intern().concat("-Traslado[").concat(String.valueOf(idxTras + 1)).concat("]");
+	                    evaluateDecimals(doc, currentTras.intern().concat("/@Base"), maxDecimals, currDescTras.concat("-Base"), sbError);
+	                    evaluateDecimals(doc, currentTras.intern().concat("/@Importe"), maxDecimals, currDescTras.concat("-Importe"), sbError);
+	                    //evaluateDecimals(doc, currentTras.intern().concat("/@TasaOCuota"), maxDecimals, currDescTras.concat("-Tasa o Cuota"), sbError);
+	                }
+	                for (int idxRet = 0; idxRet < totalRetenciones.intValue(); idxRet++) {
+	                    String currentRet = retenciones.concat("[" + (idxRet + 1) + "]");
+	                    String currDescRet = currDescConcept.intern().concat("-Retencion[").concat(String.valueOf(idxRet + 1)).concat("]");
+	                    evaluateDecimals(doc, currentRet.intern().concat("/@Base"), maxDecimals, currDescRet.concat("-Base"), sbError);
+	                    evaluateDecimals(doc, currentRet.intern().concat("/@Importe"), maxDecimals, currDescRet.concat("-Importe"), sbError);
+	                    //evaluateDecimals(doc, currentRet.intern().concat("/@TasaOCuota"), maxDecimals, currDescRet.concat("-Tasa o Cuota"), sbError);
+	                }
+	            }
+	        }
+	        evaluateDecimals(doc, "//Comprobante/Impuestos/@TotalImpuestosRetenidos", maxDecimals, "Total Imp Retenidos", sbError);
+	        evaluateDecimals(doc, "//Comprobante/Impuestos/@TotalImpuestosTrasladados", maxDecimals, "Total Imp Traslados", sbError);
+	        if (sbError.length() > 0) {
+	            sbError = new StringBuilder("Los siguientes valores no tienen la cantidad de decimales para la moneda (Permitidos=")
+	                    .append(maxDecimals).append("):\n").append(sbError);
+	        }
+	        System.out.println(sbError);
+	        return sbError.toString();
+	    }
+		private static void evaluateDecimals(Document doc, String expression, int maxDecimals, String messageError, StringBuilder sbError) throws XPathExpressionException {
+	        NodeList nl = getNodesByExpression(doc, expression);
+	        if (nl != null && nl.getLength() > 0) {
+	            String val = getStringValByExpression(doc, expression);
+	            BigDecimal bd = new BigDecimal(val);
+	            //Los ceros a la derecha no se toman en cuenta para evaluar 
+	            val = bd.stripTrailingZeros().toPlainString();
+	            if (!hasNDecimals(val, maxDecimals)) {
+	                int countDecimals = countDecimals(val);
+	                if (countDecimals < maxDecimals) {		                	
+			            if (val == null || val.isEmpty()) {
+			                val = "0.0";
+			                maxDecimals--;//Se resta uno para que se ajuste por el que grega;
+			            } else if (!val.contains(".")) {
+			                val += ".0";//Se resta uno para que se ajuste por el que grega;
+			                maxDecimals--;
+			            }
+	                    val = completeWithCharacter(val, "0", (maxDecimals - countDecimals));
+	                    nl.item(0).setNodeValue(val);
+	                } else {
+	                    sbError.append("   -").append(messageError)
+	                            .append(", valor=").append(val).append("\n");
+	                }
+	            }
+	        }
+	    }
+		public static String evaluateCalulationMasiva(Document doc, int maxDecimals){
+	    	try{    	
+		        logger.info("Iniciando Validaciones de Calculos");
+		        BigDecimal compTotal = BigDecimal.valueOf(getDoubleByExpression(doc, "//Comprobante/@Total"));
+		        StringBuilder sb = new StringBuilder("(//Comprobante/Conceptos/Concepto/@Importe)");
+		        BigDecimal conceptTotal = getBigDecimalByNodeExpression(doc, sb.toString());
+		        sb = new StringBuilder("(//Comprobante/Conceptos/Concepto/Impuestos/Traslados/Traslado/@Importe)");
+		        BigDecimal traslTotal = getBigDecimalByNodeExpression(doc, sb.toString());
+		        BigDecimal traslados = conceptTotal.add(traslTotal);
+		        sb = new StringBuilder("(//Comprobante/Conceptos/Concepto/Impuestos/Retenciones/Retencion/@Importe)");
+		        BigDecimal retenciones = getBigDecimalByNodeExpression(doc, sb.toString());
+		        BigDecimal discount = getBigDecimalByNodeExpression(doc, "//Comprobante/@Descuento");
+		        retenciones = retenciones.add(discount);	        
+		
+		        BigDecimal totalOper = retenciones.equals(BigDecimal.valueOf(0)) ? traslados : traslados.add(retenciones.multiply(BigDecimal.valueOf(-1)));
+		        if (compTotal.doubleValue() == totalOper.doubleValue()) {
+		
+		        } else {
+		            System.out.println("totalOper=" + totalOper);
+		            System.out.println("compTotal=" + compTotal);
+		            System.out.println("retenciones=" + retenciones);
+		            System.out.println("traslados=" + traslados);
+		            System.out.println("Comptaracion=" + (compTotal.doubleValue() == totalOper.doubleValue()));
+		            throw new Exception(
+		                    "El campo Total no corresponde con la suma del subtotal, menos los descuentos aplicables, m�s las contribuciones recibidas (impuestos trasladados - federales o locales, derechos, productos, aprovechamientos, aportaciones de seguridad social, contribuciones de mejoras) menos los impuestos retenidos.");
+		        }
+		
+		        logger.info("Validando descuentos");
+		        /*Asignacion y validacion de Descuento*/
+		        String voucherType = getStringValByExpression(doc, "//Comprobante/@TipoDeComprobante");
+		        System.out.println("discount:" + discount);
+		        boolean validateDiscount = false;
+		        if (discount.doubleValue() > 0) {//Si no viene con valor omitimos este paso
+		            validateDiscount = true;
+		        }
+		        if (voucherType.equalsIgnoreCase("I")
+		                || voucherType.equalsIgnoreCase("E")
+		                || voucherType.equalsIgnoreCase("N")) {
+		            if (validateDiscount) {
+		                //El subtotal debe ser mayor o igual al descuento
+		                BigDecimal subTotal = BigDecimal.valueOf(getDoubleByExpression(doc, "//Comprobante/@SubTotal"));
+		                if (discount.doubleValue() > subTotal.doubleValue()) {
+		                    throw new Exception(errorMessage.get("ErrCompSubTotal005"));
+		                }
+		            }
+		            String concepts = "//Comprobante/Conceptos/Concepto";
+		            BigDecimal totalConcept = BigDecimal.valueOf(getDoubleByExpression(doc, "count(".concat(concepts.intern()).concat(")")));
+		            System.out.println("Conceptos:" + totalConcept);
+		            if (totalConcept.doubleValue() > 0) {//Verificamos que vengan conceptos
+		                //Obtenemos el decuento por concepto
+		                BigDecimal discPerConcept = discount.divide(totalConcept, maxDecimals, RoundingMode.HALF_UP);
+		                BigDecimal last = discount.subtract(discPerConcept.multiply(totalConcept));
+		                NodeList nl = getNodesByExpression(doc, concepts.intern());
+		                if (nl != null) {
+		                    String disc = discPerConcept.toString();
+		                    for (int i = 0; i < nl.getLength(); i++) {
+		                        Element el = ((Element) nl.item(i));
+		                        BigDecimal importe = new BigDecimal(el.getAttribute("Importe"));
+		                        BigDecimal valorUnitario = new BigDecimal(el.getAttribute("ValorUnitario"));
+		                        if (valorUnitario.doubleValue() <= 0) {
+		                            throw new Exception(errorMessage.get("ErrCompValUni003"));
+		                        }
+		                        if (validateDiscount) {
+		                            if ((i + 1) == nl.getLength() && last.doubleValue() > 0) {
+		                                //Se suma el descuento por concepto mas
+		                                discPerConcept = discPerConcept.add(last);
+		                                disc = discPerConcept.toString();
+		                            }
+		                            if (discPerConcept.doubleValue() > importe.doubleValue()) {
+		                                throw new Exception(MessageFormat.format(errorMessage.get("ErrConcImport002"), (i + 1), discPerConcept, importe));
+		                            }
+		                            el.setAttribute("Descuento", disc.intern());
+		                        }
+		                    }
+		                }
+		            }
+		        } else {
+		            if (validateDiscount) {
+		                throw new Exception(errorMessage.get("ErrCompTipoComprobante002"));
+		            }
+		        }
+	    	}catch(Exception ex){
+	    		logger.error(ex);
+	    		return ex.getMessage() + "\n";
+	    	}
+	    	return "";
+	    }
+		public static String completeWithCharacter(String val, String character, int length) {
+	        StringBuilder outputBuffer = new StringBuilder(val);
+	        for (int i = 0; i < length; i++) {
+	            outputBuffer.append(character);
+	        }
+	        return outputBuffer.toString();
+	    }
+		
+		private static int countDecimals(double val) {
+	        String text = Double.toString(Math.abs(val));
+	        return countDecimals(text);
+	    }
+		public static int countDecimals(String val) {
+	        int integerPlaces = val.indexOf('.');
+	        if (integerPlaces == -1) {
+	            return 0;
+	        }
+	        int decimalPlaces = val.length() - integerPlaces - 1;
+	        return decimalPlaces;
+	    }
+		
+		private static boolean hasNDecimals(String value, int maxDecimals) {
+	        String regex = "^\\d+\\.?\\d{" + maxDecimals + "}$";
+	        Pattern pattern = Pattern.compile(regex);
+	        Matcher matcher = pattern.matcher(value);
+	        return matcher.find();
 	    }
 }

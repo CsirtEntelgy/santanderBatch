@@ -12,6 +12,7 @@ import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -374,11 +375,22 @@ public class GeneraXMLProceso_Masivo {
 									//validar comprobante
 									sbErrorFile.append(validations.validateComprobante(comp, factura));
 									
-									
-									//Invoice_Masivo invoice = new Invoice_Masivo();
-									
 									//convertir comprobante a invoice
 									invoice = UtilCatalogos.fillInvoice(comp);
+									
+									/* Se obtiene el totalIvaretenido y se asigna al IVA*/
+						    		Document document = UtilCatalogos.convertStringToDocument(invoice.getByteArrXMLSinAddenda().toString("UTF-8"));
+						    		String totalIvaRet = UtilCatalogos.getStringValByExpression(document, "//Comprobante/Impuestos/@TotalImpuestosTrasladados");
+						    		BigDecimal bdIva = new BigDecimal(totalIvaRet);
+						    		invoice.setIva(bdIva.doubleValue());
+						    		/*Fin Cambio*/
+						    		
+						    		//doc = UtilCatalogos.convertPathFileToDocument(nameFile);
+						            String errors = UtilCatalogos.validateCfdiDocument(document, comp.getDecimalesMoneda());            
+						            if(!Util.isNullEmpty(errors)){
+						            	throw new Exception(errors);
+						            }
+						    		
 									
 									if(sbErrorFile.toString().length() > 0){
 										sb.append("Factura: " + factura + " -- Lista de Errores: " + "\n" + sbErrorFile.toString() + "\n");								
