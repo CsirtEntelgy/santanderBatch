@@ -69,6 +69,7 @@ import com.interfactura.firmalocal.xml.file.XMLProcess;
 import com.interfactura.firmalocal.xml.file.XMLProcess_Masivo;
 import com.interfactura.firmalocal.xml.util.GeneraXmlFacturaCfdiV3_3;
 import com.interfactura.firmalocal.xml.util.Util;
+import com.interfactura.firmalocal.xml.util.UtilCFDIFormatoUnico;
 import com.interfactura.firmalocal.xml.util.UtilCFDIValidations;
 import com.interfactura.firmalocal.xml.util.UtilCatalogos;
 import com.interfactura.firmalocal.xml.util.XMLProcessGeneral;
@@ -180,6 +181,9 @@ public class GeneraXMLProceso_Masivo {
 	
 	@Autowired(required = true)
 	private UserManager userManager;
+	
+	@Autowired(required = true)
+	private UtilCFDIFormatoUnico fillFU;
 	
    	public GeneraXMLProceso_Masivo() {
 
@@ -346,7 +350,7 @@ public class GeneraXMLProceso_Masivo {
 							//System.out.println("strLine:" + strLineTXT);
 							//System.out.println("length:" + arrayValues.length);
 							if(!strLineTXT.equals("")){
-								if(arrayValues.length<42){
+								if(arrayValues.length<47){
 									//System.out.println("Factura " + (factura+1) + ", incompleta!");								
 									//salidaINC.write(("ErrorArchivo|" + "Factura " + (factura+1) + ", incompleta!" + "\n").getBytes("UTF-8"));
 									
@@ -370,7 +374,7 @@ public class GeneraXMLProceso_Masivo {
 									StringBuilder sbErrorFile = new StringBuilder();
 									
 									//llenar comprobante desde archivo
-									//falta
+									comp = fillFU.fillComprobanteFUTxt(arrayValues);
 									
 									//validar comprobante
 									sbErrorFile.append(validations.validateComprobante(comp, factura));
