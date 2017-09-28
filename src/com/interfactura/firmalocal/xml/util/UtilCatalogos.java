@@ -2024,10 +2024,12 @@ public class UtilCatalogos
 	        //Va para la addenda logistica
 	        invoice.setCodigoISO(comprobante.getAddenda().getInformacionPago().getCodigoISOMoneda());
 	        //Va para las tres addendas filiales
-	        if (!comprobante.getAddenda().getInformacionPago().getPosCompra().equals("")) {
-	            invoice.setTipoAddenda("1");
-	            invoice.setPosicioncompraLog(comprobante.getAddenda().getInformacionPago().getPosCompra());
-	        }
+			if(comprobante.getAddenda().getInformacionPago().getPosCompra() != null){
+		        if (!comprobante.getAddenda().getInformacionPago().getPosCompra().equals("")) {
+		            invoice.setTipoAddenda("1");
+		            invoice.setPosicioncompraLog(comprobante.getAddenda().getInformacionPago().getPosCompra());
+		        }
+			}
 	        //Va para la addenda financiera
 	        if(comprobante.getAddenda().getInformacionPago().getCuentaContable() != null){
 		        if (!comprobante.getAddenda().getInformacionPago().getCuentaContable().equals("")) {

@@ -63,6 +63,7 @@ import com.interfactura.firmalocal.persistence.OpenJpaManager;
 import com.interfactura.firmalocal.persistence.UserManager;
 import com.interfactura.firmalocal.xml.Properties;
 import com.interfactura.firmalocal.xml.Properties_FD;
+import com.interfactura.firmalocal.xml.TagsXML;
 import com.interfactura.firmalocal.xml.WebServiceClienteUnicoDivisas;
 import com.interfactura.firmalocal.xml.file.GeneraArchivo_Masivo;
 import com.interfactura.firmalocal.xml.file.XMLProcess;
@@ -185,6 +186,9 @@ public class GeneraXMLProceso_Masivo {
 	@Autowired(required = true)
 	private UtilCFDIFormatoUnico fillFU;
 	
+	@Autowired
+	private TagsXML tags;
+	
    	public GeneraXMLProceso_Masivo() {
 
 	}
@@ -198,7 +202,7 @@ public class GeneraXMLProceso_Masivo {
 		
 		
 		try{
-			
+			tags.mapCatalogos = Util.readXLSFile(properties.getUrlArchivoCatalogs());
 			//FileInputStream fsExcelsToProcess = new FileInputStream(properties.getPathFacturacionEntrada() + "IDFILEPROCESS_" + nProceso + ".TXT");
 			FileInputStream fsExcelsToProcess = new FileInputStream(PathFacturacionEntrada + "IDFILEPROCESS.TXT");
 			DataInputStream in = new DataInputStream(fsExcelsToProcess);
