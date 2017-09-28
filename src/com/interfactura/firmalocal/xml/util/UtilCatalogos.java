@@ -1337,7 +1337,8 @@ public class UtilCatalogos
 			
 			if(mapCatalogos.size() > 0 && value.trim() != ""){
 				for(int i=0; i<mapCatalogos.get("MetodoPago").size(); i++){
-					if(mapCatalogos.get("MetodoPago").get(i).getVal1().equalsIgnoreCase(value)){
+					if(mapCatalogos.get("MetodoPago").get(i).getVal1().equalsIgnoreCase(value)
+							|| mapCatalogos.get("MetodoPago").get(i).getVal2().equalsIgnoreCase(value)){
 						response = mapCatalogos.get("MetodoPago").get(i).getVal1();	
 						break;
 					}else{
