@@ -5,16 +5,21 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import com.interfactura.firmalocal.datamodel.CfdiComprobanteFiscal;
 import com.interfactura.firmalocal.datamodel.CfdiConcepto;
 import com.interfactura.firmalocal.datamodel.CfdiConceptoImpuestoTipo;
 import com.interfactura.firmalocal.datamodel.ComplementoPago;
+import com.interfactura.firmalocal.xml.Properties;
 import com.interfactura.firmalocal.xml.util.UtilCatalogos;
 
 @Component
 public class ConvertirCfdiImplV3_3 {
 
+	@Autowired
+	Properties properties;
+	
 	public String startXml(){
 		return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
 	}
@@ -27,6 +32,8 @@ public class ConvertirCfdiImplV3_3 {
 		concat.append("xmlns:cfdi=\"http://www.sat.gob.mx/cfd/3\" ");
 		concat.append("xmlns:ecb=\"http://www.sat.gob.mx/ecb\" ");
 		concat.append("xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" ");
+		//Certificado
+		concat.append("Certificado=\"" + properties.getLblCERTIFICADO() + "\" ");
 		if (comp.getDescuento() != null && comp.getDescuento().doubleValue() > 0){
 			concat.append("Descuento=\"" + comp.getDescuento() + "\" ");
 		}
@@ -39,6 +46,10 @@ public class ConvertirCfdiImplV3_3 {
 		if(comp.getSerie() != null){
 			concat.append("Serie=\"" + comp.getSerie() + "\" ");
 		}
+		//NoCertificado
+		concat.append("NoCertificado=\"" + properties.getLblNO_CERTIFICADO() + "\" ");
+		//Sello
+		concat.append("Sello=\"" + properties.getLabelSELLO() + "\" ");
 		concat.append("SubTotal=\"" + comp.getSubTotal() + "\" ");
 		concat.append("TipoCambio=\"" + comp.getTipoCambio() + "\" ");
 		concat.append("TipoDeComprobante=\"" + comp.getTipoDeComprobante() + "\" ");
@@ -210,11 +221,10 @@ public class ConvertirCfdiImplV3_3 {
 		
 		childs.append(pagos(comp));
 		
-		if(childs.toString().trim().length() > 0){
-			concat.append("<cfdi:Complemento>");
-			concat.append(childs.toString());
-			concat.append("</cfdi:Complemento>");
-		}
+		concat.append("<cfdi:Complemento>");
+		concat.append(childs.toString());
+		concat.append(timbreFiscalDigital(comp));
+		concat.append("</cfdi:Complemento>");
 		return concat.toString();
 	}
 	public String pagos(CfdiComprobanteFiscal comp){
@@ -291,6 +301,32 @@ public class ConvertirCfdiImplV3_3 {
 			concat.append(attributes.toString());
 			concat.append("/>");
 		}
+		return concat.toString();
+	}
+	
+	public String timbreFiscalDigital(CfdiComprobanteFiscal comp){
+		StringBuilder concat = new StringBuilder();
+		
+		concat.append("\n<tfd:TimbreFiscalDigital ");
+		concat.append("xmlns:tfd=\"http://www.sat.gob.mx/TimbreFiscalDigital\" ");
+		if (comp.getComplemento() != null && comp.getComplemento().getTimbreFiscalDigital() != null){
+			comp.getComplemento().getTimbreFiscalDigital().setVersion("1.1");
+			
+			concat.append(Util.isNullEmpity(comp.getComplemento().getTimbreFiscalDigital().getNoCertificadoSAT(),
+					"NoCertificadoSAT"));
+			
+			concat.append(Util.isNullEmpity(comp.getComplemento().getTimbreFiscalDigital().getSelloCFD(),
+					"SelloCFD"));
+			
+			concat.append(Util.isNullEmpity(comp.getComplemento().getTimbreFiscalDigital().getUuid(),
+					"UUID"));
+			
+			concat.append(Util.isNullEmpity(comp.getComplemento().getTimbreFiscalDigital().getVersion(),
+					"Version"));
+		}
+		concat.append("xsi:schemaLocation=\""+"http://www.sat.gob.mx/TimbreFiscalDigital http://www.sat.gob.mx/sitio_internet/cfd/TimbreFiscalDigital/TimbreFiscalDigitalv11.xsd"+"\" ");
+		concat.append("/>");
+		
 		return concat.toString();
 	}
 	
