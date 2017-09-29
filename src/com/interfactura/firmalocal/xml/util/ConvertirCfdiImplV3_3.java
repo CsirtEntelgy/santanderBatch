@@ -223,7 +223,7 @@ public class ConvertirCfdiImplV3_3 {
 		
 		concat.append("<cfdi:Complemento>");
 		concat.append(childs.toString());
-		concat.append(timbreFiscalDigital(comp));
+		//concat.append(timbreFiscalDigital(comp));
 		concat.append("</cfdi:Complemento>");
 		return concat.toString();
 	}
