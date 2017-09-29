@@ -24,6 +24,7 @@ import com.interfactura.firmalocal.datamodel.CfdiConcepto;
 import com.interfactura.firmalocal.datamodel.CfdiConceptoImpuestoTipo;
 import com.interfactura.firmalocal.datamodel.CfdiDomicilio;
 import com.interfactura.firmalocal.datamodel.CfdiEmisor;
+import com.interfactura.firmalocal.datamodel.CfdiImpuesto;
 import com.interfactura.firmalocal.datamodel.CfdiReceptor;
 import com.interfactura.firmalocal.datamodel.CustomsInformation;
 import com.interfactura.firmalocal.datamodel.ElementsInvoice;
@@ -3286,6 +3287,9 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 						.decimales(String.format("%f", total), tags.decimalesMoneda));
 				System.out.println("Factura("+factura+") - Subtotal: "+subtotal+" Total: "+total
 						+" totalTraslado:"+totalTraslado+" totalRetencion: "+totalRetencion+stringDescuento);
+				comp.setImpuestos(new CfdiImpuesto());
+				comp.getImpuestos().setTotalImpuestosRetenidos(totalRetencion);
+				comp.getImpuestos().setTotalImpuestosTrasladados(totalTraslado);
 				comp.setSubTotal(subtotal);
 				comp.setTotal(total);
 			}

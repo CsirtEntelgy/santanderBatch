@@ -238,8 +238,12 @@ public class UtilCatalogos
 				for(int i=0; i<mapCatalogos.get("Pais").size(); i++){
 					if(mapCatalogos.get("Pais").get(i).getVal2().equalsIgnoreCase(value)){
 						response = mapCatalogos.get("Pais").get(i).getVal1();
+						System.out.println("Pais encontrado: recibido - "+value+", encontrado - "
+								+mapCatalogos.get("Pais").get(i).getVal2());
 						break;
 					}else{
+						System.out.println("Pais no encontrado: recibido - "+value+", comparado con - "
+								+mapCatalogos.get("Pais").get(i).getVal2());
 						response = "vacio";
 					}
 				}
@@ -1337,7 +1341,8 @@ public class UtilCatalogos
 			
 			if(mapCatalogos.size() > 0 && value.trim() != ""){
 				for(int i=0; i<mapCatalogos.get("MetodoPago").size(); i++){
-					if(mapCatalogos.get("MetodoPago").get(i).getVal1().equalsIgnoreCase(value)){
+					if(mapCatalogos.get("MetodoPago").get(i).getVal1().equalsIgnoreCase(value)
+							|| mapCatalogos.get("MetodoPago").get(i).getVal2().equalsIgnoreCase(value)){
 						response = mapCatalogos.get("MetodoPago").get(i).getVal1();	
 						break;
 					}else{
@@ -2024,10 +2029,12 @@ public class UtilCatalogos
 	        //Va para la addenda logistica
 	        invoice.setCodigoISO(comprobante.getAddenda().getInformacionPago().getCodigoISOMoneda());
 	        //Va para las tres addendas filiales
-	        if (!comprobante.getAddenda().getInformacionPago().getPosCompra().equals("")) {
-	            invoice.setTipoAddenda("1");
-	            invoice.setPosicioncompraLog(comprobante.getAddenda().getInformacionPago().getPosCompra());
-	        }
+			if(comprobante.getAddenda().getInformacionPago().getPosCompra() != null){
+		        if (!comprobante.getAddenda().getInformacionPago().getPosCompra().equals("")) {
+		            invoice.setTipoAddenda("1");
+		            invoice.setPosicioncompraLog(comprobante.getAddenda().getInformacionPago().getPosCompra());
+		        }
+			}
 	        //Va para la addenda financiera
 	        if(comprobante.getAddenda().getInformacionPago().getCuentaContable() != null){
 		        if (!comprobante.getAddenda().getInformacionPago().getCuentaContable().equals("")) {

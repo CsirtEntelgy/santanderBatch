@@ -63,6 +63,7 @@ import com.interfactura.firmalocal.persistence.OpenJpaManager;
 import com.interfactura.firmalocal.persistence.UserManager;
 import com.interfactura.firmalocal.xml.Properties;
 import com.interfactura.firmalocal.xml.Properties_FD;
+import com.interfactura.firmalocal.xml.TagsXML;
 import com.interfactura.firmalocal.xml.WebServiceClienteUnicoDivisas;
 import com.interfactura.firmalocal.xml.file.GeneraArchivo_Masivo;
 import com.interfactura.firmalocal.xml.file.XMLProcess;
@@ -185,6 +186,9 @@ public class GeneraXMLProceso_Masivo {
 	@Autowired(required = true)
 	private UtilCFDIFormatoUnico fillFU;
 	
+	@Autowired
+	private TagsXML tags;
+	
    	public GeneraXMLProceso_Masivo() {
 
 	}
@@ -198,13 +202,14 @@ public class GeneraXMLProceso_Masivo {
 		
 		
 		try{
-			
+			tags.mapCatalogos = Util.readXLSFile(properties.getUrlArchivoCatalogs());
 			//FileInputStream fsExcelsToProcess = new FileInputStream(properties.getPathFacturacionEntrada() + "IDFILEPROCESS_" + nProceso + ".TXT");
 			FileInputStream fsExcelsToProcess = new FileInputStream(PathFacturacionEntrada + "IDFILEPROCESS.TXT");
 			DataInputStream in = new DataInputStream(fsExcelsToProcess);
 			BufferedReader br = new BufferedReader(new InputStreamReader(in));
 			String strLine;
 			int counter=0;
+			sb = new StringBuilder();
 			//Iniciar conexion con WebService								
 			if(this.servicePort == null){
 				this.servicePort = new WebServiceClienteUnicoDivisas();								
@@ -377,24 +382,11 @@ public class GeneraXMLProceso_Masivo {
 									comp = fillFU.fillComprobanteFUTxt(arrayValues);
 									
 									//validar comprobante
-									sbErrorFile.append(validations.validateComprobante(comp, factura));
+									sbErrorFile.append(validations.validateComprobante(comp, factura+1));
 									
 									//convertir comprobante a invoice
+									invoice = new Invoice_Masivo();
 									invoice = UtilCatalogos.fillInvoice(comp);
-									
-									/* Se obtiene el totalIvaretenido y se asigna al IVA*/
-						    		Document document = UtilCatalogos.convertStringToDocument(invoice.getByteArrXMLSinAddenda().toString("UTF-8"));
-						    		String totalIvaRet = UtilCatalogos.getStringValByExpression(document, "//Comprobante/Impuestos/@TotalImpuestosTrasladados");
-						    		BigDecimal bdIva = new BigDecimal(totalIvaRet);
-						    		invoice.setIva(bdIva.doubleValue());
-						    		/*Fin Cambio*/
-						    		
-						    		//doc = UtilCatalogos.convertPathFileToDocument(nameFile);
-						            String errors = UtilCatalogos.validateCfdiDocument(document, comp.getDecimalesMoneda());            
-						            if(!Util.isNullEmpty(errors)){
-						            	throw new Exception(errors);
-						            }
-						    		
 									
 									if(sbErrorFile.toString().length() > 0){
 										sb.append("Factura: " + factura + " -- Lista de Errores: " + "\n" + sbErrorFile.toString() + "\n");								
@@ -415,6 +407,25 @@ public class GeneraXMLProceso_Masivo {
 											ByteArrayOutputStream baosXml = new ByteArrayOutputStream(xmlBytes.length);
 											baosXml.write(xmlBytes, 0, xmlBytes.length);
 											invoice.setByteArrXMLSinAddenda(baosXml);
+											
+											/* Se obtiene el totalIvaretenido y se asigna al IVA*/
+								    		Document document = UtilCatalogos.convertStringToDocument(invoice.getByteArrXMLSinAddenda().toString("UTF-8"));
+								    		String totalIvaRet = UtilCatalogos.getStringValByExpression(document, "//Comprobante/Impuestos/@TotalImpuestosTrasladados");
+								    		BigDecimal bdIva = new BigDecimal(totalIvaRet);
+								    		invoice.setIva(bdIva.doubleValue());
+								    		/*Fin Cambio*/
+								    		
+								    		//doc = UtilCatalogos.convertPathFileToDocument(nameFile);
+								            String errors = UtilCatalogos.validateCfdiDocument(document, comp.getDecimalesMoneda());            
+								            if(!Util.isNullEmpty(errors)){
+								            	throw new Exception(errors);
+								            }else{
+								            	StringWriter sw = documentToStringWriter(document);
+								            	xmlBytes = sw.toString().getBytes("UTF-8");
+												baosXml = new ByteArrayOutputStream(xmlBytes.length);
+												baosXml.write(xmlBytes, 0, xmlBytes.length);
+												invoice.setByteArrXMLSinAddenda(baosXml);
+								            }
 											
 											crearFactura(factura);
 											
@@ -455,7 +466,7 @@ public class GeneraXMLProceso_Masivo {
 												
 												String xmlTimbrado = xmlTimbradoConPipe.substring(0, xmlTimbradoConPipe.length()-1);
 												
-												//.out.println("XML Timbrado: " + xmlTimbrado);
+												System.out.println("XML Timbrado: \n" + xmlTimbrado);
 												/////////////Fin Bloque de Timbrado//////////////////
 												//Convertir de string a Document
 									            Document dom = stringToDocument(xmlTimbrado);
@@ -585,7 +596,7 @@ public class GeneraXMLProceso_Masivo {
 						
 						this.salidaXML.write(("--Total de facturas correctas: " + counterOk + " --Total de facturas procesadas: " + counterProcesadas + "\r\n\r\n"+ sbStatusOK.toString()).getBytes("UTF-8"));
 						this.salidaINC.write(("--Total de facturas con incidentes: " + counterNoOk + " --Total de facturas procesadas: " + counterProcesadas + "\r\n\r\n"+ sbStatusNoOK.toString()).getBytes("UTF-8"));
-						
+						System.out.println(("--Incidentes log: \nTotal de facturas con incidentes: " + counterNoOk + " --Total de facturas procesadas: " + counterProcesadas + "\r\n\r\n"+ sbStatusNoOK.toString()).getBytes("UTF-8"));
 						if(salidaXML!=null)
 							salidaXML.close();
 						
@@ -610,7 +621,8 @@ public class GeneraXMLProceso_Masivo {
 			try {
 				//FileOutputStream fileError = new FileOutputStream(PathFacturacionProceso + "ERROR_PROCESS_" + nProceso + ".TXT");
 				FileOutputStream fileError = new FileOutputStream(PathFacturacionProceso + "massiveProcessError.txt");
-				fileError.write((ex.getMessage()).getBytes("UTF-8"));
+				if(ex.getMessage() != null)
+					fileError.write((ex.getMessage()).getBytes("UTF-8"));
 				fileError.close();
 			} catch (Exception e1) {
 				// TODO Auto-generated catch block
