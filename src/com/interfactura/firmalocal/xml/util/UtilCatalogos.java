@@ -238,8 +238,12 @@ public class UtilCatalogos
 				for(int i=0; i<mapCatalogos.get("Pais").size(); i++){
 					if(mapCatalogos.get("Pais").get(i).getVal2().equalsIgnoreCase(value)){
 						response = mapCatalogos.get("Pais").get(i).getVal1();
+						System.out.println("Pais encontrado: recibido - "+value+", encontrado - "
+								+mapCatalogos.get("Pais").get(i).getVal2());
 						break;
 					}else{
+						System.out.println("Pais no encontrado: recibido - "+value+", comparado con - "
+								+mapCatalogos.get("Pais").get(i).getVal2());
 						response = "vacio";
 					}
 				}

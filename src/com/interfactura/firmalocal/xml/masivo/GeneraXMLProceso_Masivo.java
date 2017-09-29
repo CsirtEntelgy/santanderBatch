@@ -466,7 +466,7 @@ public class GeneraXMLProceso_Masivo {
 												
 												String xmlTimbrado = xmlTimbradoConPipe.substring(0, xmlTimbradoConPipe.length()-1);
 												
-												//.out.println("XML Timbrado: " + xmlTimbrado);
+												System.out.println("XML Timbrado: \n" + xmlTimbrado);
 												/////////////Fin Bloque de Timbrado//////////////////
 												//Convertir de string a Document
 									            Document dom = stringToDocument(xmlTimbrado);
@@ -623,8 +623,6 @@ public class GeneraXMLProceso_Masivo {
 				FileOutputStream fileError = new FileOutputStream(PathFacturacionProceso + "massiveProcessError.txt");
 				if(ex.getMessage() != null)
 					fileError.write((ex.getMessage()).getBytes("UTF-8"));
-				if(ex.getStackTrace() != null)
-					fileError.write((ex.getStackTrace().toString()).getBytes("UTF-8"));
 				fileError.close();
 			} catch (Exception e1) {
 				// TODO Auto-generated catch block

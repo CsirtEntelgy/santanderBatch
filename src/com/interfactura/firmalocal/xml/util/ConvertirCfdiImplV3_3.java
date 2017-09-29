@@ -181,33 +181,25 @@ public class ConvertirCfdiImplV3_3 {
 	
 	public String impuestos(CfdiComprobanteFiscal comp){
 		StringBuilder concat = new StringBuilder();
-		BigDecimal totalTraslados = new BigDecimal("0.00");
-		BigDecimal totalRetenciones = new BigDecimal("0.00");
-		if(comp.getConceptos() != null && comp.getConceptos().size() > 0){
-			for(CfdiConcepto concepto : comp.getConceptos()){
-				if(concepto.getImpuestos() != null){
-					
-					if(concepto.getImpuestos().getTraslados() != null 
-							&& concepto.getImpuestos().getTraslados().size() > 0){
-						for(CfdiConceptoImpuestoTipo impuestoTipo : concepto.getImpuestos().getTraslados()){
-							totalTraslados = totalTraslados.add(new BigDecimal(impuestoTipo.getImporte()));
-						}
-					}
-					if(concepto.getImpuestos().getRetenciones() != null 
-							&& concepto.getImpuestos().getRetenciones().size() > 0){
-						for(CfdiConceptoImpuestoTipo impuestoTipo : concepto.getImpuestos().getRetenciones()){
-							totalRetenciones = totalRetenciones.add(new BigDecimal(impuestoTipo.getImporte()));
-						}
-					}
-
-					concat.append("\n<cfdi:Impuestos ");
-					concat.append("TotalImpuestosRetenidos=\"" 
-							+ UtilCatalogos.decimales(totalRetenciones.toString(), comp.getDecimalesMoneda()) + "\" ");
-					concat.append("TotalImpuestosTrasladados=\"" 
-							+ UtilCatalogos.decimales(totalTraslados.toString(), comp.getDecimalesMoneda()) + "\" ");
-					concat.append("/>");
-				}
+		StringBuilder attributes = new StringBuilder();
+		if(comp.getImpuestos() != null){
+			if(comp.getImpuestos().getTotalImpuestosRetenidos() != null){
+				attributes.append( "TotalImpuestosRetenidos=\"" +
+						UtilCatalogos.decimales(comp.getImpuestos().getTotalImpuestosRetenidos().toString()
+						, comp.getDecimalesMoneda()) 
+						+ "\" ");
 			}
+			if(comp.getImpuestos().getTotalImpuestosRetenidos() != null){
+				attributes.append( "TotalImpuestosTrasladados=\"" +
+						UtilCatalogos.decimales(comp.getImpuestos().getTotalImpuestosTrasladados().toString()
+						, comp.getDecimalesMoneda()) 
+						+ "\" ");
+			}
+		}
+		if(attributes.toString().trim().length() > 0){
+			concat.append("\n<cfdi:Impuestos ");
+			concat.append(attributes);
+			concat.append("/>");
 		}
 		return concat.toString();
 	}
