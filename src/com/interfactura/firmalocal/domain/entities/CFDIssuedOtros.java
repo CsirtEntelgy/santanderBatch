@@ -141,6 +141,9 @@ public class CFDIssuedOtros
 
   @Transient
   private String estatus;
+  
+	@Column(name = "FOLIOS_COMPL_PAGO")
+	private String foliosComplPago;
 
   public CFDIssuedOtros(long id, String folio, int formatType, int status, long taxId, String taxIdReceiver, Date cancellationDate, Date dateOfIssuance, Double subTotal, Double iva, Double total, String serieInfo)
   {
@@ -475,4 +478,12 @@ public class CFDIssuedOtros
   public void setProcessID(String processID) {
     this.processID = processID;
   }
+
+	public String getFoliosComplPago() {
+		return foliosComplPago;
+	}
+
+	public void setFoliosComplPago(String foliosComplPago) {
+		this.foliosComplPago = foliosComplPago;
+	}
 }

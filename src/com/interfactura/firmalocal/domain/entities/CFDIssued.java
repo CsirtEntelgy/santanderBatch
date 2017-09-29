@@ -3,6 +3,7 @@ package com.interfactura.firmalocal.domain.entities;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -14,7 +15,10 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
+import javax.persistence.Transient;
 import javax.validation.constraints.Size;
+
+import com.interfactura.firmalocal.datamodel.ComplementoPago;
 
 
 @Entity
@@ -69,6 +73,8 @@ public class CFDIssued implements Serializable
 	private String folioSAT;
 	private int isCFDI;
 	private long folioInterno;
+	@Transient
+	private List<ComplementoPago>	pagos;
 	
 	
 	public String getserieInfo() {
@@ -349,6 +355,14 @@ public class CFDIssued implements Serializable
 
 	public void setFolioInterno(long folioInterno) {
 		this.folioInterno = folioInterno;
+	}
+
+	public List<ComplementoPago> getPagos() {
+		return pagos;
+	}
+
+	public void setPagos(List<ComplementoPago> pagos) {
+		this.pagos = pagos;
 	}
 	
 }

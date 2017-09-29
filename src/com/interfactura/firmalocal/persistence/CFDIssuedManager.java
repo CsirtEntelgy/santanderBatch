@@ -7,6 +7,7 @@ import com.interfactura.firmalocal.dao.CfdIssuedOtrosDao;
 import com.interfactura.firmalocal.dao.FiscalEntityDao;
 import com.interfactura.firmalocal.dao.FolioRangeDao;
 import com.interfactura.firmalocal.dao.RouteDao;
+import com.interfactura.firmalocal.datamodel.ComplementoPago;
 import com.interfactura.firmalocal.domain.entities.CFDIssued;
 import com.interfactura.firmalocal.domain.entities.CFDIssuedOtros;
 import com.interfactura.firmalocal.domain.entities.FiscalEntity;
@@ -161,10 +162,15 @@ public class CFDIssuedManager
 		cFDIssued.setIssueDate(Calendar.getInstance().getTime());
 		if (cFDIssued.getFormatType() != 0) {
 			CFDIssuedOtros cfdOtros = cfdIssuedToCfdOtros(cFDIssued);
+			cfdOtros.setFoliosComplPago(getConcatenatedFolioPagosComplementoPago(cFDIssued));
 			Route route = (Route) this.routeDao.update(cfdOtros.getFilePath());
 			cfdOtros.setFilePath(route);
 			cfdOtros = (CFDIssuedOtros) this.cfdiOtrosDao.update(cfdOtros);
-			return cfdOtrosToCfdIssued(cfdOtros);
+			CFDIssued cFDIssuedNew =cfdOtrosToCfdIssued(cfdOtros);
+			if(cFDIssued.getPagos()!=null && !cFDIssued.getPagos().isEmpty()) {
+				cFDIssuedNew.setPagos(cFDIssued.getPagos());
+			}
+			return cFDIssuedNew;
 		}
 		return this.cfdiDao.update(cFDIssued);
 	}
@@ -181,6 +187,7 @@ public class CFDIssuedManager
 				Route route = (Route) this.routeDao.update(cfdOtros
 						.getFilePath());
 				cfdOtros.setFilePath(route);
+				cfdOtros.setFoliosComplPago(getConcatenatedFolioPagosComplementoPago(obj));
 				cfdOtros = (CFDIssuedOtros) this.cfdiOtrosDao.update(cfdOtros);
 				cfdOtrosToCfdIssued(cfdOtros);
 			} else {
@@ -303,4 +310,27 @@ public class CFDIssuedManager
         cfdIssuedList.add(cfdIssued);
       }
   }
+  
+	/**
+	 * Metodo para concatener los folios de los pagos separados por comas
+	 * 
+	 * @param cfdIssued
+	 * @return
+	 */
+	public String getConcatenatedFolioPagosComplementoPago(CFDIssued cfdIssued) {
+		StringBuilder result = new StringBuilder();
+		for (ComplementoPago pago : cfdIssued.getPagos()) {
+			if (pago.getFolioPago() != null && !pago.getFolioPago().trim().isEmpty()) {
+				result.append(pago.getFolioPago() + ",");
+			}
+		}
+		if (result.length() > 1000) {
+			result.setLength(1000);
+		}
+		int lastIndex = result.lastIndexOf(",");
+		if (lastIndex != -1) {
+			result.delete(lastIndex, result.length());
+		}
+		return result.toString();
+	}
 }
