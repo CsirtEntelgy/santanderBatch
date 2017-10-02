@@ -3,6 +3,7 @@ package com.interfactura.firmalocal.xml.util;
 import static com.interfactura.firmalocal.xml.util.Util.getTASA;
 
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -3184,7 +3185,16 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 										tipoFactorValRow);
 		
 								if (!tipoTasaOCuota.get("value").toString().equalsIgnoreCase("vacio")) {
-									//tasaOCuotaVal = tipoTasaOCuota.get("value").toString();
+									
+									tasaOCuotaVal = tipoTasaOCuota.get("value").toString();
+									 DecimalFormat df = new DecimalFormat("0.000000");
+									 String tasaOCuotaValFormat = df.format(Double.parseDouble(tasaOCuotaVal));
+									 if (trasladoBol) {
+										 concepto.getImpuestos().getTraslados().get(0).setTasaOCuota(tasaOCuotaValFormat);
+									 } else if (retencionBol) {
+										concepto.getImpuestos().getRetenciones().get(0).setTasaOCuota(tasaOCuotaValFormat);
+									 }
+									 
 								} else {
 									fPermisoVector = false;
 									sbError.append("(" + (1) + ") " + tipoTasaOCuota.get("message").toString()
@@ -3193,9 +3203,9 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 							} else {
 								tasaOCuotaVal = "0.00";
 								if(trasladoBol){
-									concepto.getImpuestos().getTraslados().get(0).setTasaOCuota("0.00");
+									concepto.getImpuestos().getTraslados().get(0).setTasaOCuota("0.000000");
 								}else if(retencionBol){
-									concepto.getImpuestos().getRetenciones().get(0).setTasaOCuota("0.00");
+									concepto.getImpuestos().getRetenciones().get(0).setTasaOCuota("0.000000");
 								}
 							}
 		

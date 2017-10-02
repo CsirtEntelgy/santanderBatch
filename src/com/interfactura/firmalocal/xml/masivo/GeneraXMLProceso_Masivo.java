@@ -403,9 +403,11 @@ public class GeneraXMLProceso_Masivo {
 												invoice.setDescriptionIVA("EXENTO");
 											
 											//generar xml y asignarlo a invoice
-											byte[] xmlBytes = xmlGenerator.convierte(comp).getBytes("UTF-8");
-											ByteArrayOutputStream baosXml = new ByteArrayOutputStream(xmlBytes.length);
-											baosXml.write(xmlBytes, 0, xmlBytes.length);
+											fiscalEntity = new FiscalEntity();
+											fiscalEntity.setTaxID(comp.getEmisor().getRfc());
+											fiscalEntity = fiscalEntityManager.findByRFCA(fiscalEntity);
+											
+											ByteArrayOutputStream baosXml = xmlGenerator.convierte(comp, fiscalEntity);
 											invoice.setByteArrXMLSinAddenda(baosXml);
 											
 											/* Se obtiene el totalIvaretenido y se asigna al IVA*/
@@ -421,7 +423,7 @@ public class GeneraXMLProceso_Masivo {
 								            	throw new Exception(errors);
 								            }else{
 								            	StringWriter sw = documentToStringWriter(document);
-								            	xmlBytes = sw.toString().getBytes("UTF-8");
+								            	byte[] xmlBytes = sw.toString().getBytes("UTF-8");
 												baosXml = new ByteArrayOutputStream(xmlBytes.length);
 												baosXml.write(xmlBytes, 0, xmlBytes.length);
 												invoice.setByteArrXMLSinAddenda(baosXml);
