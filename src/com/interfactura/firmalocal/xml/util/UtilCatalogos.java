@@ -1480,7 +1480,7 @@ public class UtilCatalogos
 			ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 			DataOutputStream out = new DataOutputStream(byteArrayOutputStream);				
 			try {
-				out.write(data.getBytes());
+				out.write(data.getBytes("UTF-8"));
 				byteArrayOutputStream.flush();
 				byteArrayOutputStream.close();
 			} catch (IOException e) {

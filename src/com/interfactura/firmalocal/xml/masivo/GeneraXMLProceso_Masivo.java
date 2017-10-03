@@ -155,6 +155,7 @@ public class GeneraXMLProceso_Masivo {
     private StringBuilder sb;
     
     private List<Invoice_Masivo> listIn = null;
+    private List<CfdiComprobanteFiscal> listComprobantes = null;
     
     private static int rows;
 	private boolean finArchivo;
@@ -372,6 +373,7 @@ public class GeneraXMLProceso_Masivo {
 									
 								}else{
 									this.listIn = new ArrayList<Invoice_Masivo>();
+									this.listComprobantes = new ArrayList<CfdiComprobanteFiscal>();
 									
 									CfdiComprobanteFiscal comp = new CfdiComprobanteFiscal();
 									//antiguo metodo fill y validate
@@ -393,6 +395,7 @@ public class GeneraXMLProceso_Masivo {
 										System.out.println("fError EmisionMasivaFacturas: " + sb.toString());							
 										invoice.setSbError(sbErrorFile);
 										listIn.add(invoice);
+										listComprobantes.add(comp);
 									}else{								
 										
 										try{
@@ -433,11 +436,13 @@ public class GeneraXMLProceso_Masivo {
 											
 											System.out.println("facturaOK - " + factura);
 											listIn.add(invoice);
+											listComprobantes.add(comp);
 										}catch (Exception e) {								
 											sb.append("Factura: " + factura + " --Exception: " + "\n" + e.getMessage() + "\n");
 											System.out.println("Factura: " + factura + " --Exception: " + "\n" + e.getMessage());
 											invoice.setSbError(new StringBuilder("Factura: " + factura + " --Exception: " + e.getMessage() + "\n"));
 											listIn.add(invoice);
+											listComprobantes.add(comp);
 										}
 										
 										
@@ -454,7 +459,7 @@ public class GeneraXMLProceso_Masivo {
 										for(int index=0; index<listIn.size(); index++){
 											if(listIn.get(index).getByteArrXMLSinAddenda() != null){
 												String strXmlATimbrar = listIn.get(index).getByteArrXMLSinAddenda().toString("UTF-8");
-												
+												CfdiComprobanteFiscal comprobante = listComprobantes.get(index);
 												/////////////Inicio Bloque de Timbrado//////////////////
 																				
 												// Invoke the web service operation using the port or stub or proxy
@@ -484,7 +489,10 @@ public class GeneraXMLProceso_Masivo {
 													String xmlString = result.getWriter().toString();
 													Document doc = db.parse(new InputSource(new StringReader(xmlString)));
 													//System.out.println("GeneraAddenda");
-													doc = this.generaXML.agregaAddenda(doc, invoice);
+													//doc = this.generaXML.agregaAddenda(doc, invoice);//agrega addenda anterior
+													
+													//agrega addenda nuevo 3.3
+													doc = xmlGenerator.agregaAddenda(doc, comprobante);
 													
 													//Obtener el UUID 
 													String strUUID = this.generaXML.getUUID(doc).trim();

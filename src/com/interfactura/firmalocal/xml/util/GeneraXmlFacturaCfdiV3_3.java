@@ -1,5 +1,6 @@
 package com.interfactura.firmalocal.xml.util;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -11,6 +12,7 @@ import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
@@ -22,6 +24,8 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import com.interfactura.firmalocal.datamodel.CfdiComprobanteFiscal;
@@ -106,7 +110,7 @@ public class GeneraXmlFacturaCfdiV3_3 {
 		//complemento
 		sbXml.append(conver.complemento(comp));
 		//addenda
-		sbXml.append(conver.addenda(comp));
+		//sbXml.append(conver.addenda(comp));
 		
 		//cerrar comprobante
 		sbXml.append(conver.closeFComprobante());
@@ -130,5 +134,25 @@ public class GeneraXmlFacturaCfdiV3_3 {
 		
 		return out;
 	}
+	
+	public Document agregaAddenda(Document doc, CfdiComprobanteFiscal comp) throws SAXException
+	, IOException, ParserConfigurationException, FactoryConfigurationError{
+	
+	String addenda = "";
+	addenda = conver.addenda(comp);
+	if (addenda.trim().length() > 0){
+		
+		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+		
+		Element element = doc.getDocumentElement();
+		
+		Document addendaDoc = dBuilder.parse(new ByteArrayInputStream(addenda.getBytes("UTF-8")));
+		
+		Node addendaNode = doc.importNode(addendaDoc.getDocumentElement(), true);
+		element.appendChild(addendaNode);
+	}
+	return doc;
+}
 	
 }
