@@ -221,10 +221,12 @@ public class ConvertirCfdiImplV3_3 {
 		
 		childs.append(pagos(comp));
 		
-		concat.append("<cfdi:Complemento>");
-		concat.append(childs.toString());
-		//concat.append(timbreFiscalDigital(comp));
-		concat.append("</cfdi:Complemento>");
+		if(childs.toString().length() > 0){
+			concat.append("<cfdi:Complemento>");
+			concat.append(childs.toString());
+			//concat.append(timbreFiscalDigital(comp));
+			concat.append("</cfdi:Complemento>");
+		}
 		return concat.toString();
 	}
 	public String pagos(CfdiComprobanteFiscal comp){
