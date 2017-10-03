@@ -17,7 +17,6 @@ import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.xssf.eventusermodel.XSSFReader;
 import org.apache.poi.xssf.model.SharedStringsTable;
 import org.apache.poi.xssf.usermodel.XSSFRichTextString;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
@@ -27,7 +26,6 @@ import org.xml.sax.helpers.DefaultHandler;
 import org.xml.sax.helpers.XMLReaderFactory;
 
 import com.interfactura.firmalocal.controllers.MassiveReadController;
-import com.interfactura.firmalocal.xml.Properties;
 
 public class ReadExcelSaxComplementoPago {
 
@@ -42,7 +40,8 @@ public class ReadExcelSaxComplementoPago {
 	private static File fileExitTXT = null;
 	private static FileOutputStream salidaTXT = null;
 	private static String strAbsolutePathTXT;
-	private static String currentFile;
+	private static Long tipoProceso;
+	private static String currFile;
 
 	private static String currentCol = "";
 
@@ -97,8 +96,8 @@ public class ReadExcelSaxComplementoPago {
 								fileExitTXT = new File(
 										pathFacturacionProceso + arrayValues[1] + "/" + arrayValues[1] + ".TXT");
 								salidaTXT = new FileOutputStream(fileExitTXT);
-								currentFile = file.getAbsolutePath();
-								processOneSheet(currentFile, "1");
+								currFile = file.getAbsolutePath();
+								processOneSheet(file.getAbsolutePath(), 1L);
 								System.out.println("rows:" + rows);
 
 								salidaTXT.write("\r\n".getBytes("UTF-8"));
@@ -168,11 +167,11 @@ public class ReadExcelSaxComplementoPago {
 
 	}
 
-	public static void processOneSheet(String filename, String sheetNumber) throws Exception {
+	public static void processOneSheet(String filename, Long hojaProceso) throws Exception {
 		finArchivo = false;
 		rows = 0;
 		cols = 0;
-
+		tipoProceso = hojaProceso;
 		OPCPackage pkg = OPCPackage.open(filename);
 		XSSFReader r = new XSSFReader(pkg);
 		SharedStringsTable sst = r.getSharedStringsTable();
@@ -181,11 +180,13 @@ public class ReadExcelSaxComplementoPago {
 
 		// rId2 found by processing the Workbook
 		// Seems to either be rId# or rSheet#
-		// InputStream sheet2 = r.getSheet("rId" + sheetNumber);
-		InputStream sheet2 = r.getSheet("rId1");
+		InputStream sheet2 = r.getSheet("rId3");
 		InputSource sheetSource = new InputSource(sheet2);
 		parser.parse(sheetSource);
 		sheet2.close();
+		if (tipoProceso.equals(2L)) {
+			tipoProceso = 1L;
+		}
 	}
 
 	public void processAllSheets(String filename) throws Exception {
@@ -297,10 +298,11 @@ public class ReadExcelSaxComplementoPago {
 					try {
 
 						strValues = strValues.replace("\n", " ");
-						 processOneSheet(currentFile, "2");
-
 						System.out.println("sbValues: " + strValues);
-
+						if (tipoProceso.equals(1L)) {
+							salidaTXT.write((strValues).getBytes("UTF-8"));
+							processOneSheet(currFile, 2L);
+						}
 						salidaTXT.write((strValues + "\r\n").getBytes("UTF-8"));
 					} catch (UnsupportedEncodingException e) {
 						// TODO Auto-generated catch block
