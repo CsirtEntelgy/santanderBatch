@@ -85,14 +85,11 @@ public class GeneraXmlFacturaCfdiV3_3 {
 	@Autowired
 	private XMLProcessGeneral xmlProcessGeneral;
 	
-	public ByteArrayOutputStream convierte(CfdiComprobanteFiscal comp, FiscalEntity fe) throws UnsupportedEncodingException
-		, ParserConfigurationException, SAXException, IOException, XPathExpressionException
-		, TransformerConfigurationException, TransformerException, GeneralSecurityException, ValidationException{
+public ByteArrayOutputStream convierte(CfdiComprobanteFiscal comp) throws UnsupportedEncodingException{
 		
 		StringBuilder sbXml = new StringBuilder("");
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Date date = Calendar.getInstance().getTime();
-		certificado.find(fe.getId());
 		
 		//iniciar xml
 		sbXml.append(conver.startXml());
@@ -115,22 +112,9 @@ public class GeneraXmlFacturaCfdiV3_3 {
 		//cerrar comprobante
 		sbXml.append(conver.closeFComprobante());
 		
-		System.out.println("---XML Generado---");
-		System.out.println(sbXml.toString());
-		System.out.println("---Fin XML Generado---");
-		
 		if(sbXml.toString().length() > 0){
-			System.out.println("---Reemplazando certificado y sello---");
 			out = UtilCatalogos.convertStringToOutpuStream(sbXml.toString());
-			Document doc = UtilCatalogos.convertStringToDocument(out.toString("UTF-8"));
-			UtilCatalogos.setValueOnDocumentElement(doc, "//Comprobante/@NoCertificado", certificado.getCertificado().getSerialNumber());
-			out = UtilCatalogos.convertStringToOutpuStream(UtilCatalogos.convertDocumentXmlToString(doc));
-			out = xmlProcessGeneral.replacesOriginalString(out, xmlProcessGeneral.generatesOriginalString(out, "3.3"), certificado);
 		}
-		
-		System.out.println("---XML Generado despues de reemplazo---");
-		System.out.println(out.toString("UTF-8"));
-		System.out.println("---Fin XML Generado despues de reemplazo---");
 		
 		return out;
 	}
@@ -138,21 +122,37 @@ public class GeneraXmlFacturaCfdiV3_3 {
 	public Document agregaAddenda(Document doc, CfdiComprobanteFiscal comp) throws SAXException
 	, IOException, ParserConfigurationException, FactoryConfigurationError{
 	
-	String addenda = "";
-	addenda = conver.addenda(comp);
-	if (addenda.trim().length() > 0){
-		
-		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-		DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-		
-		Element element = doc.getDocumentElement();
-		
-		Document addendaDoc = dBuilder.parse(new ByteArrayInputStream(addenda.getBytes("UTF-8")));
-		
-		Node addendaNode = doc.importNode(addendaDoc.getDocumentElement(), true);
-		element.appendChild(addendaNode);
+		String addenda = "";
+		addenda = conver.addenda(comp);
+		if (addenda.trim().length() > 0){
+			
+			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+			
+			Element element = doc.getDocumentElement();
+			
+			Document addendaDoc = dBuilder.parse(new ByteArrayInputStream(addenda.getBytes("UTF-8")));
+			
+			Node addendaNode = doc.importNode(addendaDoc.getDocumentElement(), true);
+			element.appendChild(addendaNode);
+		}
+		return doc;
 	}
-	return doc;
-}
+	
+	public ByteArrayOutputStream reemplazaCadenaOriginal(ByteArrayOutputStream in, FiscalEntity fe) 
+			throws UnsupportedEncodingException, ParserConfigurationException, SAXException, IOException
+			, XPathExpressionException, TransformerConfigurationException, TransformerException
+			, GeneralSecurityException, ValidationException{
+	
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		certificado.find(fe.getId());
+		
+		Document doc = UtilCatalogos.convertStringToDocument(in.toString("UTF-8"));
+		UtilCatalogos.setValueOnDocumentElement(doc, "//Comprobante/@NoCertificado", certificado.getCertificado().getSerialNumber());
+		out = UtilCatalogos.convertStringToOutpuStream(UtilCatalogos.convertDocumentXmlToString(doc));
+		out = xmlProcessGeneral.replacesOriginalString(out, xmlProcessGeneral.generatesOriginalString(out, "3.3"), certificado);
+		
+		return out;
+	}
 	
 }
