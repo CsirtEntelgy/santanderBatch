@@ -155,6 +155,7 @@ public class GeneraXMLProceso_Masivo {
     private StringBuilder sb;
     
     private List<Invoice_Masivo> listIn = null;
+    private List<CfdiComprobanteFiscal> listComprobantes = null;
     
     private static int rows;
 	private boolean finArchivo;
@@ -372,6 +373,7 @@ public class GeneraXMLProceso_Masivo {
 									
 								}else{
 									this.listIn = new ArrayList<Invoice_Masivo>();
+									this.listComprobantes = new ArrayList<CfdiComprobanteFiscal>();
 									
 									CfdiComprobanteFiscal comp = new CfdiComprobanteFiscal();
 									//antiguo metodo fill y validate
@@ -393,6 +395,7 @@ public class GeneraXMLProceso_Masivo {
 										System.out.println("fError EmisionMasivaFacturas: " + sb.toString());							
 										invoice.setSbError(sbErrorFile);
 										listIn.add(invoice);
+										listComprobantes.add(comp);
 									}else{								
 										
 										try{
@@ -407,7 +410,7 @@ public class GeneraXMLProceso_Masivo {
 											fiscalEntity.setTaxID(comp.getEmisor().getRfc());
 											fiscalEntity = fiscalEntityManager.findByRFCA(fiscalEntity);
 											
-											ByteArrayOutputStream baosXml = xmlGenerator.convierte(comp, fiscalEntity);
+											ByteArrayOutputStream baosXml = xmlGenerator.convierte(comp);
 											invoice.setByteArrXMLSinAddenda(baosXml);
 											
 											/* Se obtiene el totalIvaretenido y se asigna al IVA*/
@@ -426,6 +429,18 @@ public class GeneraXMLProceso_Masivo {
 								            	byte[] xmlBytes = sw.toString().getBytes("UTF-8");
 												baosXml = new ByteArrayOutputStream(xmlBytes.length);
 												baosXml.write(xmlBytes, 0, xmlBytes.length);
+												
+												System.out.println("---XML despues de validar decimales---");
+												System.out.println(baosXml.toString("UTF-8"));
+												System.out.println("---Fin XML despues de validar decimales---");
+												
+												//agregar certificado y sello
+												baosXml = xmlGenerator.reemplazaCadenaOriginal(baosXml, fiscalEntity);
+												
+												System.out.println("---XML despues de reemplazar cadena original---");
+												System.out.println(baosXml.toString("UTF-8"));
+												System.out.println("---Fin XML despues de reemplazar cadena original---");
+												
 												invoice.setByteArrXMLSinAddenda(baosXml);
 								            }
 											
@@ -433,11 +448,13 @@ public class GeneraXMLProceso_Masivo {
 											
 											System.out.println("facturaOK - " + factura);
 											listIn.add(invoice);
+											listComprobantes.add(comp);
 										}catch (Exception e) {								
 											sb.append("Factura: " + factura + " --Exception: " + "\n" + e.getMessage() + "\n");
 											System.out.println("Factura: " + factura + " --Exception: " + "\n" + e.getMessage());
 											invoice.setSbError(new StringBuilder("Factura: " + factura + " --Exception: " + e.getMessage() + "\n"));
 											listIn.add(invoice);
+											listComprobantes.add(comp);
 										}
 										
 										
@@ -454,7 +471,7 @@ public class GeneraXMLProceso_Masivo {
 										for(int index=0; index<listIn.size(); index++){
 											if(listIn.get(index).getByteArrXMLSinAddenda() != null){
 												String strXmlATimbrar = listIn.get(index).getByteArrXMLSinAddenda().toString("UTF-8");
-												
+												CfdiComprobanteFiscal comprobante = listComprobantes.get(index);
 												/////////////Inicio Bloque de Timbrado//////////////////
 																				
 												// Invoke the web service operation using the port or stub or proxy
@@ -484,7 +501,10 @@ public class GeneraXMLProceso_Masivo {
 													String xmlString = result.getWriter().toString();
 													Document doc = db.parse(new InputSource(new StringReader(xmlString)));
 													//System.out.println("GeneraAddenda");
-													doc = this.generaXML.agregaAddenda(doc, invoice);
+													//doc = this.generaXML.agregaAddenda(doc, invoice);//agrega addenda anterior
+													
+													//agrega addenda nuevo 3.3
+													doc = xmlGenerator.agregaAddenda(doc, comprobante);
 													
 													//Obtener el UUID 
 													String strUUID = this.generaXML.getUUID(doc).trim();
@@ -2499,7 +2519,7 @@ public class GeneraXMLProceso_Masivo {
 		 invoice.setFolio(String.valueOf(open.getSequence_value()));		 
 		 //try {
 		 	
-		 	System.out.println("antes generaXML");
+		 	System.out.println("antes valida XML");
 		 	String nameFile = "";
 			//nameFile = generaXML.generaXMLHandler(invoice, fiscalEntity, fecha);
 		 	nameFile = xmlProcessGeneral.generateFileName(fecha, false, 0, false);
@@ -2520,7 +2540,7 @@ public class GeneraXMLProceso_Masivo {
 				xmlProcessGeneral.validaCFDI33(generaXML.getOut());
 			}
 			
-			System.out.println("despues generaXML");
+			System.out.println("despues valida XML");
 			cFDIssued.setCreationDate(date);
 			cFDIssued.setIssueDate(date);
 			cFDIssued.setDateOfIssuance(date);
@@ -2561,14 +2581,14 @@ public class GeneraXMLProceso_Masivo {
             cFDIssued.setModifiedBy("masivo");
 
 
-			ByteArrayOutputStream xmlSinAddenda = generaXML.guarda(null, fecha);
+			//ByteArrayOutputStream xmlSinAddenda = generaXML.guarda(null, fecha);
 			
-			if(xmlSinAddenda!=null){
-				this.invoice.setByteArrXMLSinAddenda(xmlSinAddenda);	
-				//System.out.println("XML devuelto por generaXML.guarda: " + this.invoice.getByteArrXMLSinAddenda());								
-			}else{
-				this.invoice.setByteArrXMLSinAddenda(null);	
-			}
+//			if(xmlSinAddenda!=null){
+//				this.invoice.setByteArrXMLSinAddenda(xmlSinAddenda);	
+//				//System.out.println("XML devuelto por generaXML.guarda: " + this.invoice.getByteArrXMLSinAddenda());								
+//			}else{
+//				this.invoice.setByteArrXMLSinAddenda(null);	
+//			}
 			
 			boolean continuarIntentando=true;
             int contIntentos=0;

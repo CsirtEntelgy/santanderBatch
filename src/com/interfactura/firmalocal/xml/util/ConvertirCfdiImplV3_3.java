@@ -221,10 +221,12 @@ public class ConvertirCfdiImplV3_3 {
 		
 		childs.append(pagos(comp));
 		
-		concat.append("<cfdi:Complemento>");
-		concat.append(childs.toString());
-		//concat.append(timbreFiscalDigital(comp));
-		concat.append("</cfdi:Complemento>");
+		if(childs.toString().length() > 0){
+			concat.append("<cfdi:Complemento>");
+			concat.append(childs.toString());
+			//concat.append(timbreFiscalDigital(comp));
+			concat.append("</cfdi:Complemento>");
+		}
 		return concat.toString();
 	}
 	public String pagos(CfdiComprobanteFiscal comp){
@@ -352,16 +354,32 @@ public class ConvertirCfdiImplV3_3 {
 		StringBuilder concat = new StringBuilder();
 		StringBuilder attributes = new StringBuilder();
 		if(comp.getAddenda().getInformacionPago() != null){
-			attributes.append(Util.isNullEmpity(comp.getAddenda().getInformacionPago().getEmail(), "email"));
-			attributes.append(Util.isNullEmpity(comp.getAddenda().getInformacionPago().getInstitucionReceptora()
-					, "institucionReceptora"));
-			attributes.append(Util.isNullEmpity(comp.getAddenda().getInformacionPago().getNombreBeneficiario()
-					, "nombreBeneficiario"));
-			attributes.append(Util.isNullEmpity(comp.getAddenda().getInformacionPago().getNumeroCuenta()
-					, "numeroCuenta"));
-			attributes.append(Util.isNullEmpity(comp.getAddenda().getInformacionPago().getNumProveedor(), "numProveedor"));
-			attributes.append(Util.isNullEmpity(comp.getAddenda().getInformacionPago().getOrdenCompra(), "ordenCompra"));
-			attributes.append(Util.isNullEmpity(comp.getAddenda().getInformacionPago().getPosCompra(), "posCompra"));
+			if(!Util.isNullEmpty(comp.getAddenda().getInformacionPago().getNombreBeneficiario())
+					|| !Util.isNullEmpty(comp.getAddenda().getInformacionPago().getNumeroCuenta())
+					|| !Util.isNullEmpty(comp.getAddenda().getInformacionPago().getNumProveedor())
+					|| !Util.isNullEmpty(comp.getAddenda().getInformacionPago().getInstitucionReceptora())){
+				
+				if(comp.getAddenda().getInformacionPago().getEmail() != null){
+					attributes.append(Util.isNullEmpity(comp.getAddenda().getInformacionPago().getEmail().toUpperCase()
+							, "email"));
+				}
+				
+				attributes.append(Util.isNullEmpity(comp.getAddenda().getInformacionPago().getInstitucionReceptora().toUpperCase()
+						, "institucionReceptora"));
+				attributes.append(Util.isNullEmpity(comp.getAddenda().getInformacionPago().getNombreBeneficiario().toUpperCase()
+						, "nombreBeneficiario"));
+				attributes.append(Util.isNullEmpity(comp.getAddenda().getInformacionPago().getNumeroCuenta().toUpperCase()
+						, "numeroCuenta"));
+				attributes.append(Util.isNullEmpity(comp.getAddenda().getInformacionPago().getNumProveedor().toUpperCase()
+						, "numProveedor"));
+				if(comp.getAddenda().getInformacionPago().getOrdenCompra() != null){
+					attributes.append(Util.isNullEmpity(comp.getAddenda().getInformacionPago().getOrdenCompra().toUpperCase()
+							, "ordenCompra"));
+				}
+				if(comp.getAddenda().getInformacionPago().getPosCompra() != null){
+					attributes.append(Util.isNullEmpity(comp.getAddenda().getInformacionPago().getPosCompra().toUpperCase(), "posCompra"));
+				}
+			}
 		}
 		
 		if(attributes.toString().trim().length() > 0){
