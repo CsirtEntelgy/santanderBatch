@@ -1278,6 +1278,8 @@ public class UtilCatalogos
 //					response = importeval.substring(0,2);
 					response = importeval;
 				}
+			}else {
+				response = importeval;
 			}
 //			System.out.println("Regreso Importe Substring: " + response);
 			return response;

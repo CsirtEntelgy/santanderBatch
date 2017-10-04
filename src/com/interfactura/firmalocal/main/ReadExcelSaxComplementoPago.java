@@ -6,24 +6,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 import java.util.Iterator;
 
-import org.apache.poi.hssf.util.CellReference;
 import org.apache.poi.openxml4j.opc.OPCPackage;
-import org.apache.poi.xssf.eventusermodel.XSSFReader;
-import org.apache.poi.xssf.model.SharedStringsTable;
-import org.apache.poi.xssf.usermodel.XSSFRichTextString;
-import org.xml.sax.Attributes;
-import org.xml.sax.ContentHandler;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
-import org.xml.sax.helpers.DefaultHandler;
-import org.xml.sax.helpers.XMLReaderFactory;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import com.interfactura.firmalocal.controllers.MassiveReadController;
 
@@ -32,22 +22,12 @@ public class ReadExcelSaxComplementoPago {
 	/**
 	 * @param args
 	 */
-	private static String strValues = "";
-	private static int rows;
-	private static boolean finArchivo;
-	private static boolean finFactura;
-	private static int cols;
 	private static File fileExitTXT = null;
 	private static FileOutputStream salidaTXT = null;
-	private static String strAbsolutePathTXT;
-	private static Long tipoProceso;
-	private static String currFile;
-
-	private static String currentCol = "";
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		System.out.println("--Entrando a main de ReadExcelSax Complemento Pago--");
+		System.out.println("--Entrando a main de ReadExcelSax--");
 		try {
 			readIdFileProcess(args[0], args[1]);
 		} catch (Exception e) {
@@ -96,14 +76,24 @@ public class ReadExcelSaxComplementoPago {
 								fileExitTXT = new File(
 										pathFacturacionProceso + arrayValues[1] + "/" + arrayValues[1] + ".TXT");
 								salidaTXT = new FileOutputStream(fileExitTXT);
-								currFile = file.getAbsolutePath();
-								processOneSheet(file.getAbsolutePath(), 1L);
-								System.out.println("rows:" + rows);
+								OPCPackage pkg = OPCPackage.open(file.getAbsolutePath());
+								XSSFWorkbook workbookX = new XSSFWorkbook(pkg);
+								XSSFSheet sheetFacturas = workbookX.getSheetAt(0);
+								XSSFSheet sheetPagos = workbookX.getSheetAt(1);
+								Iterator<Row> rowIteratorCont = sheetFacturas.iterator();
+								Iterator<Row> rowIteratorCont2 = sheetPagos.iterator();
+								Iterator<Row> rowIterator = sheetFacturas.iterator();
+								Iterator<Row> rowIterator2 = sheetPagos.iterator();
+								boolean finFacturas = checkEndFile(rowIteratorCont);
+								boolean finPagos = checkEndFile(rowIteratorCont2);
+								if (finFacturas && finPagos) {
+									getLineFactura(rowIterator, rowIterator2, sheetPagos);
+								}
 
 								salidaTXT.write("\r\n".getBytes("UTF-8"));
 								salidaTXT.close();
 
-								if (finArchivo) {
+								if (finFacturas && finPagos) {
 									System.out.println("finArchivo OK");
 									fileStatus
 											.write(("Archivo " + arrayValues[1] + ".TXT generado\n").getBytes("UTF-8"));
@@ -167,283 +157,90 @@ public class ReadExcelSaxComplementoPago {
 
 	}
 
-	public static void processOneSheet(String filename, Long hojaProceso) throws Exception {
-		finArchivo = false;
-		rows = 0;
-		cols = 0;
-		tipoProceso = hojaProceso;
-		OPCPackage pkg = OPCPackage.open(filename);
-		XSSFReader r = new XSSFReader(pkg);
-		SharedStringsTable sst = r.getSharedStringsTable();
-
-		XMLReader parser = fetchSheetParser(sst);
-
-		// rId2 found by processing the Workbook
-		// Seems to either be rId# or rSheet#
-		InputStream sheet2 = r.getSheet("rId3");
-		InputSource sheetSource = new InputSource(sheet2);
-		parser.parse(sheetSource);
-		sheet2.close();
-		if (tipoProceso.equals(2L)) {
-			tipoProceso = 1L;
-		}
-	}
-
-	public void processAllSheets(String filename) throws Exception {
-		OPCPackage pkg = OPCPackage.open(filename);
-		XSSFReader r = new XSSFReader(pkg);
-		SharedStringsTable sst = r.getSharedStringsTable();
-
-		XMLReader parser = fetchSheetParser(sst);
-
-		Iterator<InputStream> sheets = r.getSheetsData();
-		while (sheets.hasNext()) {
-			System.out.println("Processing new sheet:\n");
-			InputStream sheet = sheets.next();
-			InputSource sheetSource = new InputSource(sheet);
-			parser.parse(sheetSource);
-			sheet.close();
-			System.out.println("");
-		}
-	}
-
-	public static void printValues(String sbValues) {
-		String[] arrayValues = sbValues.split("\\|");
-		for (int index = 0; index < arrayValues.length; index++) {
-			System.out.println("value " + index + ":" + arrayValues[index]);
-		}
-	}
-
-	public static XMLReader fetchSheetParser(SharedStringsTable sst) throws SAXException {
-		XMLReader parser = XMLReaderFactory.createXMLReader("org.apache.xerces.parsers.SAXParser");
-		ContentHandler handler = new SheetHandler(sst);
-		parser.setContentHandler(handler);
-		return parser;
-	}
-
-	/**
-	 * See org.xml.sax.helpers.DefaultHandler javadocs
-	 */
-	private static class SheetHandler extends DefaultHandler {
-		static private enum CellType {
-			non, num, staticText, sharedText
-		};
-
-		private SharedStringsTable sst;
-		private String lastContents;
-		private boolean nextIsString;
-		private boolean nextIsNull;
-		private CellType cellType;
-		private ArrayList<Object> values;
-		private int currentIdx = -1;
-
-		private SheetHandler(SharedStringsTable sst) {
-			this.sst = sst;
-		}
-
-		public void startElement(String uri, String localName, String name, Attributes attributes) throws SAXException {
-			if (name.equals("c")) {
-				// Print the cell reference
-				System.out.print("r: " + attributes.getValue("r") + " - ");
-
-				checkNumberRow(attributes.getValue("r"));
-
-				if (!finFactura) {
-					checkNulls(attributes.getValue("r"));
-				}
-
-				// Figure out if the value is an index in the SST
-				// String cellType = attributes.getValue("t");
-				String type = attributes.getValue("t");
-				String cellTypeN = attributes.getValue("n");
-				// System.out.println("value: " + attributes.getValue(0));
-
-				if (type == null) {
-					cellType = CellType.num;
-					nextIsString = true;
-				} else if (type.equals("s")) {
-					cellType = CellType.sharedText;
-					nextIsString = true;
-				} else {
-					cellType = CellType.non;
-				}
-				cols++;
-
-			}
-			// Clear contents cache
-			lastContents = "";
-		}
-
-		public void checkNumberRow(String strCol) {
-			// Get Row Number
-			String strRowNumber = "";
-			for (int i = 0; i < strCol.length(); i++) {
-				try {
-					System.out.println("char " + i + ": " + strCol.charAt(i));
-					strRowNumber = strRowNumber + Integer.parseInt(String.valueOf(strCol.charAt(i)));
-				} catch (NumberFormatException ex) {
-					// El caracter es una letra
+	private static boolean checkEndFile(Iterator<Row> rowIteratorCont) {
+		boolean finArchivo = false;
+		while (rowIteratorCont.hasNext() && !finArchivo) {
+			Row rowCont = rowIteratorCont.next();
+			if (rowCont.getCell(0) != null) {
+				System.out.println(rowCont.getCell(0).toString());
+				if (rowCont.getCell(0).toString().toUpperCase().trim().equals("||FINARCHIVO||")) {
+					finArchivo = true;
 				}
 			}
 
-			System.out.println("rows: " + rows);
-			System.out.println("rowNumber: " + strRowNumber);
+		}
+		return finArchivo;
+	}
 
-			if (rows != 0 && rows != Integer.parseInt(strRowNumber)) {
-				rows = Integer.parseInt(strRowNumber);
-				currentCol = "";
-				finFactura = false;
-				if (!finArchivo) {
-
-					try {
-
-						strValues = strValues.replace("\n", " ");
-						System.out.println("sbValues: " + strValues);
-						if (tipoProceso.equals(1L)) {
-							salidaTXT.write((strValues).getBytes("UTF-8"));
-							processOneSheet(currFile, 2L);
-						}
-						salidaTXT.write((strValues + "\r\n").getBytes("UTF-8"));
-					} catch (UnsupportedEncodingException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+	private static void getLineFactura(Iterator<Row> rowIteratorFacturas, Iterator<Row> rowIteratorPagos,
+			XSSFSheet sheetPagos) {
+		boolean finArchivo = false;
+		StringBuffer result = new StringBuffer();
+		StringBuffer currFacReference = new StringBuffer();
+		while (rowIteratorFacturas.hasNext() && !finArchivo) {
+			Row rowCont = rowIteratorFacturas.next();
+			if (rowCont.getCell(0) != null) {
+				if (rowCont.getCell(0).toString().toUpperCase().trim().equals("||FINARCHIVO||")) {
+					finArchivo = true;
+					break;
+				}
+			}
+			for (int i = 0; i < 38; i++) {
+				if (rowCont.getCell(i) != null) {
+					if (i == 0) {
+						currFacReference.append(rowCont.getCell(i).toString().trim());
 					}
-					// printValues(strValues);
-					strValues = "";
-
-					// rows++;
-				}
-
-			} else if (rows == 0) {
-				rows = Integer.parseInt(strRowNumber);
-			}
-		}
-
-		public void checkNulls(String strCol) {
-			CellReference celRefNew = new CellReference(strCol);
-			int diff = 0;
-			boolean fA1 = true;
-
-			String strLetter = "";
-
-			String strNumber = "";
-			for (int i = 0; i < strCol.length(); i++) {
-				try {
-					System.out.println("char " + i + ": " + strCol.charAt(i));
-					strNumber = strNumber + Integer.parseInt(String.valueOf(strCol.charAt(i)));
-				} catch (NumberFormatException ex) {
-					// El caracter es una letra
-					strLetter = strLetter + strCol.charAt(i);
-				}
-			}
-
-			System.out.println("strLetter:" + strLetter);
-			System.out.println("strNumber:" + strNumber);
-
-			if (currentCol.equals("")) {
-				if (strLetter.toUpperCase().equals("A")) {
-					currentCol = strCol;
+					result.append(rowCont.getCell(i).toString() + "|");
 				} else {
-					currentCol = strCol;
-
-					CellReference celRefCurr = new CellReference("A" + strNumber);
-					diff = celRefNew.getCol() - celRefCurr.getCol();
-					System.out.println("diff con currentCol vacio:" + diff);
-					fA1 = false;
-				}
-			} else {
-				if (strLetter.toUpperCase().equals("A")) {
-					currentCol = strCol;
-				} else {
-					CellReference celRefCurr = new CellReference(currentCol);
-
-					diff = celRefNew.getCol() - celRefCurr.getCol();
-					System.out.println("diff con currentCol no vacio:" + diff);
-
-					currentCol = strCol;
-
+					result.append("|");
 				}
 			}
+			Iterator<Row> rowIteratorTmp = sheetPagos.iterator();
 
-			if (fA1) {
-				if (diff > 1) {
-					for (int i = 0; i < diff - 1; i++) {
-						strValues = strValues + "|";
-					}
-				}
-			} else {
-				for (int i = 0; i < diff; i++) {
-					strValues = strValues + "|";
-				}
+			result.append(getLinePago(rowIteratorTmp, sheetPagos, currFacReference.toString()));
+			try {
+				salidaTXT.write((result.toString() + "\r\n").getBytes("UTF-8"));
+			} catch (UnsupportedEncodingException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
+			result = new StringBuffer();
+			currFacReference = new StringBuffer();
+
 		}
+	}
 
-		public void endElement(String uri, String localName, String name) throws SAXException {
-			// Process the last contents as required.
-			// Do now, as characters() may be called more than once
-			if (nextIsString && !finArchivo && !finFactura) {
-				if (name.equals("row")) {
-					System.out.println("ENDrow");
-					nextIsString = false;
-				} else if (name.equals("c")) {
-					if (!lastContents.equals("")) {
-						int idx = Integer.parseInt(lastContents);
-						// System.out.println("idx:" + idx);
-						lastContents = new XSSFRichTextString(sst.getEntryAt(idx)).toString();
-						System.out.println("String: " + lastContents);
-						if (lastContents.toUpperCase().trim().equals("||FINARCHIVO||")) {
-							System.out.println("FINARCHIVO encontrado");
-							finArchivo = true;
-						} else if (lastContents.toUpperCase().trim().equals("||FINFACTURA||")) {
-							System.out.println("FINFACTURA encontrada");
-							strValues = strValues + "FINFACTURA|";
-							finFactura = true;
+	private static StringBuffer getLinePago(Iterator<Row> rowIteratorPagos, XSSFSheet sheetPagos,
+			String referenciaFactura) {
+		boolean finArchivo = false, deleteLine = false;
+		StringBuffer result = new StringBuffer();
 
-							currentCol = "";
-						} else {
-							strValues = strValues + lastContents + "|";
-						}
-
+		while (rowIteratorPagos.hasNext() && !finArchivo) {
+			Row rowCont = rowIteratorPagos.next();
+			if (rowCont.getCell(0) != null) {
+				if (rowCont.getCell(0).toString().toUpperCase().trim().equals("||FINARCHIVO||")) {
+					finArchivo = true;
+					break;
+				}
+			}
+			for (int i = 0; i < 7; i++) {
+				if (rowCont.getCell(i) != null) {
+					if (i == 0 && !rowCont.getCell(i).toString().trim().equals(referenciaFactura)) {
+						break;
 					} else {
-						System.out.println("String vacio: " + lastContents);
-						strValues = strValues + lastContents + "|";
+						deleteLine = true;
 					}
-
-					nextIsString = false;
-				} else if (name.equals("v")) {
-					// Process the last contents as required.
-					// Do now, as characters() may be called more than once
-					if (cellType == CellType.staticText || cellType == CellType.num) {
-						System.out.println("staticText || num: " + lastContents);
-						strValues = strValues + lastContents + "|";
-						nextIsString = false;
-					}
+					result.append(rowCont.getCell(i).toString() + "|");
+				} else {
+					result.append("|");
 				}
 			}
-
-			if (nextIsNull) {
-
-				lastContents = "NULL";
-				nextIsNull = false;
-				System.out.println("contenido null:" + lastContents);
-			}
-
-			// v => contents of a cell
-			// Output after we've seen the string contents
-			if (name.equals("v")) {
-				// System.out.println("contenido v:" + lastContents);
+			if (deleteLine) {
+				sheetPagos.removeRow(rowCont);
 			}
 		}
-
-		public void characters(char[] ch, int start, int length) throws SAXException {
-			lastContents += new String(ch, start, length);
-		}
+		return result;
 	}
 
 }
