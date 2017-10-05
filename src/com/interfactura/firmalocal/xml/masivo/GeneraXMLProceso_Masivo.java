@@ -356,7 +356,7 @@ public class GeneraXMLProceso_Masivo {
 							//System.out.println("strLine:" + strLineTXT);
 							//System.out.println("length:" + arrayValues.length);
 							if(!strLineTXT.equals("")){
-								if(arrayValues.length<47){
+								if(arrayValues.length<49){
 									//System.out.println("Factura " + (factura+1) + ", incompleta!");								
 									//salidaINC.write(("ErrorArchivo|" + "Factura " + (factura+1) + ", incompleta!" + "\n").getBytes("UTF-8"));
 									
