@@ -200,6 +200,7 @@ public class ReadExcelSaxComplementoPago {
 			Iterator<Row> rowIteratorTmp = sheetPagos.iterator();
 
 			result.append(getLinePago(rowIteratorTmp, sheetPagos, currFacReference.toString()));
+			result.append("FINFACTURA|");
 			try {
 				salidaTXT.write((result.toString() + "\r\n").getBytes("UTF-8"));
 			} catch (UnsupportedEncodingException e) {
