@@ -1625,7 +1625,10 @@ public class ConvertirV3_3 {
 				} else if (elementTraslado.length() > 35 && !paint) {
 					elementImpuestos = "\n<cfdi:Impuestos>" + elementTraslado + "\n</cfdi:Impuestos>";
 				}
-				Double valVal = Double.parseDouble(tags.sumTotalImpuestosTras);
+				Double valVal = 0D;
+				if(tags.sumTotalImpuestosTras!=null && !tags.sumTotalImpuestosTras.trim().isEmpty()) {
+					valVal  = Double.parseDouble(tags.sumTotalImpuestosTras);
+				}
 				tags.sumTotalImpuestosTrasDou = tags.sumTotalImpuestosTrasDou + valVal;
 
 				String nodoConcepto = "\n<cfdi:Concepto " + claveProdServVal + "\" Cantidad=\"" + "1"
