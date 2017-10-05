@@ -8,7 +8,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.ss.usermodel.Row;
@@ -185,7 +187,7 @@ public class ReadExcelSaxComplementoPago {
 					break;
 				}
 			}
-			for (int i = 0; i < 38; i++) {
+			for (int i = 0; i < 32; i++) {
 				if (rowCont.getCell(i) != null) {
 					if (i == 0) {
 						currFacReference.append(rowCont.getCell(i).toString().trim());
@@ -213,9 +215,9 @@ public class ReadExcelSaxComplementoPago {
 
 	private static StringBuffer getLinePago(Iterator<Row> rowIteratorPagos, XSSFSheet sheetPagos,
 			String referenciaFactura) {
-		boolean finArchivo = false, deleteLine = false;
+		boolean finArchivo = false;
 		StringBuffer result = new StringBuffer();
-
+		List<Row> rowsToDelete = new ArrayList<Row>();
 		while (rowIteratorPagos.hasNext() && !finArchivo) {
 			Row rowCont = rowIteratorPagos.next();
 			if (rowCont.getCell(0) != null) {
@@ -224,21 +226,21 @@ public class ReadExcelSaxComplementoPago {
 					break;
 				}
 			}
-			for (int i = 0; i < 7; i++) {
+			for (int i = 0; i < 23; i++) {
 				if (rowCont.getCell(i) != null) {
 					if (i == 0 && !rowCont.getCell(i).toString().trim().equals(referenciaFactura)) {
 						break;
-					} else {
-						deleteLine = true;
+					} else if (i == 0 && rowCont.getCell(i).toString().trim().equals(referenciaFactura)) {
+						rowsToDelete.add(rowCont);
 					}
 					result.append(rowCont.getCell(i).toString() + "|");
 				} else {
 					result.append("|");
 				}
 			}
-			if (deleteLine) {
-				sheetPagos.removeRow(rowCont);
-			}
+		}
+		for (Row x : rowsToDelete) {
+			sheetPagos.removeRow(x);
 		}
 		return result;
 	}
