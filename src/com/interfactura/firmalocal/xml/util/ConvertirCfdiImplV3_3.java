@@ -193,20 +193,28 @@ public class ConvertirCfdiImplV3_3 {
 	public String impuestos(CfdiComprobanteFiscal comp){
 		StringBuilder concat = new StringBuilder();
 		StringBuilder attributes = new StringBuilder();
+		
 		if(comp.getImpuestos() != null){
 			if(comp.getImpuestos().getTotalImpuestosRetenidos() != null){
-				attributes.append( "TotalImpuestosRetenidos=\"" +
-						UtilCatalogos.decimales(comp.getImpuestos().getTotalImpuestosRetenidos().toString()
-						, comp.getDecimalesMoneda()) 
+				String valueRet ="0.00";
+				if(comp.getImpuestos().getTotalImpuestosRetenidos().doubleValue() > 0){
+					valueRet = comp.getImpuestos().getTotalImpuestosRetenidos().toString();
+				}
+				attributes.append( "TotalImpuestosRetenidos=\"" 
+						+ UtilCatalogos.decimales(valueRet, comp.getDecimalesMoneda()) 
 						+ "\" ");
 			}
-			if(comp.getImpuestos().getTotalImpuestosRetenidos() != null){
-				attributes.append( "TotalImpuestosTrasladados=\"" +
-						UtilCatalogos.decimales(comp.getImpuestos().getTotalImpuestosTrasladados().toString()
-						, comp.getDecimalesMoneda()) 
+			if(comp.getImpuestos().getTotalImpuestosTrasladados() != null){
+				String valueTra ="0.00";
+				if(comp.getImpuestos().getTotalImpuestosTrasladados().doubleValue() > 0){
+					valueTra = comp.getImpuestos().getTotalImpuestosTrasladados().toString();
+				}
+				attributes.append( "TotalImpuestosTrasladados=\"" 
+						+ UtilCatalogos.decimales(valueTra, comp.getDecimalesMoneda()) 
 						+ "\" ");
 			}
 		}
+		
 		if(attributes.toString().trim().length() > 0){
 			concat.append("\n<cfdi:Impuestos ");
 			concat.append(attributes);
