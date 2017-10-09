@@ -675,7 +675,7 @@ public class GeneraXML_ECBDSV3_3 {
 					String descripcion = docEleResultado.getAttribute("Descripcion");
 					String idRespuesta = docEleResultado.getAttribute("IdRespuesta");
 					
-//					if(descripcion.toLowerCase().trim().equals("ok") && idRespuesta.trim().equals("1")){ // Pruebas solo para que genere XML AMDA V3.3 descomentar despues
+					if(descripcion.toLowerCase().trim().equals("ok") && idRespuesta.trim().equals("1")){
 						//Transformar el hijo del nodo Resultado (Comprobante) a StreamResult								
 						//StreamResult resultComprobante = nodeToStreamResult(docEleResultado.getFirstChild());
 						
@@ -730,18 +730,17 @@ public class GeneraXML_ECBDSV3_3 {
 								this.strUUID, this.strFechaTimbrado, this.strNoCertificadoSAT, this.strSelloCFD, this.strSelloSAT,
 								this.strVersion, this.strEmisorRFC, this.strReceptorRFC, strTotalZeros);
 						this.offSetComprobante += length;
-//					}else{
-//						System.out.println("ERROR: " + descripcion + " " + idRespuesta);
-//									
-//						fileINCIDENCIA(idRespuesta + "-" + descripcion + " ", "ERROR", 
-//								lstObjECBs.get(index).getTagEMISON_RFC(), lstObjECBs.get(index).getTagNUM_CTE(), lstObjECBs.get(index).getTagNUM_CTA(), lstObjECBs.get(index).getTagEMISION_PERIODO(), lstObjECBs.get(index).getTagNUM_TARJETA(), lstObjECBs.get(index).getTagCFD_TYPE());				
-//						
-//						//Generar Archivo de incidentes para Cifras (ERR...TXT)
-//						fileINCIDENCIACIFRAS(idRespuesta + "-" + descripcion + " ", "ERROR", 
-//								lstObjECBs.get(index).getTagEMISON_RFC(), lstObjECBs.get(index).getTagNUM_CTE(), lstObjECBs.get(index).getTagNUM_CTA(), lstObjECBs.get(index).getTagEMISION_PERIODO(), lstObjECBs.get(index).getTagNUM_TARJETA(), lstObjECBs.get(index).getTagCFD_TYPE(), 
-//								lstObjECBs.get(index).getTagSUBTOTAL_MN(), lstObjECBs.get(index).getTagTOTAL_IMP_TRA(), lstObjECBs.get(index).getTagTOTAL_IMP_RET(), fileNames, lstObjECBs.get(index).getTagSERIE_FISCAL_CFD(), numeroMalla);
-//					} // Pruebas solo para que genere XML AMDA V3.3, descomentar despues
-								
+					}else{
+						System.out.println("ERROR: " + descripcion + " " + idRespuesta);
+									
+						fileINCIDENCIA(idRespuesta + "-" + descripcion + " ", "ERROR", 
+								lstObjECBs.get(index).getTagEMISON_RFC(), lstObjECBs.get(index).getTagNUM_CTE(), lstObjECBs.get(index).getTagNUM_CTA(), lstObjECBs.get(index).getTagEMISION_PERIODO(), lstObjECBs.get(index).getTagNUM_TARJETA(), lstObjECBs.get(index).getTagCFD_TYPE());				
+						
+						//Generar Archivo de incidentes para Cifras (ERR...TXT)
+						fileINCIDENCIACIFRAS(idRespuesta + "-" + descripcion + " ", "ERROR", 
+								lstObjECBs.get(index).getTagEMISON_RFC(), lstObjECBs.get(index).getTagNUM_CTE(), lstObjECBs.get(index).getTagNUM_CTA(), lstObjECBs.get(index).getTagEMISION_PERIODO(), lstObjECBs.get(index).getTagNUM_TARJETA(), lstObjECBs.get(index).getTagCFD_TYPE(), 
+								lstObjECBs.get(index).getTagSUBTOTAL_MN(), lstObjECBs.get(index).getTagTOTAL_IMP_TRA(), lstObjECBs.get(index).getTagTOTAL_IMP_RET(), fileNames, lstObjECBs.get(index).getTagSERIE_FISCAL_CFD(), numeroMalla);
+					}
 				}
 				this.lstObjECBs.clear();
 				t2 = t1- System.currentTimeMillis();

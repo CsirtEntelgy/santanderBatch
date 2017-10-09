@@ -2300,7 +2300,7 @@ public class UtilCatalogos
 		            System.out.println("traslados=" + traslados);
 		            System.out.println("Comptaracion=" + (compTotal.doubleValue() == totalOper.doubleValue()));
 		            throw new Exception(
-		                    "El campo Total no corresponde con la suma del subtotal, menos los descuentos aplicables, m�s las contribuciones recibidas (impuestos trasladados - federales o locales, derechos, productos, aprovechamientos, aportaciones de seguridad social, contribuciones de mejoras) menos los impuestos retenidos.");
+		                    "El campo Total no corresponde con la suma del subtotal, menos los descuentos aplicables, más las contribuciones recibidas (impuestos trasladados - federales o locales, derechos, productos, aprovechamientos, aportaciones de seguridad social, contribuciones de mejoras) menos los impuestos retenidos.");
 		        }
 		
 		        logger.info("Validando descuentos");
