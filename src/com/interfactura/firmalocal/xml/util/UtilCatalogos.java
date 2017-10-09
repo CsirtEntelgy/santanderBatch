@@ -2110,7 +2110,97 @@ public class UtilCatalogos
 	    	sbError.append(evaluateCalulationMasiva(doc, maxDecimals));
 	    	logger.info("validateCfdiDocument:"+convertDocumentXmlToString(doc));
 	    	System.out.println("******************************************************");
+	    	if (sbError.length() == 0) {
+	            logger.info("Complementando los impuestos:");
+	            complementTaxes(doc);
+	            logger.info("validateCfdiDocument:" + convertDocumentXmlToString(doc));
+	            System.out.println("******************************************************");
+	        }
 	    	return sbError.toString();
+	    }
+	    
+	    public static void complementTaxes(Document doc) throws XPathExpressionException {
+	        String traslados = "//Comprobante/Conceptos/Concepto/Impuestos/Traslados/Traslado";
+	        String retencion = "//Comprobante/Conceptos/Concepto/Impuestos/Retenciones/Retencion";
+	        boolean hasTraslados = false;
+	        boolean hasRetenciones = false;
+	        Element eTraslados = doc.createElement("cfdi:Traslados");
+	        Element eRetenciones = doc.createElement("cfdi:Retenciones");
+	        NodeList nlTraslados = getNodesByExpression(doc, traslados);
+	        Map<String, Element> taxesMap = new HashMap<String, Element>();
+	        if (nlTraslados != null && nlTraslados.getLength() > 0) {
+	            for (int idx = 0; idx < nlTraslados.getLength(); idx++) {
+	                Element el = (Element) nlTraslados.item(idx).cloneNode(true);
+	                /*Si el tipoFactor es excento no se toma en cuenta*/
+	                if (el.hasAttribute("TipoFactor")
+	                        && !el.getAttribute("TipoFactor").equalsIgnoreCase("Exento")) {
+	                    String key = el.getAttribute("Impuesto") + "_"
+	                            + el.getAttribute("TasaOCuota") + "_"
+	                            + el.getAttribute("TipoFactor");
+	                    Element elAux = taxesMap.get(key);
+	                    if (elAux == null) {
+	                        el.removeAttribute("Base");
+	                        taxesMap.put(key, el);
+	                    } else {
+	                        Node value = elAux.getAttributes().getNamedItem("Importe");
+	                        BigDecimal importeAux = new BigDecimal(value.getNodeValue());
+	                        BigDecimal importe = new BigDecimal(el.getAttribute("Importe"));
+	                        value.setNodeValue(importeAux.add(importe).toString());
+	                        taxesMap.put(key, elAux);
+	                    }
+	                }
+	            }
+	            if (!taxesMap.isEmpty()) {
+	                hasTraslados = true;
+	                for (String key : taxesMap.keySet()) {
+	                    eTraslados.appendChild(taxesMap.get(key).cloneNode(true));
+	                }
+	            }
+	        }
+	        taxesMap = new HashMap<String, Element>();
+	        NodeList nlRetenciones = getNodesByExpression(doc, retencion);
+	        if (nlRetenciones != null && nlRetenciones.getLength() > 0) {
+	            for (int idx = 0; idx < nlRetenciones.getLength(); idx++) {
+	                Element el = (Element) nlRetenciones.item(idx).cloneNode(true);
+	                /*Si el tipoFactor es excento no se toma en cuenta*/
+	                if (el.hasAttribute("TipoFactor")
+	                        && !el.getAttribute("TipoFactor").equalsIgnoreCase("Exento")) {
+	                    String key = el.getAttribute("Impuesto");
+	                    Element elAux = taxesMap.get(key);
+	                    if (elAux == null) {
+	                        el.removeAttribute("Base");
+	                        el.removeAttribute("TipoFactor");
+	                        el.removeAttribute("TasaOCuota");
+	                        taxesMap.put(key, el);
+	                    } else {
+	                        Node value = elAux.getAttributes().getNamedItem("Importe");
+	                        BigDecimal importeAux = new BigDecimal(value.getNodeValue());
+	                        BigDecimal importe = new BigDecimal(el.getAttribute("Importe"));
+	                        value.setNodeValue(importeAux.add(importe).toString());
+	                        taxesMap.put(key, elAux);
+	                    }
+	                }
+	            }
+	            if (!taxesMap.isEmpty()) {
+	                hasRetenciones = true;
+	                for (String key : taxesMap.keySet()) {
+	                    eRetenciones.appendChild(taxesMap.get(key).cloneNode(true));
+	                }
+	            }
+	        }
+	        if (hasTraslados || hasRetenciones) {
+	            String taxes = "//Comprobante/Impuestos";
+	            NodeList nlTaxes = getNodesByExpression(doc, taxes);
+	            if (nlTaxes != null && nlTaxes.getLength() > 0) {
+	                Element elCon = (Element) nlTaxes.item(0);
+	                if (hasRetenciones) {
+	                    elCon.appendChild(eRetenciones);
+	                }
+	                if (hasTraslados) {
+	                    elCon.appendChild(eTraslados);
+	                }
+	            }
+	        }
 	    }
 		
 		public static String validateDecimals(Document doc, int maxDecimals) throws XPathExpressionException {
@@ -2299,5 +2389,60 @@ public class UtilCatalogos
 	        Pattern pattern = Pattern.compile(regex);
 	        Matcher matcher = pattern.matcher(value);
 	        return matcher.find();
+	    }
+
+	    public static String parseWsError(String xmlResponse) {
+	        StringBuilder sbError = new StringBuilder();
+	        try {
+	            if (xmlResponse == null || xmlResponse.trim().isEmpty()) {
+	                return "";
+	            }
+	            Document docErr = UtilCatalogos.convertStringToDocument(xmlResponse);
+	            if (docErr != null
+	                    && docErr.getDocumentElement() != null
+	                    && "A".equalsIgnoreCase(docErr.getDocumentElement().getNodeName())) {
+	                String valErr = docErr.getDocumentElement().getAttribute("ErrorMax");
+	              //Se suman 15 por la logngitud de "</Validaciones>"
+	                if (!valErr.contains("<Validaciones") || !valErr.contains("</Validaciones>")) {
+	                    return "";
+	                }
+	                valErr = valErr.substring(valErr.indexOf("<Validaciones"), valErr.indexOf("</Validaciones>") + 15);
+	                if (valErr != null && !valErr.trim().isEmpty()) {
+	                    valErr = valErr.trim();
+	                    Document respose = UtilCatalogos.convertStringToDocument(valErr);
+	                    NodeList nErrors = respose.getElementsByTagName("Error");
+	                    if (nErrors != null && nErrors.getLength() > 0) {
+	                        for (int idx = 0; idx < nErrors.getLength(); idx++) {
+	                            Element eElement = (Element) nErrors.item(idx);
+	                            NodeList messageClient = eElement.getElementsByTagName("MensajeParaCliente");
+	                            if (messageClient != null
+	                                    && messageClient.getLength() > 0
+	                                    && messageClient.item(0).getFirstChild().getNodeValue() != null
+	                                    && !messageClient.item(0).getFirstChild().getNodeValue().trim().isEmpty()) {
+	                                sbError.append("\n   -").append(messageClient.item(0).getFirstChild().getNodeValue());
+	                            } else {
+	                                NodeList messageGrl = eElement.getElementsByTagName("Mensaje");
+	                                if (messageGrl != null
+	                                        && messageGrl.getLength() > 0
+	                                        && messageGrl.item(0).getFirstChild().getNodeValue() != null
+	                                        && !messageGrl.item(0).getFirstChild().getNodeValue().trim().isEmpty()) {
+	                                    sbError.append("\n   -").append(messageGrl.item(0).getFirstChild().getNodeValue());
+	                                }
+	                            }
+	                        }
+	                    }
+	                }
+	            }
+	            if (sbError.length() > 0) {
+	                sbError.insert(0, "Se encontraron los siguientes errores:");
+	            }
+	        } catch (ParserConfigurationException ex) {
+	            logger.error(ex);
+	        } catch (SAXException ex) {
+	            logger.error(ex);
+	        } catch (IOException ex) {
+	            logger.error(ex);
+	        }
+	        return sbError.toString();
 	    }
 }

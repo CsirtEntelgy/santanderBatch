@@ -41,6 +41,7 @@ import javax.xml.validation.ValidatorHandler;
 
 
 
+
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -756,7 +757,10 @@ public class GeneraXML_CFDV3_3
 			if(!UtilCatalogos.lstErrors.toString().isEmpty()){
 				throw new Exception(UtilCatalogos.lstErrors.toString());
 			}
-			UtilCatalogos.evaluateCalulation(doc, conver.getTags().decimalesMoneda);
+			String errors = UtilCatalogos.validateCfdiDocument(doc,conver.getTags().decimalesMoneda);
+			if (errors != null && !errors.isEmpty()) {
+				throw new Exception(errors);
+			}
 			out = UtilCatalogos.convertStringToOutpuStream(UtilCatalogos.convertDocumentXmlToString(doc));
 			/*Fin Validaciones 3.3*/
 			

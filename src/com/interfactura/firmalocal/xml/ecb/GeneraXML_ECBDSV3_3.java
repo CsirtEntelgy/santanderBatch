@@ -2041,7 +2041,11 @@ public class GeneraXML_ECBDSV3_3 {
 						if(!UtilCatalogos.lstErrors.toString().isEmpty()){
 							throw new Exception(UtilCatalogos.lstErrors.toString());
 						}
-						UtilCatalogos.evaluateCalulation(dom,conver.getTags().decimalesMoneda);
+						String errors = UtilCatalogos.validateCfdiDocument(dom,conver.getTags().decimalesMoneda);
+						if (errors != null && !errors.isEmpty()) {
+							throw new Exception(errors);
+						}
+						out = UtilCatalogos.convertStringToOutpuStream(UtilCatalogos.convertDocumentXmlToString(dom));
 						/*Fin Validaciones 3.3*/ 
 						try{
 														
