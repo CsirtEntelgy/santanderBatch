@@ -12,6 +12,7 @@ import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -39,6 +40,7 @@ import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 
 import com.interfactura.firmalocal.controllers.MassiveDonatReadController;
+import com.interfactura.firmalocal.datamodel.CfdiComprobanteFiscal;
 import com.interfactura.firmalocal.datamodel.ElementsInvoice;
 import com.interfactura.firmalocal.datamodel.Invoice_Masivo;
 import com.interfactura.firmalocal.domain.entities.CFDFieldsV22;
@@ -64,11 +66,17 @@ import com.interfactura.firmalocal.persistence.MonedaManager;
 import com.interfactura.firmalocal.persistence.OpenJpaManager;
 import com.interfactura.firmalocal.persistence.UserManager;
 import com.interfactura.firmalocal.xml.Properties;
+import com.interfactura.firmalocal.xml.TagsXML;
 import com.interfactura.firmalocal.xml.WebServiceClienteDonat;
 
 import com.interfactura.firmalocal.xml.file.GeneraArchivoDonat_Masivo;
 import com.interfactura.firmalocal.xml.file.XMLProcess;
+import com.interfactura.firmalocal.xml.util.GeneraXmlFacturaCfdiV3_3;
 import com.interfactura.firmalocal.xml.util.Util;
+import com.interfactura.firmalocal.xml.util.UtilCFDIDonatarias;
+import com.interfactura.firmalocal.xml.util.UtilCFDIValidations;
+import com.interfactura.firmalocal.xml.util.UtilCatalogos;
+import com.interfactura.firmalocal.xml.util.XMLProcessGeneral;
 
 @Component
 public class GeneraDonatXML_Masivo {
@@ -120,6 +128,15 @@ public class GeneraDonatXML_Masivo {
 	private GeneraArchivoDonat_Masivo generaXML;
 	@Autowired
 	private IvaManager ivaManager;
+	
+	@Autowired(required = true)
+	private UtilCFDIValidations validations;
+	
+	@Autowired(required = true)
+	private GeneraXmlFacturaCfdiV3_3 xmlGenerator;
+	
+	@Autowired
+	private XMLProcessGeneral xmlProcessGeneral;
 
 	@Value("${invoice.status.active}")
 	private String statusActive;
@@ -151,6 +168,7 @@ public class GeneraDonatXML_Masivo {
     private StringBuilder sb;
     
     private List<Invoice_Masivo> listIn = null;
+    private List<CfdiComprobanteFiscal> listComprobantes = null;
     
     //private static String strValues = "";
 	private static int rows;
@@ -180,6 +198,12 @@ public class GeneraDonatXML_Masivo {
 	@Autowired(required = true)
 	private UserManager userManager;
 	
+	@Autowired(required = true)
+	private UtilCFDIDonatarias fillDonatarias;
+	
+	@Autowired
+	private TagsXML tags;
+	
    	public GeneraDonatXML_Masivo() {
 
 	}
@@ -202,12 +226,16 @@ public class GeneraDonatXML_Masivo {
 		String nameFileExcel = "";
 		try{
 			
+			tags.mapCatalogos = Util.readXLSFile(properties.getUrlArchivoCatalogs());
 			
 			FileInputStream fsExcelsToProcess = new FileInputStream(facturacionDonatEntrada + "IDFILEPROCESS.TXT");
 			DataInputStream in = new DataInputStream(fsExcelsToProcess);
 			BufferedReader br = new BufferedReader(new InputStreamReader(in));
 			String strLine;
 			int counter=0;
+			
+			sb = new StringBuilder();
+			
 			//Iniciar conexion con WebService								
 			if(this.servicePort == null){
 				this.servicePort = new WebServiceClienteDonat();								
@@ -354,7 +382,7 @@ public class GeneraDonatXML_Masivo {
 							System.out.println("strLine:" + strLineTXT);
 							System.out.println("length:" + arrayValues.length);
 							if(!strLineTXT.equals("")){
-								if(arrayValues.length<29){
+								if(arrayValues.length<33){
 									System.out.println("Factura " + (factura+1) + ", incompleta!");								
 									//salidaINC.write(("ErrorArchivo|" + "Factura " + (factura+1) + ", incompleta!" + "\n").getBytes("UTF-8"));
 									sbStatusNoOK.append("ErrorArchivo|" + "Factura " + (factura+1) + ", incompleta!" + "\n");
@@ -371,9 +399,94 @@ public class GeneraDonatXML_Masivo {
 								}else{
 									this.listIn = new ArrayList<Invoice_Masivo>();
 									
-									StringBuilder sbErrorFile = this.processRowExcel(arrayValues, factura+1, hashIvas, hashcodigoISO, hashmoneda, hashEmisores, hashClientes, hashCfdFieldsV22);
+this.listComprobantes = new ArrayList<CfdiComprobanteFiscal>();
 									
-									if(sbErrorFile != null){
+									CfdiComprobanteFiscal comp = new CfdiComprobanteFiscal();
+									//antiguo metodo fill y validate
+									//StringBuilder sbErrorFile = this.processRowExcel(arrayValues, factura+1, hashIvas, hashcodigoISO, hashmoneda, hashEmisores, hashClientes, hashCfdFieldsV22);
+									StringBuilder sbErrorFile = new StringBuilder();
+									
+									//llenar comprobante desde archivo
+									comp = fillDonatarias.fillComprobanteDNTxt(arrayValues);
+									
+									//validar comprobante
+									sbErrorFile.append(validations.validateComprobante(comp, factura+1));
+									
+									//convertir comprobante a invoice
+									invoice = new Invoice_Masivo();
+									invoice = UtilCatalogos.fillInvoice(comp);
+									
+									if(sbErrorFile.toString().length() > 0){
+										sb.append("Factura: " + factura + " -- Lista de Errores: " + "\n" + sbErrorFile.toString() + "\n");								
+										System.out.println("fError EmisionMasivaFacturas: " + sb.toString());							
+										invoice.setSbError(sbErrorFile);
+										listIn.add(invoice);
+										listComprobantes.add(comp);
+									}else{								
+										
+										try{
+											System.out.println("AntesfacturaOK - " + factura);
+											System.out.println("Antes de crearFac");
+											
+											if(!invoice.getSiAplicaIva())								
+												invoice.setDescriptionIVA("EXENTO");
+											
+											//generar xml y asignarlo a invoice
+											fiscalEntity = new FiscalEntity();
+											fiscalEntity.setTaxID(comp.getEmisor().getRfc());
+											fiscalEntity = fiscalEntityManager.findByRFCA(fiscalEntity);
+											
+											ByteArrayOutputStream baosXml = xmlGenerator.convierte(comp);
+											invoice.setByteArrXMLSinAddenda(baosXml);
+											
+											/* Se obtiene el totalIvaretenido y se asigna al IVA*/
+								    		Document document = UtilCatalogos.convertStringToDocument(invoice.getByteArrXMLSinAddenda().toString("UTF-8"));
+								    		String totalIvaRet = UtilCatalogos.getStringValByExpression(document, "//Comprobante/Impuestos/@TotalImpuestosTrasladados");
+								    		BigDecimal bdIva = new BigDecimal(totalIvaRet);
+								    		invoice.setIva(bdIva.doubleValue());
+								    		/*Fin Cambio*/
+								    		
+								    		//doc = UtilCatalogos.convertPathFileToDocument(nameFile);
+								            String errors = UtilCatalogos.validateCfdiDocument(document, comp.getDecimalesMoneda());            
+								            if(!Util.isNullEmpty(errors)){
+								            	throw new Exception(errors);
+								            }else{
+								            	StringWriter sw = documentToStringWriter(document);
+								            	byte[] xmlBytes = sw.toString().getBytes("UTF-8");
+												baosXml = new ByteArrayOutputStream(xmlBytes.length);
+												baosXml.write(xmlBytes, 0, xmlBytes.length);
+												
+												System.out.println("---XML despues de validar decimales---");
+												System.out.println(baosXml.toString("UTF-8"));
+												System.out.println("---Fin XML despues de validar decimales---");
+												
+												//agregar certificado y sello
+												baosXml = xmlGenerator.reemplazaCadenaOriginal(baosXml, fiscalEntity);
+												
+												System.out.println("---XML despues de reemplazar cadena original---");
+												System.out.println(baosXml.toString("UTF-8"));
+												System.out.println("---Fin XML despues de reemplazar cadena original---");
+												
+												invoice.setByteArrXMLSinAddenda(baosXml);
+								            }
+											
+											crearFactura(factura);
+											
+											System.out.println("facturaOK - " + factura);
+											listIn.add(invoice);
+											listComprobantes.add(comp);
+										}catch (Exception e) {								
+											sb.append("Factura: " + factura + " --Exception: " + "\n" + e.getMessage() + "\n");
+											System.out.println("Factura: " + factura + " --Exception: " + "\n" + e.getMessage());
+											invoice.setSbError(new StringBuilder("Factura: " + factura + " --Exception: " + e.getMessage() + "\n"));
+											listIn.add(invoice);
+											listComprobantes.add(comp);
+										}
+										
+										
+									}
+									
+									if(sbErrorFile.toString().length() > 0){
 										//salidaINC.write(("ErrorArchivo|" + sbErrorFile.toString() + "\n").getBytes("UTF-8"));
 										sbStatusNoOK.append("ErrorArchivo|" + sbErrorFile.toString() + "\n");
 										
@@ -382,7 +495,7 @@ public class GeneraDonatXML_Masivo {
 										for(int index=0; index<listIn.size(); index++){
 											if(listIn.get(index).getByteArrXMLSinAddenda() != null){
 												String strXmlATimbrar = listIn.get(index).getByteArrXMLSinAddenda().toString("UTF-8");
-												
+												CfdiComprobanteFiscal comprobante = listComprobantes.get(index);
 												/////////////Inicio Bloque de Timbrado//////////////////
 																				
 												// Invoke the web service operation using the port or stub or proxy
@@ -411,8 +524,11 @@ public class GeneraDonatXML_Masivo {
 													transformer.transform(source, result);
 													String xmlString = result.getWriter().toString();
 													Document doc = db.parse(new InputSource(new StringReader(xmlString)));
-													System.out.println("GeneraAddenda");
-													doc = this.generaXML.agregaAddenda(doc, invoice);
+													//System.out.println("GeneraAddenda");
+													//doc = this.generaXML.agregaAddenda(doc, invoice);//agrega addenda anterior
+													
+													//agrega addenda nuevo 3.3
+													doc = xmlGenerator.agregaAddenda(doc, comprobante);
 													
 													//Obtener el UUID 
 													String strUUID = this.generaXML.getUUID(doc).trim();
@@ -1484,9 +1600,24 @@ public class GeneraDonatXML_Masivo {
 		 //try {
 		 	FiscalEntity fe = fiscalEntityManager.get(fiscalEntity.getId());
 		 
-		 	System.out.println("antes generaXML");
-			String nameFile = generaXML.generaXMLHandler(invoice, fe, fecha, true);
-			System.out.println("despues generaXML");
+		 	System.out.println("antes valida XML");
+		 	String nameFile = "";
+			//nameFile = generaXML.generaXMLHandler(invoice, fiscalEntity, fecha);
+		 	nameFile = xmlProcessGeneral.generateFileName(fecha, false, 0, false);
+		 	ByteArrayOutputStream out = invoice.getByteArrXMLSinAddenda();
+		 	generaXML.setOut(out);
+		 	
+		 	//validar xml
+		 	if(generaXML.getOut().size()==0){
+				System.out.println("El archivo esta vacio ++++");
+			} else {
+				System.out.println("El archivo pesa ++++ "+generaXML.getOut().size());
+				//xmlProcess.valida22(out);
+				System.out.println("XML antes de validar: "+generaXML.getOut().toString("UTF-8"));
+				xmlProcessGeneral.validaCFDI33(generaXML.getOut());
+			}
+			
+			System.out.println("despues valida XML");
 			cFDIssued.setCreationDate(date);
 			cFDIssued.setIssueDate(date);
 			cFDIssued.setDateOfIssuance(date);
@@ -1526,14 +1657,14 @@ public class GeneraDonatXML_Masivo {
             cFDIssued.setModifiedBy("masivo");
 
 
-			ByteArrayOutputStream xmlSinAddenda = generaXML.guarda(null, fecha);
-			
-			if(xmlSinAddenda!=null){
-				this.invoice.setByteArrXMLSinAddenda(xmlSinAddenda);	
-				System.out.println("XML devuelto por generaXML.guarda: " + this.invoice.getByteArrXMLSinAddenda());								
-			}else{
-				this.invoice.setByteArrXMLSinAddenda(null);	
-			}
+//			ByteArrayOutputStream xmlSinAddenda = generaXML.guarda(null, fecha);
+//			
+//			if(xmlSinAddenda!=null){
+//				this.invoice.setByteArrXMLSinAddenda(xmlSinAddenda);	
+//				System.out.println("XML devuelto por generaXML.guarda: " + this.invoice.getByteArrXMLSinAddenda());								
+//			}else{
+//				this.invoice.setByteArrXMLSinAddenda(null);	
+//			}
 			
 			boolean continuarIntentando=true;
             int contIntentos=0;

@@ -1372,5 +1372,12 @@ public class GeneraArchivoDonat_Masivo implements XMLReader{
 	public void setNameSpaceDonatarias(String nameSpaceDonatarias) {
 		this.nameSpaceDonatarias = nameSpaceDonatarias;
 	}
+	
+	public ByteArrayOutputStream getOut(){
+		return out;
+	}
+	public void setOut(ByteArrayOutputStream out){
+		this.out = out;
+	}
 
 }
