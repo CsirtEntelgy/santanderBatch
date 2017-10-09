@@ -407,7 +407,7 @@ this.listComprobantes = new ArrayList<CfdiComprobanteFiscal>();
 									StringBuilder sbErrorFile = new StringBuilder();
 									
 									//llenar comprobante desde archivo
-									comp = fillDonatarias.fillComprobanteDNTxt(arrayValues);
+									comp = fillDonatarias.fillComprobanteDonatTXT(arrayValues);
 									
 									//validar comprobante
 									sbErrorFile.append(validations.validateComprobante(comp, factura+1));

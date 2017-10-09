@@ -1825,18 +1825,20 @@ public class UtilCatalogos
 	        invoice.setMoneda("");
 	        invoice.setIvaDescription("");
 	        
-	        for (String key : comprobante.getAddenda().getCampoAdicional().keySet()) {
-	            if (key.equalsIgnoreCase("MONEDA")) {
-	                invoice.setMoneda(comprobante.getAddenda().getCampoAdicional().get(key));
-	            } else if (key.equalsIgnoreCase("DESCRIPCI�N CONCEPTO") || key.equalsIgnoreCase("DESCRIPCION CONCEPTO") ) {
-	                invoice.setDescriptionConcept(comprobante.getAddenda().getCampoAdicional().get(key));
-	            } else if (key.equalsIgnoreCase("DESCRIPCI�N IVA")) {
-	                invoice.setIvaDescription(comprobante.getAddenda().getCampoAdicional().get(key));
-	            } else if (key.equalsIgnoreCase("TIPO CAMBIO")) {
-	                invoice.setTipoCambio(comprobante.getAddenda().getCampoAdicional().get(key));
-	            }else if (key.equalsIgnoreCase("NumeroEmpleado")){
-	            	invoice.setNumeroEmpleado(comprobante.getAddenda().getCampoAdicional().get(key));
-	            }
+	        if(comprobante.getAddenda() != null && comprobante.getAddenda().getCampoAdicional() != null){
+		        for (String key : comprobante.getAddenda().getCampoAdicional().keySet()) {
+		            if (key.equalsIgnoreCase("MONEDA")) {
+		                invoice.setMoneda(comprobante.getAddenda().getCampoAdicional().get(key));
+		            } else if (key.equalsIgnoreCase("DESCRIPCI�N CONCEPTO") || key.equalsIgnoreCase("DESCRIPCION CONCEPTO") ) {
+		                invoice.setDescriptionConcept(comprobante.getAddenda().getCampoAdicional().get(key));
+		            } else if (key.equalsIgnoreCase("DESCRIPCI�N IVA")) {
+		                invoice.setIvaDescription(comprobante.getAddenda().getCampoAdicional().get(key));
+		            } else if (key.equalsIgnoreCase("TIPO CAMBIO")) {
+		                invoice.setTipoCambio(comprobante.getAddenda().getCampoAdicional().get(key));
+		            }else if (key.equalsIgnoreCase("NumeroEmpleado")){
+		            	invoice.setNumeroEmpleado(comprobante.getAddenda().getCampoAdicional().get(key));
+		            }
+		        }
 	        }
 
 	        StringBuffer direccion = new StringBuffer(comprobante.getEmisor().getNombre());
@@ -1898,7 +1900,7 @@ public class UtilCatalogos
 	            invoice.setMunicipio(Util.isNull(tUbicacion.getMunicipio()));
 	            invoice.setReferencia(Util.isNull(tUbicacion.getReferencia()));
 	            invoice.setLocalidad(Util.isNull(tUbicacion.getLocalidad()));
-	            invoice.setPais(tUbicacion.getPais());
+	            invoice.setPais(Util.isNull(tUbicacion.getPais()));
 	        }
 
 	        invoice.setSubTotal(comprobante.getSubTotal().doubleValue());
@@ -1989,10 +1991,12 @@ public class UtilCatalogos
 	            elements.add(element);
 	        }
 	        boolean descuento = false;
-	        if (comprobante.getDescuento().doubleValue() > 0) {
-	            //invoice.setMotivoDescuento(docEle.getAttribute("motivoDescuento"));
-	            invoice.setDescuento(comprobante.getDescuento().doubleValue());
-	            descuento = true;
+	        if(comprobante.getDescuento() != null){
+		        if (comprobante.getDescuento().doubleValue() > 0) {
+		            //invoice.setMotivoDescuento(docEle.getAttribute("motivoDescuento"));
+		            invoice.setDescuento(comprobante.getDescuento().doubleValue());
+		            descuento = true;
+		        }
 	        }
 
 	        if (descuento) {
@@ -2012,40 +2016,56 @@ public class UtilCatalogos
 	        invoice.setNumCtaPago("");//No existe en 3.3 docEle.getAttribute("NumCtaPago"));
 	        invoice.setRegimenFiscal(comprobante.getEmisor().getRegimenFiscal());
 	        invoice.setRfcEmisor(comprobante.getEmisor().getRfc());
-	        TimbreFiscal timbre = new TimbreFiscal();
-	        timbre.setVersion(comprobante.getComplemento().getTimbreFiscalDigital().getVersion());
-	        timbre.setUuid(comprobante.getComplemento().getTimbreFiscalDigital().getUuid());
-	        invoice.setSello(comprobante.getComplemento().getTimbreFiscalDigital().getSelloCFD());
-	        timbre.setSelloSat(comprobante.getComplemento().getTimbreFiscalDigital().getSelloSAT());
-	        timbre.setNoCertificadoSat(comprobante.getComplemento().getTimbreFiscalDigital().getNoCertificadoSAT());
-	        timbre.setFechaTimbrado(comprobante.getComplemento().getTimbreFiscalDigital().getFechaTimbrado());
-	        invoice.setTimbreFiscal(timbre);
-	        invoice.setDonataria(comprobante.getComplemento().getDonataria());
-
+	        if(comprobante.getComplemento() != null){
+		        TimbreFiscal timbre = new TimbreFiscal();
+		        timbre.setVersion(comprobante.getComplemento().getTimbreFiscalDigital().getVersion());
+		        timbre.setUuid(comprobante.getComplemento().getTimbreFiscalDigital().getUuid());
+		        invoice.setSello(comprobante.getComplemento().getTimbreFiscalDigital().getSelloCFD());
+		        timbre.setSelloSat(comprobante.getComplemento().getTimbreFiscalDigital().getSelloSAT());
+		        timbre.setNoCertificadoSat(comprobante.getComplemento().getTimbreFiscalDigital().getNoCertificadoSAT());
+		        timbre.setFechaTimbrado(comprobante.getComplemento().getTimbreFiscalDigital().getFechaTimbrado());
+		        invoice.setTimbreFiscal(timbre);
+		        invoice.setDonataria(comprobante.getComplemento().getDonataria());
+		        
+		      //añadir pagos en complemento
+		        invoice.setTipoOperacion(comprobante.getComplemento().getDivisaTipoOperacion());
+		        if(comprobante.getComplementPagos() != null && comprobante.getComplementPagos().size() > 0){
+		        	invoice.setPagos(new ArrayList<ComplementoPago>());
+		        	for(ComplementoPago pago : comprobante.getComplementPagos()){
+		        		invoice.getPagos().add(pago);
+		        	}
+		        }
+	        }
 	        invoice.setCostCenter(comprobante.getAddenda().getInformacionEmision().getCentroCostos());
 	        invoice.setCustomerCode(comprobante.getAddenda().getInformacionEmision().getCodigoCliente());
 	        invoice.setContractNumber(comprobante.getAddenda().getInformacionEmision().getContrato());
 	        invoice.setPeriod(comprobante.getAddenda().getInformacionEmision().getPeriodo());
 	        //Datos Addendas Filiales
 	        invoice.setTipoAddenda("0");
-	        //Va para la addenda logistica
-	        invoice.setCodigoISO(comprobante.getAddenda().getInformacionPago().getCodigoISOMoneda());
-	        //Va para las tres addendas filiales
-			if(comprobante.getAddenda().getInformacionPago().getPosCompra() != null){
-		        if (!comprobante.getAddenda().getInformacionPago().getPosCompra().equals("")) {
-		            invoice.setTipoAddenda("1");
-		            invoice.setPosicioncompraLog(comprobante.getAddenda().getInformacionPago().getPosCompra());
-		        }
-			}
-	        //Va para la addenda financiera
-	        if(comprobante.getAddenda().getInformacionPago().getCuentaContable() != null){
-		        if (!comprobante.getAddenda().getInformacionPago().getCuentaContable().equals("")) {
-		            invoice.setTipoAddenda("2");
-		            invoice.setCuentacontableFin(comprobante.getAddenda().getInformacionPago().getCuentaContable());
+	        if(comprobante.getAddenda().getInformacionPago() != null){
+		        //Va para la addenda logistica
+		        invoice.setCodigoISO(comprobante.getAddenda().getInformacionPago().getCodigoISOMoneda());
+				invoice.setCodigoisomonedaFin(comprobante.getAddenda().getInformacionPago().getCodigoISOMoneda());
+				invoice.setCodigoisomonedaLog(comprobante.getAddenda().getInformacionPago().getCodigoISOMoneda());
+				invoice.setCodigoisomonedaArr(comprobante.getAddenda().getInformacionPago().getCodigoISOMoneda());
+		        //Va para las tres addendas filiales
+				if(comprobante.getAddenda().getInformacionPago().getPosCompra() != null){
+			        if (!comprobante.getAddenda().getInformacionPago().getPosCompra().equals("")) {
+			            invoice.setTipoAddenda("1");
+			            invoice.setPosicioncompraLog(comprobante.getAddenda().getInformacionPago().getPosCompra());
+			        }
+				}
+		        //Va para la addenda financiera
+		        if(comprobante.getAddenda().getInformacionPago().getCuentaContable() != null){
+			        if (!comprobante.getAddenda().getInformacionPago().getCuentaContable().equals("")) {
+			            invoice.setTipoAddenda("2");
+			            invoice.setCuentacontableFin(comprobante.getAddenda().getInformacionPago().getCuentaContable());
+			        }
 		        }
 	        }
 	        //Va para la addenda arrendamiento
-	        if(comprobante.getAddenda().getInmuebles().getNumContrato() != null){
+	        if(comprobante.getAddenda().getInmuebles() != null 
+	        		&& comprobante.getAddenda().getInmuebles().getNumContrato() != null){
 		        if (!comprobante.getAddenda().getInmuebles().getNumContrato().equals("")
 		                && !comprobante.getAddenda().getInmuebles().getFechaVencimiento().equals("")) {
 		            invoice.setTipoAddenda("3");
@@ -2057,25 +2077,19 @@ public class UtilCatalogos
 	        invoice.setTipoDeComprobante(comprobante.getTipoDeComprobante());
 	        invoice.setSerie(comprobante.getSerie());
 
-	        invoice.setEmail(comprobante.getAddenda().getInformacionPago().getEmail());
-	        invoice.setPurchaseOrder(comprobante.getAddenda().getInformacionPago().getOrdenCompra());
-	        invoice.setBeneficiaryName(comprobante.getAddenda().getInformacionPago().getNombreBeneficiario());
-	        invoice.setReceivingInstitution(comprobante.getAddenda().getInformacionPago().getInstitucionReceptora());
-//	        invoice.setNumCtaPago(comprobante.getAddenda().getInformacionPago().getNumeroCuenta());
-	        System.out.println("*** Id Fiscal Util Catalogos: " + comprobante.getAddenda().getInformacionPago().getCuentaContable());
-	        if(comprobante.getAddenda().getInformacionPago().getCuentaContable() != null){
-	        	invoice.setNumCtaPago(comprobante.getAddenda().getInformacionPago().getCuentaContable());
+	        if(comprobante.getAddenda().getInformacionPago() != null){
+		        invoice.setEmail(comprobante.getAddenda().getInformacionPago().getEmail());
+		        invoice.setPurchaseOrder(comprobante.getAddenda().getInformacionPago().getOrdenCompra());
+		        invoice.setBeneficiaryName(comprobante.getAddenda().getInformacionPago().getNombreBeneficiario());
+		        invoice.setReceivingInstitution(comprobante.getAddenda().getInformacionPago().getInstitucionReceptora());
+		//        invoice.setNumCtaPago(comprobante.getAddenda().getInformacionPago().getNumeroCuenta());
+		        System.out.println("*** Id Fiscal Util Catalogos: " + comprobante.getAddenda().getInformacionPago().getCuentaContable());
+		        if(comprobante.getAddenda().getInformacionPago().getCuentaContable() != null){
+		        	invoice.setNumCtaPago(comprobante.getAddenda().getInformacionPago().getCuentaContable());
+		        }
+		        invoice.setProviderNumber(comprobante.getAddenda().getInformacionPago().getNumProveedor());
 	        }
-	        invoice.setProviderNumber(comprobante.getAddenda().getInformacionPago().getNumProveedor());
-
-	        //añadir pagos en complemento
-	        invoice.setTipoOperacion(comprobante.getComplemento().getDivisaTipoOperacion());
-	        if(comprobante.getComplementPagos() != null && comprobante.getComplementPagos().size() > 0){
-	        	invoice.setPagos(new ArrayList<ComplementoPago>());
-	        	for(ComplementoPago pago : comprobante.getComplementPagos()){
-	        		invoice.getPagos().add(pago);
-	        	}
-	        }
+	        
 	        if(comprobante.getMoneda() != null){
 	        	invoice.setTipoMoneda(comprobante.getMoneda());
 	        }

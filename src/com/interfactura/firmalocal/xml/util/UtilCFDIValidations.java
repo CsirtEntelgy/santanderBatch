@@ -2909,6 +2909,9 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 						sbError.append(tipoRFC.get("message").toString() + " - factura " + factura + "\n");
 					}
 				}
+			}else{
+				comp.getReceptor().setNumRegIdTrib("");
+				comp.getReceptor().setResidenciaFiscal("");
 			}
 		}
 		
