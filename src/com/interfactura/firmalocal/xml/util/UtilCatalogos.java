@@ -8,10 +8,14 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.MessageFormat;
 import java.text.Normalizer;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -2096,6 +2100,18 @@ public class UtilCatalogos
 	        if(comprobante.getTipoDeComprobante() != null){
 	        	invoice.setTipoFormato(comprobante.getTipoDeComprobante());
 	        }
+	        
+	        if(comprobante.getFecha() != null){
+	        	invoice.setFechaRecepcionString(comprobante.getFecha());
+	        	try{
+		        	DateFormat format = new SimpleDateFormat("dd/mm/yyyy");
+		        	Date date = format.parse(comprobante.getFecha());
+		        	invoice.setFechaRecepcion(date);
+	        	}catch(ParseException pe){
+	        		System.out.println("error al convertir fechaRecepcion: "+pe.getStackTrace());
+	        	}
+	        }
+	        
 	        return invoice;
 	    }
 		
@@ -2107,6 +2123,7 @@ public class UtilCatalogos
 	    	logger.info("validateCfdiDocument:"+convertDocumentXmlToString(doc));
 	    	System.out.println("******************************************************");
 	    	/*En esta seccion se agregaran todas las validciones que se les necesite hacer al comprobante*/
+	    	
 	    	sbError.append(evaluateCalulationMasiva(doc, maxDecimals));
 	    	logger.info("validateCfdiDocument:"+convertDocumentXmlToString(doc));
 	    	System.out.println("******************************************************");
@@ -2300,7 +2317,7 @@ public class UtilCatalogos
 		            System.out.println("traslados=" + traslados);
 		            System.out.println("Comptaracion=" + (compTotal.doubleValue() == totalOper.doubleValue()));
 		            throw new Exception(
-		                    "El campo Total no corresponde con la suma del subtotal, menos los descuentos aplicables, más las contribuciones recibidas (impuestos trasladados - federales o locales, derechos, productos, aprovechamientos, aportaciones de seguridad social, contribuciones de mejoras) menos los impuestos retenidos.");
+		                    "El campo Total no corresponde con la suma del subtotal, menos los descuentos aplicables, más las contribuciones recibidas (impuestos trasladados - federales o locales, derechos, productos, aprovechamientos, aportaciones de seguridad social, contribuciones de mejoras) menos los impuestos retenidos");
 		        }
 		
 		        logger.info("Validando descuentos");
@@ -2359,7 +2376,7 @@ public class UtilCatalogos
 		        }
 	    	}catch(Exception ex){
 	    		logger.error(ex);
-	    		return ex.getMessage() + "\n";
+	    		return ex.getMessage();
 	    	}
 	    	return "";
 	    }

@@ -67,6 +67,7 @@ import com.interfactura.firmalocal.persistence.OpenJpaManager;
 import com.interfactura.firmalocal.persistence.UserManager;
 import com.interfactura.firmalocal.xml.Properties;
 import com.interfactura.firmalocal.xml.TagsXML;
+import com.interfactura.firmalocal.xml.WebServiceCliente;
 import com.interfactura.firmalocal.xml.WebServiceClienteDonat;
 
 import com.interfactura.firmalocal.xml.file.GeneraArchivoDonat_Masivo;
@@ -100,7 +101,7 @@ public class GeneraDonatXML_Masivo {
 	private List<SealCertificate> lstSeal;
 	private ValidatorHandler validator;
 	
-	private WebServiceClienteDonat servicePort = null;
+	private WebServiceCliente servicePort = null;
 	private DocumentBuilderFactory dbf = null;
 	private DocumentBuilder db = null;
 	private Transformer tx = null;
@@ -238,7 +239,7 @@ public class GeneraDonatXML_Masivo {
 			
 			//Iniciar conexion con WebService								
 			if(this.servicePort == null){
-				this.servicePort = new WebServiceClienteDonat();								
+				this.servicePort = new WebServiceCliente();								
 			}	
 
 			//Crear hashMaps
@@ -505,7 +506,7 @@ this.listComprobantes = new ArrayList<CfdiComprobanteFiscal>();
 																	
 												System.out.println("nomInterface" + nameFileExcel.substring(0, nameFileExcel.indexOf(".")) + "--");
 												String xmlTimbradoConPipe = ""; 
-												xmlTimbradoConPipe = this.servicePort.generaTimbreDonat(strXmlATimbrar, false, urlWSTimbrado, properties, nameFileExcel.substring(0, nameFileExcel.indexOf(".")), 0, 3, "", "");
+												xmlTimbradoConPipe = this.servicePort.generaTimbre(strXmlATimbrar, false, urlWSTimbrado, properties, nameFileExcel.substring(0, nameFileExcel.indexOf(".")), 0, 3, "", "");
 												
 												String xmlTimbrado = xmlTimbradoConPipe.substring(0, xmlTimbradoConPipe.length()-1);
 												
