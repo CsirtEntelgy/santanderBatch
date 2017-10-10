@@ -1488,7 +1488,7 @@ public class GeneraXML_CFDV3_3
 							String strSinAddenda = "";
 							strSinAddenda = sbSinAddenda.toString();
 							
-							System.out.println("XML antes de Timbrado: " + strSinAddenda.toString());
+							//System.out.println("XML antes de Timbrado: " + strSinAddenda.toString());
 							
 							System.out.println("Periodo antes de Timbrado: " + conver.getTags().EMISION_PERIODO);
 							
@@ -1517,7 +1517,7 @@ public class GeneraXML_CFDV3_3
 							// Al parecer aqui se hace el timbrado, AMDA v 3.3 verificar las mayusculas tambien 
 							String xmlTimbrado = xmlTimbradoConPipe.substring(0, xmlTimbradoConPipe.length()-1);
 							
-							logger.info("XML Timbrado: " + xmlTimbrado);
+							//logger.info("XML Timbrado: " + xmlTimbrado);
 							xmlTimbrado = xmlTimbrado.replace("IdRespuesta=\"1\"><?xml version=\"1.0\" encoding=\"UTF-8\"?>", "IdRespuesta=\"1\">");
 				            //Convertir de string a Document
 				            Document dom = stringToDocument(xmlTimbrado);

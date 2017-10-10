@@ -2150,7 +2150,6 @@ public class UtilCatalogos
 	                        for (int idxC = 0; (idxC < nlChild.getLength() && !hasChilds); idxC++) {
 	                            if (nlChild.item(idxC).getNodeType() == Node.ELEMENT_NODE) {
 	                                hasChilds = true;
-	                                System.out.println("33333");
 	                            }
 	                        }
 	                    }
