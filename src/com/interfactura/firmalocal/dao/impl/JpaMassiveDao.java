@@ -33,9 +33,12 @@ public class JpaMassiveDao extends JpaDao<Long, Massive> implements MassiveDao {
 		}else if(cfdType == 1){
 			//Massive Divisas
 			query = "SELECT x FROM Massive x WHERE x.cfdtype = 1 and x.status=:status";
-		}else{
+		}else if(cfdType == 2){
 			//Massive Donat
 			query = "SELECT x FROM Massive x WHERE x.cfdtype = 2 and x.status=:status";
+		}else if(cfdType == 3) {
+			//Masive ComplementoPago
+			query = "SELECT x FROM Massive x WHERE x.cfdtype = 3 and x.status=:status";
 		}
 		
 		if (status == 2){
