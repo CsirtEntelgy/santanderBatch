@@ -64,6 +64,7 @@ import com.interfactura.firmalocal.persistence.UserManager;
 import com.interfactura.firmalocal.xml.Properties;
 import com.interfactura.firmalocal.xml.Properties_FD;
 import com.interfactura.firmalocal.xml.TagsXML;
+import com.interfactura.firmalocal.xml.WebServiceCliente;
 import com.interfactura.firmalocal.xml.WebServiceClienteUnicoDivisas;
 import com.interfactura.firmalocal.xml.file.GeneraArchivo_Masivo;
 import com.interfactura.firmalocal.xml.file.XMLProcess;
@@ -89,7 +90,7 @@ public class GeneraXMLProceso_Masivo {
 	@Autowired
 	private XMLProcess xmlProcess;
 	
-	private WebServiceClienteUnicoDivisas servicePort = null;
+	private WebServiceCliente servicePort = null;
 	private DocumentBuilder db = null;
 	private Transformer tx = null;
 	private DocumentBuilderFactory dbf = null;
@@ -213,7 +214,7 @@ public class GeneraXMLProceso_Masivo {
 			sb = new StringBuilder();
 			//Iniciar conexion con WebService								
 			if(this.servicePort == null){
-				this.servicePort = new WebServiceClienteUnicoDivisas();								
+				this.servicePort = new WebServiceCliente();								
 			}	
 
 			//Crear hashMaps
@@ -481,7 +482,7 @@ public class GeneraXMLProceso_Masivo {
 																	
 												//System.out.println("nomInterface" + nameFileExcel.substring(0, nameFileExcel.indexOf(".")) + "--");
 												String xmlTimbradoConPipe = ""; 
-												xmlTimbradoConPipe = this.servicePort.generaTimbre(strXmlATimbrar, false, properties_fd.getServiceUnicoDivisas(), properties, nameFileExcel.substring(0, nameFileExcel.indexOf(".")), 0, 1, listIn.get(index).getPeriod(), "");
+												xmlTimbradoConPipe = this.servicePort.generaTimbre(strXmlATimbrar, false, urlWSTimbrado, properties, nameFileExcel.substring(0, nameFileExcel.indexOf(".")), 0, 1, listIn.get(index).getPeriod(), "");
 												
 												String xmlTimbrado = xmlTimbradoConPipe.substring(0, xmlTimbradoConPipe.length()-1);
 												
