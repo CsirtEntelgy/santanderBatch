@@ -32,7 +32,7 @@ public class MassiveReadComplementoPagoController {
 	
 	public void createIdFileProcess(){			
 		try{	
-			List<Massive> listRequest = this.getRequests(0, 0);
+			List<Massive> listRequest = this.getRequests(0, 3);
 			
 			FileOutputStream fileStatus = new FileOutputStream(PathFacturacionProceso + "massiveRead.txt");
 			fileStatus.write("Status del proceso bash massiveRead.sh\n".getBytes("UTF-8"));
