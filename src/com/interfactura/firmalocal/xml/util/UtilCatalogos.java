@@ -2123,6 +2123,7 @@ public class UtilCatalogos
 	    	logger.info("validateCfdiDocument:"+convertDocumentXmlToString(doc));
 	    	System.out.println("******************************************************");
 	    	/*En esta seccion se agregaran todas las validciones que se les necesite hacer al comprobante*/
+	    	
 	    	sbError.append(evaluateCalulationMasiva(doc, maxDecimals));
 	    	logger.info("validateCfdiDocument:"+convertDocumentXmlToString(doc));
 	    	System.out.println("******************************************************");
@@ -2316,7 +2317,7 @@ public class UtilCatalogos
 		            System.out.println("traslados=" + traslados);
 		            System.out.println("Comptaracion=" + (compTotal.doubleValue() == totalOper.doubleValue()));
 		            throw new Exception(
-		                    "El campo Total no corresponde con la suma del subtotal, menos los descuentos aplicables, m�s las contribuciones recibidas (impuestos trasladados - federales o locales, derechos, productos, aprovechamientos, aportaciones de seguridad social, contribuciones de mejoras) menos los impuestos retenidos.");
+		                    "El campo Total no corresponde con la suma del subtotal, menos los descuentos aplicables, más las contribuciones recibidas (impuestos trasladados - federales o locales, derechos, productos, aprovechamientos, aportaciones de seguridad social, contribuciones de mejoras) menos los impuestos retenidos");
 		        }
 		
 		        logger.info("Validando descuentos");
@@ -2375,7 +2376,7 @@ public class UtilCatalogos
 		        }
 	    	}catch(Exception ex){
 	    		logger.error(ex);
-	    		return ex.getMessage() + "\n";
+	    		return ex.getMessage();
 	    	}
 	    	return "";
 	    }
