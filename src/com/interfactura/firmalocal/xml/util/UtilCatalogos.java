@@ -8,10 +8,14 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.MessageFormat;
 import java.text.Normalizer;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -2096,6 +2100,18 @@ public class UtilCatalogos
 	        if(comprobante.getTipoDeComprobante() != null){
 	        	invoice.setTipoFormato(comprobante.getTipoDeComprobante());
 	        }
+	        
+	        if(comprobante.getFecha() != null){
+	        	invoice.setFechaRecepcionString(comprobante.getFecha());
+	        	try{
+		        	DateFormat format = new SimpleDateFormat("dd/mm/yyyy");
+		        	Date date = format.parse(comprobante.getFecha());
+		        	invoice.setFechaRecepcion(date);
+	        	}catch(ParseException pe){
+	        		System.out.println("error al convertir fechaRecepcion: "+pe.getStackTrace());
+	        	}
+	        }
+	        
 	        return invoice;
 	    }
 		
