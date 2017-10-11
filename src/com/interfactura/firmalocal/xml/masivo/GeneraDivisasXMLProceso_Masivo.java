@@ -66,6 +66,7 @@ import com.interfactura.firmalocal.persistence.UserManager;
 import com.interfactura.firmalocal.xml.Properties;
 import com.interfactura.firmalocal.xml.Properties_FD;
 import com.interfactura.firmalocal.xml.TagsXML;
+import com.interfactura.firmalocal.xml.WebServiceCliente;
 import com.interfactura.firmalocal.xml.WebServiceClienteUnicoDivisas;
 import com.interfactura.firmalocal.xml.file.GeneraArchivoDivisas_Masivo;
 import com.interfactura.firmalocal.xml.file.XMLProcess;
@@ -117,7 +118,7 @@ public class GeneraDivisasXMLProceso_Masivo {
 	private String msgError;
 	private boolean processStarted = false;*/
 
-	private WebServiceClienteUnicoDivisas servicePort = null;
+	private WebServiceCliente servicePort = null;
 	private DocumentBuilderFactory dbf = null;
 	private DocumentBuilder db = null;
 	private Transformer tx = null;
@@ -290,7 +291,7 @@ public class GeneraDivisasXMLProceso_Masivo {
 			sb = new StringBuilder();
 			//Iniciar conexion con WebService								
 			if(this.servicePort == null){
-				this.servicePort = new WebServiceClienteUnicoDivisas();								
+				this.servicePort = new WebServiceCliente();								
 			}	
 
 			//Crear hashMaps
@@ -554,7 +555,7 @@ this.listComprobantes = new ArrayList<CfdiComprobanteFiscal>();
 																	
 												System.out.println("nomInterface" + nameFileExcel.substring(0, nameFileExcel.indexOf(".")) + "--");
 												String xmlTimbradoConPipe = ""; 
-												xmlTimbradoConPipe = this.servicePort.generaTimbre(strXmlATimbrar, false, properties_fd.getServiceUnicoDivisas(), properties, nameFileExcel.substring(0, nameFileExcel.indexOf(".")), 0, 4, listIn.get(index).getPeriod(), "");
+												xmlTimbradoConPipe = this.servicePort.generaTimbre(strXmlATimbrar, false, urlWSTimbrado, properties, nameFileExcel.substring(0, nameFileExcel.indexOf(".")), 0, 4, listIn.get(index).getPeriod(), "");
 												
 												String xmlTimbrado = xmlTimbradoConPipe.substring(0, xmlTimbradoConPipe.length()-1);
 												

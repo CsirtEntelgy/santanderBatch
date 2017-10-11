@@ -2132,8 +2132,33 @@ public class UtilCatalogos
 	            complementTaxes(doc);
 	            logger.info("validateCfdiDocument:" + convertDocumentXmlToString(doc));
 	            System.out.println("******************************************************");
+	            logger.info("Limpiando nodo impuestos de Conceptos vacios");
+	            clearTaxes(doc);
 	        }
 	    	return sbError.toString();
+	    }
+		
+	    public static void clearTaxes(Document doc) throws XPathExpressionException {
+	        String taxes = "//Comprobante/Conceptos/Concepto/Impuestos";
+	        NodeList nlTraslados = getNodesByExpression(doc, taxes);
+	        if (nlTraslados != null && nlTraslados.getLength() > 0) {
+	            for (int idx = 0; idx < nlTraslados.getLength(); idx++) {
+	                if (nlTraslados.item(idx).getNodeType() == Node.ELEMENT_NODE) {
+	                    boolean hasChilds = false;
+	                    NodeList nlChild = nlTraslados.item(idx).getChildNodes();
+	                    if (nlChild != null && nlChild.getLength() > 0) {
+	                        for (int idxC = 0; (idxC < nlChild.getLength() && !hasChilds); idxC++) {
+	                            if (nlChild.item(idxC).getNodeType() == Node.ELEMENT_NODE) {
+	                                hasChilds = true;
+	                            }
+	                        }
+	                    }
+	                    if (!hasChilds) {
+	                        nlTraslados.item(idx).getParentNode().removeChild(nlTraslados.item(idx));
+	                    }
+	                }
+	            }
+	        }
 	    }
 	    
 	    public static void complementTaxes(Document doc) throws XPathExpressionException {
