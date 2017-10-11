@@ -17,7 +17,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import com.interfactura.firmalocal.controllers.MassiveReadController;
+import com.interfactura.firmalocal.controllers.MassiveReadComplementoPagoController;
 
 public class ReadExcelSaxComplementoPago {
 
@@ -51,7 +51,7 @@ public class ReadExcelSaxComplementoPago {
 			throws Exception {
 		System.out.println(pathFacturacionEntrada + "IDFILEPROCESS.TXT");
 
-		String PathFacturacionSalida = MassiveReadController.PathFacturacionSalida;
+		String PathFacturacionSalida = MassiveReadComplementoPagoController.PathFacturacionSalida;
 
 		FileInputStream fsIdFileProcess = new FileInputStream(pathFacturacionEntrada + "IDFILEPROCESS.TXT");
 		DataInputStream in = new DataInputStream(fsIdFileProcess);
