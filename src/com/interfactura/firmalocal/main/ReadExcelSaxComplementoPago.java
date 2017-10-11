@@ -13,6 +13,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.poi.openxml4j.opc.OPCPackage;
+import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -189,6 +190,7 @@ public class ReadExcelSaxComplementoPago {
 			}
 			for (int i = 0; i < 32; i++) {
 				if (rowCont.getCell(i) != null) {
+					rowCont.getCell(i).setCellType(Cell.CELL_TYPE_STRING);
 					if (i == 0) {
 						currFacReference.append(rowCont.getCell(i).toString().trim());
 					}
@@ -229,6 +231,7 @@ public class ReadExcelSaxComplementoPago {
 			}
 			for (int i = 0; i < 23; i++) {
 				if (rowCont.getCell(i) != null) {
+					rowCont.getCell(i).setCellType(Cell.CELL_TYPE_STRING);
 					if (i == 0 && !rowCont.getCell(i).toString().trim().equals(referenciaFactura)) {
 						break;
 					} else if (i == 0 && rowCont.getCell(i).toString().trim().equals(referenciaFactura)) {
