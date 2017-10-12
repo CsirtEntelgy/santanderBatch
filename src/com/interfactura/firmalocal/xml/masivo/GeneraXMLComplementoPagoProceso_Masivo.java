@@ -36,6 +36,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
 
+import com.interfactura.firmalocal.controllers.MassiveReadComplementoPagoController;
 import com.interfactura.firmalocal.controllers.MassiveReadController;
 import com.interfactura.firmalocal.datamodel.CfdiComprobanteFiscal;
 import com.interfactura.firmalocal.datamodel.ElementsInvoice;
@@ -64,6 +65,7 @@ import com.interfactura.firmalocal.persistence.UserManager;
 import com.interfactura.firmalocal.xml.Properties;
 import com.interfactura.firmalocal.xml.Properties_FD;
 import com.interfactura.firmalocal.xml.TagsXML;
+import com.interfactura.firmalocal.xml.WebServiceCliente;
 import com.interfactura.firmalocal.xml.WebServiceClienteUnicoDivisas;
 import com.interfactura.firmalocal.xml.file.GeneraArchivo_Masivo;
 import com.interfactura.firmalocal.xml.file.XMLProcess;
@@ -88,7 +90,7 @@ public class GeneraXMLComplementoPagoProceso_Masivo {
 	@Autowired
 	private XMLProcess xmlProcess;
 
-	private WebServiceClienteUnicoDivisas servicePort = null;
+	private WebServiceCliente servicePort = null;
 	private DocumentBuilder db = null;
 	private Transformer tx = null;
 	private DocumentBuilderFactory dbf = null;
@@ -167,10 +169,10 @@ public class GeneraXMLComplementoPagoProceso_Masivo {
 	private FileOutputStream salidaINC = null;
 	// private FileOutputStream salidaODM = null;
 
-	String PathFacturacionEntrada = MassiveReadController.PathFacturacionEntrada;
-	String PathFacturacionProceso = MassiveReadController.PathFacturacionProceso;
-	String PathFacturacionSalida = MassiveReadController.PathFacturacionSalida;
-	String PathFacturacionOndemand = MassiveReadController.PathFacturacionOndemand;
+	String PathFacturacionEntrada = MassiveReadComplementoPagoController.PathFacturacionEntrada;
+	String PathFacturacionProceso = MassiveReadComplementoPagoController.PathFacturacionProceso;
+	String PathFacturacionSalida = MassiveReadComplementoPagoController.PathFacturacionSalida;
+	String PathFacturacionOndemand = MassiveReadComplementoPagoController.PathFacturacionOndemand;
 
 	@Autowired(required = true)
 	private MassiveManager massiveManager;
@@ -205,7 +207,7 @@ public class GeneraXMLComplementoPagoProceso_Masivo {
 			sb = new StringBuilder();
 			// Iniciar conexion con WebService
 			if (this.servicePort == null) {
-				this.servicePort = new WebServiceClienteUnicoDivisas();
+				this.servicePort = new WebServiceCliente();
 			}
 
 			// Crear hashMaps
@@ -504,7 +506,7 @@ public class GeneraXMLComplementoPagoProceso_Masivo {
 												// nameFileExcel.indexOf(".")) + "--");
 												String xmlTimbradoConPipe = "";
 												xmlTimbradoConPipe = this.servicePort.generaTimbre(strXmlATimbrar,
-														false, properties_fd.getServiceUnicoDivisas(), properties,
+														false, urlWSTimbrado, properties,
 														nameFileExcel.substring(0, nameFileExcel.indexOf(".")), 0, 1,
 														listIn.get(index).getPeriod(), "");
 
