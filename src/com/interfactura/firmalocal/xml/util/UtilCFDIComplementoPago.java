@@ -1,7 +1,10 @@
 package com.interfactura.firmalocal.xml.util;
 
 import java.math.BigDecimal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -743,99 +746,113 @@ public class UtilCFDIComplementoPago {
 			if (posicionComplemento == 1) {
 				complemento = new ComplementoPago();
 			}
-			// Posicion 2: Forma Pago
+			// Posicion 2: Fecha Pago
 			if (posicionComplemento == 2) {
+				if(linea[nextPosition].trim().isEmpty()) {
+					complemento.setFechaPago(new Date());
+				}else {
+					Date date1= new Date();
+					try {
+						date1 = new SimpleDateFormat("yyyy-mm-dd'T'hh:mm:ss").parse(linea[nextPosition].trim());
+					} catch (ParseException e) {
+						e.printStackTrace();
+					}
+					complemento.setFechaPago(date1);
+				}
+			}
+			// Posicion 3: Forma Pago
+			if (posicionComplemento == 3) {
 				complemento.setFormaPagoP(linea[nextPosition]);
 			}
-			// Posicion 3: Moneda Pago
-			if (posicionComplemento == 3) {
+			// Posicion 4: Moneda Pago
+			if (posicionComplemento == 4) {
 				complemento.setMonedaPago(linea[nextPosition]);
 			}
-			// Posicion 4: Tipo Cambio Pago
-			if (posicionComplemento == 4) {
+			// Posicion 5: Tipo Cambio Pago
+			if (posicionComplemento == 5) {
 				BigDecimal tcPago = new BigDecimal(linea[nextPosition].trim().equals("") ? "0" : linea[nextPosition]);
 				complemento.setTipoCambioPago(tcPago);
 			}
-			// Posicion 5: Monto
-			if (posicionComplemento == 5) {
+			// Posicion 6: Monto
+			if (posicionComplemento == 6) {
 				BigDecimal monto = new BigDecimal(linea[nextPosition].trim().equals("") ? "0" : linea[nextPosition]);
 				complemento.setMonto(monto);
 			}
-			// Posicion 6: Numero Operacion
-			if (posicionComplemento == 6) {
+			// Posicion 7: Numero Operacion
+			if (posicionComplemento == 7) {
 				complemento.setNumeroOperacion(linea[nextPosition]);
 			}
-			// Posicion 7: RFC Emisor Cuenta Orden
-			if (posicionComplemento == 7) {
+			// Posicion 8: RFC Emisor Cuenta Orden
+			if (posicionComplemento == 8) {
 				complemento.setRfcEmisorCuentaOrden(linea[nextPosition]);
 			}
-			// Posicion 8: Nombre Banco Ordinario Ext.
-			if (posicionComplemento == 8) {
+			// Posicion 9: Nombre Banco Ordinario Ext.
+			if (posicionComplemento == 9) {
 				complemento.setNombreBancoOrdinarioExt(linea[nextPosition]);
 			}
-			// Posicion 9: Cuenta Ordenante
-			if (posicionComplemento == 9) {
+			// Posicion 10: Cuenta Ordenante
+			if (posicionComplemento == 10) {
 				complemento.setCuentaOrdenante(linea[nextPosition]);
 			}
-			// Posicion 10: RFC Emisor Cuenta Beneficiario
-			if (posicionComplemento == 10) {
+			// Posicion 11: RFC Emisor Cuenta Beneficiario
+			if (posicionComplemento == 11) {
 				complemento.setRfcEmisorCtaBeneficiario(linea[nextPosition]);
 			}
-			// Posicion 11: Cuenta Beneficiario
-			if (posicionComplemento == 11) {
+			// Posicion 12: Cuenta Beneficiario
+			if (posicionComplemento == 12) {
 				complemento.setCuentaBeneficiario(linea[nextPosition]);
 			}
-			// Posicion 12: Tipo Cadena Pago
-			if (posicionComplemento == 12) {
+			// Posicion 13: Tipo Cadena Pago
+			if (posicionComplemento == 13) {
 				complemento.setTipoCadenaPago(linea[nextPosition]);
 			}
-			// Posicion 13: Cadena Pago
-			if (posicionComplemento == 13) {
+			// Posicion 14: Cadena Pago
+			if (posicionComplemento == 14) {
 				complemento.setCadenaPago(linea[nextPosition]);
 			}
-			// Posicion 14: ID Documento
-			if (posicionComplemento == 14) {
+			// Posicion 15: ID Documento
+			if (posicionComplemento == 15) {
 				complemento.setIdDocumento(linea[nextPosition]);
 			}
-			// Posicion 15: Serie
-			if (posicionComplemento == 15) {
+			// Posicion 16: Serie
+			if (posicionComplemento == 16) {
 				complemento.setSeriePago(linea[nextPosition]);
 			}
-			// Posicion 16: Folio
-			if (posicionComplemento == 16) {
+			// Posicion 17: Folio
+			if (posicionComplemento == 17) {
 				complemento.setFolioPago(linea[nextPosition]);
 			}
-			// Posicion 17: Moneda DR
-			if (posicionComplemento == 17) {
+			// Posicion 18: Moneda DR
+			if (posicionComplemento == 18) {
 				complemento.setMonedaDR(linea[nextPosition]);
 			}
-			// Posicion 18: Tipo Cambio DR
-			if (posicionComplemento == 18) {
+			// Posicion 19: Tipo Cambio DR
+			if (posicionComplemento == 19) {
 				BigDecimal tcDr = new BigDecimal(linea[nextPosition].trim().equals("") ? "0" : linea[nextPosition]);
 				complemento.setTipoCambioDR(tcDr);
 			}
-			// Posicion 19: Metodo Pago DR
-			if (posicionComplemento == 19) {
+			// Posicion 20: Metodo Pago DR
+			if (posicionComplemento == 20) {
 				complemento.setMetodoPagoDR(linea[nextPosition]);
 			}
-			// Posicion 20: Num Parcialidad
-			if (posicionComplemento == 20) {
+			// Posicion 21: Num Parcialidad
+			if (posicionComplemento == 21) {
 				complemento.setNumParcialidad(linea[nextPosition]);
 			}
-			// Posicion 21: Imp Saldo Anterior
-			if (posicionComplemento == 21) {
+			// Posicion 22: Imp Saldo Anterior
+			if (posicionComplemento == 22) {
 				BigDecimal impSalAnt = new BigDecimal(
 						linea[nextPosition].trim().equals("") ? "0" : linea[nextPosition]);
 				complemento.setImpSaldoAnterior(impSalAnt);
 			}
-			// Posicion 22: Impuesto Pagado
-			if (posicionComplemento == 22) {
+			// Posicion 23: Impuesto Pagado
+			if (posicionComplemento == 23) {
 				BigDecimal impSalPag = new BigDecimal(
 						linea[nextPosition].trim().equals("") ? "0" : linea[nextPosition]);
 				complemento.setImpuestoPagado(impSalPag);
 			}
-			// Posicion 23: Imp Saldo Insoluto
-			if (posicionComplemento == 23) {
+			// Posicion 24: Imp Saldo Insoluto
+			if (posicionComplemento == 24) {
 				BigDecimal impSalInso = new BigDecimal(
 						linea[nextPosition].trim().equals("") ? "0" : linea[nextPosition]);
 				complemento.setImpSaldoInsoluto(impSalInso);

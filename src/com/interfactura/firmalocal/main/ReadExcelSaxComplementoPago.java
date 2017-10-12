@@ -229,7 +229,7 @@ public class ReadExcelSaxComplementoPago {
 					break;
 				}
 			}
-			for (int i = 0; i < 23; i++) {
+			for (int i = 0; i < 24; i++) {
 				if (rowCont.getCell(i) != null) {
 					rowCont.getCell(i).setCellType(Cell.CELL_TYPE_STRING);
 					if (i == 0 && !rowCont.getCell(i).toString().trim().equals(referenciaFactura)) {
