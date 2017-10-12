@@ -41,7 +41,9 @@ public class ConvertirCfdiImplV3_3 {
 		concat.append(Util.isNullEmpity(comp.getFolio(), "Folio"));
 		concat.append("FormaPago=\"" + comp.getFormaPago() + "\" ");
 		concat.append("LugarExpedicion=\"" + "01219" + "\" ");
-		concat.append("MetodoPago=\"" + comp.getMetodoPago() + "\" ");
+		if(comp.getMetodoPago() != null && comp.getMetodoPago().trim() != ""){
+			concat.append("MetodoPago=\"" + comp.getMetodoPago() + "\" ");
+		}
 		concat.append("Moneda=\"" + comp.getMoneda() + "\" ");
 		if(comp.getSerie() != null){
 			concat.append("Serie=\"" + comp.getSerie() + "\" ");
@@ -50,10 +52,24 @@ public class ConvertirCfdiImplV3_3 {
 		concat.append("NoCertificado=\"" + properties.getLblNO_CERTIFICADO() + "\" ");
 		//Sello
 		concat.append("Sello=\"" + properties.getLabelSELLO() + "\" ");
-		concat.append("SubTotal=\"" + comp.getSubTotal() + "\" ");
-		concat.append("TipoCambio=\"" + comp.getTipoCambio() + "\" ");
+		
+		String subtotal = "0";
+		if(!comp.getMoneda().equalsIgnoreCase("XXX")){
+			subtotal = UtilCatalogos.decimales(comp.getSubTotal().toString(), comp.getDecimalesMoneda());
+		}
+		concat.append("SubTotal=\"" + subtotal + "\" ");
+		
+		if(comp.getTipoCambio() != null && comp.getTipoCambio().trim() != ""){
+			concat.append("TipoCambio=\"" + comp.getTipoCambio() + "\" ");
+		}
 		concat.append("TipoDeComprobante=\"" + comp.getTipoDeComprobante() + "\" ");
-		concat.append("Total=\"" + comp.getTotal() + "\" ");
+		
+		String total = "0";
+		if(!comp.getMoneda().equalsIgnoreCase("XXX")){
+			total = UtilCatalogos.decimales(comp.getTotal().toString(), comp.getDecimalesMoneda());
+		}
+		concat.append("Total=\"" + total + "\" ");
+		
 		concat.append("Version=\"" + "3.3" + "\" ");
 		
 		return Util
@@ -133,7 +149,11 @@ public class ConvertirCfdiImplV3_3 {
 				if(comp.getDescuento() != null && comp.getDescuento().doubleValue() > 0){
 					sbConceptos.append(" Descuento=\"" + comp.getDescuento()+ "\" ");
 				}
-				sbConceptos.append("Importe=\"" + concepto.getImporte() + "\" ");
+				String importe = "0";
+				if(!comp.getMoneda().equalsIgnoreCase("XXX")){
+					importe = UtilCatalogos.decimales(concepto.getImporte().toString(), comp.getDecimalesMoneda());
+				}
+				sbConceptos.append("Importe=\"" + importe + "\" ");
 				sbConceptos.append("Unidad=\"" + concepto.getUnidad() + "\" ");
 				sbConceptos.append("ValorUnitario=\"" + concepto.getValorUnitario() + "\"");
 				sbConceptos.append(">");

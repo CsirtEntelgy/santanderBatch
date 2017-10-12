@@ -27,6 +27,7 @@ import com.interfactura.firmalocal.datamodel.CfdiDomicilio;
 import com.interfactura.firmalocal.datamodel.CfdiEmisor;
 import com.interfactura.firmalocal.datamodel.CfdiImpuesto;
 import com.interfactura.firmalocal.datamodel.CfdiReceptor;
+import com.interfactura.firmalocal.datamodel.ComplementoPago;
 import com.interfactura.firmalocal.datamodel.CustomsInformation;
 import com.interfactura.firmalocal.datamodel.ElementsInvoice;
 import com.interfactura.firmalocal.datamodel.FarmAccount;
@@ -79,6 +80,9 @@ public class UtilCFDIValidations {
 	private static final String RFC_PATTERN_TWO = "[A-Z&Ñ]{3,4}[0-9]{2}(0[1-9]|1[012])(0[1-9]|[12][0-9]|3[01])[A-Z0-9]{2}[0-9A]";
 	private static final String FECHA_RECEPCION_PATTERN = "([0-2][0-9]||3[0-1])/(0[0-9]||1[0-2])/((19|20)\\d\\d)";
 	private static final String POSTAL_CODE_PATTERN = "([0-9]{5})";
+	
+	private static final String APARTADO_COMPLEMENT = "[^|]{1,300}";
+	private static final String APART_COMPLEMENT_RFC_ACOUTN = "[A-Z0-9_]{10,50}";
 
 	Vector<String> vectorCantidad = null;
 	Vector<String> vectorUM = null;
@@ -2200,1117 +2204,1254 @@ public class UtilCFDIValidations {
 	}
 	
 public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
-		
-		FiscalEntity fiscalEntity = null;
-		Customer customer = null;
-		StringBuilder sbError = new StringBuilder();
-		System.out.println("Tipo Emision factura("+factura+"): "+comp.getTipoEmision());
-		
-		//validar etiqueta de control fin factura
-		if (!comp.getFinFactura()) {
-			sbError.append(
-					"Estructura de Renglon incorrecta, no fue encontrada la etiqueta de control ||FINFACTURA||, en el Renglon "
-							+ factura + "\n");
-		}
-		
-		// fiscalEntity = new FiscalEntity();
-		/* Emisor Posicion 0--row 0 */
-		if (comp.getEmisor() == null || comp.getEmisor().getRfc() == null 
-				|| comp.getEmisor().getRfc() == "") {
-			sbError.append("Posicion Entidad Fiscal requerida (Null) - Factura " + factura + "\n");
-		} else {
-			
-			fiscalEntity = new FiscalEntity();
-			fiscalEntity.setTaxID(comp.getEmisor().getRfc());
-			fiscalEntity = fiscalEntityManager.findByRFCA(fiscalEntity);
-			
-			if (fiscalEntity == null) {
-				sbError.append("Entidad Fiscal no existe en BD - Factura " + factura + "\n");
-			} else {
-				if (fiscalEntity.getIsDonataria() == 1 
-						&& !comp.getTipoEmision().equals(TipoEmision.DONATARIAS)) {
-					sbError.append("Entidad Fiscal incorrecta, es donataria - Factura " + factura + "\n");
-				}else if(fiscalEntity.getIsDonataria()==0 
-						&& comp.getTipoEmision().equals(TipoEmision.DONATARIAS)){
-					sbError.append("Entidad Fiscal incorrecta, no es donataria - Factura " + factura + "\n");
-				} else {
-					comp.getEmisor().setNombre(fiscalEntity.getFiscalName());
-					comp.getEmisor().setRfc(fiscalEntity.getTaxID());
-					if (fiscalEntity.getAddress() != null) {
-						comp.getEmisor().setDomicilio(new CfdiDomicilio());
-						comp.getEmisor().getDomicilio().setCalle(fiscalEntity.getAddress().getStreet());
-						comp.getEmisor().getDomicilio().setCodigoPostal(fiscalEntity.getAddress().getZipCode());
-						comp.getEmisor().getDomicilio().setColonia(fiscalEntity.getAddress().getNeighborhood());
-						comp.getEmisor().getDomicilio().setEstado(fiscalEntity.getAddress().getState().getName());
-						comp.getEmisor().getDomicilio().setLocalidad(fiscalEntity.getAddress().getRegion());
-						comp.getEmisor().getDomicilio().setMunicipio(fiscalEntity.getAddress().getCity());
-						comp.getEmisor().getDomicilio().setNoExterior(fiscalEntity.getAddress().getExternalNumber());
-						comp.getEmisor().getDomicilio().setNoInterior(fiscalEntity.getAddress().getExternalNumber());
-						comp.getEmisor().getDomicilio()
-								.setPais(fiscalEntity.getAddress().getState().getCountry().getName());
-						comp.getEmisor().getDomicilio().setReferencia(fiscalEntity.getAddress().getReference());
-					}
-				}
-			}
-		}
 
-		/* Serie Posicion 1 -- row 1 */
-		if(comp.getSerie() != null && !comp.getSerie().equals("")){
-			if(!validaDatoRE(comp.getSerie(), SERIE_25)){
-				sbError.append("(CFDI33112) El campo Serie tiene un formato incorrecto " + factura + "\n");
-			}
-		}
-		
-		/* Forma de pago */
-		if(!comp.getTipoEmision().equals(TipoEmision.RECEPCION_PAGOS)){
-			if (comp.getFormaPago() == null || comp.getFormaPago().trim().equals("")) {
-				sbError.append("(CFDI33103) El Campo Forma Pago No Contiene Un Valor Del Catalogo C_FormaPago - Factura "
+	FiscalEntity fiscalEntity = null;
+	Customer customer = null;
+	StringBuilder sbError = new StringBuilder();
+	System.out.println("Tipo Emision factura(" + factura + "): " + comp.getTipoEmision());
+
+	// validar etiqueta de control fin factura
+	if (!comp.getFinFactura()) {
+		sbError.append(
+				"Estructura de Renglon incorrecta, no fue encontrada la etiqueta de control ||FINFACTURA||, en el Renglon "
 						+ factura + "\n");
+	}
+
+	// fiscalEntity = new FiscalEntity();
+	/* Emisor Posicion 0--row 0 */
+	if (comp.getEmisor() == null || comp.getEmisor().getRfc() == null || comp.getEmisor().getRfc() == "") {
+		sbError.append("Posicion Entidad Fiscal requerida (Null) - Factura " + factura + "\n");
+	} else {
+
+		fiscalEntity = new FiscalEntity();
+		fiscalEntity.setTaxID(comp.getEmisor().getRfc());
+		fiscalEntity = fiscalEntityManager.findByRFCA(fiscalEntity);
+
+		if (fiscalEntity == null) {
+			sbError.append("Entidad Fiscal no existe en BD - Factura " + factura + "\n");
+		} else {
+			if (fiscalEntity.getIsDonataria() == 1 && !comp.getTipoEmision().equals(TipoEmision.DONATARIAS)) {
+				sbError.append("Entidad Fiscal incorrecta, es donataria - Factura " + factura + "\n");
+			} else if (fiscalEntity.getIsDonataria() == 0 && comp.getTipoEmision().equals(TipoEmision.DONATARIAS)) {
+				sbError.append("Entidad Fiscal incorrecta, no es donataria - Factura " + factura + "\n");
 			} else {
-				Map<String, Object> tipoFormaPago = UtilValidationsXML.validFormaPago(tags.mapCatalogos,
-						comp.getFormaPago());
-				if (!tipoFormaPago.get("value").toString().equalsIgnoreCase("vacio")) {
-					comp.setFormaPago(tipoFormaPago.get("value").toString());
-				} else {
-					sbError.append(tipoFormaPago.get("message").toString() + "Factura " + factura + "\n");
+				comp.getEmisor().setNombre(fiscalEntity.getFiscalName());
+				comp.getEmisor().setRfc(fiscalEntity.getTaxID());
+				if (fiscalEntity.getAddress() != null) {
+					comp.getEmisor().setDomicilio(new CfdiDomicilio());
+					comp.getEmisor().getDomicilio().setCalle(fiscalEntity.getAddress().getStreet());
+					comp.getEmisor().getDomicilio().setCodigoPostal(fiscalEntity.getAddress().getZipCode());
+					comp.getEmisor().getDomicilio().setColonia(fiscalEntity.getAddress().getNeighborhood());
+					comp.getEmisor().getDomicilio().setEstado(fiscalEntity.getAddress().getState().getName());
+					comp.getEmisor().getDomicilio().setLocalidad(fiscalEntity.getAddress().getRegion());
+					comp.getEmisor().getDomicilio().setMunicipio(fiscalEntity.getAddress().getCity());
+					comp.getEmisor().getDomicilio().setNoExterior(fiscalEntity.getAddress().getExternalNumber());
+					comp.getEmisor().getDomicilio().setNoInterior(fiscalEntity.getAddress().getExternalNumber());
+					comp.getEmisor().getDomicilio()
+							.setPais(fiscalEntity.getAddress().getState().getCountry().getName());
+					comp.getEmisor().getDomicilio().setReferencia(fiscalEntity.getAddress().getReference());
 				}
 			}
 		}
-		
-		/* Motivo descuento */
-		// opcional
-		if(comp.getMotivoDescCellValue() != null){
-			if (comp.getMotivoDescCellValue().equals("")) {
+	}
+
+	/* Serie Posicion 1 -- row 1 */
+	if (comp.getSerie() != null && !comp.getSerie().equals("")) {
+		if (!validaDatoRE(comp.getSerie(), SERIE_25)) {
+			sbError.append("(CFDI33112) El campo Serie tiene un formato incorrecto " + factura + "\n");
+		}
+	}
+
+	/* Forma de pago */
+	if (!comp.getTipoEmision().equals(TipoEmision.RECEPCION_PAGOS)) {
+		if (comp.getFormaPago() == null || comp.getFormaPago().trim().equals("")) {
+			sbError.append(
+					"(CFDI33103) El Campo Forma Pago No Contiene Un Valor Del Catalogo C_FormaPago - Factura "
+							+ factura + "\n");
+		} else {
+			Map<String, Object> tipoFormaPago = UtilValidationsXML.validFormaPago(tags.mapCatalogos,
+					comp.getFormaPago());
+			if (!tipoFormaPago.get("value").toString().equalsIgnoreCase("vacio")) {
+				comp.setFormaPago(tipoFormaPago.get("value").toString());
+			} else {
+				sbError.append(tipoFormaPago.get("message").toString() + "Factura " + factura + "\n");
+			}
+		}
+	}
+
+	/* Motivo descuento */
+	// opcional
+	if (comp.getMotivoDescCellValue() != null) {
+		if (comp.getMotivoDescCellValue().equals("")) {
+			// Descuento
+			if (comp.getDescuento() == null) {
+				comp.setDescuento(BigDecimal.ZERO);
+				System.out.println("Descuento cero");
+			} else {
+				if (validaDatoRE(comp.getDescuento().toString(), RE_DECIMAL_NEGATIVO)) {
+					if (comp.getDescuento().doubleValue() > 0) {
+						sbError.append("Favor de informar el Motivo de descuento correspondiente al Descuento "
+								+ " - factura " + factura + "\n");
+					} else {
+						comp.setDescuento(BigDecimal.ZERO);
+					}
+				} else {
+					sbError.append("Descuento con formato incorrecto " + " - factura " + factura + "\n");
+				}
+			}
+		} else {
+			if (comp.getMotivoDescCellValue().length() > 0 && comp.getMotivoDescCellValue().length() <= 1500) {
+
 				// Descuento
 				if (comp.getDescuento() == null) {
-					comp.setDescuento(BigDecimal.ZERO);
-					System.out.println("Descuento cero");
+					sbError.append("Favor de informar el Descuento correspondiente al Motido de descuento "
+							+ " - factura " + factura + "\n");
 				} else {
+
 					if (validaDatoRE(comp.getDescuento().toString(), RE_DECIMAL_NEGATIVO)) {
-						if (comp.getDescuento().doubleValue() > 0) {
-							sbError.append("Favor de informar el Motivo de descuento correspondiente al Descuento "
-											+ " - factura " + factura + "\n");
-						} else {
-							comp.setDescuento(BigDecimal.ZERO);
+						if (!(comp.getDescuento().doubleValue() > 0)) {
+							sbError.append("Favor de informar el Descuento correspondiente al Motido de descuento "
+									+ " - factura " + factura + "\n");
 						}
 					} else {
 						sbError.append("Descuento con formato incorrecto " + " - factura " + factura + "\n");
 					}
+
 				}
+
 			} else {
-				if (comp.getMotivoDescCellValue().length() > 0 && comp.getMotivoDescCellValue().length() <= 1500) {
+				sbError.append("Motivo de descuento con formato incorrecto " + " - factura " + factura + "\n");
+			}
+		}
+	}
 
-					// Descuento
-					if (comp.getDescuento() == null) {
-						sbError.append("Favor de informar el Descuento correspondiente al Motido de descuento "
-								+ " - factura " + factura + "\n");
-					} else {
+	/* Posicion 5 Moneda */
+	if (comp.getTipoEmision().equalsIgnoreCase(TipoEmision.RECEPCION_PAGOS)) {
+		comp.setMoneda("XXX");
+	} else {
+		if (comp.getMoneda() != null && comp.getMoneda().trim().length() > 0) {
+			Map<String, Object> tipoMon = UtilValidationsXML.validMoneda(tags.mapCatalogos, comp.getMoneda());
+			if (!tipoMon.get("value").toString().equalsIgnoreCase("vacio")) {
+				comp.setMoneda(tipoMon.get("value").toString());
+			} else {
+				sbError.append(tipoMon.get("message").toString() + factura + "\n");
+			}
+		} else {
+			sbError.append("(CFDI33112) El campo Moneda(Null,Vacio) no contiene un valor del catalogo c_Moneda "
+					+ factura + "\n");
+		}
+	}
 
-						if (validaDatoRE(comp.getDescuento().toString(), RE_DECIMAL_NEGATIVO)) {
-							if (!(comp.getDescuento().doubleValue() > 0)) {
-								sbError.append("Favor de informar el Descuento correspondiente al Motido de descuento "
-												+ " - factura " + factura + "\n");
-							}
-						} else {
-							sbError.append("Descuento con formato incorrecto " + " - factura " + factura + "\n");
-						}
+	/* Tipo de cambio */
+	if (!comp.getTipoEmision().equalsIgnoreCase(TipoEmision.RECEPCION_PAGOS)) {
+		if (comp.getTipoCambio() != null && comp.getTipoCambio().trim().length() > 0) {
+			if (comp.getMoneda() != null) {
+				if (!comp.getMoneda().trim().equalsIgnoreCase("XXX")) {
 
+					if (comp.getMoneda().equalsIgnoreCase("MXN")) {
+						comp.setTipoCambio("1.0");
 					}
 
-				} else {
-					sbError.append("Motivo de descuento con formato incorrecto " + " - factura " + factura + "\n");
-				}
-			}
-		}
-		
-		/* Posicion 5 Moneda */
-		if(comp.getTipoEmision().equalsIgnoreCase(TipoEmision.RECEPCION_PAGOS)){
-			comp.setMoneda("XXX");
-		}else{
-			if (comp.getMoneda() != null && comp.getMoneda().trim().length() > 0) {
-				Map<String, Object> tipoMon = UtilValidationsXML.validMoneda(tags.mapCatalogos, comp.getMoneda());
-				if (!tipoMon.get("value").toString().equalsIgnoreCase("vacio")) {
-					comp.setMoneda(tipoMon.get("value").toString());
-				} else {
-					sbError.append(tipoMon.get("message").toString() + factura + "\n");
-				}
-			} else {
-				sbError.append("(CFDI33112) El campo Moneda(Null,Vacio) no contiene un valor del catalogo c_Moneda " + factura + "\n");
-			}
-		}
-		
-		/* Tipo de cambio */
-		if(!comp.getTipoEmision().equalsIgnoreCase(TipoEmision.RECEPCION_PAGOS)){
-			if (comp.getTipoCambio() != null && comp.getTipoCambio().trim().length() > 0) {
-				if (comp.getMoneda() != null) {
-					if (!comp.getMoneda().trim().equalsIgnoreCase("XXX")) {
-						
-						if(comp.getMoneda().equalsIgnoreCase("MXN")){
-							comp.setTipoCambio("1.0");
-						}
-						
-						Map<String, Object> tipoCam = UtilValidationsXML.validTipoCambio(tags.mapCatalogos,
-								comp.getTipoCambio(), comp.getMoneda());
-						if (!tipoCam.get("value").toString().equalsIgnoreCase("vacio")) {
-							comp.setTipoCambio(tipoCam.get("value").toString());
-						} else {
-							sbError.append(tipoCam.get("message").toString() + " factura: " + factura + "\n");
-						}
+					Map<String, Object> tipoCam = UtilValidationsXML.validTipoCambio(tags.mapCatalogos,
+							comp.getTipoCambio(), comp.getMoneda());
+					if (!tipoCam.get("value").toString().equalsIgnoreCase("vacio")) {
+						comp.setTipoCambio(tipoCam.get("value").toString());
 					} else {
-						comp.setTipoCambio("");
+						sbError.append(tipoCam.get("message").toString() + " factura: " + factura + "\n");
+					}
+				} else {
+					comp.setTipoCambio("");
+				}
+			}
+		} else {
+			sbError.append("Tipo de Cambio es requerido - Factura " + factura + "\n");
+		}
+	}
+
+	// Lugar de expedicion(donatarias)
+	if (comp.getTipoEmision().equalsIgnoreCase(TipoEmision.DONATARIAS)) {
+		if (comp.getLugarExpedicion() == null || comp.getLugarExpedicion().equals("")) {
+			sbError.append("Lugar de Expedicion es requerido - Factura " + factura + "\n");
+		}
+	}
+
+	/* Tipo comprobante posicion 7 -- row 7 */
+	// String strTipoComprobante = "";
+	if (comp.getTipoEmision().equalsIgnoreCase(TipoEmision.RECEPCION_PAGOS)) {
+		comp.setTipoDeComprobante(TipoComprobante.PAGO);
+	} else {
+		if (!comp.getTipoDeComprobante().equals(TipoComprobante.INGRESO)) {
+			Map<String, Object> tipoComp = UtilValidationsXML.validTipoComprobante(tags.mapCatalogos,
+					comp.getTipoDeComprobante());
+			if (!tipoComp.get("value").toString().equalsIgnoreCase("vacio")) {
+				// strTipoComprobante = comp.getTipoDeComprobante();
+				comp.setTipoDeComprobante(tipoComp.get("value").toString());
+			} else {
+				sbError.append(tipoComp.get("message").toString() + factura + "\n");
+			}
+		}
+	}
+
+	/* Decimales moneda */
+	if (comp.getMoneda() == null || comp.getMoneda().trim().equals("")
+			|| comp.getMoneda().trim().equalsIgnoreCase("XXX")) {
+		tags.decimalesMoneda = 2;
+		comp.setDecimalesMoneda(tags.decimalesMoneda);
+	} else {
+		tags.decimalesMoneda = UtilCatalogos.findDecimalesMoneda(tags.mapCatalogos, comp.getMoneda());
+		comp.setDecimalesMoneda(tags.decimalesMoneda);
+	}
+	if (comp.getMoneda().trim().equalsIgnoreCase("XXX")) {
+		tags.decimalesMoneda = 0;
+		comp.setDecimalesMoneda(tags.decimalesMoneda);
+	}
+
+	/* Metodo de pago */
+	if (!comp.getTipoEmision().equalsIgnoreCase(TipoEmision.RECEPCION_PAGOS)) {
+		if (comp.getMetodoPago() == null || comp.getMetodoPago().trim().equals("")) {
+			sbError.append(
+					"(CFDI33121) El Campo Metodo Pago No Contiene Un Valor Del Catalogo C_MetodoPago - Factura "
+							+ factura + "\n");
+		} else {
+			Map<String, Object> tipoMetPag = UtilValidationsXML.validMetodPago(tags.mapCatalogos,
+					comp.getMetodoPago());
+			if (tipoMetPag.get("value").toString().equals("vacio")) {
+				sbError.append(tipoMetPag.get("message").toString() + factura + "\n");
+			} else {
+				comp.setMetodoPago(tipoMetPag.get("value").toString());
+			}
+		}
+	}
+
+	/* Regimen fiscal */
+	if (comp.getEmisor().getRegimenFiscal() == null || comp.getEmisor().getRegimenFiscal().trim().equals("")) {
+		sbError.append(
+				"(CFDI33130) El campo RegimenFiscal, no contiene un valor(null, vacio) del catálogo c_RegimenFiscal-"
+						+ " Factura " + factura + "\n");
+	} else {
+		Map<String, Object> tipoRegFis = UtilValidationsXML.validRegFiscal(tags.mapCatalogos,
+				comp.getEmisor().getRegimenFiscal());
+		if (!tipoRegFis.get("value").toString().equalsIgnoreCase("vacio")) {
+			comp.getEmisor().setRegimenFiscal(tipoRegFis.get("value").toString());
+		} else {
+			sbError.append(tipoRegFis.get("message").toString() + " Factura " + factura + "\n");
+		}
+	}
+
+	/* RFC del cliente */
+	boolean readFromFile = false;
+	boolean isGenerico= false;
+	boolean hasIdExtranjero = false;
+	if (comp.getCustomerRfcCellValue() == null) {
+		sbError.append("Posicion RFC del Cliente requerida (Null) - Factura " + factura + "\n");
+	} else {
+		if (comp.getCustomerRfcCellValue().equals("")) {
+			sbError.append(" RFC de Cliente requerido - Factura " + factura + "\n");
+		} else {
+			// reempazar RFC incorrecto por generico
+			if (validaDatoRE(comp.getCustomerRfcCellValue().trim().toUpperCase(), RFC_PATTERN)
+					&& validaDatoRE(comp.getCustomerRfcCellValue().trim().toUpperCase(), RFC_PATTERN_TWO)) {
+				System.out.println("RFC valido:" + comp.getCustomerRfcCellValue().trim().toUpperCase());
+			} else {
+				System.out.println("Reemplazar RFC incorrecto: "
+						+ comp.getCustomerRfcCellValue().trim().toUpperCase() + " por generico: XAXX010101000");
+				comp.setCustomerRfcCellValue("XAXX010101000");
+			}
+			if (comp.getCustomerRfcCellValue().trim().toUpperCase().equals("XEXX010101000")
+					|| comp.getCustomerRfcCellValue().trim().toUpperCase().equals("XAXX010101000")
+					|| comp.getCustomerRfcCellValue().trim().equals("XEXE010101000")) {
+				
+				isGenerico = true;
+				if (comp.getStrIDExtranjero() == null || comp.getStrIDExtranjero().trim().equals("")) {
+					hasIdExtranjero = false;
+				} else {
+					hasIdExtranjero = true;
+					System.out.println("ID Extranjero: " + comp.getStrIDExtranjero());
+					customer = customerManager.findByIdExtranjero(comp.getStrIDExtranjero());
+					if (customer != null) {
+						readFromFile = false;
+					}else{
+						readFromFile = true;
 					}
 				}
-			} else {
-				sbError.append("Tipo de Cambio es requerido - Factura " + factura + "\n");
-			}
-		}
-		
-		//Lugar de expedicion(donatarias)
-		if(comp.getTipoEmision().equalsIgnoreCase(TipoEmision.DONATARIAS)){
-			if(comp.getLugarExpedicion() ==null || comp.getLugarExpedicion().equals("")){
-				sbError.append("Lugar de Expedicion es requerido - Factura " + factura + "\n");
-			}
-		}
-		
-		/* Tipo comprobante posicion 7 -- row 7 */
-		//String strTipoComprobante = "";
-		if(comp.getTipoEmision().equalsIgnoreCase(TipoEmision.RECEPCION_PAGOS)){
-			comp.setTipoDeComprobante(TipoComprobante.PAGO);
-		}else{
-			if (!comp.getTipoDeComprobante().equals(TipoComprobante.INGRESO)) {
-				Map<String, Object> tipoComp = UtilValidationsXML.validTipoComprobante(tags.mapCatalogos,
-						comp.getTipoDeComprobante());
-				if (!tipoComp.get("value").toString().equalsIgnoreCase("vacio")) {
-					//strTipoComprobante = comp.getTipoDeComprobante();
-					comp.setTipoDeComprobante(tipoComp.get("value").toString());
-				} else {
-					sbError.append(tipoComp.get("message").toString() + factura + "\n");
-				}
-			}
-		}
-		
-		/* Decimales moneda */
-		if (comp.getMoneda() == null || comp.getMoneda().trim().equals("") 
-				|| comp.getMoneda().trim().equalsIgnoreCase("XXX")) {
-			tags.decimalesMoneda = 2;
-			comp.setDecimalesMoneda(tags.decimalesMoneda);
-		} else {
-			tags.decimalesMoneda = UtilCatalogos.findDecimalesMoneda(tags.mapCatalogos, comp.getMoneda());
-			comp.setDecimalesMoneda(tags.decimalesMoneda);
-		}
-		
-		/* Metodo de pago */
-		if(!comp.getTipoEmision().equalsIgnoreCase(TipoEmision.RECEPCION_PAGOS)){
-			if (comp.getMetodoPago() == null || comp.getMetodoPago().trim().equals("")) {
-				sbError.append("(CFDI33121) El Campo Metodo Pago No Contiene Un Valor Del Catalogo C_MetodoPago - Factura "
-						+ factura + "\n");
-			} else {
-				Map<String, Object> tipoMetPag = UtilValidationsXML.validMetodPago(tags.mapCatalogos, comp.getMetodoPago());
-				if (tipoMetPag.get("value").toString().equals("vacio")) {
-					sbError.append(tipoMetPag.get("message").toString() + factura + "\n");
-				} else {
-					comp.setMetodoPago(tipoMetPag.get("value").toString());
-				}
-			}
-		}
-		
-		/* Regimen fiscal */
-		if (comp.getEmisor().getRegimenFiscal() == null || comp.getEmisor().getRegimenFiscal().trim().equals("")) {
-			sbError.append("(CFDI33130) El campo RegimenFiscal, no contiene un valor(null, vacio) del catálogo c_RegimenFiscal-"
-					+ " Factura " + factura + "\n");
-		} else {
-			Map<String, Object> tipoRegFis = UtilValidationsXML.validRegFiscal(tags.mapCatalogos,
-					comp.getEmisor().getRegimenFiscal());
-			if (!tipoRegFis.get("value").toString().equalsIgnoreCase("vacio")) {
-				comp.getEmisor().setRegimenFiscal(tipoRegFis.get("value").toString());
-			} else {
-				sbError.append(tipoRegFis.get("message").toString() + " Factura " + factura + "\n");
-			}
-		}
-		
-		/* RFC del cliente */
-		boolean readFromFile = false;
-		boolean isGenerico= false;
-		boolean hasIdExtranjero = false;
-		if (comp.getCustomerRfcCellValue() == null) {
-			sbError.append("Posicion RFC del Cliente requerida (Null) - Factura " + factura + "\n");
-		} else {
-			if (comp.getCustomerRfcCellValue().equals("")) {
-				sbError.append(" RFC de Cliente requerido - Factura " + factura + "\n");
-			} else {
-				// reempazar RFC incorrecto por generico
-				if (validaDatoRE(comp.getCustomerRfcCellValue().trim().toUpperCase(), RFC_PATTERN)
-						&& validaDatoRE(comp.getCustomerRfcCellValue().trim().toUpperCase(), RFC_PATTERN_TWO)) {
-					System.out.println("RFC valido:" + comp.getCustomerRfcCellValue().trim().toUpperCase());
-				} else {
-					System.out.println("Reemplazar RFC incorrecto: "
-							+ comp.getCustomerRfcCellValue().trim().toUpperCase() + " por generico: XAXX010101000");
-					comp.setCustomerRfcCellValue("XAXX010101000");
-				}
-				if (comp.getCustomerRfcCellValue().trim().toUpperCase().equals("XEXX010101000")
-						|| comp.getCustomerRfcCellValue().trim().toUpperCase().equals("XAXX010101000")
-						|| comp.getCustomerRfcCellValue().trim().equals("XEXE010101000")) {
-					
-					isGenerico = true;
-					if (comp.getStrIDExtranjero() == null || comp.getStrIDExtranjero().trim().equals("")) {
-						hasIdExtranjero = false;
-					} else {
-						hasIdExtranjero = true;
-						System.out.println("ID Extranjero: " + comp.getStrIDExtranjero());
-						customer = customerManager.findByIdExtranjero(comp.getStrIDExtranjero());
-						if (customer != null) {
-							readFromFile = false;
-						}else{
-							readFromFile = true;
-						}
-					}
-				}else{
-					isGenerico = false;
-					if (fiscalEntity != null){
-						customer = customerManager.get(comp.getCustomerRfcCellValue(),
-								String.valueOf(fiscalEntity.getId()));
-						if (customer != null) {
-							readFromFile = false;
-						}else{
-							readFromFile = true;
-						}
+			}else{
+				isGenerico = false;
+				if (fiscalEntity != null){
+					customer = customerManager.get(comp.getCustomerRfcCellValue(),
+							String.valueOf(fiscalEntity.getId()));
+					if (customer != null) {
+						readFromFile = false;
+					}else{
+						readFromFile = true;
 					}
 				}
 			}
 		}
+	}
+	
+	//validaciones de datos de cliente
+	// Uso CFDI
+	if (comp.getTipoEmision().equalsIgnoreCase(TipoEmision.RECEPCION_PAGOS)) {
+		comp.getReceptor().setUsoCFDI("P01");
+	} else {
+		if (!comp.getReceptor().getUsoCFDI().equals("D04")) {
+			Map<String, Object> tipoUsoCfdi = UtilValidationsXML.validUsoCFDI(tags.mapCatalogos,
+					comp.getReceptor().getUsoCFDI());
+			if (!tipoUsoCfdi.get("value").toString().equalsIgnoreCase("vacio")) {
+				comp.getReceptor().setUsoCFDI(tipoUsoCfdi.get("value").toString());
+			} else {
+				sbError.append(tipoUsoCfdi.get("message").toString() + factura + "\n");
+			}
+		}
+	}
+	//nombre
+	if(comp.getReceptor().getNombre() == null || comp.getReceptor().getNombre().equals("")){
+			sbError.append("Nombre del Cliente requerido - Factura " + factura + "\n");
+
+	}else{
+		if(comp.getReceptor().getNombre().length()>100){
+			sbError.append("Nombre del Cliente no puede contener mas de 100 caracteres - Factura " + factura + "\n");
+		}
+	}
+	//calle
+	if(comp.getTipoEmision().equalsIgnoreCase(TipoEmision.DONATARIAS) 
+			|| comp.getTipoEmision().equalsIgnoreCase(TipoEmision.FORMATO_UNICO)){
+		if(comp.getReceptor().getDomicilio().getCalle() == null 
+				|| comp.getReceptor().getDomicilio().getCalle().equals("")){
+				sbError.append("Calle requerido - Factura " + factura + "\n");
+		}else{
+			if(comp.getReceptor().getDomicilio().getCalle().length()>100){
+				sbError.append("Calle no puede contener mas de 100 caracteres - Factura " + factura + "\n");
+			}
+		}
+	}
+	//No exterior
+	if(comp.getReceptor().getDomicilio().getNoExterior() != null 
+			&& !comp.getReceptor().getDomicilio().getNoExterior().equals("")){
+		if(comp.getReceptor().getDomicilio().getNoExterior().length() > 50){
+			sbError.append("No.Exterior no puede contener mas de 50 caracteres - Factura " + factura + "\n");
+		}
+	}
+	//No interior
+	if(comp.getReceptor().getDomicilio().getNoInterior() != null 
+			&& !comp.getReceptor().getDomicilio().getNoInterior().equals("")){
+		if(comp.getReceptor().getDomicilio().getNoInterior().length() > 50){
+			sbError.append("No.interior no puede contener mas de 50 caracteres - Factura " + factura + "\n");
+		}
+	}
+	//Colonia
+	if(comp.getTipoEmision().equalsIgnoreCase(TipoEmision.DONATARIAS) 
+			|| comp.getTipoEmision().equalsIgnoreCase(TipoEmision.FORMATO_UNICO)){
 		
-		//validaciones de datos de cliente
-		// Uso CFDI
-		if (comp.getTipoEmision().equalsIgnoreCase(TipoEmision.RECEPCION_PAGOS)) {
-			comp.getReceptor().setUsoCFDI("P01");
+		if(comp.getReceptor().getDomicilio().getColonia()== null 
+				|| comp.getReceptor().getDomicilio().getColonia().equals("")){
+				sbError.append("Colonia requerida - Factura " + factura + "\n");
+		}else{
+			if(comp.getReceptor().getDomicilio().getColonia().length()>100){
+				sbError.append("Colonia no puede contener mas de 100 caracteres - Factura " + factura + "\n");
+			}
+		}
+	}
+	//Codigo postal
+	if(comp.getTipoEmision().equalsIgnoreCase(TipoEmision.DONATARIAS) 
+			|| comp.getTipoEmision().equalsIgnoreCase(TipoEmision.FORMATO_UNICO)){
+		
+		if(comp.getReceptor().getDomicilio().getCodigoPostal()== null 
+				|| comp.getReceptor().getDomicilio().getCodigoPostal().equals("")){
+				sbError.append("Codigo postal requerido - Factura " + factura + "\n");
+		}else{
+			String postalCodeClean = comp.getReceptor().getDomicilio().getCodigoPostal();
+			if(postalCodeClean.contains(".")){
+				postalCodeClean = postalCodeClean.split("\\.")[0];
+			}
+			if(!validaDatoRE(postalCodeClean, POSTAL_CODE_PATTERN)){
+				sbError.append("Codigo postal no cumple con el formato (5 numeros) - Factura " + factura + "\n");
+			}
+		}
+	}
+	//localidad
+	if(comp.getTipoEmision().equalsIgnoreCase(TipoEmision.DONATARIAS) 
+			|| comp.getTipoEmision().equalsIgnoreCase(TipoEmision.FORMATO_UNICO)){
+		
+		if(comp.getReceptor().getDomicilio().getLocalidad() != null 
+				&& !comp.getReceptor().getDomicilio().getLocalidad().equals("")){
+			if(comp.getReceptor().getDomicilio().getLocalidad().length() > 100){
+				sbError.append("Localidad no puede contener mas de 100 caracteres - Factura " + factura + "\n");
+			}
+		}
+	}
+	//referencia
+	if(comp.getReceptor().getDomicilio().getReferencia() != null 
+			&& !comp.getReceptor().getDomicilio().getReferencia().equals("")){
+		if(comp.getReceptor().getDomicilio().getReferencia().length() > 100){
+			sbError.append("Referencia no puede contener mas de 100 caracteres - Factura " + factura + "\n");
+		}
+	}
+	//Municipio
+	if(comp.getTipoEmision().equalsIgnoreCase(TipoEmision.DONATARIAS) 
+			|| comp.getTipoEmision().equalsIgnoreCase(TipoEmision.FORMATO_UNICO)){
+		
+		if(comp.getReceptor().getDomicilio().getMunicipio()== null 
+				|| comp.getReceptor().getDomicilio().getMunicipio().equals("")){
+				sbError.append("Municipio requerido - Factura " + factura + "\n");
+		}else{
+			if(comp.getReceptor().getDomicilio().getMunicipio().length()>100){
+				sbError.append("Municipio no puede contener mas de 100 caracteres - Factura " + factura + "\n");
+			}
+		}
+	}
+	//estado
+	if(comp.getTipoEmision().equalsIgnoreCase(TipoEmision.DONATARIAS) 
+			|| comp.getTipoEmision().equalsIgnoreCase(TipoEmision.FORMATO_UNICO)){
+		
+		if(comp.getReceptor().getDomicilio().getEstado()== null 
+				|| comp.getReceptor().getDomicilio().getEstado().equals("")){
+				sbError.append("Estado requerido - Factura " + factura + "\n");
+		}else{
+			if(comp.getReceptor().getDomicilio().getEstado().length()>100){
+				sbError.append("Estado no puede contener mas de 100 caracteres - Factura " + factura + "\n");
+			}
+		}
+	}
+	//pais
+	if(comp.getTipoEmision().equalsIgnoreCase(TipoEmision.DONATARIAS) 
+			|| comp.getTipoEmision().equalsIgnoreCase(TipoEmision.FORMATO_UNICO)){
+		
+		if(comp.getReceptor().getDomicilio().getPais()== null 
+				|| comp.getReceptor().getDomicilio().getPais().equals("")){
+				sbError.append("Pais requerido - Factura " + factura + "\n");
+		}else{
+			if(comp.getReceptor().getDomicilio().getPais().length()>100){
+				sbError.append("Pais no puede contener mas de 100 caracteres - Factura " + factura + "\n");
+			}
+		}
+	}
+	//fin validaciones de datos de cliente
+
+	/* Numero de cuenta */
+	if (!comp.getTipoEmision().contains(TipoEmision.DONATARIAS)) {
+		if (comp.getNumeroCuenta() == null) {
+			sbError.append("Posicion Numero de Cuenta requerida (Null) - Factura " + factura + "\n");
 		} else {
-			if (!comp.getReceptor().getUsoCFDI().equals("D04")) {
-				Map<String, Object> tipoUsoCfdi = UtilValidationsXML.validUsoCFDI(tags.mapCatalogos,
-						comp.getReceptor().getUsoCFDI());
-				if (!tipoUsoCfdi.get("value").toString().equalsIgnoreCase("vacio")) {
-					comp.getReceptor().setUsoCFDI(tipoUsoCfdi.get("value").toString());
-				} else {
-					sbError.append(tipoUsoCfdi.get("message").toString() + factura + "\n");
-				}
+			// validacion de celltype omitida
+			if (comp.getNumeroCuenta().trim().equals("")) {
+				sbError.append("Numero de Cuenta requerida - Factura " + factura + "\n");
 			}
 		}
-		//nombre
-		if(comp.getReceptor().getNombre() == null || comp.getReceptor().getNombre().equals("")){
-				sbError.append("Nombre del Cliente requerido - Factura " + factura + "\n");
+	} else {
+		if (comp.getNumeroCuentaPago() == null) {
+			sbError.append("Posicion Numero de Cuenta de Pago requerida (Null) - Factura " + factura + "\n");
+		} else {
+			// validacion de celltype omitida
+			if (comp.getNumeroCuentaPago().trim().equals("")) {
+				sbError.append("Numero de Cuenta de Pago requerida - Factura " + factura + "\n");
+			}
+		}
+	}
 
-		}else{
-			if(comp.getReceptor().getNombre().length()>100){
-				sbError.append("Nombre del Cliente no puede contener mas de 100 caracteres - Factura " + factura + "\n");
-			}
-		}
-		//calle
-		if(comp.getTipoEmision().equalsIgnoreCase(TipoEmision.DONATARIAS) 
-				|| comp.getTipoEmision().equalsIgnoreCase(TipoEmision.FORMATO_UNICO)){
-			if(comp.getReceptor().getDomicilio().getCalle() == null 
-					|| comp.getReceptor().getDomicilio().getCalle().equals("")){
-					sbError.append("Calle requerido - Factura " + factura + "\n");
-			}else{
-				if(comp.getReceptor().getDomicilio().getCalle().length()>100){
-					sbError.append("Calle no puede contener mas de 100 caracteres - Factura " + factura + "\n");
-				}
-			}
-		}
-		//No exterior
-		if(comp.getReceptor().getDomicilio().getNoExterior() != null 
-				&& !comp.getReceptor().getDomicilio().getNoExterior().equals("")){
-			if(comp.getReceptor().getDomicilio().getNoExterior().length() > 50){
-				sbError.append("No.Exterior no puede contener mas de 50 caracteres - Factura " + factura + "\n");
-			}
-		}
-		//No interior
-		if(comp.getReceptor().getDomicilio().getNoInterior() != null 
-				&& !comp.getReceptor().getDomicilio().getNoInterior().equals("")){
-			if(comp.getReceptor().getDomicilio().getNoInterior().length() > 50){
-				sbError.append("No.interior no puede contener mas de 50 caracteres - Factura " + factura + "\n");
-			}
-		}
-		//Colonia
-		if(comp.getTipoEmision().equalsIgnoreCase(TipoEmision.DONATARIAS) 
-				|| comp.getTipoEmision().equalsIgnoreCase(TipoEmision.FORMATO_UNICO)){
-			
-			if(comp.getReceptor().getDomicilio().getColonia()== null 
-					|| comp.getReceptor().getDomicilio().getColonia().equals("")){
-					sbError.append("Colonia requerida - Factura " + factura + "\n");
-			}else{
-				if(comp.getReceptor().getDomicilio().getColonia().length()>100){
-					sbError.append("Colonia no puede contener mas de 100 caracteres - Factura " + factura + "\n");
-				}
-			}
-		}
-		//Codigo postal
-		if(comp.getTipoEmision().equalsIgnoreCase(TipoEmision.DONATARIAS) 
-				|| comp.getTipoEmision().equalsIgnoreCase(TipoEmision.FORMATO_UNICO)){
-			
-			if(comp.getReceptor().getDomicilio().getCodigoPostal()== null 
-					|| comp.getReceptor().getDomicilio().getCodigoPostal().equals("")){
-					sbError.append("Codigo postal requerido - Factura " + factura + "\n");
-			}else{
-				String postalCodeClean = comp.getReceptor().getDomicilio().getCodigoPostal();
-				if(postalCodeClean.contains(".")){
-					postalCodeClean = postalCodeClean.split("\\.")[0];
-				}
-				if(!validaDatoRE(postalCodeClean, POSTAL_CODE_PATTERN)){
-					sbError.append("Codigo postal no cumple con el formato (5 numeros) - Factura " + factura + "\n");
-				}
-			}
-		}
-		//localidad
-		if(comp.getTipoEmision().equalsIgnoreCase(TipoEmision.DONATARIAS) 
-				|| comp.getTipoEmision().equalsIgnoreCase(TipoEmision.FORMATO_UNICO)){
-			
-			if(comp.getReceptor().getDomicilio().getLocalidad() != null 
-					&& !comp.getReceptor().getDomicilio().getLocalidad().equals("")){
-				if(comp.getReceptor().getDomicilio().getLocalidad().length() > 100){
-					sbError.append("Localidad no puede contener mas de 100 caracteres - Factura " + factura + "\n");
-				}
-			}
-		}
-		//referencia
-		if(comp.getReceptor().getDomicilio().getReferencia() != null 
-				&& !comp.getReceptor().getDomicilio().getReferencia().equals("")){
-			if(comp.getReceptor().getDomicilio().getReferencia().length() > 100){
-				sbError.append("Referencia no puede contener mas de 100 caracteres - Factura " + factura + "\n");
-			}
-		}
-		//Municipio
-		if(comp.getTipoEmision().equalsIgnoreCase(TipoEmision.DONATARIAS) 
-				|| comp.getTipoEmision().equalsIgnoreCase(TipoEmision.FORMATO_UNICO)){
-			
-			if(comp.getReceptor().getDomicilio().getMunicipio()== null 
-					|| comp.getReceptor().getDomicilio().getMunicipio().equals("")){
-					sbError.append("Municipio requerido - Factura " + factura + "\n");
-			}else{
-				if(comp.getReceptor().getDomicilio().getMunicipio().length()>100){
-					sbError.append("Municipio no puede contener mas de 100 caracteres - Factura " + factura + "\n");
-				}
-			}
-		}
-		//estado
-		if(comp.getTipoEmision().equalsIgnoreCase(TipoEmision.DONATARIAS) 
-				|| comp.getTipoEmision().equalsIgnoreCase(TipoEmision.FORMATO_UNICO)){
-			
-			if(comp.getReceptor().getDomicilio().getEstado()== null 
-					|| comp.getReceptor().getDomicilio().getEstado().equals("")){
-					sbError.append("Estado requerido - Factura " + factura + "\n");
-			}else{
-				if(comp.getReceptor().getDomicilio().getEstado().length()>100){
-					sbError.append("Estado no puede contener mas de 100 caracteres - Factura " + factura + "\n");
-				}
-			}
-		}
-		//pais
-		if(comp.getTipoEmision().equalsIgnoreCase(TipoEmision.DONATARIAS) 
-				|| comp.getTipoEmision().equalsIgnoreCase(TipoEmision.FORMATO_UNICO)){
-			
-			if(comp.getReceptor().getDomicilio().getPais()== null 
-					|| comp.getReceptor().getDomicilio().getPais().equals("")){
-					sbError.append("Pais requerido - Factura " + factura + "\n");
-			}else{
-				if(comp.getReceptor().getDomicilio().getPais().length()>100){
-					sbError.append("Pais no puede contener mas de 100 caracteres - Factura " + factura + "\n");
-				}
-			}
-		}
-		//fin validaciones de datos de cliente
+	/* Codigo cliente */
+	// validacion de celltype omitida
 
-		/* Numero de cuenta */
-		if(!comp.getTipoEmision().contains(TipoEmision.DONATARIAS)){
-			if (comp.getNumeroCuenta() == null) {
-				sbError.append("Posicion Numero de Cuenta requerida (Null) - Factura " + factura + "\n");
-			} else {
-				// validacion de celltype omitida
-				if (comp.getNumeroCuenta().trim().equals("")) {
-					sbError.append("Numero de Cuenta requerida - Factura " + factura + "\n");
-				}
-			}
-		}else{
-			if (comp.getNumeroCuentaPago() == null) {
-				sbError.append("Posicion Numero de Cuenta de Pago requerida (Null) - Factura " + factura + "\n");
-			} else {
-				// validacion de celltype omitida
-				if (comp.getNumeroCuentaPago().trim().equals("")) {
-					sbError.append("Numero de Cuenta de Pago requerida - Factura " + factura + "\n");
-				}
-			}
-		}
-		
-		/* Codigo cliente */
-		// validacion de celltype omitida
+	/* Contrato */
+	// validacion de celltype omitida
 
-		/* Contrato */
-		// validacion de celltype omitida
+	/* Periodo */
+	// validacion de celltype omitida
 
-		/* Periodo */
-		// validacion de celltype omitida
+	/* Centro de costos */
+	// validacion de celltype omitida
 
-		/* Centro de costos */
-		// validacion de celltype omitida
+	/* Descripcion concepto */
+	// asignacion omitida
 
-		/* Descripcion concepto */
-		// asignacion omitida
-
-		/* Iva */
-		boolean fErrorIVA = false;
-		StringBuilder sbErrorIVA = new StringBuilder();
-		if(!comp.getTipoEmision().equalsIgnoreCase(TipoEmision.DONATARIAS)){
-			if (comp.getIvaCellValue() == null) {
-				sbErrorIVA.append("Posicion IVA requerida (Null) - Factura " + factura + "\n");
-				fErrorIVA = true;
-			} else {
-				System.out.println("IVA: " + comp.getIvaCellValue());
-				if (!comp.getIvaCellValue().trim().equals("")) {
-					if (validaDatoRE(comp.getIvaCellValue().trim(), RE_DECIMAL)) {
-						String tasa = "0";
-						if(comp.getIvaCellValue().contains(".")){
-							tasa = Util.getTASA(comp.getIvaCellValue().trim());
-						}else{
-							tasa = comp.getIvaCellValue().trim();
-						}
-						Iva iva = ivaManager.findByTasa(tasa);
-						if (iva == null) {
-							sbErrorIVA.append("Descripcion de IVA no existe en BD - Factura " + factura + "\n");
-							System.out.println("Descripcion de IVA no existe en BD - Factura " + factura + "\n");
-							fErrorIVA = true;
-						} else {
-							comp.getAddenda().getCampoAdicional().put("DESCRIPCIÓN IVA", iva.getDescripcion().trim());
-						}
-					} else {
-						sbErrorIVA.append("IVA incorrecto - Factura " + factura + "\n");
+	/* Iva */
+	boolean fErrorIVA = false;
+	StringBuilder sbErrorIVA = new StringBuilder();
+	if (!comp.getTipoEmision().equalsIgnoreCase(TipoEmision.DONATARIAS)) {
+		if (comp.getIvaCellValue() == null) {
+			sbErrorIVA.append("Posicion IVA requerida (Null) - Factura " + factura + "\n");
+			fErrorIVA = true;
+		} else {
+			System.out.println("IVA: " + comp.getIvaCellValue());
+			if (!comp.getIvaCellValue().trim().equals("")) {
+				if (validaDatoRE(comp.getIvaCellValue().trim(), RE_DECIMAL)) {
+					String tasa = "0";
+					if(comp.getIvaCellValue().contains(".")){
+						tasa = Util.getTASA(comp.getIvaCellValue().trim());
+					}else{
+						tasa = comp.getIvaCellValue().trim();
+					}
+					Iva iva = ivaManager.findByTasa(tasa);
+					if (iva == null) {
+						sbErrorIVA.append("Descripcion de IVA no existe en BD - Factura " + factura + "\n");
+						System.out.println("Descripcion de IVA no existe en BD - Factura " + factura + "\n");
 						fErrorIVA = true;
+					} else {
+						comp.getAddenda().getCampoAdicional().put("DESCRIPCIÓN IVA", iva.getDescripcion().trim());
 					}
 				} else {
-					sbErrorIVA.append("IVA requerido - Factura " + factura + "\n");
+					sbErrorIVA.append("IVA incorrecto - Factura " + factura + "\n");
 					fErrorIVA = true;
 				}
+			} else {
+				sbErrorIVA.append("IVA requerido - Factura " + factura + "\n");
+				fErrorIVA = true;
 			}
 		}
-		
-		/* Tipo addenda */
-		if(!comp.getTipoEmision().equalsIgnoreCase(TipoEmision.DONATARIAS)){
-			if (comp.getTipoAddendaCellValue() != null) {
-				if (comp.getTipoAddendaCellValue().toString().contains(".")) {
-					System.out.println("*** response Dentro IF AMDA: " + comp.getTipoAddendaCellValue());
-					String words[] = comp.getTipoAddendaCellValue().split("\\.");
-					comp.setTipoAddendaCellValue(words[0]);
-					System.out.println("*** response Dentro IF despues AMDA: " + comp.getTipoAddendaCellValue());
-				}
-				System.out.println("tipoAddenda:" + comp.getTipoAddendaCellValue());
-	
-				if (validaDatoRE(comp.getTipoAddendaCellValue().trim(), RE_DECIMAL)) {
-					String strTipoAddenda = comp.getTipoAddendaCellValue();
-					System.out.println("tipoAddendaClean: " + strTipoAddenda);
-	
-					if (strTipoAddenda.equals("1") || strTipoAddenda.equals("2") || strTipoAddenda.equals("3")) {
-						comp.getAddenda().getInformacionPago().setNombreBeneficiario("");
-						comp.getAddenda().getInformacionPago().setInstitucionReceptora("");
-						comp.getAddenda().getInformacionPago().setNumeroCuenta("");
-						comp.getAddenda().getInformacionPago().setNumProveedor("");
-	
-						//Email Proveedor
-						if (comp.getAddenda().getInformacionPago().getEmail() == null) {
-							sbError.append("Posicion Email Proveedor requerida (Null) - factura "  + factura + "\n");
-						} else {
-							if (!comp.getAddenda().getInformacionPago().getEmail().trim().equals("")) {
-								if (!validaDatoRE(comp.getAddenda().getInformacionPago().getEmail().trim(), RE_MAIL)) {
-									sbError.append("Email Proveedor con estructura incorrecta - factura "  + factura + "\n");
-								}
-							} else {
-								sbError.append("Email Proveedor requerido - factura "  + factura + "\n");
+	}
+
+	/* Tipo addenda */
+	if (!comp.getTipoEmision().equalsIgnoreCase(TipoEmision.DONATARIAS)) {
+		if (comp.getTipoAddendaCellValue() != null) {
+			if (comp.getTipoAddendaCellValue().toString().contains(".")) {
+				System.out.println("*** response Dentro IF AMDA: " + comp.getTipoAddendaCellValue());
+				String words[] = comp.getTipoAddendaCellValue().split("\\.");
+				comp.setTipoAddendaCellValue(words[0]);
+				System.out.println("*** response Dentro IF despues AMDA: " + comp.getTipoAddendaCellValue());
+			}
+			System.out.println("tipoAddenda:" + comp.getTipoAddendaCellValue());
+
+			if (validaDatoRE(comp.getTipoAddendaCellValue().trim(), RE_DECIMAL) || comp.getTipoAddendaCellValue().trim().equals("")) {
+				String strTipoAddenda = comp.getTipoAddendaCellValue();
+				System.out.println("tipoAddendaClean: " + strTipoAddenda);
+
+				if (strTipoAddenda.equals("1") || strTipoAddenda.equals("2") || strTipoAddenda.equals("3")) {
+					comp.getAddenda().getInformacionPago().setNombreBeneficiario("");
+					comp.getAddenda().getInformacionPago().setInstitucionReceptora("");
+					comp.getAddenda().getInformacionPago().setNumeroCuenta("");
+					comp.getAddenda().getInformacionPago().setNumProveedor("");
+
+					// Email Proveedor
+					if (comp.getAddenda().getInformacionPago().getEmail() == null) {
+						sbError.append("Posicion Email Proveedor requerida (Null) - factura " + factura + "\n");
+					} else {
+						if (!comp.getAddenda().getInformacionPago().getEmail().trim().equals("")) {
+							if (!validaDatoRE(comp.getAddenda().getInformacionPago().getEmail().trim(), RE_MAIL)) {
+								sbError.append(
+										"Email Proveedor con estructura incorrecta - factura " + factura + "\n");
 							}
-						}
-						
-						// Codigo ISO moneda
-						if (comp.getAddenda().getInformacionPago().getCodigoISOMoneda() == null) {
-							sbError.append("Posicion Codigo ISO Moneda requerida (Null) - factura "  + factura + "\n");
 						} else {
-	
-							if (!comp.getAddenda().getInformacionPago().getCodigoISOMoneda().trim().equals("")) {
-								CodigoISO codigoISOLog = new CodigoISO();
-	
-								codigoISOLog = codigoISOManager.findByCodigo(
-										comp.getAddenda().getInformacionPago().getCodigoISOMoneda().trim().toUpperCase());
-	
-								if (codigoISOLog == null) {
-									sbError.append("Codigo ISO Moneda no existe en BD - factura "  + factura + "\n");
-								}
-							} else {
-								sbError.append("Codigo ISO Moneda requerido - factura "  + factura + "\n");
-							}
+							sbError.append("Email Proveedor requerido - factura " + factura + "\n");
 						}
 					}
-	
-					if (strTipoAddenda.equals("1")) {
-	
-						// Orden Compra
-						if (comp.getAddenda().getInformacionPago().getOrdenCompra() == null) {
-							sbError.append("Posicion Orden Compra requerida (Null) - factura "  + factura + "\n");
-						} else {
-							if (comp.getAddenda().getInformacionPago().getOrdenCompra().trim().equals("")) {
-								sbError.append("Orden Compra requerida - factura "  + factura + "\n");
-							} else {
-								System.out.println(
-										"orden compra log: " + comp.getAddenda().getInformacionPago().getOrdenCompra());
-							}
-	
-						}
-	
-						// Posicion Compra
-						if (comp.getAddenda().getInformacionPago().getPosCompra() == null) {
-							sbError.append("Posicion Compra requerida (Null) - factura "  + factura + "\n");
-						} else {
-							if (comp.getAddenda().getInformacionPago().getPosCompra().trim().equals("")) {
-								sbError.append("Posicion Compra requerida - factura "  + factura + "\n");
-							} else {
-								System.out.println(
-										"posicion compra: " + comp.getAddenda().getInformacionPago().getPosCompra());
-							}
-	
-						}
-	
-					} else if (strTipoAddenda.equals("2")) {
-	
-						// Cuenta contable
-						if (comp.getAddenda().getInformacionPago().getCuentaContable() == null) {
-							sbError.append("Posicion Cuenta Contable requerida (Null) - factura "  + factura + "\n");
-						} else {
-							if (comp.getAddenda().getInformacionPago().getCuentaContable().trim().equals("")) {
-								sbError.append("Cuenta Contable requerida - factura "  + factura + "\n");
-							} else {
-								System.out.println("cuenta contable Fin: "
-										+ comp.getAddenda().getInformacionPago().getCuentaContable());
-							}
-						}
-	
-						// Centro Costos
-						if (comp.getAddenda().getInformacionEmision().getCentroCostos() == null) {
-							sbError.append("Posicion Centro costos requerido (Null) - factura "  + factura + "\n");
-						} else {
-							if (comp.getAddenda().getInformacionEmision().getCentroCostos().trim().equals("")) {
-								sbError.append("Centro costos requerido - factura "  + factura + "\n");
-							}
-							// validacion centro costos omitida, no necesaria
-						}
-	
-					} else if (strTipoAddenda.equals("3")) {
-	
-						// Numero de contrato
-						if (comp.getAddenda().getInmuebles().getNumContrato() == null) {
-							sbError.append("Posicion Numero de Contrato requerida (Null) - factura "  + factura + "\n");
-						} else {
-							if (comp.getAddenda().getInmuebles().getNumContrato().trim().equals("")) {
-								sbError.append("Numero de Contrato requerido - factura "  + factura + "\n");
-							} else {
-								String strNumeroContratoArr = comp.getAddenda().getInmuebles().getNumContrato();
-								if (strNumeroContratoArr.equals("")) {
-									sbError.append("Numero de Contrato no encontrado - factura "  + factura + "\n");
-								}
-							}
-	
-						}
-	
-						// Fecha de vencimiento
-						if (comp.getAddenda().getInmuebles().getFechaVencimiento() == null) {
-							sbError.append("Posicion Fecha de vencimiento requerida (Null) - factura "  + factura + "\n");
-						} else {
-							if (comp.getAddenda().getInmuebles().getFechaVencimiento().equals("")) {
-								sbError.append("Fecha de vencimiento requerida - factura "  + factura + "\n");
-							} else {
-								String strFechaVencimientoArr = comp.getAddenda().getInmuebles().getFechaVencimiento();
-								if (strFechaVencimientoArr.equals("")) {
-									sbError.append("Fecha de vencimiento requerida - factura "  + factura + "\n");
-								}
-							}
-	
-						}
-	
-					} else if (strTipoAddenda.equals("0") || strTipoAddenda.equals("")) {
-						comp.getAddenda().getInformacionPago().setEmail("");
-						comp.getAddenda().getInformacionPago().setOrdenCompra("");
 
-						if (comp.getAddenda().getInformacionPago().getNombreBeneficiario()==null 
-								||comp.getAddenda().getInformacionPago().getNombreBeneficiario()==""){
-							sbError.append("Nombre Beneficiario requerido - factura " + factura + "\n");
-						}
-						if (comp.getAddenda().getInformacionPago().getInstitucionReceptora()==null 
-								||comp.getAddenda().getInformacionPago().getInstitucionReceptora()==""){
-							sbError.append("Institucion Receptora requerida - factura " + factura + "\n");
-						}
-						if (comp.getAddenda().getInformacionPago().getNumeroCuenta()==null 
-								||comp.getAddenda().getInformacionPago().getNumeroCuenta()==""){
-							sbError.append("Numero de Cuenta requerida - factura " + factura + "\n");
-						}
-						if (comp.getAddenda().getInformacionPago().getNumProveedor()==null 
-								||comp.getAddenda().getInformacionPago().getNumProveedor()==""){
-							sbError.append("Numero de Proveedor requerido - factura " + factura + "\n");
-						}
-	
+					// Codigo ISO moneda
+					if (comp.getAddenda().getInformacionPago().getCodigoISOMoneda() == null) {
+						sbError.append("Posicion Codigo ISO Moneda requerida (Null) - factura " + factura + "\n");
 					} else {
-						sbError.append("Tipo de Addenda incorrecto - factura " + factura + "\n");
+
+						if (!comp.getAddenda().getInformacionPago().getCodigoISOMoneda().trim().equals("")) {
+							CodigoISO codigoISOLog = new CodigoISO();
+
+							codigoISOLog = codigoISOManager.findByCodigo(comp.getAddenda().getInformacionPago()
+									.getCodigoISOMoneda().trim().toUpperCase());
+
+							if (codigoISOLog == null) {
+								sbError.append("Codigo ISO Moneda no existe en BD - factura " + factura + "\n");
+							}
+						} else {
+							sbError.append("Codigo ISO Moneda requerido - factura " + factura + "\n");
+						}
 					}
-				}else{
-					sbError.append("Tipo de Addenda incorrecto  factura " + factura + "\n");
 				}
-			} else {
-				sbError.append("Tipo de Addenda requerido - factura " + factura + "\n");
-			}
-		}
-		
-		/* Tipo de operacion */
-		if(comp.getTipoEmision().equalsIgnoreCase(TipoEmision.DIVISAS)
-				|| comp.getTipoEmision().equalsIgnoreCase(TipoEmision.RECEPCION_PAGOS)){
-			if (!comp.getComplemento().getDivisaTipoOperacion().trim().equals("")) {
-				if (!(comp.getComplemento().getDivisaTipoOperacion().trim().toLowerCase().equals("compra")
-						|| comp.getComplemento().getDivisaTipoOperacion().trim().toLowerCase().equals("venta"))) {
-					sbError.append("Tipo de Operacion incorrecto - Factura " + factura + "\n");
-				}
-			} else {
-				sbError.append("Tipo de Operacion requerido - Factura " + factura + "\n");
-			}
-		}
 
-		/* Valida rfc cliente extranjero */
-		if (comp.getReceptor().getRfc() != null) {
-			if (comp.getReceptor().getRfc().toUpperCase().equals("XEXX010101000")
-					|| comp.getReceptor().getRfc().toUpperCase().equals("XAXX010101000")
-					|| comp.getReceptor().getRfc().toUpperCase().equals("XEXE010101000")) {
-				if (comp.getReceptor().getDomicilio().getPais() != null) {
-					//Residencia fiscal
-					Map<String, Object> tipoClaveProdServ = UtilValidationsXML.validPais(tags.mapCatalogos,
-							comp.getReceptor().getDomicilio().getPais());
-					System.out.println("*********AMDAController Divisas Validando Pais RFC Respuesta: "
-							+ tipoClaveProdServ.get("value").toString());
-					if (!tipoClaveProdServ.get("value").toString().equalsIgnoreCase("vacio")) {
-						comp.getReceptor().setResidenciaFiscal(tipoClaveProdServ.get("value").toString());
-						if (comp.getReceptor().getResidenciaFiscal().trim().equalsIgnoreCase("MEX")
-								|| comp.getReceptor().getResidenciaFiscal().trim().equalsIgnoreCase("MEXICO")
-								|| comp.getReceptor().getResidenciaFiscal().trim().equalsIgnoreCase("México")
-								|| comp.getReceptor().getResidenciaFiscal().trim().equalsIgnoreCase("MÉXICO")) {
-							sbError.append("El Pais no puede ser Mexico para un RFC Generico Extranjero "
-									+ " - factura " + factura + "\n");
-						}
+				if (strTipoAddenda.equals("1")) {
+
+					// Orden Compra
+					if (comp.getAddenda().getInformacionPago().getOrdenCompra() == null) {
+						sbError.append("Posicion Orden Compra requerida (Null) - factura " + factura + "\n");
 					} else {
+						if (comp.getAddenda().getInformacionPago().getOrdenCompra().trim().equals("")) {
+							sbError.append("Orden Compra requerida - factura " + factura + "\n");
+						} else {
+							System.out.println(
+									"orden compra log: " + comp.getAddenda().getInformacionPago().getOrdenCompra());
+						}
+
+					}
+
+					// Posicion Compra
+					if (comp.getAddenda().getInformacionPago().getPosCompra() == null) {
+						sbError.append("Posicion Compra requerida (Null) - factura " + factura + "\n");
+					} else {
+						if (comp.getAddenda().getInformacionPago().getPosCompra().trim().equals("")) {
+							sbError.append("Posicion Compra requerida - factura " + factura + "\n");
+						} else {
+							System.out.println(
+									"posicion compra: " + comp.getAddenda().getInformacionPago().getPosCompra());
+						}
+
+					}
+
+				} else if (strTipoAddenda.equals("2")) {
+
+					// Cuenta contable
+					if (comp.getAddenda().getInformacionPago().getCuentaContable() == null) {
+						sbError.append("Posicion Cuenta Contable requerida (Null) - factura " + factura + "\n");
+					} else {
+						if (comp.getAddenda().getInformacionPago().getCuentaContable().trim().equals("")) {
+							sbError.append("Cuenta Contable requerida - factura " + factura + "\n");
+						} else {
+							System.out.println("cuenta contable Fin: "
+									+ comp.getAddenda().getInformacionPago().getCuentaContable());
+						}
+					}
+
+					// Centro Costos
+					if (comp.getAddenda().getInformacionEmision().getCentroCostos() == null) {
+						sbError.append("Posicion Centro costos requerido (Null) - factura " + factura + "\n");
+					} else {
+						if (comp.getAddenda().getInformacionEmision().getCentroCostos().trim().equals("")) {
+							sbError.append("Centro costos requerido - factura " + factura + "\n");
+						}
+						// validacion centro costos omitida, no necesaria
+					}
+
+				} else if (strTipoAddenda.equals("3")) {
+
+					// Numero de contrato
+					if (comp.getAddenda().getInmuebles().getNumContrato() == null) {
+						sbError.append("Posicion Numero de Contrato requerida (Null) - factura " + factura + "\n");
+					} else {
+						if (comp.getAddenda().getInmuebles().getNumContrato().trim().equals("")) {
+							sbError.append("Numero de Contrato requerido - factura " + factura + "\n");
+						} else {
+							String strNumeroContratoArr = comp.getAddenda().getInmuebles().getNumContrato();
+							if (strNumeroContratoArr.equals("")) {
+								sbError.append("Numero de Contrato no encontrado - factura " + factura + "\n");
+							}
+						}
+
+					}
+
+					// Fecha de vencimiento
+					if (comp.getAddenda().getInmuebles().getFechaVencimiento() == null) {
 						sbError.append(
-								"(0) " + tipoClaveProdServ.get("message").toString() + " - factura " + factura + "\n");
-					}
-					//NumRegIdTrib
-					Map<String, Object> tipoRFC = UtilValidationsXML.validRFCNumRegIdTrib(tags.mapCatalogos,
-							comp.getReceptor().getRfc(), comp.getReceptor().getResidenciaFiscal(),
-							comp.getStrIDExtranjero(), comp.getReceptor().getNombre(),
-							comp.getReceptor().getNumRegIdTrib());
-					if (!tipoRFC.get("value").toString().equalsIgnoreCase("vacio")) {
-						// invoice.setIdExtranjero(tipoRFC.get("value").toString());
-						comp.getReceptor().setNumRegIdTrib(tipoRFC.get("value").toString());
+								"Posicion Fecha de vencimiento requerida (Null) - factura " + factura + "\n");
 					} else {
-						sbError.append(tipoRFC.get("message").toString() + " - factura " + factura + "\n");
+						if (comp.getAddenda().getInmuebles().getFechaVencimiento().equals("")) {
+							sbError.append("Fecha de vencimiento requerida - factura " + factura + "\n");
+						} else {
+							String strFechaVencimientoArr = comp.getAddenda().getInmuebles().getFechaVencimiento();
+							if (strFechaVencimientoArr.equals("")) {
+								sbError.append("Fecha de vencimiento requerida - factura " + factura + "\n");
+							}
+						}
+
 					}
+
+				} else if (strTipoAddenda.equals("0") || strTipoAddenda.equals("")) {
+					comp.getAddenda().getInformacionPago().setEmail("");
+					comp.getAddenda().getInformacionPago().setOrdenCompra("");
+
+					if (comp.getAddenda().getInformacionPago().getNombreBeneficiario() == null
+							|| comp.getAddenda().getInformacionPago().getNombreBeneficiario() == "") {
+						sbError.append("Nombre Beneficiario requerido - factura " + factura + "\n");
+					}
+					if (comp.getAddenda().getInformacionPago().getInstitucionReceptora() == null
+							|| comp.getAddenda().getInformacionPago().getInstitucionReceptora() == "") {
+						sbError.append("Institucion Receptora requerida - factura " + factura + "\n");
+					}
+					if (comp.getAddenda().getInformacionPago().getNumeroCuenta() == null
+							|| comp.getAddenda().getInformacionPago().getNumeroCuenta() == "") {
+						sbError.append("Numero de Cuenta requerida - factura " + factura + "\n");
+					}
+					if (comp.getAddenda().getInformacionPago().getNumProveedor() == null
+							|| comp.getAddenda().getInformacionPago().getNumProveedor() == "") {
+						sbError.append("Numero de Proveedor requerido - factura " + factura + "\n");
+					}
+
+				} else {
+					sbError.append("Tipo de Addenda incorrecto - factura " + factura + "\n");
 				}
-			}else{
-				comp.getReceptor().setNumRegIdTrib("");
-				comp.getReceptor().setResidenciaFiscal("");
+			} else {
+				sbError.append("Tipo de Addenda incorrecto  factura " + factura + "\n");
 			}
+		} else {
+			sbError.append("Tipo de Addenda requerido - factura " + factura + "\n");
 		}
-		
-		//fecha de recepcion-donatarias
-		if(comp.getTipoEmision().equals(TipoEmision.DONATARIAS)){
-			if(comp.getFecha() != null && !comp.getFecha().equals("")){
-				if(!validaDatoRE(comp.getFecha(), FECHA_RECEPCION_PATTERN)){
-					sbError.append("La fecha de recepcion debe tener formato DD/MM/AAAA "
-							+ " - factura " + factura + "\n");
+	}
+
+	/* Tipo de operacion */
+	if (comp.getTipoEmision().equalsIgnoreCase(TipoEmision.DIVISAS)
+			|| comp.getTipoEmision().equalsIgnoreCase(TipoEmision.RECEPCION_PAGOS)) {
+		if (!comp.getComplemento().getDivisaTipoOperacion().trim().equals("")) {
+			if (!(comp.getComplemento().getDivisaTipoOperacion().trim().toLowerCase().equals("compra")
+					|| comp.getComplemento().getDivisaTipoOperacion().trim().toLowerCase().equals("venta"))) {
+				sbError.append("Tipo de Operacion incorrecto - Factura " + factura + "\n");
+			}
+		} else {
+			sbError.append("Tipo de Operacion requerido - Factura " + factura + "\n");
+		}
+	}
+
+	/* Valida rfc cliente extranjero */
+	if (comp.getReceptor().getRfc() != null) {
+		if (comp.getReceptor().getRfc().toUpperCase().equals("XEXX010101000")
+				|| comp.getReceptor().getRfc().toUpperCase().equals("XAXX010101000")
+				|| comp.getReceptor().getRfc().toUpperCase().equals("XEXE010101000")) {
+			if (comp.getReceptor().getDomicilio().getPais() != null) {
+				// Residencia fiscal
+				Map<String, Object> tipoClaveProdServ = UtilValidationsXML.validPais(tags.mapCatalogos,
+						comp.getReceptor().getDomicilio().getPais());
+				System.out.println("*********AMDAController Divisas Validando Pais RFC Respuesta: "
+						+ tipoClaveProdServ.get("value").toString());
+				if (!tipoClaveProdServ.get("value").toString().equalsIgnoreCase("vacio")) {
+					comp.getReceptor().setResidenciaFiscal(tipoClaveProdServ.get("value").toString());
+					if (comp.getReceptor().getResidenciaFiscal().trim().equalsIgnoreCase("MEX")
+							|| comp.getReceptor().getResidenciaFiscal().trim().equalsIgnoreCase("MEXICO")
+							|| comp.getReceptor().getResidenciaFiscal().trim().equalsIgnoreCase("México")
+							|| comp.getReceptor().getResidenciaFiscal().trim().equalsIgnoreCase("MÉXICO")) {
+						sbError.append("El Pais no puede ser Mexico para un RFC Generico Extranjero "
+								+ " - factura " + factura + "\n");
+					}
+				} else {
+					sbError.append(
+							"(0) " + tipoClaveProdServ.get("message").toString() + " - factura " + factura + "\n");
 				}
-			}else{
-				sbError.append("La fecha de recepcion es requerida "
-						+ " - factura " + factura + "\n");
-			}
-		}
-
-		// Account Number, Este campo no esta en el nuevo objeto, omitido
-
-		// Cuenta contable, asignacion omitida
-
-		// Centro Costos, asignacion omitida
-
-		// Num contrato, asignacion omitida
-
-		// Fecha vencimiento, asignacion omitida
-
-		// Nombre Beneficiario, asignacion omitida
-
-		// Institicion Receptora, asignacion omitida
-
-		// Num proveedor, asignacion omitida
-
-		int posicion = 0;
-		int contadorConceptos = 0;
-		boolean fPermisoVector = true;
-		boolean fFinFactura = false;
-		String strItemConcepto = "";
-		Integer numeroCelda = 0;
-		Integer cicloNum = 0;
-		Integer cicloNumRet = 0;
-		String tipoFactorValRow = "";
-		String impuestoValRow = "";
-		String tipoFactorValRowRet = "";
-		String impuestoValRowRet = "";
-		boolean fAplicaIVA = false;
-		
-		BigDecimal total = new BigDecimal(0.00);
-		BigDecimal subtotal = new BigDecimal(0.00);
-		BigDecimal totalRetencion = new BigDecimal(0.00);
-		BigDecimal totalTraslado = new BigDecimal(0.00);
-		BigDecimal importeConcepto;
-		BigDecimal importeTrasRet;
-		
-		if(comp.getTipoEmision().equalsIgnoreCase(TipoEmision.RECEPCION_PAGOS)){
-			if(comp.getConceptos() != null && comp.getConceptos().size() > 1){
-				sbError.append("Esta emision(Recepcion de pagos) solo admite un concepto - factura " + factura + "\n");
+				// NumRegIdTrib
+				Map<String, Object> tipoRFC = UtilValidationsXML.validRFCNumRegIdTrib(tags.mapCatalogos,
+						comp.getReceptor().getRfc(), comp.getReceptor().getResidenciaFiscal(),
+						comp.getStrIDExtranjero(), comp.getReceptor().getNombre(),
+						comp.getReceptor().getNumRegIdTrib());
+				if (!tipoRFC.get("value").toString().equalsIgnoreCase("vacio")) {
+					// invoice.setIdExtranjero(tipoRFC.get("value").toString());
+					comp.getReceptor().setNumRegIdTrib(tipoRFC.get("value").toString());
+				} else {
+					sbError.append(tipoRFC.get("message").toString() + " - factura " + factura + "\n");
+				}
 			}
 		}else{
-			if(comp.getConceptos() != null && comp.getConceptos().size() > 0){
-				for(CfdiConcepto concepto : comp.getConceptos()){
-					//validaciones conceptos
-					contadorConceptos++;
-					tipoFactorValRow = "";
-					impuestoValRow = "";
-					importeConcepto = new BigDecimal(0.00);
+			comp.getReceptor().setNumRegIdTrib("");
+			comp.getReceptor().setResidenciaFiscal("");
+		}
+	}
 
-					// tipo clave prodServ
-					if (concepto.getClaveProdServ() != null 
-							&& concepto.getClaveProdServ().length() > 0) {
-	
-						Map<String, Object> tipoClaveProdServ = UtilValidationsXML.validClaveProdServ(tags.mapCatalogos,
-								concepto.getClaveProdServ());
-	
-						if (tipoClaveProdServ.get("value").toString().equalsIgnoreCase("vacio")) {
-							fPermisoVector = false;
-							sbError.append("(" + (1) + ") " + tipoClaveProdServ.get("message").toString()
-									+ " en el Concepto " + contadorConceptos + " - factura " + factura + "\n");
-						} else {
-							concepto.setClaveProdServ(tipoClaveProdServ.get("value").toString());
-						}
+	// fecha de recepcion-donatarias
+	if (comp.getTipoEmision().equals(TipoEmision.DONATARIAS)) {
+		if (comp.getFecha() != null && !comp.getFecha().equals("")) {
+			if (!validaDatoRE(comp.getFecha(), FECHA_RECEPCION_PATTERN)) {
+				sbError.append(
+						"La fecha de recepcion debe tener formato DD/MM/AAAA " + " - factura " + factura + "\n");
+			}
+		} else {
+			sbError.append("La fecha de recepcion es requerida " + " - factura " + factura + "\n");
+		}
+	}
+
+	// Account Number, Este campo no esta en el nuevo objeto, omitido
+
+	// Cuenta contable, asignacion omitida
+
+	// Centro Costos, asignacion omitida
+
+	// Num contrato, asignacion omitida
+
+	// Fecha vencimiento, asignacion omitida
+
+	// Nombre Beneficiario, asignacion omitida
+
+	// Institicion Receptora, asignacion omitida
+
+	// Num proveedor, asignacion omitida
+
+	int posicion = 0;
+	int contadorConceptos = 0;
+	boolean fPermisoVector = true;
+	boolean fFinFactura = false;
+	String strItemConcepto = "";
+	Integer numeroCelda = 0;
+	Integer cicloNum = 0;
+	Integer cicloNumRet = 0;
+	String tipoFactorValRow = "";
+	String impuestoValRow = "";
+	String tipoFactorValRowRet = "";
+	String impuestoValRowRet = "";
+	boolean fAplicaIVA = false;
+
+	BigDecimal total = new BigDecimal(0.00);
+	BigDecimal subtotal = new BigDecimal(0.00);
+	BigDecimal totalRetencion = new BigDecimal(0.00);
+	BigDecimal totalTraslado = new BigDecimal(0.00);
+	BigDecimal importeConcepto;
+	BigDecimal importeTrasRet;
+
+	if (comp.getTipoEmision().equalsIgnoreCase(TipoEmision.RECEPCION_PAGOS)) {
+		if (comp.getConceptos() != null && comp.getConceptos().size() > 1) {
+			sbError.append("Esta emision(Recepcion de pagos) solo admite un concepto - factura " + factura + "\n");
+		}
+	} else {
+		if (comp.getConceptos() != null && comp.getConceptos().size() > 0) {
+			for (CfdiConcepto concepto : comp.getConceptos()) {
+				// validaciones conceptos
+				contadorConceptos++;
+				tipoFactorValRow = "";
+				impuestoValRow = "";
+				importeConcepto = new BigDecimal(0.00);
+
+				// tipo clave prodServ
+				if (concepto.getClaveProdServ() != null && concepto.getClaveProdServ().length() > 0) {
+
+					Map<String, Object> tipoClaveProdServ = UtilValidationsXML.validClaveProdServ(tags.mapCatalogos,
+							concepto.getClaveProdServ());
+
+					if (tipoClaveProdServ.get("value").toString().equalsIgnoreCase("vacio")) {
+						fPermisoVector = false;
+						sbError.append("(" + (1) + ") " + tipoClaveProdServ.get("message").toString()
+								+ " en el Concepto " + contadorConceptos + " - factura " + factura + "\n");
+					} else {
+						concepto.setClaveProdServ(tipoClaveProdServ.get("value").toString());
+					}
+				} else {
+					fPermisoVector = false;
+					sbError.append("(" + (1) + ") " + "ClaveProdServ con formato incorrecto " + " en el Concepto "
+							+ contadorConceptos + " - factura " + factura + "\n");
+				}
+
+				// Cantidad
+				if (concepto.getCantidad() == null) {
+					fPermisoVector = false;
+					sbError.append("(" + (1) + ") " + "Cantidad con formato incorrecto " + " en el Concepto "
+							+ contadorConceptos + " - factura " + factura + "\n");
+				} else if (!validaDatoRE(concepto.getCantidad().toString(), RE_DECIMAL)) {
+					sbError.append("(" + (1) + ") " + "Cantidad con formato incorrecto " + " en el Concepto "
+							+ contadorConceptos + " - factura " + factura + "\n");
+				}
+
+				// ClaveUnidad
+				if (concepto.getClaveUnidad() != null && concepto.getClaveUnidad().length() > 0) {
+
+					Map<String, Object> tipoClaveUnidad = UtilValidationsXML.validClaveUnidad(tags.mapCatalogos,
+							concepto.getClaveUnidad());
+
+					if (tipoClaveUnidad.get("value").toString().equalsIgnoreCase("vacio")) {
+						fPermisoVector = false;
+						sbError.append("(" + (1) + ") " + tipoClaveUnidad.get("message").toString()
+								+ " en el Concepto " + contadorConceptos + " - factura " + factura + "\n");
+					} else {
+						concepto.setClaveUnidad(tipoClaveUnidad.get("value").toString());
+					}
+				} else {
+					fPermisoVector = false;
+					sbError.append("(" + (1) + ") " + "ClaveUnidad con formato incorrecto " + " en el Concepto "
+							+ contadorConceptos + " - factura " + factura + "\n");
+				}
+
+				// UM
+				if (concepto.getUnidad() == null || concepto.getUnidad().length() <= 0
+						|| concepto.getUnidad().length() > 100) {
+					fPermisoVector = false;
+					sbError.append("(" + (1) + ") " + "UM con formato incorrecto " + " en el Concepto "
+							+ contadorConceptos + " - factura " + factura + "\n");
+				}
+
+				// Descripcion
+				if (concepto.getDescripcion() == null || concepto.getDescripcion().length() <= 0
+						|| concepto.getDescripcion().length() > 1000) {
+					fPermisoVector = false;
+					sbError.append("(" + (1) + ") " + "Concepto Expedicion con formato incorrecto "
+							+ " en el Concepto " + contadorConceptos + " - factura " + factura + "\n");
+				}
+
+				// Precio unitario
+				if (concepto.getValorUnitario() != null && concepto.getValorUnitario().toString().length() > 0) {
+
+					Map<String, Object> tipoPrecioUnit = UtilValidationsXML.validValorUnitario(tags.mapCatalogos,
+							concepto.getValorUnitario().toString(), tags.decimalesMoneda,
+							comp.getTipoDeComprobante());
+
+					if (!tipoPrecioUnit.get("value").toString().equalsIgnoreCase("vacio")) {
+						// vectorPrecioUnitario.set(contadorConceptos,
+						// vectorPrecioUnitario.get(contadorConceptos));
 					} else {
 						fPermisoVector = false;
-						sbError.append("(" + (1) + ") " + "ClaveProdServ con formato incorrecto " + " en el Concepto "
-								+ contadorConceptos + " - factura " + factura + "\n");
+						sbError.append("(" + (1) + ") " + tipoPrecioUnit.get("message").toString()
+								+ " en el Concepto " + contadorConceptos + " - factura " + factura + "\n");
 					}
-					
-					// Cantidad
-					if (concepto.getCantidad() == null) {
-						fPermisoVector = false;
-						sbError.append("(" + (1) + ") " + "Cantidad con formato incorrecto " + " en el Concepto "
-								+ contadorConceptos + " - factura " + factura + "\n");
-					}else if(!validaDatoRE(concepto.getCantidad().toString(), RE_DECIMAL)){
-						sbError.append("(" + (1) + ") " + "Cantidad con formato incorrecto " + " en el Concepto "
-								+ contadorConceptos + " - factura " + factura + "\n");
-					}
-					
-					// ClaveUnidad
-					if (concepto.getClaveUnidad() != null
-							&& concepto.getClaveUnidad().length() > 0) {
-	
-						Map<String, Object> tipoClaveUnidad = UtilValidationsXML.validClaveUnidad(tags.mapCatalogos,
-								concepto.getClaveUnidad());
-	
-						if (tipoClaveUnidad.get("value").toString().equalsIgnoreCase("vacio")) {
-							fPermisoVector = false;
-							sbError.append("(" + (1) + ") " + tipoClaveUnidad.get("message").toString() + " en el Concepto "
-									+ contadorConceptos + " - factura " + factura + "\n");
+				} else {
+					fPermisoVector = false;
+					sbError.append("(" + (1) + ") " + "Precio Unitario con formato incorrecto " + " en el Concepto "
+							+ contadorConceptos + " - factura " + factura + "\n");
+				}
+
+				try {
+					importeConcepto = concepto.getCantidad().multiply(concepto.getValorUnitario());
+					// redondear importe concepto
+					importeConcepto = new BigDecimal(
+							UtilCatalogos.decimales(String.format("%f", importeConcepto), tags.decimalesMoneda));
+					concepto.setImporte(importeConcepto);
+					subtotal = subtotal.add(importeConcepto);
+				} catch (NumberFormatException nfe) {
+					System.out.println(nfe.getStackTrace());
+					concepto.setImporte(new BigDecimal(0.00));
+				}
+
+				// campos de concepto que no estan en donatarias
+				if (!comp.getTipoEmision().equalsIgnoreCase(TipoEmision.DONATARIAS)) {
+
+					if (concepto.getImpuestos() != null) {
+						if (concepto.getImpuestos().getTraslados() != null
+								&& concepto.getImpuestos().getTraslados().size() == 1) {
+							trasladoBol = true;
+							retencionBol = false;
+						} else if (concepto.getImpuestos().getRetenciones() != null
+								&& concepto.getImpuestos().getRetenciones().size() == 1) {
+							retencionBol = true;
+							trasladoBol = false;
 						} else {
-							concepto.setClaveUnidad(tipoClaveUnidad.get("value").toString());
-						}
-					} else {
-						fPermisoVector = false;
-						sbError.append("(" + (1) + ") " + "ClaveUnidad con formato incorrecto " + " en el Concepto "
-								+ contadorConceptos + " - factura " + factura + "\n");
-					}
-					
-					// UM
-					if (concepto.getUnidad() == null || concepto.getUnidad().length() <= 0
-							|| concepto.getUnidad().length() > 100) {
-						fPermisoVector = false;
-						sbError.append("(" + (1) + ") " + "UM con formato incorrecto " + " en el Concepto "
-								+ contadorConceptos + " - factura " + factura + "\n");
-					}
-	
-					// Descripcion
-					if (concepto.getDescripcion() == null || concepto.getDescripcion().length() <= 0
-							|| concepto.getDescripcion().length() > 1000) {
-						fPermisoVector = false;
-						sbError.append("(" + (1) + ") " + "Concepto Expedicion con formato incorrecto " + " en el Concepto "
-								+ contadorConceptos + " - factura " + factura + "\n");
-					}
-					
-					// Precio unitario
-					if (concepto.getValorUnitario() != null
-							&& concepto.getValorUnitario().toString().length() > 0) {
-	
-						Map<String, Object> tipoPrecioUnit = UtilValidationsXML.validValorUnitario(tags.mapCatalogos,
-								concepto.getValorUnitario().toString(), tags.decimalesMoneda,
-								comp.getTipoDeComprobante());
-	
-						if (!tipoPrecioUnit.get("value").toString().equalsIgnoreCase("vacio")) {
-							// vectorPrecioUnitario.set(contadorConceptos,
-							// vectorPrecioUnitario.get(contadorConceptos));
-						} else {
-							fPermisoVector = false;
-							sbError.append("(" + (1) + ") " + tipoPrecioUnit.get("message").toString() + " en el Concepto "
-									+ contadorConceptos + " - factura " + factura + "\n");
-						}
-					} else {
-						fPermisoVector = false;
-						sbError.append("(" + (1) + ") " + "Precio Unitario con formato incorrecto " + " en el Concepto "
-								+ contadorConceptos + " - factura " + factura + "\n");
-					}
-					
-					try{
-						importeConcepto = concepto.getCantidad().multiply(concepto.getValorUnitario());
-						//redondear importe concepto
-						importeConcepto = new BigDecimal(UtilCatalogos.decimales(String.format("%f", importeConcepto), tags.decimalesMoneda));
-						concepto.setImporte(importeConcepto);
-						subtotal = subtotal.add(importeConcepto);
-					}catch(NumberFormatException nfe){
-						System.out.println(nfe.getStackTrace());
-						concepto.setImporte(new BigDecimal(0.00));
-					}
-					
-					//campos de concepto que no estan en donatarias
-					if(!comp.getTipoEmision().equalsIgnoreCase(TipoEmision.DONATARIAS)){
-						
-						if(concepto.getImpuestos() != null){
-							if(concepto.getImpuestos().getTraslados() != null && concepto.getImpuestos().getTraslados().size() == 1){
-								trasladoBol = true;
-								retencionBol = false;
-							}else if(concepto.getImpuestos().getRetenciones() != null && concepto.getImpuestos().getRetenciones().size() == 1){
-								retencionBol = true;
-								trasladoBol = false;
-							}else{
-								retencionBol = false;
-								trasladoBol = false;
-							}
-						}else{
 							retencionBol = false;
 							trasladoBol = false;
 						}
-						
-						// Aplica iva
-						if (concepto.getAplicaIva() == null) {
-							concepto.setAplicaIva("");
-						} else if(!concepto.getAplicaIva().equals("1") 
-								&& !concepto.getAplicaIva().equals("")){
-							fPermisoVector = false;
-							sbError.append("(" + (1) + ") " + "APLICA IVA con formato incorrecto " + " en el Concepto "
-									+ contadorConceptos + " - factura " + factura + "\n");
-						}else if(concepto.getAplicaIva().equals("1") ){
-							fAplicaIVA = true;
-						}
-						
-						//Tipo impuesto no se puede validar no se almacena la propiedad(duda)
-						
-						String impuestoVal = "";
-						String tipoFactorVal = "";
-						String tasaOCuotaVal = "";
-						//Impuesto
-						if(trasladoBol){
-							impuestoVal = concepto.getImpuestos().getTraslados().get(0).getImpuesto();
-							tipoFactorVal = concepto.getImpuestos().getTraslados().get(0).getTipoFactor();
-							tasaOCuotaVal = concepto.getImpuestos().getTraslados().get(0).getTasaOCuota();
-						}else if(retencionBol){
-							impuestoVal = concepto.getImpuestos().getRetenciones().get(0).getImpuesto();
-							tipoFactorVal = concepto.getImpuestos().getRetenciones().get(0).getTipoFactor();
-							tasaOCuotaVal = concepto.getImpuestos().getRetenciones().get(0).getTasaOCuota();
-						}
-						
-						if (impuestoVal != null && !impuestoVal.equals("")) {
-							
-							String tipoImp = UtilCatalogos.findValClaveImpuesto(tags.mapCatalogos,
-									impuestoVal);
-		
-							if (!tipoImp.equalsIgnoreCase("vacio")) {
-								impuestoValRow = impuestoVal;
-								if(trasladoBol){
-									concepto.getImpuestos().getTraslados().get(0).setImpuesto(tipoImp);
-								}else if(retencionBol){
-									concepto.getImpuestos().getRetenciones().get(0).setImpuesto(tipoImp);
-								}
-							} else {
-								fPermisoVector = false;
-								sbError.append("(" + (1) + ") " + "No se encotro el Impuesto en el catalogo C_Impuestos "
-										+ " en el Concepto " + contadorConceptos + " - factura " + factura + "\n");
+					} else {
+						retencionBol = false;
+						trasladoBol = false;
+					}
+
+					// Aplica iva
+					if (concepto.getAplicaIva() == null) {
+						concepto.setAplicaIva("");
+					} else if (!concepto.getAplicaIva().equals("1") && !concepto.getAplicaIva().equals("")) {
+						fPermisoVector = false;
+						sbError.append("(" + (1) + ") " + "APLICA IVA con formato incorrecto " + " en el Concepto "
+								+ contadorConceptos + " - factura " + factura + "\n");
+					} else if (concepto.getAplicaIva().equals("1")) {
+						fAplicaIVA = true;
+					}
+
+					// Tipo impuesto no se puede validar no se almacena la propiedad(duda)
+
+					String impuestoVal = "";
+					String tipoFactorVal = "";
+					String tasaOCuotaVal = "";
+					// Impuesto
+					if (trasladoBol) {
+						impuestoVal = concepto.getImpuestos().getTraslados().get(0).getImpuesto();
+						tipoFactorVal = concepto.getImpuestos().getTraslados().get(0).getTipoFactor();
+						tasaOCuotaVal = concepto.getImpuestos().getTraslados().get(0).getTasaOCuota();
+					} else if (retencionBol) {
+						impuestoVal = concepto.getImpuestos().getRetenciones().get(0).getImpuesto();
+						tipoFactorVal = concepto.getImpuestos().getRetenciones().get(0).getTipoFactor();
+						tasaOCuotaVal = concepto.getImpuestos().getRetenciones().get(0).getTasaOCuota();
+					}
+
+					if (impuestoVal != null && !impuestoVal.equals("")) {
+
+						String tipoImp = UtilCatalogos.findValClaveImpuesto(tags.mapCatalogos, impuestoVal);
+
+						if (!tipoImp.equalsIgnoreCase("vacio")) {
+							impuestoValRow = impuestoVal;
+							if (trasladoBol) {
+								concepto.getImpuestos().getTraslados().get(0).setImpuesto(tipoImp);
+							} else if (retencionBol) {
+								concepto.getImpuestos().getRetenciones().get(0).setImpuesto(tipoImp);
 							}
 						} else {
 							fPermisoVector = false;
-							sbError.append("(" + (1) + ") " + "Impuesto con formato incorrecto " + " en el Concepto "
+							sbError.append("(" + (1) + ") "
+									+ "No se encotro el Impuesto en el catalogo C_Impuestos " + " en el Concepto "
 									+ contadorConceptos + " - factura " + factura + "\n");
 						}
-						
-						// tipo factor
-						if (tipoFactorVal != null && !tipoFactorVal.equals("")) {
-							if (!tipoFactorVal.equalsIgnoreCase("Exento")
-									&& !tipoFactorVal.equalsIgnoreCase("Excento")) {
-		
-								Map<String, Object> tipoTipoFact = UtilValidationsXML.validTipoFactorTra(tags.mapCatalogos,
-										tipoFactorVal);
-		
-								if (!tipoTipoFact.get("value").toString().equalsIgnoreCase("vacio")) {
-									tipoFactorValRow = tipoFactorVal;
-									if(trasladoBol){
-										concepto.getImpuestos().getTraslados().get(0)
-											.setTipoFactor(tipoTipoFact.get("value").toString());
-									}else if(retencionBol){
-										concepto.getImpuestos().getRetenciones().get(0)
-											.setTipoFactor(tipoTipoFact.get("value").toString());
-									}
-								} else {
-									fPermisoVector = false;
-									sbError.append("(" + (1) + ") " + tipoTipoFact.get("message").toString()
-											+ " en el Concepto " + contadorConceptos + " - factura " + factura + "\n");
-								}
-							} else {
+					} else {
+						fPermisoVector = false;
+						sbError.append("(" + (1) + ") " + "Impuesto con formato incorrecto " + " en el Concepto "
+								+ contadorConceptos + " - factura " + factura + "\n");
+					}
+
+					// tipo factor
+					if (tipoFactorVal != null && !tipoFactorVal.equals("")) {
+						if (!tipoFactorVal.equalsIgnoreCase("Exento")
+								&& !tipoFactorVal.equalsIgnoreCase("Excento")) {
+
+							Map<String, Object> tipoTipoFact = UtilValidationsXML
+									.validTipoFactorTra(tags.mapCatalogos, tipoFactorVal);
+
+							if (!tipoTipoFact.get("value").toString().equalsIgnoreCase("vacio")) {
 								tipoFactorValRow = tipoFactorVal;
-							}
-						} else {
-							fPermisoVector = false;
-							sbError.append("(" + (1) + ") "
-									+ "El valor del campo TipoFactor que corresponde a Traslado no contiene un valor del catálogo c_TipoFactor "
-									+ " en el Concepto " + contadorConceptos + " - factura " + factura + "\n");
-						}
-						
-						// Tasa o cuota
-						if (tasaOCuotaVal != null && !tasaOCuotaVal.equals("")) {
-							if (!tipoFactorValRow.equalsIgnoreCase("Exento") && !tipoFactorValRow.equalsIgnoreCase("Excento")) {
-		
-								Map<String, Object> tipoTasaOCuota = UtilValidationsXML.validTasaOCuotaTra(tags.mapCatalogos,
-										impuestoValRow, tipoFactorValRow, tasaOCuotaVal,
-										tipoFactorValRow);
-		
-								if (!tipoTasaOCuota.get("value").toString().equalsIgnoreCase("vacio")) {
-									
-									tasaOCuotaVal = tipoTasaOCuota.get("value").toString();
-									 DecimalFormat df = new DecimalFormat("0.000000");
-									 String tasaOCuotaValFormat = df.format(Double.parseDouble(tasaOCuotaVal));
-									 if (trasladoBol) {
-										 concepto.getImpuestos().getTraslados().get(0).setTasaOCuota(tasaOCuotaValFormat);
-									 } else if (retencionBol) {
-										concepto.getImpuestos().getRetenciones().get(0).setTasaOCuota(tasaOCuotaValFormat);
-									 }
-									 
-								} else {
-									fPermisoVector = false;
-									sbError.append("(" + (1) + ") " + tipoTasaOCuota.get("message").toString()
-											+ " en el Concepto " + contadorConceptos + " - factura " + factura + "\n");
+								if (trasladoBol) {
+									concepto.getImpuestos().getTraslados().get(0)
+											.setTipoFactor(tipoTipoFact.get("value").toString());
+								} else if (retencionBol) {
+									concepto.getImpuestos().getRetenciones().get(0)
+											.setTipoFactor(tipoTipoFact.get("value").toString());
 								}
 							} else {
-								tasaOCuotaVal = "0.00";
-								if(trasladoBol){
-									concepto.getImpuestos().getTraslados().get(0).setTasaOCuota("0.000000");
-								}else if(retencionBol){
-									concepto.getImpuestos().getRetenciones().get(0).setTasaOCuota("0.000000");
-								}
-							}
-		
-						} else {
-							fPermisoVector = false;
-							sbError.append("(" + (1) + ") "
-									+ "El valor del campo Tasa o Cuota que corresponde a Traslado no contiene un valor del catalogo c_Tasa o Cuota "
-									+ " en el Concepto " + contadorConceptos + " - factura " + factura + "\n");
-						}
-						
-						// Base
-						String baseVal = "";
-						if (tasaOCuotaVal != null && !tasaOCuotaVal.equals("")
-								&& concepto.getValorUnitario() != null) {
-	
-							if(trasladoBol){
-								concepto.getImpuestos().getTraslados().get(0)
-									.setBase(concepto.getValorUnitario().toString());
-							}else if(retencionBol){
-								concepto.getImpuestos().getRetenciones().get(0)
-									.setBase(concepto.getValorUnitario().toString());
-							}
-							baseVal = concepto.getValorUnitario().toString();
-	
-							Map<String, Object> tipoBaseTra = UtilValidationsXML.validBaseTra(tags.mapCatalogos,
-									concepto.getValorUnitario().toString());
-	
-							if (tipoBaseTra.get("value").toString().equalsIgnoreCase("vacio")) {
 								fPermisoVector = false;
-								baseVal = "";
-								sbError.append("(" + (48 + 1) + ") " + tipoBaseTra.get("message").toString()
+								sbError.append("(" + (1) + ") " + tipoTipoFact.get("message").toString()
 										+ " en el Concepto " + contadorConceptos + " - factura " + factura + "\n");
 							}
-						}else {
-							fPermisoVector = false;
-							sbError.append("(" + (48 + 1) + ") " + "No se pudo calcular Base para el Impuesto Traslado "
-									+ " en el Concepto " + contadorConceptos + " - factura " + factura + "\n");
+						} else {
+							tipoFactorValRow = tipoFactorVal;
+						}
+					} else {
+						fPermisoVector = false;
+						sbError.append("(" + (1) + ") "
+								+ "El valor del campo TipoFactor que corresponde a Traslado no contiene un valor del catálogo c_TipoFactor "
+								+ " en el Concepto " + contadorConceptos + " - factura " + factura + "\n");
+					}
+
+					// Tasa o cuota
+					if (tasaOCuotaVal != null && !tasaOCuotaVal.equals("")) {
+						if (!tipoFactorValRow.equalsIgnoreCase("Exento")
+								&& !tipoFactorValRow.equalsIgnoreCase("Excento")) {
+
+							Map<String, Object> tipoTasaOCuota = UtilValidationsXML.validTasaOCuotaTra(
+									tags.mapCatalogos, impuestoValRow, tipoFactorValRow, tasaOCuotaVal,
+									tipoFactorValRow);
+
+							if (!tipoTasaOCuota.get("value").toString().equalsIgnoreCase("vacio")) {
+								
+								 tasaOCuotaVal = tipoTasaOCuota.get("value").toString();
+								 DecimalFormat df = new DecimalFormat("0.000000");
+								 String tasaOCuotaValFormat = df.format(Double.parseDouble(tasaOCuotaVal));
+								 if (trasladoBol) {
+									 concepto.getImpuestos().getTraslados().get(0).setTasaOCuota(tasaOCuotaValFormat);
+								 } else if (retencionBol) {
+									concepto.getImpuestos().getRetenciones().get(0).setTasaOCuota(tasaOCuotaValFormat);
+								 }
+								 
+							} else {
+								fPermisoVector = false;
+								sbError.append("(" + (1) + ") " + tipoTasaOCuota.get("message").toString()
+										+ " en el Concepto " + contadorConceptos + " - factura " + factura + "\n");
+							}
+						} else {
+							tasaOCuotaVal = "0.00";
+							if (trasladoBol) {
+								concepto.getImpuestos().getTraslados().get(0).setTasaOCuota("0.000000");
+							} else if (retencionBol) {
+								concepto.getImpuestos().getRetenciones().get(0).setTasaOCuota("0.000000");
+							}
 						}
 
-						//Importe retencion/traslado
-						importeTrasRet = new BigDecimal(0.00);
-						String importeValStr = "0.00";
-						if(!baseVal.equals("") && !tasaOCuotaVal.equals("") 
-								&& concepto.getCantidad() != null ){
-							if (!tipoFactorValRow.equalsIgnoreCase("Exento")
-									&& !tipoFactorValRow.equalsIgnoreCase("Excento")) {
-								
-								Double importeVal = (Double.valueOf(baseVal)
-										* concepto.getCantidad().doubleValue())
-										* Double.valueOf(tasaOCuotaVal);
-								
-								//redondear importe retencion/traslado
-								importeValStr = UtilCatalogos.decimales(String.format("%f", importeVal), tags.decimalesMoneda);
-								importeTrasRet =  new BigDecimal(importeValStr);
+					} else {
+						fPermisoVector = false;
+						sbError.append("(" + (1) + ") "
+								+ "El valor del campo Tasa o Cuota que corresponde a Traslado no contiene un valor del catalogo c_Tasa o Cuota "
+								+ " en el Concepto " + contadorConceptos + " - factura " + factura + "\n");
+					}
+
+					// Base
+					String baseVal = "";
+					if (tasaOCuotaVal != null && !tasaOCuotaVal.equals("") && concepto.getValorUnitario() != null) {
+
+						if (trasladoBol) {
+							concepto.getImpuestos().getTraslados().get(0)
+									.setBase(concepto.getValorUnitario().toString());
+						} else if (retencionBol) {
+							concepto.getImpuestos().getRetenciones().get(0)
+									.setBase(concepto.getValorUnitario().toString());
+						}
+						baseVal = concepto.getValorUnitario().toString();
+
+						Map<String, Object> tipoBaseTra = UtilValidationsXML.validBaseTra(tags.mapCatalogos,
+								concepto.getValorUnitario().toString());
+
+						if (tipoBaseTra.get("value").toString().equalsIgnoreCase("vacio")) {
+							fPermisoVector = false;
+							baseVal = "";
+							sbError.append("(" + (48 + 1) + ") " + tipoBaseTra.get("message").toString()
+									+ " en el Concepto " + contadorConceptos + " - factura " + factura + "\n");
+						}
+					} else {
+						fPermisoVector = false;
+						sbError.append("(" + (48 + 1) + ") " + "No se pudo calcular Base para el Impuesto Traslado "
+								+ " en el Concepto " + contadorConceptos + " - factura " + factura + "\n");
+					}
+
+					// Importe retencion/traslado
+					importeTrasRet = new BigDecimal(0.00);
+					String importeValStr = "0.00";
+					if (!baseVal.equals("") && !tasaOCuotaVal.equals("") && concepto.getCantidad() != null) {
+						if (!tipoFactorValRow.equalsIgnoreCase("Exento")
+								&& !tipoFactorValRow.equalsIgnoreCase("Excento")) {
+
+							Double importeVal = (Double.valueOf(baseVal) * concepto.getCantidad().doubleValue())
+									* Double.valueOf(tasaOCuotaVal);
+
+							// redondear importe retencion/traslado
+							importeValStr = UtilCatalogos.decimales(String.format("%f", importeVal),
+									tags.decimalesMoneda);
+							importeTrasRet = new BigDecimal(importeValStr);
+						}
+					}
+					if (trasladoBol) {
+						totalTraslado = totalTraslado.add(importeTrasRet);
+						concepto.getImpuestos().getTraslados().get(0).setImporte(importeValStr);
+					} else if (retencionBol) {
+						totalRetencion = totalRetencion.add(importeTrasRet);
+						concepto.getImpuestos().getRetenciones().get(0).setImporte(importeValStr);
+					}
+
+				}
+			}
+			// Calcular totales
+			String stringDescuento = "";
+			try {
+				if (subtotal.doubleValue() > 0) {
+					total = ((subtotal.add(totalTraslado)).subtract(totalRetencion));
+
+				}
+				if (comp.getDescuento() != null) {
+					stringDescuento = " Descuento: " + comp.getDescuento();
+					total = total.subtract(comp.getDescuento());
+				}
+
+			} catch (NumberFormatException nfe) {
+				System.out.println(nfe.getStackTrace());
+			}
+			// redondear y asignar totales
+			subtotal = new BigDecimal(UtilCatalogos.decimales(String.format("%f", subtotal), tags.decimalesMoneda));
+			total = new BigDecimal(UtilCatalogos.decimales(String.format("%f", total), tags.decimalesMoneda));
+			System.out.println("Factura(" + factura + ") - Subtotal: " + subtotal + " Total: " + total
+					+ " totalTraslado:" + totalTraslado + " totalRetencion: " + totalRetencion + stringDescuento);
+			comp.setImpuestos(new CfdiImpuesto());
+			comp.getImpuestos().setTotalImpuestosRetenidos(totalRetencion);
+			comp.getImpuestos().setTotalImpuestosTrasladados(totalTraslado);
+			comp.setSubTotal(subtotal);
+			comp.setTotal(total);
+		}
+	}
+	if (fErrorIVA && fAplicaIVA)
+		sbError.append(sbErrorIVA.toString());
+	int contadorComplementos = 0;
+	int complementos = 0;
+	if(comp.getTipoEmision().equalsIgnoreCase(TipoEmision.RECEPCION_PAGOS)){
+		if(comp.getComplementPagos() != null && comp.getComplementPagos().size() > 0){
+			for(ComplementoPago complementoPago : comp.getComplementPagos()){
+				contadorComplementos++;
+				complementos++;
+				if(complementoPago.getFechaPago() ==  null || complementoPago.getFechaPago().toString().trim().length() == 0){
+					sbError.append("(1) Posicion fecha requerida (Null) - Complementos " + complementos + "\n");
+				}
+				/* Forma de pago */
+				
+				if (complementoPago.getFormaPagoP() == null || complementoPago.getFormaPagoP().trim().equals("")) {
+					sbError.append(
+							"(CFDI33103) El Campo Forma Pago P. se encuentra (Null,Vacio) no contiene un valor"
+									+ complementos + "\n");
+				} else {
+					Map<String, Object> tipoFormaPago_cp = UtilValidationsXML.validFormaPago(tags.mapCatalogos,
+							complementoPago.getFormaPagoP());
+					if (!tipoFormaPago_cp.get("value").toString().equalsIgnoreCase("vacio")) {
+						comp.setFormaPago(tipoFormaPago_cp.get("value").toString());
+					} else {
+						sbError.append(tipoFormaPago_cp.get("message").toString() + "Factura " + complementos + "\n");
+					}
+				}
+			
+				/*   Moneda de pago */
+				if ( complementoPago.getMonedaPago() != null && complementoPago.getMonedaPago().trim().length() > 0) {
+					Map<String, Object> tipoMon_cp = UtilValidationsXML.validMoneda(tags.mapCatalogos, complementoPago.getMonedaPago());
+					if (!tipoMon_cp.get("value").toString().equalsIgnoreCase("vacio")) {
+						complementoPago.setMonedaPago(tipoMon_cp.get("value").toString());
+					} else {
+						sbError.append(tipoMon_cp.get("message").toString() + complementos + "\n");
+					}
+				} else {
+					sbError.append("El campo Moneda de pago (Null,Vacio) no contiene un valor del catalogo c_Moneda "
+							+ complementos + "\n");
+				}
+			
+				/*   Moneda de DR */
+				if ( complementoPago.getMonedaDR() != null && complementoPago.getMonedaDR().trim().length() > 0) {
+					Map<String, Object> tipoMon_cp = UtilValidationsXML.validMoneda(tags.mapCatalogos, complementoPago.getMonedaDR());
+					if (!tipoMon_cp.get("value").toString().equalsIgnoreCase("vacio")) {
+						complementoPago.setMonedaDR(tipoMon_cp.get("value").toString());
+					} else {
+						sbError.append(tipoMon_cp.get("message").toString() + complementos + "\n");
+					}
+				} else {
+					sbError.append("El campo Moneda DR (Null,Vacio) no contiene un valor del catalogo c_Moneda "
+							+ complementos + "\n");
+				}
+				
+				/* monoto */
+				if(complementoPago.getMonto() == null){
+					sbError.append("El importe se encuentra (Null,Vacio) no contiene un valor"
+							+ complementos + "\n");
+				}
+				/* numero de operacion */
+				
+				if(complementoPago.getNumeroOperacion() != null || complementoPago.getNumeroOperacion().trim().length() > 0){
+					if(complementoPago.getNumeroOperacion().trim().length() < 100){
+						if(!validaDatoRE(complementoPago.getNumeroOperacion().trim(), APARTADO_COMPLEMENT)){
+							sbError.append("(CFDI33112) El campo Numero Operacion tiene un formato incorrecto " + complementos + "\n");
+						}
+					}else{
+						sbError.append("la logitud del campo Numero Operación ha pasado el maximo de 100 caracteres."
+								+ complementos + "\n");
+					}
+				}else{
+					sbError.append("El campo Numero de Operación se encuentra (Null, Vacio), no contiene un valor."
+							+ complementos + "\n");
+				}
+				/* RFC Emisor Cuenta orden */
+				if(complementoPago.getRfcEmisorCtaBeneficiario() != null || complementoPago.getRfcEmisorCtaBeneficiario().trim().length() > 0){
+					if(complementoPago.getRfcEmisorCtaBeneficiario().trim().length() <= 13 ){
+						// APART_COMPLEMENT_RFC_ACOUTN
+						if( validaDatoRE(complementoPago.getRfcEmisorCtaBeneficiario().trim(),APART_COMPLEMENT_RFC_ACOUTN ) ){
+							
+						}
+					   // valida que cumpla con ("XEXX010101000") y 
+                       //  XEXX010101000|[A-Z&amp;Ñ]{3}[0-9]{2}(0[1-9]|1[012])(0[1-9]|[12][0-9]|3[01])[A-Z0-9]{2}[0-9A]
+					   /* validar la seccion del refc */
+						Map<String, Object> tipoFormaPago_cp = UtilValidationsXML.validFormaPago(tags.mapCatalogos, comp.getFormaPago());
+						
+					}else{
+						sbError.append("El campo RFC Emisor Cuenta Beneficiario sha pasado el maximo de 13 caracteres."
+								+ complementos + "\n");
+					}
+				}else{
+					sbError.append("El campo RFC Emisor Cuenta Beneficiario se encuentra (Null, Vacio), no contiene un valor."
+							+ complementos + "\n");
+				}
+				
+				/* Nombre banco ordinario Ext*/
+				
+				
+				/* Cuenta beneficiario */
+				if(complementoPago.getCuentaBeneficiario() != null && complementoPago.getCuentaBeneficiario().trim().length() > 0 ){
+					if(complementoPago.getCuentaBeneficiario().trim().length() < 50){
+						
+					}else{
+						sbError.append("la logitud del campo Cuenta beneficiario ha pasado el maximo de 50 caracteres."
+								+ complementos + "\n");
+					}
+				}
+				/*Metodo de pago DR*/
+					if (complementoPago.getMetodoPagoDR() == null || complementoPago.getMetodoPagoDR().trim().equals("")) {
+						sbError.append(
+								"(CFDI33121) El Campo Metodo Pago DR No Contiene Un Valor Del Catalogo C_MetodoPago - Factura "
+										+ factura + "\n");
+					} else {
+						Map<String, Object> tipoMetPag = UtilValidationsXML.validMetodPago(tags.mapCatalogos,
+								complementoPago.getMetodoPagoDR());
+						if (tipoMetPag.get("value").toString().equals("vacio")) {
+							sbError.append(tipoMetPag.get("message").toString() + factura + "\n");
+						} else {
+							complementoPago.setMetodoPagoDR(tipoMetPag.get("value").toString());
+						}
+					}
+					/* Forma de pago */
+						if (complementoPago.getFormaPagoP() == null || complementoPago.getFormaPagoP().trim().equals("")) {
+							sbError.append(
+									"(CFDI33103) El Campo Forma Pago P. No Contiene Un Valor Del Catalogo C_FormaPago - Factura "
+											+ factura + "\n");
+						} else {
+							Map<String, Object> tipoFormaPago = UtilValidationsXML.validFormaPago(tags.mapCatalogos,
+									complementoPago.getFormaPagoP());
+							if (!tipoFormaPago.get("value").toString().equalsIgnoreCase("vacio")) {
+								complementoPago.setFormaPagoP(tipoFormaPago.get("value").toString());
+							} else {
+								sbError.append(tipoFormaPago.get("message").toString() + "Factura " + factura + "\n");
 							}
 						}
-						if(trasladoBol){
-							totalTraslado = totalTraslado.add(importeTrasRet);
-							concepto.getImpuestos().getTraslados().get(0)
-								.setImporte(importeValStr);
-						}else if(retencionBol){
-							totalRetencion = totalRetencion.add(importeTrasRet);
-							concepto.getImpuestos().getRetenciones().get(0)
-								.setImporte(importeValStr);
-						}
-						
-					}
-				}
-				//Calcular totales
-				String stringDescuento = "";
-				try{
-					if(subtotal.doubleValue() > 0){
-						total = ((subtotal.add(totalTraslado))
-								.subtract(totalRetencion));
-									
-					}
-					if(comp.getDescuento() != null){
-						stringDescuento = " Descuento: "+comp.getDescuento();
-						total = total.subtract(comp.getDescuento());
-					}
-					
-				}catch(NumberFormatException nfe){
-					System.out.println(nfe.getStackTrace());
-				}
-				//redondear y asignar totales
-				subtotal = new BigDecimal(UtilCatalogos
-						.decimales(String.format("%f", subtotal), tags.decimalesMoneda));
-				total = new BigDecimal(UtilCatalogos
-						.decimales(String.format("%f", total), tags.decimalesMoneda));
-				System.out.println("Factura("+factura+") - Subtotal: "+subtotal+" Total: "+total
-						+" totalTraslado:"+totalTraslado+" totalRetencion: "+totalRetencion+stringDescuento);
-				comp.setImpuestos(new CfdiImpuesto());
-				comp.getImpuestos().setTotalImpuestosRetenidos(totalRetencion);
-				comp.getImpuestos().setTotalImpuestosTrasladados(totalTraslado);
-				comp.setSubTotal(subtotal);
-				comp.setTotal(total);
+				
 			}
 		}
-		if (fErrorIVA && fAplicaIVA)
-			sbError.append(sbErrorIVA.toString());
-		return sbError.toString();
-	}
+	}// fin de la evaluacion de recepccion de pagos
+	return sbError.toString();
+}
 
 }
 // TODO: Propiedades en el invoice

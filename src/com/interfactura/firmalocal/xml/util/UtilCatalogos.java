@@ -1915,12 +1915,16 @@ public class UtilCatalogos
 
 	        invoice.setTotal(comprobante.getTotal().doubleValue());
 
-	        if (comprobante.getImpuestos().getTotalImpuestosTrasladados() != null) {
-	            invoice.setIvaDescription("TOTAL IMP TRASLADO");
-	            invoice.setIva(comprobante.getImpuestos().getTotalImpuestosTrasladados().doubleValue());
-	            invoice.setTotalImpuestoRetenido(comprobante.getImpuestos().getTotalImpuestosRetenidos().doubleValue());
-	        } else {
-	            invoice.setIva(0.0);
+	        if(comprobante.getImpuestos() != null){
+		        if (comprobante.getImpuestos().getTotalImpuestosTrasladados() != null) {
+		            invoice.setIvaDescription("TOTAL IMP TRASLADO");
+		            invoice.setIva(comprobante.getImpuestos().getTotalImpuestosTrasladados().doubleValue());
+		            invoice.setTotalImpuestoRetenido(comprobante.getImpuestos().getTotalImpuestosRetenidos().doubleValue());
+		        } else {
+		            invoice.setIva(0.0);
+		        }
+	        }else{
+	        	invoice.setIva(0.0);
 	        }
 
 	        invoice.setQuantityWriting(NumberToLetterConverter.convertNumberToLetter(invoice.getTotal()));
