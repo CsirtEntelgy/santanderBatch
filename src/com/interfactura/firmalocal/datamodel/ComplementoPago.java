@@ -20,6 +20,7 @@ public class ComplementoPago {
 	private String cadenaPago;
 	private String certificadoPago;
 	private String selloPago;
+	private Integer decimalesMonedaPago;
 	/* Seccion doctoRelacionado */
 	private String idDocumento;
 	private String seriePago;
@@ -31,6 +32,7 @@ public class ComplementoPago {
 	private BigDecimal impSaldoAnterior;
 	private BigDecimal impuestoPagado;
 	private BigDecimal impSaldoInsoluto;
+	private Integer decimalesMonedaDr;
 	/* Seccion retencion */
 	private String impuestoRetencion;
 	private BigDecimal importeRetencion;
@@ -286,6 +288,22 @@ public class ComplementoPago {
 
 	public void setSelloPago(String selloPago) {
 		this.selloPago = selloPago;
+	}
+
+	public Integer getDecimalesMonedaPago() {
+		return decimalesMonedaPago;
+	}
+
+	public void setDecimalesMonedaPago(Integer decimalesMonedaPago) {
+		this.decimalesMonedaPago = decimalesMonedaPago;
+	}
+
+	public Integer getDecimalesMonedaDr() {
+		return decimalesMonedaDr;
+	}
+
+	public void setDecimalesMonedaDr(Integer decimalesMonedaDr) {
+		this.decimalesMonedaDr = decimalesMonedaDr;
 	}
 
 }

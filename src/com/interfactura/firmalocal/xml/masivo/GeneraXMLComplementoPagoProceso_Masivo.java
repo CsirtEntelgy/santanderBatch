@@ -456,8 +456,7 @@ public class GeneraXMLComplementoPagoProceso_Masivo {
 
 												System.out.println("---XML despues de reemplazar cadena original---");
 												System.out.println(baosXml.toString("UTF-8"));
-												System.out
-														.println("---Fin XML despues de reemplazar cadena original---");
+												System.out.println("---Fin XML despues de reemplazar cadena original---");
 
 												invoice.setByteArrXMLSinAddenda(baosXml);
 											}

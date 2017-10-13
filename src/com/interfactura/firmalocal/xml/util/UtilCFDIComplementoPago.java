@@ -567,10 +567,10 @@ public class UtilCFDIComplementoPago {
 			cfdi.setClaveProdServ("84111506");
 			cfdi.setCantidad(new BigDecimal("1"));
 			cfdi.setClaveUnidad("ACT");
-			cfdi.setDescripcion("PAGO");
-			cfdi.setValorUnitario(BigDecimal.ONE);
+			cfdi.setDescripcion("Pago");
+			cfdi.setValorUnitario(BigDecimal.ZERO);
 			cfdi.setImporte(new BigDecimal("0.00"));
-			cfdi.setUnidad("SERVICIO");
+			//cfdi.setUnidad("SERVICIO");
 		}
 
 		// evaluacion del segunda hoja COMPLEMENTOS
@@ -709,7 +709,7 @@ public class UtilCFDIComplementoPago {
 			}
 
 			nextPosition++;
-			if (posicionComplemento == 23) {
+			if (posicionComplemento == 24) {
 				pagos.add(complemento);
 				posicionComplemento = 1;
 			} else {

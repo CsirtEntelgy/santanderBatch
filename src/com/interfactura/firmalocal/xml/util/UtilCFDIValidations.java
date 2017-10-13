@@ -3329,14 +3329,6 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 					sbError.append(
 							"(CFDI33103) El Campo Forma Pago P. se encuentra (Null,Vacio) no contiene un valor"
 									+ complementos + "\n");
-				} else {
-					Map<String, Object> tipoFormaPago_cp = UtilValidationsXML.validFormaPago(tags.mapCatalogos,
-							complementoPago.getFormaPagoP());
-					if (!tipoFormaPago_cp.get("value").toString().equalsIgnoreCase("vacio")) {
-						comp.setFormaPago(tipoFormaPago_cp.get("value").toString());
-					} else {
-						sbError.append(tipoFormaPago_cp.get("message").toString() + "Factura " + complementos + "\n");
-					}
 				}
 			
 				/*   Moneda de pago */
@@ -3344,6 +3336,8 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 					Map<String, Object> tipoMon_cp = UtilValidationsXML.validMoneda(tags.mapCatalogos, complementoPago.getMonedaPago());
 					if (!tipoMon_cp.get("value").toString().equalsIgnoreCase("vacio")) {
 						complementoPago.setMonedaPago(tipoMon_cp.get("value").toString());
+						Integer decimalesMonedaP = UtilCatalogos.findDecimalesMoneda(tags.mapCatalogos, complementoPago.getMonedaPago());
+						complementoPago.setDecimalesMonedaPago(decimalesMonedaP);
 					} else {
 						sbError.append(tipoMon_cp.get("message").toString() + complementos + "\n");
 					}
@@ -3357,6 +3351,8 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 					Map<String, Object> tipoMon_cp = UtilValidationsXML.validMoneda(tags.mapCatalogos, complementoPago.getMonedaDR());
 					if (!tipoMon_cp.get("value").toString().equalsIgnoreCase("vacio")) {
 						complementoPago.setMonedaDR(tipoMon_cp.get("value").toString());
+						Integer decimalesMonedaDR = UtilCatalogos.findDecimalesMoneda(tags.mapCatalogos, complementoPago.getMonedaDR());
+						complementoPago.setDecimalesMonedaDr(decimalesMonedaDR);
 					} else {
 						sbError.append(tipoMon_cp.get("message").toString() + complementos + "\n");
 					}

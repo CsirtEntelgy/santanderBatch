@@ -39,7 +39,9 @@ public class ConvertirCfdiImplV3_3 {
 		}
 		concat.append("Fecha=\"" + Util.convertirFecha(date) + "\" ");
 		concat.append(Util.isNullEmpity(comp.getFolio(), "Folio"));
-		concat.append("FormaPago=\"" + comp.getFormaPago() + "\" ");
+		if(comp.getFormaPago() != null){
+			concat.append("FormaPago=\"" + comp.getFormaPago() + "\" ");
+		}
 		concat.append("LugarExpedicion=\"" + "01219" + "\" ");
 		if(comp.getMetodoPago() != null && comp.getMetodoPago().trim() != ""){
 			concat.append("MetodoPago=\"" + comp.getMetodoPago() + "\" ");
@@ -154,7 +156,9 @@ public class ConvertirCfdiImplV3_3 {
 					importe = UtilCatalogos.decimales(concepto.getImporte().toString(), comp.getDecimalesMoneda());
 				}
 				sbConceptos.append("Importe=\"" + importe + "\" ");
-				sbConceptos.append("Unidad=\"" + concepto.getUnidad() + "\" ");
+				if(concepto.getUnidad() != null){
+					sbConceptos.append("Unidad=\"" + concepto.getUnidad() + "\" ");
+				}
 				sbConceptos.append("ValorUnitario=\"" + concepto.getValorUnitario() + "\"");
 				sbConceptos.append(">");
 				sbConceptos.append(conceptoImpuesto(concepto));
@@ -290,10 +294,17 @@ public class ConvertirCfdiImplV3_3 {
 		attributes.append(Util.isNullEmpity(pago.getFormaPagoP(), "FormaDePagoP"));
 		attributes.append(Util.isNullEmpity(pago.getMonedaPago(), "MonedaP"));
 		if(pago.getMonto() != null){
-			attributes.append(Util.isNullEmpity(pago.getMonto().toString(), "Monto"));
+			String monto = UtilCatalogos.decimales(pago.getMonto().doubleValue()+"", pago.getDecimalesMonedaPago());
+			attributes.append(Util.isNullEmpity(monto, "Monto"));
 		}
 		
 		attributes.append(Util.isNullEmpity(pago.getNumeroOperacion(), "NumOperacion"));
+		
+		if(pago.getTipoCambioPago() != null){
+			String tipoCambioPago = UtilCatalogos.decimales(pago.getTipoCambioPago().toString(), pago.getDecimalesMonedaPago());
+			attributes.append(Util.isNullEmpity(tipoCambioPago, "TipoCambioP"));
+		}
+		
 		
 		doctoRelacionado.append(doctoRelacionado(pago));
 		
@@ -312,19 +323,28 @@ public class ConvertirCfdiImplV3_3 {
 		StringBuilder attributes = new StringBuilder();
 		
 		attributes.append(Util.isNullEmpity(pago.getIdDocumento(), "IdDocumento"));
+		
 		if(pago.getImpuestoPagado() != null){
-			attributes.append(Util.isNullEmpity(pago.getImpuestoPagado().toString(), "ImpPagado"));
+			String impPagado = UtilCatalogos.decimales(pago.getImpuestoPagado().toString(), pago.getDecimalesMonedaDr());
+			attributes.append(Util.isNullEmpity(impPagado, "ImpPagado"));
 		}
 		if(pago.getImpSaldoAnterior() != null){
-			attributes.append(Util.isNullEmpity(pago.getImpSaldoAnterior().toString(), "ImpSaldoAnt"));
+			String impSaldoAnt = UtilCatalogos.decimales(pago.getImpSaldoAnterior().toString(), pago.getDecimalesMonedaDr());
+			attributes.append(Util.isNullEmpity(impSaldoAnt, "ImpSaldoAnt"));
 		}
 		if(pago.getImpSaldoInsoluto() != null){
-			attributes.append(Util.isNullEmpity(pago.getImpSaldoInsoluto().toString(), "ImpSaldoInsoluto"));
+			String impSaldoInsoluto = UtilCatalogos.decimales(pago.getImpSaldoInsoluto().toString(), pago.getDecimalesMonedaDr());
+			attributes.append(Util.isNullEmpity(impSaldoInsoluto, "ImpSaldoInsoluto"));
 		}
+		
 		attributes.append(Util.isNullEmpity(pago.getMetodoPagoDR(), "MetodoDePagoDR"));
 		attributes.append(Util.isNullEmpity(pago.getMonedaDR(), "MonedaDR"));
 		attributes.append(Util.isNullEmpity(pago.getNumParcialidad(), "NumParcialidad"));
 		
+		if(pago.getTipoCambioDR() != null){
+			String tipoCambioDr = UtilCatalogos.decimales(pago.getTipoCambioDR().toString(), pago.getDecimalesMonedaDr());
+			attributes.append(Util.isNullEmpity(tipoCambioDr, "TipoCambioDR"));
+		}
 		
 		if(attributes.toString().trim().length() > 0){
 			concat.append("\n<pago10:DoctoRelacionado ");
