@@ -430,10 +430,10 @@ public class GeneraXMLComplementoPagoProceso_Masivo {
 											/* Se obtiene el totalIvaretenido y se asigna al IVA */
 											Document document = UtilCatalogos.convertStringToDocument(
 													invoice.getByteArrXMLSinAddenda().toString("UTF-8"));
-											String totalIvaRet = UtilCatalogos.getStringValByExpression(document,
-													"//Comprobante/Impuestos/@TotalImpuestosTrasladados");
-											BigDecimal bdIva = new BigDecimal(totalIvaRet);
-											invoice.setIva(bdIva.doubleValue());
+//											String totalIvaRet = UtilCatalogos.getStringValByExpression(document,
+//													"//Comprobante/Impuestos/@TotalImpuestosTrasladados");
+//											BigDecimal bdIva = new BigDecimal(totalIvaRet);
+//											invoice.setIva(bdIva.doubleValue());
 											/* Fin Cambio */
 
 											// doc = UtilCatalogos.convertPathFileToDocument(nameFile);
