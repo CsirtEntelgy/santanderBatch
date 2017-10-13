@@ -3346,6 +3346,11 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 							+ complementos + "\n");
 				}
 			
+				/* Tipo de Cambio Pago */
+				if(complementoPago.getMonedaPago().equalsIgnoreCase("MXN")){
+					complementoPago.setTipoCambioPago(null);
+				}
+				
 				/*   Moneda de DR */
 				if ( complementoPago.getMonedaDR() != null && complementoPago.getMonedaDR().trim().length() > 0) {
 					Map<String, Object> tipoMon_cp = UtilValidationsXML.validMoneda(tags.mapCatalogos, complementoPago.getMonedaDR());
@@ -3359,6 +3364,11 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 				} else {
 					sbError.append("El campo Moneda DR (Null,Vacio) no contiene un valor del catalogo c_Moneda "
 							+ complementos + "\n");
+				}
+				
+				/* Tipo de Cambio DR */
+				if(complementoPago.getMonedaDR().equalsIgnoreCase("MXN")){
+					complementoPago.setTipoCambioDR(null);
 				}
 				
 				/* monoto */
