@@ -305,6 +305,34 @@ public class ConvertirCfdiImplV3_3 {
 			attributes.append(Util.isNullEmpity(tipoCambioPago, "TipoCambioP"));
 		}
 		
+		if (pago.getRfcEmisorCuentaOrden() != null && !pago.getRfcEmisorCuentaOrden().isEmpty()) {
+			attributes.append(Util.isNullEmpity(pago.getRfcEmisorCuentaOrden() , "RfcEmisorCtaOrd"));
+		}
+		if (pago.getNombreBancoOrdinarioExt() != null && !pago.getNombreBancoOrdinarioExt().isEmpty()) {
+			attributes.append(Util.isNullEmpity(pago.getNombreBancoOrdinarioExt() , "NomBancoOrdExt"));
+		}
+		if (pago.getCuentaOrdenante() != null && !pago.getCuentaOrdenante().isEmpty()) {
+			attributes.append(Util.isNullEmpity(pago.getCuentaOrdenante(), "CtaOrdenante"));
+		}
+		if (pago.getRfcEmisorCtaBeneficiario() != null && !pago.getRfcEmisorCtaBeneficiario().isEmpty()) {
+			attributes.append(Util.isNullEmpity(pago.getRfcEmisorCtaBeneficiario(), "RfcEmisorCtaBen"));
+		}
+		if (pago.getCuentaBeneficiario() != null && !pago.getCuentaBeneficiario().isEmpty()) {
+			attributes.append(Util.isNullEmpity(pago.getCuentaBeneficiario(), "CtaBeneficiario"));
+		}
+		if (pago.getTipoCadenaPago() != null && !pago.getTipoCadenaPago().isEmpty()) {
+			attributes.append(Util.isNullEmpity(pago.getTipoCadenaPago(), "TipoCadPago"));
+		}
+		if (pago.getCertificadoPago() != null && !pago.getCertificadoPago().isEmpty()) {
+			attributes.append(Util.isNullEmpity(pago.getCertificadoPago(), "CertPago"));
+		}
+		if (pago.getCadenaPago() != null && !pago.getCadenaPago().isEmpty()) {
+			attributes.append(Util.isNullEmpity(pago.getCadenaPago(), "CadPago"));
+		}
+		if (pago.getSelloPago() != null && !pago.getSelloPago().isEmpty()) {
+			attributes.append(Util.isNullEmpity(pago.getSelloPago(), "SelloPago"));
+		}
+		
 		
 		doctoRelacionado.append(doctoRelacionado(pago));
 		
@@ -323,6 +351,13 @@ public class ConvertirCfdiImplV3_3 {
 		StringBuilder attributes = new StringBuilder();
 		
 		attributes.append(Util.isNullEmpity(pago.getIdDocumento(), "IdDocumento"));
+		
+		if (pago.getSeriePago() != null && !pago.getSeriePago().isEmpty()) {
+			attributes.append(Util.isNullEmpity(pago.getSeriePago(), "Serie"));
+		}
+		if (pago.getFolioPago() != null &&  !pago.getFolioPago().isEmpty()) {
+			attributes.append(Util.isNullEmpity(pago.getFolioPago(), "Folio"));
+		}
 		
 		if(pago.getImpuestoPagado() != null){
 			String impPagado = UtilCatalogos.decimales(pago.getImpuestoPagado().toString(), pago.getDecimalesMonedaDr());
