@@ -410,7 +410,8 @@ public class GeneraXMLProceso_Masivo {
 											fiscalEntity = new FiscalEntity();
 											fiscalEntity.setTaxID(comp.getEmisor().getRfc());
 											fiscalEntity = fiscalEntityManager.findByRFCA(fiscalEntity);
-											
+											invoice.setFe_Id(String.valueOf(fiscalEntity.getId()));
+											invoice.setFe_taxid(String.valueOf(fiscalEntity.getTaxID()));
 											ByteArrayOutputStream baosXml = xmlGenerator.convierte(comp);
 											invoice.setByteArrXMLSinAddenda(baosXml);
 											
