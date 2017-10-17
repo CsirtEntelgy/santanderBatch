@@ -82,7 +82,14 @@ public class UtilCFDIValidations {
 	private static final String POSTAL_CODE_PATTERN = "([0-9]{5})";
 	
 	private static final String APARTADO_COMPLEMENT = "[^|]{1,300}";
-	private static final String APART_COMPLEMENT_RFC_ACOUTN = "[A-Z0-9_]{10,50}";
+	private static final String APART_COMPLEMENT_RFC_ACOUTN = "XEXX010101000|[A-Z&amp;Ñ]{3}[0-9]{2}(0[1-9]|1[012])(0[1-9]|[12][0-9]|3[01])[A-Z0-9]{2}[0-9A]";
+	private static final String APARTADO_COMPLEMENT_NBANCOORD = "[^|]{1,300}";
+	private static final String APARTADO_COMPLEMENT_CORDENANTE = "[A-Z0-9_]{10,50}";
+	private static final String APARTADO_COMPLEMENT_CBENEFICIARIO = "[A-Z0-9_]{10,50}";
+	private static final String APARTADO_COMPLEMENT_ID_DOCUMENTO = "([a-f0-9A-F]{8}-[a-f0-9A-F]{4}-[a-f0-9A-F]{4}-[a-f0-9A-F]{4}-[a-f0-9A-F]{12})|([0-9]{3}-[0-9]{2}-[0-9]{9})";
+	private static final String APARTADO_COMPLEMENT_SERIE = "[^|]{1,25}";
+	private static final String APARTADO_COMPLEMENT_FOLIO = "[^|]{1,40}";
+	private static final String APARTADO_COMPLEMENT_NUM_PARCIALIDAD = "[1-9][0-9]{0,2}";
 
 	Vector<String> vectorCantidad = null;
 	Vector<String> vectorUM = null;
@@ -2439,9 +2446,6 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 	}
 
 	/* RFC del cliente */
-	boolean readFromFile = false;
-	boolean isGenerico= false;
-	boolean hasIdExtranjero = false;
 	if (comp.getCustomerRfcCellValue() == null) {
 		sbError.append("Posicion RFC del Cliente requerida (Null) - Factura " + factura + "\n");
 	} else {
@@ -2456,35 +2460,6 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 				System.out.println("Reemplazar RFC incorrecto: "
 						+ comp.getCustomerRfcCellValue().trim().toUpperCase() + " por generico: XAXX010101000");
 				comp.setCustomerRfcCellValue("XAXX010101000");
-			}
-			if (comp.getCustomerRfcCellValue().trim().toUpperCase().equals("XEXX010101000")
-					|| comp.getCustomerRfcCellValue().trim().toUpperCase().equals("XAXX010101000")
-					|| comp.getCustomerRfcCellValue().trim().equals("XEXE010101000")) {
-				
-				isGenerico = true;
-				if (comp.getStrIDExtranjero() == null || comp.getStrIDExtranjero().trim().equals("")) {
-					hasIdExtranjero = false;
-				} else {
-					hasIdExtranjero = true;
-					System.out.println("ID Extranjero: " + comp.getStrIDExtranjero());
-					customer = customerManager.findByIdExtranjero(comp.getStrIDExtranjero());
-					if (customer != null) {
-						readFromFile = false;
-					}else{
-						readFromFile = true;
-					}
-				}
-			}else{
-				isGenerico = false;
-				if (fiscalEntity != null){
-					customer = customerManager.get(comp.getCustomerRfcCellValue(),
-							String.valueOf(fiscalEntity.getId()));
-					if (customer != null) {
-						readFromFile = false;
-					}else{
-						readFromFile = true;
-					}
-				}
 			}
 		}
 	}
@@ -3311,27 +3286,39 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 			comp.setTotal(total);
 		}
 	}
+	
 	if (fErrorIVA && fAplicaIVA)
 		sbError.append(sbErrorIVA.toString());
-	int contadorComplementos = 0;
+	//Validacion de complemento
 	int complementos = 0;
 	if(comp.getTipoEmision().equalsIgnoreCase(TipoEmision.RECEPCION_PAGOS)){
 		if(comp.getComplementPagos() != null && comp.getComplementPagos().size() > 0){
 			for(ComplementoPago complementoPago : comp.getComplementPagos()){
-				contadorComplementos++;
 				complementos++;
-				if(complementoPago.getFechaPago() ==  null || complementoPago.getFechaPago().toString().trim().length() == 0){
-					sbError.append("(1) Posicion fecha requerida (Null) - Complementos " + complementos + "\n");
-				}
-				/* Forma de pago */
 				
+				// 2 Fecha de pago 
+				if(complementoPago.getFechaPago() ==  null || complementoPago.getFechaPago().toString().trim().length() == 0){
+					sbError.append("Posicion fecha requerida (Null) - Factura " + factura 
+							+ " - Complemento " + complementos + "\n");
+				}
+				
+				/* 3 Forma de pago P */
 				if (complementoPago.getFormaPagoP() == null || complementoPago.getFormaPagoP().trim().equals("")) {
 					sbError.append(
-							"(CFDI33103) El Campo Forma Pago P. se encuentra (Null,Vacio) no contiene un valor"
-									+ complementos + "\n");
+							"El Campo Forma Pago P. se encuentra (Null,Vacio) no contiene un valor - Factura " + factura
+									+ " - Complemento " + complementos + "\n");
+				}else{
+					Map<String, Object> tipoFormaPago = UtilValidationsXML.validFormaPago(tags.mapCatalogos,
+							complementoPago.getFormaPagoP().trim());
+					if (!tipoFormaPago.get("value").toString().equalsIgnoreCase("vacio")) {
+						complementoPago.setFormaPagoP(tipoFormaPago.get("value").toString());
+					} else {
+						sbError.append(tipoFormaPago.get("message").toString() + " - Factura" + factura 
+								+ " - Complemento " + complementos + "\n");
+					}
 				}
 			
-				/*   Moneda de pago */
+				/* 4 Moneda de pago */
 				if ( complementoPago.getMonedaPago() != null && complementoPago.getMonedaPago().trim().length() > 0) {
 					Map<String, Object> tipoMon_cp = UtilValidationsXML.validMoneda(tags.mapCatalogos, complementoPago.getMonedaPago());
 					if (!tipoMon_cp.get("value").toString().equalsIgnoreCase("vacio")) {
@@ -3339,119 +3326,263 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 						Integer decimalesMonedaP = UtilCatalogos.findDecimalesMoneda(tags.mapCatalogos, complementoPago.getMonedaPago());
 						complementoPago.setDecimalesMonedaPago(decimalesMonedaP);
 					} else {
-						sbError.append(tipoMon_cp.get("message").toString() + complementos + "\n");
+						sbError.append(tipoMon_cp.get("message").toString() + " - Factura " + factura 
+								+ " - Complemento " + complementos + "\n");
 					}
 				} else {
-					sbError.append("El campo Moneda de pago (Null,Vacio) no contiene un valor del catalogo c_Moneda "
-							+ complementos + "\n");
-				}
-			
-				/* Tipo de Cambio Pago */
-				if(complementoPago.getMonedaPago().equalsIgnoreCase("MXN")){
-					complementoPago.setTipoCambioPago(null);
+					sbError.append("El campo Moneda de pago (Null,Vacio) no contiene un valor del catalogo c_Moneda - Factura " + factura
+							+ " - Complemento " + complementos + "\n");
 				}
 				
-				/*   Moneda de DR */
-				if ( complementoPago.getMonedaDR() != null && complementoPago.getMonedaDR().trim().length() > 0) {
+				/* 5 Tipo de Cambio Pago */
+				if(complementoPago.getMonedaPago().equalsIgnoreCase("MXN")){
+					complementoPago.setTipoCambioPago(null);
+				}else{
+					if(complementoPago.getTipoCambioPago() == null || complementoPago.getTipoCadenaPago().isEmpty()){
+						sbError.append("El campo Tipo de Cambio P. no tiene un valor (Null,Vacio) - Factura " + factura
+								+ " - Complemento " + complementos + "\n");
+					}
+				}
+				
+				/* 6 monto */
+				if(complementoPago.getMonto() == null){
+					sbError.append("El importe se encuentra (Null,Vacio) no contiene un valor - Factura " + factura
+								+ " - Complemento " + complementos + "\n");
+				}
+				
+				/* 7 numero operacion */
+				if(complementoPago.getNumeroOperacion() != null || complementoPago.getNumeroOperacion().trim().length() > 0){
+					if(complementoPago.getNumeroOperacion().trim().length() < 100){
+						if(!validaDatoRE(complementoPago.getNumeroOperacion().trim(), APARTADO_COMPLEMENT)){
+							sbError.append("El campo Numero Operacion tiene un formato incorrecto - Factura " + factura
+								+ " - Complemento " + complementos + "\n");
+						}
+					}else{
+						sbError.append("la logitud del campo Numero Operación ha pasado el maximo de 100 caracteres. - Factura " + factura
+								+ " - Complemento " + complementos + "\n");
+					}
+				}
+				
+				/* 8 RFC Emisor Cuenta Orden */
+				if(complementoPago.getRfcEmisorCuentaOrden() != null && !complementoPago.getRfcEmisorCuentaOrden().trim().isEmpty()){
+					if(complementoPago.getRfcEmisorCuentaOrden().trim().length() <= 13 ){
+						if(!validaDatoRE(complementoPago.getRfcEmisorCuentaOrden().trim(),APART_COMPLEMENT_RFC_ACOUTN ) ){
+							sbError.append("El campo RFC Emisor Cuenta Orden tiene un formato incorrecto. - Factura " + factura
+									+ " - Complemento " + complementos + "\n");
+						}
+					}else{
+						sbError.append("El campo RFC Emisor Cuenta Orden ha pasado el maximo de 13 caracteres. - Factura " + factura
+								+ " - Complemento " + complementos + "\n");
+					}
+				}
+				
+				/* 9 Nombre banco ordinario Ext*/
+				if (comp.getCustomerRfcCellValue().trim().toUpperCase().equals("XEXX010101000")
+						|| comp.getCustomerRfcCellValue().trim().toUpperCase().equals("XAXX010101000")
+						|| comp.getCustomerRfcCellValue().trim().equals("XEXE010101000")) {
+					if(complementoPago.getNombreBancoOrdinarioExt() == null 
+							|| complementoPago.getNombreBancoOrdinarioExt().isEmpty()){
+						sbError.append("El campo Nombre Banco Ordinario Ext. es requerido para RFC extranjero - Factura " + factura
+								+ " - Complemento " + complementos + "\n");
+					}else{
+						if(complementoPago.getNombreBancoOrdinarioExt().length() <= 300){
+							if(!validaDatoRE(complementoPago.getNombreBancoOrdinarioExt().trim(), APARTADO_COMPLEMENT_NBANCOORD )){
+								sbError.append("El campo Nombre Banco Ordinario Ext. tiene un formato incorrecto - Factura " + factura
+										+ " - Complemento " + complementos + "\n");
+							}
+						}else{
+							sbError.append("El campo Nombre Banco Ordinario Ext. ha superado el maximo de 300 caracteres - Factura " + factura
+									+ " - Complemento " + complementos + "\n");
+						}
+					}
+				}
+				
+				/* 10 cuenta ordenante*/
+				if(complementoPago.getCuentaOrdenante() != null && !complementoPago.getCuentaOrdenante().isEmpty()){
+					if(complementoPago.getCuentaOrdenante().length() <= 50){
+						if(!validaDatoRE(complementoPago.getCuentaOrdenante().trim(), APARTADO_COMPLEMENT_CORDENANTE )){
+							sbError.append("El campo Cuenta Ordenante tiene un formato incorrecto - Factura " + factura
+									+ " - Complemento " + complementos + "\n");
+						}
+					}else{
+						sbError.append("El campo Cuenta Ordenante ha superado el maximo de 50 caracteres - Factura " + factura
+								+ " - Complemento " + complementos + "\n");
+					}
+				}
+				
+				/* 11 RFC Emisor Cuenta Beneficiario */
+				if(complementoPago.getRfcEmisorCtaBeneficiario() != null && !complementoPago.getRfcEmisorCtaBeneficiario().trim().isEmpty()){
+					if(complementoPago.getRfcEmisorCtaBeneficiario().trim().length() <= 13 ){
+						// APART_COMPLEMENT_RFC_ACOUTN
+						if(!validaDatoRE(complementoPago.getRfcEmisorCtaBeneficiario().trim(),APART_COMPLEMENT_RFC_ACOUTN ) ){
+							sbError.append("El campo RFC Emisor Cuenta Beneficiario tiene un formato incorrecto. - Factura " + factura
+								+ " - Complemento " + complementos + "\n");
+						}
+					}else{
+						sbError.append("El campo RFC Emisor Cuenta Beneficiario ha pasado el maximo de 13 caracteres - Factura " + factura
+								+ " - Complemento " + complementos + "\n");
+					}
+				}
+				
+				/* 12 Cuenta beneficiario */
+				if(complementoPago.getCuentaBeneficiario() != null && !complementoPago.getCuentaBeneficiario().trim().isEmpty()){
+					if(complementoPago.getCuentaBeneficiario().trim().length() <= 50){
+						if(!validaDatoRE(complementoPago.getCuentaBeneficiario().trim(), APARTADO_COMPLEMENT_CBENEFICIARIO ) ){
+							sbError.append("El campo Cuenta Beneficiario tiene un formato incorrecto. - Factura " + factura
+								+ " - Complemento " + complementos + "\n");
+						}
+					}else{
+						sbError.append("El campo Cuenta beneficiario ha pasado el maximo de 50 caracteres. - Factura " + factura
+								+ " - Complemento " + complementos + "\n");
+					}
+				}
+				
+				/* 13 Tipo Cadena de Pago */
+				if(complementoPago.getTipoCadenaPago() != null && !complementoPago.getTipoCadenaPago().trim().isEmpty() ){
+						String tipoCadenaP = UtilCatalogos
+								.findDescripcionTipoCadenaPagoByDescripcion(tags.mapCatalogos, 
+										complementoPago.getTipoCadenaPago().trim());
+						
+						if(tipoCadenaP.equalsIgnoreCase("vacio")){
+							sbError.append("El campo Tipo Cadena de Pago no tiene un valor en el catalogo c_TipocadenaPago. - Factura "
+									+ factura + " - Complemento " + complementos + "\n");
+						}else{
+							complementoPago.setTipoCadenaPago(tipoCadenaP);
+						}
+				}
+				
+				/* 14 Cadena de Pago */
+				if(complementoPago.getCadenaPago() != null && !complementoPago.getCadenaPago().trim().isEmpty() ){
+					if(complementoPago.getCadenaPago().trim().length() > 8192){
+						sbError.append("El campo Cadena de Pago exede el limite de 1892 caracteres. - Factura "
+								+ factura + " - Complemento " + complementos + "\n");
+					}
+				}
+				
+				/* 15 ID Documento */
+				if (complementoPago.getIdDocumento() != null && !complementoPago.getIdDocumento().trim().isEmpty()) {
+					if(complementoPago.getIdDocumento().trim().length() <= 36){
+						if(!validaDatoRE(complementoPago.getIdDocumento().trim(), APARTADO_COMPLEMENT_ID_DOCUMENTO ) ){
+							sbError.append("El campo ID Documento tiene un formato incorrecto. - Factura " + factura
+								+ " - Complemento " + complementos + "\n");
+						}
+					}else{
+						sbError.append("El campo ID Documento ha pasado el maximo de 36 caracteres. - Factura " + factura
+								+ " - Complemento " + complementos + "\n");
+					}
+				} else {
+					sbError.append("El campo ID Documento es requerido. - Factura "
+							+ factura + " - Complemento " + complementos + "\n");
+				}
+				
+				/* 16 Serie */
+				if (complementoPago.getSeriePago() != null && !complementoPago.getSeriePago().trim().isEmpty()) {
+					if(complementoPago.getSeriePago().trim().length() <= 25){
+						if(!validaDatoRE(complementoPago.getSeriePago().trim(), APARTADO_COMPLEMENT_SERIE ) ){
+							sbError.append("El campo Serie tiene un formato incorrecto. - Factura " + factura
+								+ " - Complemento " + complementos + "\n");
+						}
+					}else{
+						sbError.append("El campo Serie ha pasado el maximo de 25 caracteres. - Factura " + factura
+								+ " - Complemento " + complementos + "\n");
+					}
+				}
+				
+				/* 17 Folio */
+				if (complementoPago.getFolioPago() != null && !complementoPago.getFolioPago().trim().isEmpty()) {
+					if(complementoPago.getFolioPago().trim().length() <= 40){
+						if(!validaDatoRE(complementoPago.getFolioPago().trim(), APARTADO_COMPLEMENT_FOLIO ) ){
+							sbError.append("El campo Folio tiene un formato incorrecto. - Factura " + factura
+								+ " - Complemento " + complementos + "\n");
+						}
+					}else{
+						sbError.append("El campo Folio ha pasado el maximo de 40 caracteres. - Factura " + factura
+								+ " - Complemento " + complementos + "\n");
+					}
+				}
+				
+				/* 18 Moneda de DR */
+				if ( complementoPago.getMonedaDR() != null && !complementoPago.getMonedaDR().trim().isEmpty()) {
 					Map<String, Object> tipoMon_cp = UtilValidationsXML.validMoneda(tags.mapCatalogos, complementoPago.getMonedaDR());
 					if (!tipoMon_cp.get("value").toString().equalsIgnoreCase("vacio")) {
 						complementoPago.setMonedaDR(tipoMon_cp.get("value").toString());
 						Integer decimalesMonedaDR = UtilCatalogos.findDecimalesMoneda(tags.mapCatalogos, complementoPago.getMonedaDR());
 						complementoPago.setDecimalesMonedaDr(decimalesMonedaDR);
 					} else {
-						sbError.append(tipoMon_cp.get("message").toString() + complementos + "\n");
+						sbError.append(tipoMon_cp.get("message").toString() + " - Factura " + factura
+								+ " - Complemento " + complementos + "\n");
 					}
 				} else {
-					sbError.append("El campo Moneda DR (Null,Vacio) no contiene un valor del catalogo c_Moneda "
-							+ complementos + "\n");
+					sbError.append("El campo Moneda DR (Null,Vacio) no contiene un valor del catalogo c_Moneda - Factura " + factura
+								+ " - Complemento " + complementos + "\n");
 				}
 				
-				/* Tipo de Cambio DR */
-				if(complementoPago.getMonedaDR().equalsIgnoreCase("MXN")){
+				/* 19 Tipo de Cambio DR */
+				if(complementoPago.getMonedaPago() != null){
+					if(complementoPago.getMonedaDR().equalsIgnoreCase("MXN") 
+							&& complementoPago.getMonedaDR().equalsIgnoreCase(complementoPago.getMonedaPago())){
+						complementoPago.setTipoCambioDR(null);
+					}else{
+						sbError.append("Tipo de Cambio DR es requerido cuando MonedaDR es diferente a Moneda de Pago. - Factura " + factura
+									+ " - Complemento " + complementos + "\n");
+					}
+				}else{
 					complementoPago.setTipoCambioDR(null);
 				}
 				
-				/* monoto */
-				if(complementoPago.getMonto() == null){
-					sbError.append("El importe se encuentra (Null,Vacio) no contiene un valor"
-							+ complementos + "\n");
-				}
-				/* numero de operacion */
 				
-				if(complementoPago.getNumeroOperacion() != null || complementoPago.getNumeroOperacion().trim().length() > 0){
-					if(complementoPago.getNumeroOperacion().trim().length() < 100){
-						if(!validaDatoRE(complementoPago.getNumeroOperacion().trim(), APARTADO_COMPLEMENT)){
-							sbError.append("(CFDI33112) El campo Numero Operacion tiene un formato incorrecto " + complementos + "\n");
-						}
-					}else{
-						sbError.append("la logitud del campo Numero Operación ha pasado el maximo de 100 caracteres."
-								+ complementos + "\n");
-					}
-				}else{
-					sbError.append("El campo Numero de Operación se encuentra (Null, Vacio), no contiene un valor."
-							+ complementos + "\n");
-				}
-				/* RFC Emisor Cuenta orden */
-				if(complementoPago.getRfcEmisorCtaBeneficiario() != null || complementoPago.getRfcEmisorCtaBeneficiario().trim().length() > 0){
-					if(complementoPago.getRfcEmisorCtaBeneficiario().trim().length() <= 13 ){
-						// APART_COMPLEMENT_RFC_ACOUTN
-						if( validaDatoRE(complementoPago.getRfcEmisorCtaBeneficiario().trim(),APART_COMPLEMENT_RFC_ACOUTN ) ){
-							
-						}
-					   // valida que cumpla con ("XEXX010101000") y 
-                       //  XEXX010101000|[A-Z&amp;Ñ]{3}[0-9]{2}(0[1-9]|1[012])(0[1-9]|[12][0-9]|3[01])[A-Z0-9]{2}[0-9A]
-					   /* validar la seccion del refc */
-						Map<String, Object> tipoFormaPago_cp = UtilValidationsXML.validFormaPago(tags.mapCatalogos, comp.getFormaPago());
-						
-					}else{
-						sbError.append("El campo RFC Emisor Cuenta Beneficiario sha pasado el maximo de 13 caracteres."
-								+ complementos + "\n");
-					}
-				}else{
-					sbError.append("El campo RFC Emisor Cuenta Beneficiario se encuentra (Null, Vacio), no contiene un valor."
-							+ complementos + "\n");
-				}
-				
-				/* Nombre banco ordinario Ext*/
-				
-				
-				/* Cuenta beneficiario */
-				if(complementoPago.getCuentaBeneficiario() != null && complementoPago.getCuentaBeneficiario().trim().length() > 0 ){
-					if(complementoPago.getCuentaBeneficiario().trim().length() < 50){
-						
-					}else{
-						sbError.append("la logitud del campo Cuenta beneficiario ha pasado el maximo de 50 caracteres."
-								+ complementos + "\n");
-					}
-				}
-				/*Metodo de pago DR*/
-					if (complementoPago.getMetodoPagoDR() == null || complementoPago.getMetodoPagoDR().trim().equals("")) {
-						sbError.append(
-								"(CFDI33121) El Campo Metodo Pago DR No Contiene Un Valor Del Catalogo C_MetodoPago - Factura "
-										+ factura + "\n");
+				/* 20 Metodo de pago DR*/
+				if (complementoPago.getMetodoPagoDR() == null || complementoPago.getMetodoPagoDR().trim().isEmpty()) {
+					sbError.append(
+							"El Campo Metodo Pago DR No Contiene Un Valor Del Catalogo C_MetodoPago. - Factura " + factura
+								+ " - Complemento " + complementos + "\n");
+				} else {
+					Map<String, Object> tipoMetPag = UtilValidationsXML.validMetodPago(tags.mapCatalogos,
+							complementoPago.getMetodoPagoDR());
+					if (tipoMetPag.get("value").toString().equals("vacio")) {
+						sbError.append(tipoMetPag.get("message").toString() +  " - Factura " + factura
+								+ " - Complemento " + complementos + "\n");
 					} else {
-						Map<String, Object> tipoMetPag = UtilValidationsXML.validMetodPago(tags.mapCatalogos,
-								complementoPago.getMetodoPagoDR());
-						if (tipoMetPag.get("value").toString().equals("vacio")) {
-							sbError.append(tipoMetPag.get("message").toString() + factura + "\n");
-						} else {
-							complementoPago.setMetodoPagoDR(tipoMetPag.get("value").toString());
+						complementoPago.setMetodoPagoDR(tipoMetPag.get("value").toString());
+					}
+				}
+				
+				/* 21 Numero Parcialidad*/
+				if(complementoPago.getMetodoPagoDR().equalsIgnoreCase("PPD")){
+					if (complementoPago.getNumParcialidad() == null || complementoPago.getNumParcialidad().trim().isEmpty()) {
+						sbError.append("El campo Numero Parcialidad es requerido para el metodo de pago \"Pago en parcialidades o diferido\" - Factura " + factura
+								+ " - Complemento " + complementos + "\n");
+					}else{
+						if(!validaDatoRE(complementoPago.getNumParcialidad().trim(), APARTADO_COMPLEMENT_NUM_PARCIALIDAD)){
+							sbError.append("El campo Numero Parcialidad tiene un formato incorrecto. - Factura " + factura
+								+ " - Complemento " + complementos + "\n");
 						}
 					}
-					/* Forma de pago */
-						if (complementoPago.getFormaPagoP() == null || complementoPago.getFormaPagoP().trim().equals("")) {
-							sbError.append(
-									"(CFDI33103) El Campo Forma Pago P. No Contiene Un Valor Del Catalogo C_FormaPago - Factura "
-											+ factura + "\n");
-						} else {
-							Map<String, Object> tipoFormaPago = UtilValidationsXML.validFormaPago(tags.mapCatalogos,
-									complementoPago.getFormaPagoP());
-							if (!tipoFormaPago.get("value").toString().equalsIgnoreCase("vacio")) {
-								complementoPago.setFormaPagoP(tipoFormaPago.get("value").toString());
-							} else {
-								sbError.append(tipoFormaPago.get("message").toString() + "Factura " + factura + "\n");
-							}
-						}
+				}
+				
+				/* 22 Imp. Saldo Anterior*/
+				if(complementoPago.getMetodoPagoDR().equalsIgnoreCase("PPD")){
+					if (complementoPago.getImpSaldoAnterior() == null) {
+						sbError.append("El campo Imp. Saldo Anterior es requerido para el metodo de pago \"Pago en parcialidades o diferido\" - Factura " + factura
+								+ " - Complemento " + complementos + "\n");
+					}
+				}
+				
+				/* 23 Impuesto Pagado*/
+				if(complementoPago.getTipoCambioDR() != null){
+					if (complementoPago.getImpuestoPagado() == null) {
+						sbError.append("El campo Impuesto Pagado es requerido - Factura " + factura
+								+ " - Complemento " + complementos + "\n");
+					}
+				}
+				
+				/* 24 Imp. Saldo Insoluto*/
+				if(complementoPago.getMetodoPagoDR().equalsIgnoreCase("PPD")){
+					if (complementoPago.getImpSaldoInsoluto() == null) {
+						sbError.append("El campo Imp. Saldo Insoluto es requerido para el metodo de pago \"Pago en parcialidades o diferido\" - Factura " + factura
+								+ " - Complemento " + complementos + "\n");
+					}
+				}
 				
 			}
 		}

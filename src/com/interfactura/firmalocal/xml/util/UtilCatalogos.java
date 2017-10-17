@@ -2491,4 +2491,32 @@ public class UtilCatalogos
 	        }
 	        return sbError.toString();
 	    }
+	    
+	  //encuentra clave por descripcion
+		public static String findDescripcionTipoCadenaPagoByDescripcion(Map<String, ArrayList<CatalogosDom>> mapCatalogos,
+				String tipoCadenaPago) {
+			String response = "";
+			if (mapCatalogos.size() > 0 && tipoCadenaPago.trim() != "") {
+				for (int i = 0; i < mapCatalogos.get("TipoCadenaPago").size(); i++) {
+					if (mapCatalogos.get("TipoCadenaPago").get(i).getVal2() != null) {
+						if (mapCatalogos.get("TipoCadenaPago").get(i).getVal2().equalsIgnoreCase(tipoCadenaPago)) {
+							if (mapCatalogos.get("TipoCadenaPago").get(i).getVal1() != null) {
+								response = mapCatalogos.get("TipoCadenaPago").get(i).getVal1();
+							} else {
+								response = "vacio";
+							}
+							break;
+						} else {
+							response = "vacio";
+						}
+					} else {
+						response = "vacio";
+					}
+				}
+			} else {
+				response = "vacio";
+			}
+			return response;
+		}
+		
 }
