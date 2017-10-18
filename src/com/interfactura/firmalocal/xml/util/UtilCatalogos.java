@@ -2519,4 +2519,81 @@ public class UtilCatalogos
 			return response;
 		}
 		
+		// Validacion Encuentra Valor de Retencion del catalogo claveProdServ a travez
+		// de la descripcion AMDA
+		public static boolean validaNumAuth(Map<String, ArrayList<CatalogosDom>> mapCatalogos, String value) {
+			boolean response = false;
+			logger.info("validaNumAuth AMDA: " + value);
+
+			if (value != null && value.trim().length() > 0) {
+				String regex = "^[0-9a-zA-Z]{5}";
+				if (value.matches(regex)) {
+					response = true;
+				} else {
+					response = false;
+				}
+			} else {
+				response = false;
+			}
+			logger.info("validaNumAuth AMDA response: " + response);
+			return response;
+		}
+		
+		// Validacion Encuentra Valor de Retencion del catalogo claveProdServ a travez
+		// de la descripcion AMDA
+		public static boolean validaCFDIRelacional(Map<String, ArrayList<CatalogosDom>> mapCatalogos, String value) {
+			boolean response = false;
+			String valres = "";
+			logger.info("validaCFDIRelacional AMDA: " + value);
+
+			if (value != null && value.trim().length() > 0) {
+				String regex = "^[a-f0-9A-F]{8}-[a-f0-9A-F]{4}-[a-f0-9A-F]{4}-[a-f0-9A-F]{4}-[a-f0-9A-F]{12}";
+
+				if (value.matches(regex)) {
+					response = true;
+				} else {
+					response = false;
+				}
+			} else {
+				response = false;
+			}
+			logger.info("validaCFDIRelacional AMDA response: " + response);
+			return response;
+		}
+		
+		// Validacion Encuentra Valor de Tipo Relacion del catalogo tipoRelacion a
+		// travez de la descripcion AMDA
+		public static String validaTipoRelacion(Map<String, ArrayList<CatalogosDom>> mapCatalogos, String value,
+				Integer cfdiRelacion) {
+			String response = "";
+			String valres = "";
+			logger.info("validaCFDIRelacional AMDA: " + value);
+			if (mapCatalogos.size() > 0 && value != null) {
+				for (int i = 0; i < mapCatalogos.get("TipoRelacion").size(); i++) {
+					if (mapCatalogos.get("TipoRelacion").get(i).getVal2() != null) {
+						if (mapCatalogos.get("TipoRelacion").get(i).getVal2().equalsIgnoreCase(value)) {
+							response = mapCatalogos.get("TipoRelacion").get(i).getVal1();
+							break;
+						} else {
+							response = "No se encontro el Tipo de Relacion en el catalogo c_TipoRelacion";
+						}
+
+					} else {
+						response = "No se encontro el Tipo de Relacion en el catalogo c_TipoRelacion";
+					}
+
+				}
+
+			} else {
+				if (value == null) {
+					response = "Es requerido un Tipo de Relacion ya que el campo CFDI Relacional tiene informacion";
+				} else {
+					response = "No se encontro el Tipo de Relacion en el catalogo c_TipoRelacion";
+				}
+
+			}
+			logger.info("validaCFDIRelacional AMDA response: " + response);
+			return response;
+		}
+		
 }

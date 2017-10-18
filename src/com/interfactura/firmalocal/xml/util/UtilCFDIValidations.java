@@ -36,11 +36,13 @@ import com.interfactura.firmalocal.datamodel.Part;
 import com.interfactura.firmalocal.datamodel.Retenciones;
 import com.interfactura.firmalocal.datamodel.TimbreFiscal;
 import com.interfactura.firmalocal.datamodel.Traslados;
+import com.interfactura.firmalocal.domain.entities.CFDFieldsV22;
 import com.interfactura.firmalocal.domain.entities.CodigoISO;
 import com.interfactura.firmalocal.domain.entities.Customer;
 import com.interfactura.firmalocal.domain.entities.FiscalEntity;
 import com.interfactura.firmalocal.domain.entities.Iva;
 import com.interfactura.firmalocal.pdf.util.NumberToLetterConverter;
+import com.interfactura.firmalocal.persistence.CFDFieldsV22Manager;
 import com.interfactura.firmalocal.persistence.CodigoISOManager;
 import com.interfactura.firmalocal.persistence.CustomerManager;
 import com.interfactura.firmalocal.persistence.FiscalEntityManager;
@@ -61,6 +63,10 @@ public class UtilCFDIValidations {
 	private IvaManager ivaManager;
 	@Autowired(required = true)
 	private CodigoISOManager codigoISOManager;
+	
+	@Autowired(required = true)
+    private CFDFieldsV22Manager cfdFieldsV22Manager;
+	
 	private static final String RE_DECIMAL = "[0-9]+(\\.[0-9][0-9]?[0-9]?[0-9]?)?";
 	private static final String RE_MAIL = "^[_a-z0-9-]+(\\.[_a-z0-9-]+)*@[a-z0-9-]+(\\.[a-z0-9-]+)*(\\.[a-z]{2,3})$";
 	private static final String RE_DECIMAL_NEGATIVO = "[\\-]?[0-9]{1,10}(\\.[0-9]{0,4})?";
@@ -80,6 +86,8 @@ public class UtilCFDIValidations {
 	private static final String RFC_PATTERN_TWO = "[A-Z&Ñ]{3,4}[0-9]{2}(0[1-9]|1[012])(0[1-9]|[12][0-9]|3[01])[A-Z0-9]{2}[0-9A]";
 	private static final String FECHA_RECEPCION_PATTERN = "([0-2][0-9]||3[0-1])/(0[0-9]||1[0-2])/((19|20)\\d\\d)";
 	private static final String POSTAL_CODE_PATTERN = "([0-9]{5})";
+	private static final String RE_CHAR = "[A-Za-z 0-9ÑñáÁéÉíÍóÓúÚ\\.,()\\-\\/&]+";
+	private static final String RE_CHAR_NUMBER = "[A-Za-z0-9]+";
 	
 	private static final String APARTADO_COMPLEMENT = "[^|]{1,300}";
 	private static final String APART_COMPLEMENT_RFC_ACOUTN = "XEXX010101000|[A-Z&amp;Ñ]{3}[0-9]{2}(0[1-9]|1[012])(0[1-9]|[12][0-9]|3[01])[A-Z0-9]{2}[0-9A]";
@@ -2215,6 +2223,7 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 	FiscalEntity fiscalEntity = null;
 	Customer customer = null;
 	StringBuilder sbError = new StringBuilder();
+	CFDFieldsV22 cfdFieldsV22 = null;
 	System.out.println("Tipo Emision factura(" + factura + "): " + comp.getTipoEmision());
 
 	// validar etiqueta de control fin factura
@@ -2233,10 +2242,10 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 		fiscalEntity = new FiscalEntity();
 		fiscalEntity.setTaxID(comp.getEmisor().getRfc());
 		fiscalEntity = fiscalEntityManager.findByRFCA(fiscalEntity);
-
 		if (fiscalEntity == null) {
 			sbError.append("Entidad Fiscal no existe en BD - Factura " + factura + "\n");
 		} else {
+			cfdFieldsV22 = cfdFieldsV22Manager.findByFiscalID(fiscalEntity.getId());
 			if (fiscalEntity.getIsDonataria() == 1 && !comp.getTipoEmision().equals(TipoEmision.DONATARIAS)) {
 				sbError.append("Entidad Fiscal incorrecta, es donataria - Factura " + factura + "\n");
 			} else if (fiscalEntity.getIsDonataria() == 0 && comp.getTipoEmision().equals(TipoEmision.DONATARIAS)) {
@@ -2265,7 +2274,7 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 	/* Serie Posicion 1 -- row 1 */
 	if (comp.getSerie() != null && !comp.getSerie().equals("")) {
 		if (!validaDatoRE(comp.getSerie(), SERIE_25)) {
-			sbError.append("(CFDI33112) El campo Serie tiene un formato incorrecto " + factura + "\n");
+			sbError.append("El campo Serie tiene un formato incorrecto " + factura + "\n");
 		}
 	}
 
@@ -2273,7 +2282,7 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 	if (!comp.getTipoEmision().equals(TipoEmision.RECEPCION_PAGOS)) {
 		if (comp.getFormaPago() == null || comp.getFormaPago().trim().equals("")) {
 			sbError.append(
-					"(CFDI33103) El Campo Forma Pago No Contiene Un Valor Del Catalogo C_FormaPago - Factura "
+					"El Campo Forma Pago No Contiene Un Valor Del Catalogo C_FormaPago - Factura "
 							+ factura + "\n");
 		} else {
 			Map<String, Object> tipoFormaPago = UtilValidationsXML.validFormaPago(tags.mapCatalogos,
@@ -2344,7 +2353,7 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 				sbError.append(tipoMon.get("message").toString() + factura + "\n");
 			}
 		} else {
-			sbError.append("(CFDI33112) El campo Moneda(Null,Vacio) no contiene un valor del catalogo c_Moneda "
+			sbError.append("El campo Moneda(Null,Vacio) no contiene un valor del catalogo c_Moneda "
 					+ factura + "\n");
 		}
 	}
@@ -2377,8 +2386,12 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 
 	// Lugar de expedicion(donatarias)
 	if (comp.getTipoEmision().equalsIgnoreCase(TipoEmision.DONATARIAS)) {
-		if (comp.getLugarExpedicion() == null || comp.getLugarExpedicion().equals("")) {
-			sbError.append("Lugar de Expedicion es requerido - Factura " + factura + "\n");
+		if (comp.getLugarExpedicion() == null || comp.getLugarExpedicion().isEmpty()) {
+			if(cfdFieldsV22 != null && cfdFieldsV22.getLugarDeExpedicion() != null){
+				comp.setLugarExpedicion(cfdFieldsV22.getLugarDeExpedicion());
+			}else{
+				sbError.append("Lugar de Expedicion es requerido - Factura " + factura + "\n");
+			}
 		}
 	}
 
@@ -2417,7 +2430,7 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 	if (!comp.getTipoEmision().equalsIgnoreCase(TipoEmision.RECEPCION_PAGOS)) {
 		if (comp.getMetodoPago() == null || comp.getMetodoPago().trim().equals("")) {
 			sbError.append(
-					"(CFDI33121) El Campo Metodo Pago No Contiene Un Valor Del Catalogo C_MetodoPago - Factura "
+					"El Campo Metodo Pago No Contiene Un Valor Del Catalogo C_MetodoPago - Factura "
 							+ factura + "\n");
 		} else {
 			Map<String, Object> tipoMetPag = UtilValidationsXML.validMetodPago(tags.mapCatalogos,
@@ -2433,7 +2446,7 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 	/* Regimen fiscal */
 	if (comp.getEmisor().getRegimenFiscal() == null || comp.getEmisor().getRegimenFiscal().trim().equals("")) {
 		sbError.append(
-				"(CFDI33130) El campo RegimenFiscal, no contiene un valor(null, vacio) del catálogo c_RegimenFiscal-"
+				"El campo RegimenFiscal, no contiene un valor(null, vacio) del catálogo c_RegimenFiscal-"
 						+ " Factura " + factura + "\n");
 	} else {
 		Map<String, Object> tipoRegFis = UtilValidationsXML.validRegFiscal(tags.mapCatalogos,
@@ -2450,7 +2463,7 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 		sbError.append("Posicion RFC del Cliente requerida (Null) - Factura " + factura + "\n");
 	} else {
 		if (comp.getCustomerRfcCellValue().equals("")) {
-			sbError.append(" RFC de Cliente requerido - Factura " + factura + "\n");
+			sbError.append("RFC de Cliente requerido - Factura " + factura + "\n");
 		} else {
 			// reempazar RFC incorrecto por generico
 			if (validaDatoRE(comp.getCustomerRfcCellValue().trim().toUpperCase(), RFC_PATTERN)
@@ -2558,7 +2571,11 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 	//referencia
 	if(comp.getReceptor().getDomicilio().getReferencia() != null 
 			&& !comp.getReceptor().getDomicilio().getReferencia().equals("")){
-		if(comp.getReceptor().getDomicilio().getReferencia().length() > 100){
+		if(comp.getReceptor().getDomicilio().getReferencia().length() <= 250){
+			if (!validaDatoRE(comp.getReceptor().getDomicilio().getReferencia(), RE_CHAR)) {
+				sbError.append("Referencia con formato incorrecto - Factura " + factura + "\n");
+            }
+		}else{
 			sbError.append("Referencia no puede contener mas de 100 caracteres - Factura " + factura + "\n");
 		}
 	}
@@ -2604,40 +2621,82 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 	//fin validaciones de datos de cliente
 
 	/* Numero de cuenta */
-	if (!comp.getTipoEmision().contains(TipoEmision.DONATARIAS)) {
+	if (!comp.getTipoEmision().equalsIgnoreCase(TipoEmision.DONATARIAS)) {
 		if (comp.getNumeroCuenta() == null) {
 			sbError.append("Posicion Numero de Cuenta requerida (Null) - Factura " + factura + "\n");
 		} else {
-			// validacion de celltype omitida
 			if (comp.getNumeroCuenta().trim().equals("")) {
 				sbError.append("Numero de Cuenta requerida - Factura " + factura + "\n");
 			}
 		}
 	} else {
-		if (comp.getNumeroCuentaPago() == null) {
-			sbError.append("Posicion Numero de Cuenta de Pago requerida (Null) - Factura " + factura + "\n");
-		} else {
-			// validacion de celltype omitida
-			if (comp.getNumeroCuentaPago().trim().equals("")) {
-				sbError.append("Numero de Cuenta de Pago requerida - Factura " + factura + "\n");
+		if (comp.getNumeroCuentaPago() == null || comp.getNumeroCuentaPago().trim().isEmpty()) {
+			if(cfdFieldsV22 != null && cfdFieldsV22.getFormaDePago() != null 
+					&& !cfdFieldsV22.getFormaDePago().trim().isEmpty()){
+				comp.setNumeroCuentaPago(cfdFieldsV22.getFormaDePago());
+			}else{
+				sbError.append("Numero de Cuenta de Pago es requerido - Factura " + factura + "\n");
 			}
 		}
 	}
 
 	/* Codigo cliente */
-	// validacion de celltype omitida
+	if(comp.getAddenda().getInformacionEmision().getCodigoCliente() != null 
+			&& !comp.getAddenda().getInformacionEmision().getCodigoCliente().trim().isEmpty()){
+		if(comp.getAddenda().getInformacionEmision().getCodigoCliente().trim().length() <= 250){
+			if (!validaDatoRE(comp.getAddenda().getInformacionEmision().getCodigoCliente(), RE_CHAR)) {
+				sbError.append("Codigo de Cliente con formato incorrecto - Factura " + factura + "\n");
+            }
+		}else{
+			sbError.append("Codigo de Cliente no puede contener mas de 250 caracteres - Factura " + factura + "\n");
+		}
+	}
 
 	/* Contrato */
-	// validacion de celltype omitida
+	if(comp.getAddenda().getInformacionEmision().getContrato() != null 
+			&& !comp.getAddenda().getInformacionEmision().getContrato().trim().isEmpty()){
+		if(comp.getAddenda().getInformacionEmision().getContrato().trim().length() <= 250){
+			if (!validaDatoRE(comp.getAddenda().getInformacionEmision().getContrato(), RE_CHAR)) {
+				sbError.append("Contrato con formato incorrecto - Factura " + factura + "\n");
+            }
+		}else{
+			sbError.append("Contrato no puede contener mas de 250 caracteres - Factura " + factura + "\n");
+		}
+	}
 
 	/* Periodo */
-	// validacion de celltype omitida
+	if(comp.getAddenda().getInformacionEmision().getPeriodo() != null 
+			&& !comp.getAddenda().getInformacionEmision().getPeriodo().trim().isEmpty()){
+		if(comp.getAddenda().getInformacionEmision().getPeriodo().trim().length() <= 250){
+			if (!validaDatoRE(comp.getAddenda().getInformacionEmision().getPeriodo(), RE_CHAR)) {
+				sbError.append("Periodo con formato incorrecto - Factura " + factura + "\n");
+            }
+		}else{
+			sbError.append("Periodo no puede contener mas de 250 caracteres - Factura " + factura + "\n");
+		}
+	}
 
 	/* Centro de costos */
-	// validacion de celltype omitida
+	if(comp.getAddenda().getInformacionEmision().getCentroCostos() != null 
+			&& !comp.getAddenda().getInformacionEmision().getCentroCostos().trim().isEmpty()){
+		if(comp.getAddenda().getInformacionEmision().getCentroCostos().trim().length() <= 250){
+			if (!validaDatoRE(comp.getAddenda().getInformacionEmision().getCentroCostos(), RE_CHAR)) {
+				sbError.append("Centro de Costos con formato incorrecto - Factura " + factura + "\n");
+            }
+		}else{
+			sbError.append("Centro de Costos no puede contener mas de 250 caracteres - Factura " + factura + "\n");
+		}
+	}
 
 	/* Descripcion concepto */
-	// asignacion omitida
+	if(comp.getAddenda().getCampoAdicional() != null){
+		String descripcionConcepto = comp.getAddenda().getCampoAdicional().get("DESCRIPCIÓN CONCEPTO");
+		if(descripcionConcepto != null && !descripcionConcepto.trim().isEmpty()){
+			if(descripcionConcepto.trim().length() > 250){
+				sbError.append("Descripcion Concepto no puede contener mas de 250 caracteres - Factura " + factura + "\n");
+			}
+		}
+	}
 
 	/* Iva */
 	boolean fErrorIVA = false;
@@ -2779,7 +2838,6 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 						if (comp.getAddenda().getInformacionEmision().getCentroCostos().trim().equals("")) {
 							sbError.append("Centro costos requerido - factura " + factura + "\n");
 						}
-						// validacion centro costos omitida, no necesaria
 					}
 
 				} else if (strTipoAddenda.equals("3")) {
@@ -2881,8 +2939,7 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 								+ " - factura " + factura + "\n");
 					}
 				} else {
-					sbError.append(
-							"(0) " + tipoClaveProdServ.get("message").toString() + " - factura " + factura + "\n");
+					sbError.append(tipoClaveProdServ.get("message").toString() + " - factura " + factura + "\n");
 				}
 				// NumRegIdTrib
 				Map<String, Object> tipoRFC = UtilValidationsXML.validRFCNumRegIdTrib(tags.mapCatalogos,
@@ -2902,46 +2959,74 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 		}
 	}
 
-	// fecha de recepcion-donatarias
 	if (comp.getTipoEmision().equals(TipoEmision.DONATARIAS)) {
+		// fecha de recepcion-donatarias
 		if (comp.getFecha() != null && !comp.getFecha().equals("")) {
 			if (!validaDatoRE(comp.getFecha(), FECHA_RECEPCION_PATTERN)) {
-				sbError.append(
-						"La fecha de recepcion debe tener formato DD/MM/AAAA " + " - factura " + factura + "\n");
+				sbError.append("La fecha de recepcion debe tener formato DD/MM/AAAA " + " - factura " + factura + "\n");
 			}
 		} else {
 			sbError.append("La fecha de recepcion es requerida " + " - factura " + factura + "\n");
 		}
+		//Numero de empleado-donatarias
+		if (comp.getNumEmpledo() != null && !comp.getNumEmpledo().trim().isEmpty()) {
+            if (!validaDatoRELongitud(comp.getNumEmpledo(), RE_CHAR_NUMBER, 50)) {
+            	sbError.append("La Numero de Empleado tiene formato incorrecto" + " - factura " + factura + "\n");
+            }
+        }
 	}
-
-	// Account Number, Este campo no esta en el nuevo objeto, omitido
-
-	// Cuenta contable, asignacion omitida
-
-	// Centro Costos, asignacion omitida
-
-	// Num contrato, asignacion omitida
-
-	// Fecha vencimiento, asignacion omitida
-
-	// Nombre Beneficiario, asignacion omitida
-
-	// Institicion Receptora, asignacion omitida
-
-	// Num proveedor, asignacion omitida
-
-	int posicion = 0;
+	
+	//No. de Autorizacion
+	if(comp.getNoAutorizacion() != null && !comp.getNoAutorizacion().trim().isEmpty()) {
+		boolean resVal = UtilCatalogos.validaNumAuth(tags.mapCatalogos, comp.getNoAutorizacion().trim());
+		if(!resVal){
+			sbError.append( "El campo Numero de Autorizacion no cumple con el patron [0-9a-zA-Z]{5} con 5 caracteres obligatorios" + " - factura " + factura + "\n");
+		}
+	}
+	
+	if(comp.getComplemento() != null && comp.getComplemento().getTimbreFiscalDigital() != null){
+		//UUID
+		if(comp.getComplemento().getTimbreFiscalDigital().getUuid() != null 
+				&& !comp.getComplemento().getTimbreFiscalDigital().getUuid().trim().isEmpty()) {
+			boolean resVal = UtilCatalogos.validaCFDIRelacional(tags.mapCatalogos
+					, comp.getComplemento().getTimbreFiscalDigital().getUuid().trim());
+			if(!resVal){
+				sbError.append( "El campo UUID con formato incorrecto" + " - factura " + factura + "\n");
+			}
+		}
+		
+		//Tipo Relacion
+		if(comp.getCfdiRelacionados() != null && comp.getCfdiRelacionados().getTipoRelacion() != null 
+				&& !comp.getCfdiRelacionados().getTipoRelacion().trim().isEmpty()) {
+			
+			if(comp.getComplemento().getTimbreFiscalDigital().getUuid() != null 
+					&& !comp.getComplemento().getTimbreFiscalDigital().getUuid().trim().isEmpty()) {
+				if(!comp.getCfdiRelacionados().getTipoRelacion().trim().equalsIgnoreCase("04")){
+					String resVal = UtilCatalogos.validaTipoRelacion(tags.mapCatalogos
+							, comp.getCfdiRelacionados().getTipoRelacion().trim(), 0);
+					if(!resVal.equalsIgnoreCase("No se encontro el Tipo de Relacion en el catalogo c_TipoRelacion")
+							&& !resVal.equalsIgnoreCase("Es requerido un Tipo de Relacion ya que el campo CFDI Relacional tiene informacion")){
+						comp.getCfdiRelacionados().setTipoRelacion(resVal);
+					}else{
+						sbError.append( resVal + " - factura " + factura + "\n");
+					}
+				}
+			}else{
+				sbError.append( "Para agregar un Tipo Relacion debe de traer informacion el campo UUID" + " - factura " + factura + "\n");
+			}
+			
+		}else{
+			if(comp.getComplemento().getTimbreFiscalDigital().getUuid() != null 
+					&& !comp.getComplemento().getTimbreFiscalDigital().getUuid().trim().isEmpty()) {
+				sbError.append( "Es requerido un Tipo de Relacion ya que el campo UUID tiene informacion" + " - factura " + factura + "\n");
+			}
+		}
+	}
+	
+	//Validacion de Conceptos
 	int contadorConceptos = 0;
-	boolean fPermisoVector = true;
-	boolean fFinFactura = false;
-	String strItemConcepto = "";
-	Integer numeroCelda = 0;
-	Integer cicloNum = 0;
-	Integer cicloNumRet = 0;
 	String tipoFactorValRow = "";
 	String impuestoValRow = "";
-	String tipoFactorValRowRet = "";
-	String impuestoValRowRet = "";
 	boolean fAplicaIVA = false;
 
 	BigDecimal total = new BigDecimal(0.00);
@@ -2971,25 +3056,22 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 							concepto.getClaveProdServ());
 
 					if (tipoClaveProdServ.get("value").toString().equalsIgnoreCase("vacio")) {
-						fPermisoVector = false;
-						sbError.append("(" + (1) + ") " + tipoClaveProdServ.get("message").toString()
+						sbError.append(tipoClaveProdServ.get("message").toString()
 								+ " en el Concepto " + contadorConceptos + " - factura " + factura + "\n");
 					} else {
 						concepto.setClaveProdServ(tipoClaveProdServ.get("value").toString());
 					}
 				} else {
-					fPermisoVector = false;
-					sbError.append("(" + (1) + ") " + "ClaveProdServ con formato incorrecto " + " en el Concepto "
+					sbError.append("ClaveProdServ con formato incorrecto " + " en el Concepto "
 							+ contadorConceptos + " - factura " + factura + "\n");
 				}
 
 				// Cantidad
 				if (concepto.getCantidad() == null) {
-					fPermisoVector = false;
-					sbError.append("(" + (1) + ") " + "Cantidad con formato incorrecto " + " en el Concepto "
+					sbError.append("Cantidad con formato incorrecto " + " en el Concepto "
 							+ contadorConceptos + " - factura " + factura + "\n");
 				} else if (!validaDatoRE(concepto.getCantidad().toString(), RE_DECIMAL)) {
-					sbError.append("(" + (1) + ") " + "Cantidad con formato incorrecto " + " en el Concepto "
+					sbError.append("Cantidad con formato incorrecto " + " en el Concepto "
 							+ contadorConceptos + " - factura " + factura + "\n");
 				}
 
@@ -3000,31 +3082,36 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 							concepto.getClaveUnidad());
 
 					if (tipoClaveUnidad.get("value").toString().equalsIgnoreCase("vacio")) {
-						fPermisoVector = false;
-						sbError.append("(" + (1) + ") " + tipoClaveUnidad.get("message").toString()
+						sbError.append(tipoClaveUnidad.get("message").toString()
 								+ " en el Concepto " + contadorConceptos + " - factura " + factura + "\n");
 					} else {
 						concepto.setClaveUnidad(tipoClaveUnidad.get("value").toString());
 					}
 				} else {
-					fPermisoVector = false;
-					sbError.append("(" + (1) + ") " + "ClaveUnidad con formato incorrecto " + " en el Concepto "
+					sbError.append("ClaveUnidad con formato incorrecto " + " en el Concepto "
 							+ contadorConceptos + " - factura " + factura + "\n");
 				}
 
 				// UM
-				if (concepto.getUnidad() == null || concepto.getUnidad().length() <= 0
-						|| concepto.getUnidad().length() > 100) {
-					fPermisoVector = false;
-					sbError.append("(" + (1) + ") " + "UM con formato incorrecto " + " en el Concepto "
+				if (concepto.getUnidad() == null || concepto.getUnidad().trim().isEmpty()) {
+					sbError.append("UM es requerido " + " en el Concepto "
 							+ contadorConceptos + " - factura " + factura + "\n");
+				}else{
+					if(concepto.getUnidad().trim().length()<=250){
+						if (!validaDatoRE(concepto.getUnidad() , RE_CHAR)) {
+							sbError.append("UM tiene formato incorrecto "
+									+ " en el Concepto " + contadorConceptos + " - factura " + factura + "\n");
+						}
+					}else{
+						sbError.append("UM supera el limite de 250 caracteres "
+								+ " en el Concepto " + contadorConceptos + " - factura " + factura + "\n");
+					}
 				}
 
 				// Descripcion
 				if (concepto.getDescripcion() == null || concepto.getDescripcion().length() <= 0
 						|| concepto.getDescripcion().length() > 1000) {
-					fPermisoVector = false;
-					sbError.append("(" + (1) + ") " + "Concepto Expedicion con formato incorrecto "
+					sbError.append("Concepto Expedicion con formato incorrecto "
 							+ " en el Concepto " + contadorConceptos + " - factura " + factura + "\n");
 				}
 
@@ -3039,13 +3126,11 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 						// vectorPrecioUnitario.set(contadorConceptos,
 						// vectorPrecioUnitario.get(contadorConceptos));
 					} else {
-						fPermisoVector = false;
-						sbError.append("(" + (1) + ") " + tipoPrecioUnit.get("message").toString()
+						sbError.append(tipoPrecioUnit.get("message").toString()
 								+ " en el Concepto " + contadorConceptos + " - factura " + factura + "\n");
 					}
 				} else {
-					fPermisoVector = false;
-					sbError.append("(" + (1) + ") " + "Precio Unitario con formato incorrecto " + " en el Concepto "
+					sbError.append("Precio Unitario con formato incorrecto " + " en el Concepto "
 							+ contadorConceptos + " - factura " + factura + "\n");
 				}
 
@@ -3086,8 +3171,7 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 					if (concepto.getAplicaIva() == null) {
 						concepto.setAplicaIva("");
 					} else if (!concepto.getAplicaIva().equals("1") && !concepto.getAplicaIva().equals("")) {
-						fPermisoVector = false;
-						sbError.append("(" + (1) + ") " + "APLICA IVA con formato incorrecto " + " en el Concepto "
+						sbError.append("APLICA IVA con formato incorrecto " + " en el Concepto "
 								+ contadorConceptos + " - factura " + factura + "\n");
 					} else if (concepto.getAplicaIva().equals("1")) {
 						fAplicaIVA = true;
@@ -3121,14 +3205,11 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 								concepto.getImpuestos().getRetenciones().get(0).setImpuesto(tipoImp);
 							}
 						} else {
-							fPermisoVector = false;
-							sbError.append("(" + (1) + ") "
-									+ "No se encotro el Impuesto en el catalogo C_Impuestos " + " en el Concepto "
+							sbError.append("No se encotro el Impuesto en el catalogo C_Impuestos " + " en el Concepto "
 									+ contadorConceptos + " - factura " + factura + "\n");
 						}
 					} else {
-						fPermisoVector = false;
-						sbError.append("(" + (1) + ") " + "Impuesto con formato incorrecto " + " en el Concepto "
+						sbError.append("Impuesto con formato incorrecto " + " en el Concepto "
 								+ contadorConceptos + " - factura " + factura + "\n");
 					}
 
@@ -3150,17 +3231,14 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 											.setTipoFactor(tipoTipoFact.get("value").toString());
 								}
 							} else {
-								fPermisoVector = false;
-								sbError.append("(" + (1) + ") " + tipoTipoFact.get("message").toString()
+								sbError.append(tipoTipoFact.get("message").toString()
 										+ " en el Concepto " + contadorConceptos + " - factura " + factura + "\n");
 							}
 						} else {
 							tipoFactorValRow = tipoFactorVal;
 						}
 					} else {
-						fPermisoVector = false;
-						sbError.append("(" + (1) + ") "
-								+ "El valor del campo TipoFactor que corresponde a Traslado no contiene un valor del catálogo c_TipoFactor "
+						sbError.append("El valor del campo TipoFactor que corresponde a Traslado no contiene un valor del catálogo c_TipoFactor "
 								+ " en el Concepto " + contadorConceptos + " - factura " + factura + "\n");
 					}
 
@@ -3185,8 +3263,7 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 								 }
 								 
 							} else {
-								fPermisoVector = false;
-								sbError.append("(" + (1) + ") " + tipoTasaOCuota.get("message").toString()
+								sbError.append(tipoTasaOCuota.get("message").toString()
 										+ " en el Concepto " + contadorConceptos + " - factura " + factura + "\n");
 							}
 						} else {
@@ -3199,9 +3276,7 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 						}
 
 					} else {
-						fPermisoVector = false;
-						sbError.append("(" + (1) + ") "
-								+ "El valor del campo Tasa o Cuota que corresponde a Traslado no contiene un valor del catalogo c_Tasa o Cuota "
+						sbError.append("El valor del campo Tasa o Cuota que corresponde a Traslado no contiene un valor del catalogo c_Tasa o Cuota "
 								+ " en el Concepto " + contadorConceptos + " - factura " + factura + "\n");
 					}
 
@@ -3222,14 +3297,12 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 								concepto.getValorUnitario().toString());
 
 						if (tipoBaseTra.get("value").toString().equalsIgnoreCase("vacio")) {
-							fPermisoVector = false;
 							baseVal = "";
-							sbError.append("(" + (48 + 1) + ") " + tipoBaseTra.get("message").toString()
+							sbError.append(tipoBaseTra.get("message").toString()
 									+ " en el Concepto " + contadorConceptos + " - factura " + factura + "\n");
 						}
 					} else {
-						fPermisoVector = false;
-						sbError.append("(" + (48 + 1) + ") " + "No se pudo calcular Base para el Impuesto Traslado "
+						sbError.append("No se pudo calcular Base para el Impuesto Traslado "
 								+ " en el Concepto " + contadorConceptos + " - factura " + factura + "\n");
 					}
 
@@ -3298,7 +3371,7 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 				
 				// 2 Fecha de pago 
 				if(complementoPago.getFechaPago() ==  null || complementoPago.getFechaPago().toString().trim().length() == 0){
-					sbError.append("Posicion fecha requerida (Null) - Factura " + factura 
+					sbError.append("Posicion fecha vacia o con formato incorrecto, se espera ISO 8601 - Factura " + factura 
 							+ " - Complemento " + complementos + "\n");
 				}
 				
@@ -3454,7 +3527,7 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 				/* 14 Cadena de Pago */
 				if(complementoPago.getCadenaPago() != null && !complementoPago.getCadenaPago().trim().isEmpty() ){
 					if(complementoPago.getCadenaPago().trim().length() > 8192){
-						sbError.append("El campo Cadena de Pago exede el limite de 1892 caracteres. - Factura "
+						sbError.append("El campo Cadena de Pago supera el limite de 1892 caracteres. - Factura "
 								+ factura + " - Complemento " + complementos + "\n");
 					}
 				}

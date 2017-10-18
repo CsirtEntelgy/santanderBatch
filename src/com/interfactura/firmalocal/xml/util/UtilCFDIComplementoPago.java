@@ -544,14 +544,14 @@ public class UtilCFDIComplementoPago {
 		if (linea[30] == null) {
 			comp.setNoAutorizacion("");
 		} else {
-			comp.setNoAutorizacion(linea[30].toString().trim());
+			comp.setNoAutorizacion(linea[30].trim());
 		}
 		// UUID
 		comp.getComplemento().setTimbreFiscalDigital(new CfdiTimbreFiscalDigital());
-		if (linea[31] == null || linea[31].toString() != "") {
+		if (linea[31] == null || linea[31].trim().isEmpty()) {
 			comp.getComplemento().getTimbreFiscalDigital().setUuid("");
 		} else {
-			comp.getComplemento().getTimbreFiscalDigital().setUuid(linea[31].toString().trim());
+			comp.getComplemento().getTimbreFiscalDigital().setUuid(linea[31].trim());
 
 		}
 
@@ -599,11 +599,22 @@ public class UtilCFDIComplementoPago {
 			// Posicion 2: Fecha Pago
 			if (posicionComplemento == 2) {
 				if(linea[nextPosition].trim().isEmpty()) {
-					complemento.setFechaPago(new Date());
+					complemento.setFechaPago(null);
 				}else {
-					Date date1= new Date();
+					Date date1= null;
+					String sDate = linea[nextPosition].trim();
+					String datePattern = "yyyy-MM-dd";
+					String sTime= "T12:00:00";
+					if(sDate.contains("T")){
+						datePattern = "yyyy-MM-dd'T'hh:mm:ss";
+						sTime = "";
+					}
 					try {
-						date1 = new SimpleDateFormat("yyyy-mm-dd'T'hh:mm:ss").parse(linea[nextPosition].trim());
+						SimpleDateFormat sdf = new SimpleDateFormat(datePattern);
+						date1 = sdf.parse(sDate+sTime);
+						if (!(sDate+sTime).equals(sdf.format(date1))) {
+							date1 = null;
+					    }
 					} catch (ParseException e) {
 						e.printStackTrace();
 					}
