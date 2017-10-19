@@ -116,6 +116,8 @@ public class Properties
 	private String intentosconexion;
 	@Value("${interfaces.cfdfields}")
 	private String interfaces;
+	@Value("${xml.catalogoCincoCampos33}")
+	private String catalogoCincoCampos33;
 	
 	/*
 	//Rutas para Reportes de facturas
@@ -1018,6 +1020,14 @@ public class Properties
 
 	public void setPathFileSelloCFDI33(String pathFileSelloCFDI33) {
 		this.pathFileSelloCFDI33 = pathFileSelloCFDI33;
+	}
+
+	public String getCatalogoCincoCampos33() {
+		return catalogoCincoCampos33;
+	}
+
+	public void setCatalogoCincoCampos33(String catalogoCincoCampos33) {
+		this.catalogoCincoCampos33 = catalogoCincoCampos33;
 	}
 	
 }

@@ -138,6 +138,7 @@ public class GeneraXML_ECBDSV3_3 {
 	 */
     //Lista de objetos ECB
     private List<ECB> lstObjECBs = new ArrayList<ECB>();
+    private HashMap<String, String> catalogoCincoCampos33 = new HashMap<String, String>();
     
     private boolean fAttMovIncorrect = false;
     
@@ -662,6 +663,9 @@ public class GeneraXML_ECBDSV3_3 {
 				
 				System.out.println("Bloque: " + cont);
 				System.out.println("Folios-SAT timbrados: " + sbFoliosSAT.toString());
+				if(catalogoCincoCampos33.isEmpty()) {
+					fillCatalogoCincoCampos33();
+				}
 				
 				for(int index=0; index<xmlsTimbrados.length; index++){
 					System.out.println("xmlTimbrado " + index + " :" + xmlsTimbrados[index]);
@@ -743,6 +747,7 @@ public class GeneraXML_ECBDSV3_3 {
 					}
 				}
 				this.lstObjECBs.clear();
+				this.catalogoCincoCampos33.clear();
 				t2 = t1- System.currentTimeMillis();
 				System.out.println("TIME: Procesar timbrados: " + t2 + " - Bloque: " + cont);
 				System.out.println("FoliosSAT del Bloque " + cont + " " + sbFoliosSAT.toString());
@@ -2346,16 +2351,25 @@ public class GeneraXML_ECBDSV3_3 {
 		}
 		
 		
-		if(fMexder){
-			temp = temp + "|" 		 
-			+ objECB.getTagUNIDAD_MEDIDA() + "|" 
-			+ objECB.getTagLUGAR_EXPEDICION() + "|"  
-			+ objECB.getTagMETODO_PAGO() + "|" 
-			+ objECB.getTagREGIMEN_FISCAL() + "|"
-			+ objECB.getTagFORMA_PAGO() + "|"
-			+ objECB.getTagTIPO_CAMBIO() + "|" 
-			+ objECB.getTagTIPO_MONEDA()  
-			+ "|\r\n";
+		if (fMexder) {
+			temp = temp + "|"
+					+ (this.catalogoCincoCampos33.containsKey("unidadMedida")
+							? this.catalogoCincoCampos33.get("unidadMedida")
+							: "")
+					+ "|"
+					+ (this.catalogoCincoCampos33.containsKey("lugarExpedicion")
+							? this.catalogoCincoCampos33.get("lugarExpedicion")
+							: "")
+					+ "|"
+					+ (this.catalogoCincoCampos33.containsKey("metodoPago")
+							? this.catalogoCincoCampos33.get("metodoPago")
+							: "")
+					+ "|"
+					+ (this.catalogoCincoCampos33.containsKey("regimenFiscal")
+							? this.catalogoCincoCampos33.get("regimenFiscal")
+							: "")
+					+ "| |" + objECB.getTagTIPO_CAMBIO() + "|"
+					+ objECB.getTagTIPO_MONEDA() + "|\r\n";
 		}else{
 			temp = temp 
 			+ "|"		 
@@ -2908,6 +2922,42 @@ public class GeneraXML_ECBDSV3_3 {
 		Date dateInicio2 = new Date();
 		System.out.println("TIMEFINAL Actualizacion Incidencia BD:" + dateFormat.format(dateInicio2) + " M" + System.currentTimeMillis());
 		*/
+	}
+
+	public void fillCatalogoCincoCampos33() {
+		File catalogoCincoCampos33File = new File(properties.getCatalogoCincoCampos33());
+		this.catalogoCincoCampos33.clear();
+		if (catalogoCincoCampos33File.exists()) {
+			try {
+				BufferedReader br = new BufferedReader(new FileReader(file));
+				String line;
+				int count = 0;
+				while ((line = br.readLine()) != null) {
+					// process the line.
+					switch (count) {
+					case 0:
+						this.catalogoCincoCampos33.put("unidadMedida", line);
+						break;
+					case 1:
+						this.catalogoCincoCampos33.put("lugarExpedicion", line);
+						break;
+					case 2:
+						this.catalogoCincoCampos33.put("metodoPago", line);
+						break;
+					case 3:
+						this.catalogoCincoCampos33.put("regimenFiscal", line);
+						break;
+					default:
+						break;
+					}
+				}
+				br.close();
+			} catch (FileNotFoundException e) {
+				System.out.println("No se encontro el archivo catalogoCincoCampos33.txt");
+			} catch (IOException e) {
+				System.out.println("No se pudo leer archivo catalogoCincoCampos33.txt");
+			}
+		}
 	}
 
 	public String getNameFile() 
