@@ -2368,7 +2368,7 @@ public class GeneraXML_ECBDSV3_3 {
 					+ (this.catalogoCincoCampos33.containsKey("regimenFiscal")
 							? this.catalogoCincoCampos33.get("regimenFiscal")
 							: "")
-					+ "| |" + objECB.getTagTIPO_CAMBIO() + "|"
+					+ "||" + objECB.getTagTIPO_CAMBIO() + "|"
 					+ objECB.getTagTIPO_MONEDA() + "|\r\n";
 		}else{
 			temp = temp 
@@ -2929,11 +2929,14 @@ public class GeneraXML_ECBDSV3_3 {
 		this.catalogoCincoCampos33.clear();
 		if (catalogoCincoCampos33File.exists()) {
 			try {
-				BufferedReader br = new BufferedReader(new FileReader(file));
+				BufferedReader br = new BufferedReader(new FileReader(catalogoCincoCampos33File));
 				String line;
 				int count = 0;
 				while ((line = br.readLine()) != null) {
 					// process the line.
+					if (line.length() > 2) {
+						line =line.substring(2);
+					} 					System.out.println("Valor linea " +count+" "+line);
 					switch (count) {
 					case 0:
 						this.catalogoCincoCampos33.put("unidadMedida", line);
@@ -2950,6 +2953,7 @@ public class GeneraXML_ECBDSV3_3 {
 					default:
 						break;
 					}
+					count++;
 				}
 				br.close();
 			} catch (FileNotFoundException e) {
