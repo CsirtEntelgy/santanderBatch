@@ -2105,17 +2105,28 @@ public class UtilCatalogos
 	        	invoice.setTipoFormato(comprobante.getTipoDeComprobante());
 	        }
 	        
-	        if(comprobante.getFecha() != null){
-	        	invoice.setFechaRecepcionString(comprobante.getFecha());
-	        	try{
-		        	DateFormat format = new SimpleDateFormat("dd/mm/yyyy");
-		        	Date date = format.parse(comprobante.getFecha());
-		        	invoice.setFechaRecepcion(date);
-	        	}catch(ParseException pe){
-	        		System.out.println("error al convertir fechaRecepcion: "+pe.getStackTrace());
+	        if (comprobante.getFecha() != null) {
+				invoice.setFechaRecepcionString(comprobante.getFecha());
+				try {
+					DateFormat format = new SimpleDateFormat("dd/mm/yyyy");
+					Date date = format.parse(comprobante.getFecha());
+					invoice.setFechaRecepcion(date);
+				} catch (ParseException pe) {
+	        		System.out.println("error al convertir fechaRecepcion: ");
+	        		pe.printStackTrace();
 	        	}
 	        }
 	        
+	        if(comprobante.getTipoCambio() != null && !comprobante.getTipoCambio().isEmpty()){
+	        	invoice.setExchange(0);
+	        	try{
+	        		BigDecimal tipocambio = new BigDecimal(comprobante.getTipoCambio());
+		        	invoice.setExchange(tipocambio.doubleValue());
+	        	}catch(NumberFormatException  nfe){
+	        		System.out.println("error al convertir tipo de cambio: ");
+	        		nfe.printStackTrace();
+	        	}
+	        }
 	        return invoice;
 	    }
 		

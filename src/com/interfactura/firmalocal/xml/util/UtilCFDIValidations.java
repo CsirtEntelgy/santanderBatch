@@ -2357,6 +2357,10 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 					+ factura + "\n");
 		}
 	}
+	//campo adicional moneda
+	if(comp.getAddenda().getCampoAdicional() != null){
+		comp.getAddenda().getCampoAdicional().put("MONEDA", comp.getMoneda().trim());
+	}
 
 	/* Tipo de cambio */
 	if (!comp.getTipoEmision().equalsIgnoreCase(TipoEmision.RECEPCION_PAGOS)) {
@@ -2372,6 +2376,12 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 							comp.getTipoCambio(), comp.getMoneda());
 					if (!tipoCam.get("value").toString().equalsIgnoreCase("vacio")) {
 						comp.setTipoCambio(tipoCam.get("value").toString());
+						//campo adicional tipo de cambio
+						DecimalFormat df = new DecimalFormat("0.0000");
+						if(comp.getAddenda().getCampoAdicional() != null){
+							Double tipoCambio = new Double(comp.getTipoCambio());
+							comp.getAddenda().getCampoAdicional().put("TIPO CAMBIO", df.format(tipoCambio));
+						}
 					} else {
 						sbError.append(tipoCam.get("message").toString() + " factura: " + factura + "\n");
 					}
@@ -2721,7 +2731,7 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 						System.out.println("Descripcion de IVA no existe en BD - Factura " + factura + "\n");
 						fErrorIVA = true;
 					} else {
-						comp.getAddenda().getCampoAdicional().put("DESCRIPCIÓN IVA", iva.getDescripcion().trim());
+						//comp.getAddenda().getCampoAdicional().put("DESCRIPCIÓN IVA", iva.getDescripcion().trim());
 					}
 				} else {
 					sbErrorIVA.append("IVA incorrecto - Factura " + factura + "\n");
@@ -3283,15 +3293,17 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 					// Base
 					String baseVal = "";
 					if (tasaOCuotaVal != null && !tasaOCuotaVal.equals("") && concepto.getValorUnitario() != null) {
-
+						
+						String baseString  = String.format("%f", concepto.getValorUnitario());
+						baseVal = UtilCatalogos.decimales(baseString, tags.decimalesMoneda);
+						
 						if (trasladoBol) {
 							concepto.getImpuestos().getTraslados().get(0)
-									.setBase(concepto.getValorUnitario().toString());
+									.setBase(baseVal);
 						} else if (retencionBol) {
 							concepto.getImpuestos().getRetenciones().get(0)
-									.setBase(concepto.getValorUnitario().toString());
+									.setBase(baseVal);
 						}
-						baseVal = concepto.getValorUnitario().toString();
 
 						Map<String, Object> tipoBaseTra = UtilValidationsXML.validBaseTra(tags.mapCatalogos,
 								concepto.getValorUnitario().toString());

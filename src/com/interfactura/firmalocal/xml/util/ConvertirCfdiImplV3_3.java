@@ -39,6 +39,7 @@ public class ConvertirCfdiImplV3_3 {
 		}
 		concat.append("Fecha=\"" + Util.convertirFecha(date) + "\" ");
 		concat.append(Util.isNullEmpity(comp.getFolio(), "Folio"));
+		
 		if(comp.getFormaPago() != null){
 			concat.append("FormaPago=\"" + comp.getFormaPago() + "\" ");
 		}
@@ -92,7 +93,7 @@ public class ConvertirCfdiImplV3_3 {
 		valNombre = valNombre.replaceAll("\\(", "");
 		valNombre = valNombre.replaceAll("\\)", "");
 		valNombre = valNombre.replace("/", "");
-		concat.append("Nombre=\" "+Util.convierte(valNombre).toUpperCase()+"\" ");
+		concat.append("Nombre=\""+valNombre.trim()+"\" ");
 		concat.append("RegimenFiscal=\""+comp.getEmisor().getRegimenFiscal().trim()+"\" ");
 		concat.append("Rfc=\""+comp.getEmisor().getRfc().trim()+"\" ");
 		
@@ -418,9 +419,13 @@ public class ConvertirCfdiImplV3_3 {
 	public String addenda(CfdiComprobanteFiscal comp){
 		StringBuilder concat = new StringBuilder();
 		if(comp.getAddenda() != null){
-			concat.append("\n<cfdi:Addenda>");
-			concat.append("\n<as:AddendaSantanderV1 ");
-			concat.append("xmlns:as=\"http://www.santander.com.mx/schemas/xsd/AddendaSantanderV1\">");
+			concat.append("\n<cfdi:Addenda ");
+			concat.append("xmlns:as=\"http://www.santander.com.mx/schemas/xsd/AddendaSantanderV1\" ");
+			concat.append("xmlns:asant=\"http://www.santander.com.mx/schemas/xsd/AddendaSantanderV1\" ");
+			concat.append(">");
+			concat.append(addendaAsant(comp));
+			concat.append("\n<as:AddendaSantanderV1>");
+			//concat.append("xmlns:as=\"http://www.santander.com.mx/schemas/xsd/AddendaSantanderV1\">");
 			concat.append(informacionPago(comp));
 			concat.append(informacionEmision(comp));
 			concat.append(camposAdicionales(comp));
@@ -433,36 +438,77 @@ public class ConvertirCfdiImplV3_3 {
 		return concat.toString();
 	}
 	
+	public String addendaAsant(CfdiComprobanteFiscal comp){
+		StringBuilder concat = new StringBuilder();
+		StringBuilder attributes = new StringBuilder();
+		
+		if(comp.getAddenda().getInformacionPago() != null){
+			if(comp.getAddenda().getInformacionPago().getCodigoISOMoneda() != null){
+				attributes.append(Util.isNullEmpity(comp.getAddenda().getInformacionPago().getCodigoISOMoneda().toUpperCase()
+						, "codigoISOMoneda"));
+			}
+			
+			if(comp.getAddenda().getInformacionPago().getEmail() != null){
+				attributes.append(Util.isNullEmpity(comp.getAddenda().getInformacionPago().getEmail().toUpperCase()
+						, "email"));
+			}
+			
+			if(comp.getAddenda().getInformacionPago().getOrdenCompra() != null){
+				attributes.append(Util.isNullEmpity(comp.getAddenda().getInformacionPago().getOrdenCompra().toUpperCase()
+						, "ordenCompra"));
+			}
+			
+			if(comp.getAddenda().getInformacionPago().getPosCompra() != null){
+				attributes.append(Util.isNullEmpity(comp.getAddenda().getInformacionPago().getPosCompra().toUpperCase(), "posCompra"));
+			}
+			
+			if(attributes.toString().trim().length() > 0){
+				concat.append("\n<asant:AddendaSantanderV1 ");
+				concat.append("xsi:schemaLocation=\"http://www.santander.com.mx/schemas/xsd/AddendaSantanderV1 AddendaSantanderV1.xsd\" >");
+				concat.append("<asant:InformacionPago ");
+				concat.append(attributes.toString());
+				concat.append("/>");
+				concat.append("</asant:AddendaSantanderV1>");
+			}
+		}
+		return concat.toString();
+	}
+	
 	public String informacionPago(CfdiComprobanteFiscal comp){
 		StringBuilder concat = new StringBuilder();
 		StringBuilder attributes = new StringBuilder();
 		if(comp.getAddenda().getInformacionPago() != null){
-			if(!Util.isNullEmpty(comp.getAddenda().getInformacionPago().getNombreBeneficiario())
-					|| !Util.isNullEmpty(comp.getAddenda().getInformacionPago().getNumeroCuenta())
-					|| !Util.isNullEmpty(comp.getAddenda().getInformacionPago().getNumProveedor())
-					|| !Util.isNullEmpty(comp.getAddenda().getInformacionPago().getInstitucionReceptora())){
-				
-				if(comp.getAddenda().getInformacionPago().getEmail() != null){
-					attributes.append(Util.isNullEmpity(comp.getAddenda().getInformacionPago().getEmail().toUpperCase()
-							, "email"));
-				}
-				
-				attributes.append(Util.isNullEmpity(comp.getAddenda().getInformacionPago().getInstitucionReceptora().toUpperCase()
-						, "institucionReceptora"));
-				attributes.append(Util.isNullEmpity(comp.getAddenda().getInformacionPago().getNombreBeneficiario().toUpperCase()
-						, "nombreBeneficiario"));
-				attributes.append(Util.isNullEmpity(comp.getAddenda().getInformacionPago().getNumeroCuenta().toUpperCase()
-						, "numeroCuenta"));
-				attributes.append(Util.isNullEmpity(comp.getAddenda().getInformacionPago().getNumProveedor().toUpperCase()
-						, "numProveedor"));
-				if(comp.getAddenda().getInformacionPago().getOrdenCompra() != null){
-					attributes.append(Util.isNullEmpity(comp.getAddenda().getInformacionPago().getOrdenCompra().toUpperCase()
-							, "ordenCompra"));
-				}
-				if(comp.getAddenda().getInformacionPago().getPosCompra() != null){
-					attributes.append(Util.isNullEmpity(comp.getAddenda().getInformacionPago().getPosCompra().toUpperCase(), "posCompra"));
-				}
+
+			if(comp.getAddenda().getInformacionPago().getEmail() != null){
+				attributes.append(Util.isNullEmpity(comp.getAddenda().getInformacionPago().getEmail().toUpperCase()
+						, "Email"));
 			}
+			if(comp.getAddenda().getInformacionPago().getInstitucionReceptora() != null){
+				attributes.append("InstitucionReceptora=\"" 
+						+ comp.getAddenda().getInformacionPago().getInstitucionReceptora().toUpperCase() + "\" ");
+			}
+			
+			if(comp.getAddenda().getInformacionPago().getNombreBeneficiario() != null){
+				attributes.append("NombreBeneficiario=\"" 
+						+ comp.getAddenda().getInformacionPago().getNombreBeneficiario().toUpperCase() + "\" ");
+			}
+
+			if(comp.getAddenda().getInformacionPago().getNumeroCuenta() != null){
+				attributes.append("NumeroCuenta=\"" 
+						+ comp.getAddenda().getInformacionPago().getNumeroCuenta().toUpperCase() + "\" ");
+			}
+			if(comp.getAddenda().getInformacionPago().getNumProveedor() != null){
+				attributes.append("NumProveedor=\"" 
+						+ comp.getAddenda().getInformacionPago().getNumProveedor().toUpperCase() + "\" ");
+			}
+			
+			if(comp.getAddenda().getInformacionPago().getOrdenCompra() != null){
+				attributes.append(Util.isNullEmpity(comp.getAddenda().getInformacionPago().getOrdenCompra().toUpperCase()
+						, "OrdenCompra"));
+			}
+//			if(comp.getAddenda().getInformacionPago().getPosCompra() != null){
+//				attributes.append(Util.isNullEmpity(comp.getAddenda().getInformacionPago().getPosCompra().toUpperCase(), "posCompra"));
+//			}
 		}
 		
 		if(attributes.toString().trim().length() > 0){
@@ -479,19 +525,18 @@ public class ConvertirCfdiImplV3_3 {
 		StringBuilder attributes = new StringBuilder();
 		
 		if(comp.getAddenda().getInformacionEmision() != null){
-			attributes.append(Util.isNullEmpity(comp.getAddenda().getInformacionEmision().getCodigoCliente(), "codigoCliente"));
-			attributes.append(Util.isNullEmpity(comp.getAddenda().getInformacionEmision().getContrato(), "contrato"));
-			attributes.append(Util.isNullEmpity(comp.getAddenda().getInformacionEmision().getPeriodo(), "periodo"));
-			attributes.append(Util.isNullEmpity(comp.getAddenda().getInformacionEmision().getCentroCostos(), "centroCostos"));
-			attributes.append(Util.isNullEmpity(comp.getAddenda().getInformacionEmision().getFolioInterno(), "folioInterno"));
-			attributes.append(Util.isNullEmpity(comp.getAddenda().getInformacionEmision().getClaveSantander(), "claveSantander"));
+			attributes.append(Util.isNullEmpity(comp.getAddenda().getInformacionEmision().getCodigoCliente(), "CodigoCliente"));
+			attributes.append(Util.isNullEmpity(comp.getAddenda().getInformacionEmision().getContrato(), "Contrato"));
+			attributes.append(Util.isNullEmpity(comp.getAddenda().getInformacionEmision().getPeriodo(), "Periodo"));
+			attributes.append(Util.isNullEmpity(comp.getAddenda().getInformacionEmision().getCentroCostos(), "CentroCostos"));
+			attributes.append(Util.isNullEmpity(comp.getAddenda().getInformacionEmision().getFolioInterno(), "FolioInterno"));
+			attributes.append(Util.isNullEmpity(comp.getAddenda().getInformacionEmision().getClaveSantander(), "ClaveSantander"));
 		}
 		if(attributes.toString().trim().length() > 0){
 			concat.append("\n<as:InformacionEmision ");
 			concat.append(attributes.toString());
-			concat.append(">");
-			//Informacion factoraje??
-			concat.append("\n</as:InformacionEmision>");
+			concat.append(" />");
+			//concat.append("\n</as:InformacionEmision>");
 		}
 		
 		return concat.toString();
@@ -502,8 +547,8 @@ public class ConvertirCfdiImplV3_3 {
 		if(comp.getAddenda().getCampoAdicional() != null 
 				&& comp.getAddenda().getCampoAdicional().size() > 0){
 			for (Entry<String, String> entry : comp.getAddenda().getCampoAdicional().entrySet()) {
-				String campo = "\n<as:CampoAdicional campo=\"" + entry.getKey()
-						+ "\" valor=\"" + entry.getValue() + "\" />";
+				String campo = "\n<as:CampoAdicional Campo=\"" + entry.getKey()
+						+ "\" Valor=\"" + entry.getValue() + "\" />";
 			    concat.append(campo);
 			}
 		}
