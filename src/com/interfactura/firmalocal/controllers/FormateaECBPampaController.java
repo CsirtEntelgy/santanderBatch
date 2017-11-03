@@ -15,6 +15,9 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import org.springframework.stereotype.Controller;
+
+@Controller
 public class FormateaECBPampaController {
 	
 	public static String PathECBEntrada = "/planCFD/procesos/Interfactura/interfaces/";
