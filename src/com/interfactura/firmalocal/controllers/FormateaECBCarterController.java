@@ -145,9 +145,6 @@ public class FormateaECBCarterController {
 										BigDecimal newTotal = (montoConceptosGravRounded.add(totalConceptsA))
 												.setScale(2, BigDecimal.ROUND_HALF_EVEN);
 										
-										System.out.println("LOGREDONDEO: montoCGravados: "+ montoConceptosGravRounded.toString() 
-										+ " -compare- newTotal: " + newTotal.toString() + " - totalOriginal: " + totalMnOriginal.toString());
-										
 										if (totalMnOriginal.compareTo(newTotal) != 0) {
 											//cambiar montos de conceptos informados
 											lineSixSb = processSixLines(lineSixList, totalMnOriginal, montoConceptosGrav);
@@ -209,9 +206,6 @@ public class FormateaECBCarterController {
 									.setScale(2, BigDecimal.ROUND_HALF_EVEN);
 							BigDecimal newTotal = (montoConceptosGravRounded.add(totalConceptsA))
 									.setScale(2, BigDecimal.ROUND_HALF_EVEN);
-							
-							System.out.println("LOGREDONDEO: montoCGravados: "+ montoConceptosGravRounded.toString() 
-							+ " -compare- newTotal: " + newTotal.toString() + " - totalOriginal: " + totalMnOriginal.toString());
 							
 							if (totalMnOriginal.compareTo(newTotal) != 0) {
 								//cambiar montos de conceptos informados
