@@ -40,7 +40,7 @@ public class ConvertirCfdiImplV3_3 {
 		concat.append("Fecha=\"" + Util.convertirFecha(date) + "\" ");
 		concat.append(Util.isNullEmpity(comp.getFolio(), "Folio"));
 		
-		if(comp.getFormaPago() != null){
+		if(comp.getFormaPago() != null && !comp.getFormaPago().isEmpty()){
 			concat.append("FormaPago=\"" + comp.getFormaPago() + "\" ");
 		}
 		concat.append("LugarExpedicion=\"" + "01219" + "\" ");
@@ -48,7 +48,7 @@ public class ConvertirCfdiImplV3_3 {
 			concat.append("MetodoPago=\"" + comp.getMetodoPago() + "\" ");
 		}
 		concat.append("Moneda=\"" + comp.getMoneda() + "\" ");
-		if(comp.getSerie() != null){
+		if(comp.getSerie() != null && !comp.getSerie().isEmpty()){
 			concat.append("Serie=\"" + comp.getSerie() + "\" ");
 		}
 		//NoCertificado
