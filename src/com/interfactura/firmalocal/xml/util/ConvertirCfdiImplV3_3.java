@@ -80,9 +80,7 @@ public class ConvertirCfdiImplV3_3 {
 						"\n<cfdi:Comprobante ",
 						concat.toString(),
 						"xsi:schemaLocation=\"http://www.sat.gob.mx/cfd/3 ", 
-						"http://www.sat.gob.mx/sitio_internet/cfd/3/cfdv33.xsd ",
-						"http://www.sat.gob.mx/ecb ",
-						"http://www.sat.gob.mx/sitio_internet/cfd/ecb/ecb.xsd\">")
+						"http://www.sat.gob.mx/sitio_internet/cfd/3/cfdv33.xsd\">")
 				.toString();
 	}
 	
@@ -158,7 +156,7 @@ public class ConvertirCfdiImplV3_3 {
 				}
 				sbConceptos.append("Importe=\"" + importe + "\" ");
 				if(concepto.getUnidad() != null){
-					sbConceptos.append("Unidad=\"" + concepto.getUnidad() + "\" ");
+					sbConceptos.append("Unidad=\"" + concepto.getUnidad().toUpperCase() + "\" ");
 				}
 				sbConceptos.append("ValorUnitario=\"" + concepto.getValorUnitario() + "\"");
 				sbConceptos.append(">");
@@ -183,9 +181,13 @@ public class ConvertirCfdiImplV3_3 {
 					for(CfdiConceptoImpuestoTipo impuestoTipo : concepto.getImpuestos().getTraslados()){
 						sbConceptoImpuesto.append("\n<cfdi:Traslado ");
 						sbConceptoImpuesto.append("Base=\"" + impuestoTipo.getBase() + "\" ");
-						sbConceptoImpuesto.append("Importe=\"" + impuestoTipo.getImporte() + "\" ");
+						if(!impuestoTipo.getTipoFactor().equalsIgnoreCase("exento")){
+							sbConceptoImpuesto.append("Importe=\"" + impuestoTipo.getImporte() + "\" ");
+						}
 						sbConceptoImpuesto.append("Impuesto=\"" + impuestoTipo.getImpuesto() + "\" ");
-						sbConceptoImpuesto.append("TasaOCuota=\"" + impuestoTipo.getTasaOCuota() + "\" ");
+						if(!impuestoTipo.getTipoFactor().equalsIgnoreCase("exento")){
+							sbConceptoImpuesto.append("TasaOCuota=\"" + impuestoTipo.getTasaOCuota() + "\" ");
+						}
 						sbConceptoImpuesto.append("TipoFactor=\"" + impuestoTipo.getTipoFactor() + "\" ");
 						sbConceptoImpuesto.append("/>");
 					}
