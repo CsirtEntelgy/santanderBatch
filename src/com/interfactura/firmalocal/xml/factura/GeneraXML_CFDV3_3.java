@@ -176,7 +176,7 @@ public class GeneraXML_CFDV3_3
 						begin(out);
 					}
 				}
-				logger.debug(nameFile + " . . . " + linea);
+				//logger.debug(nameFile + " . . . " + linea);
 			}
 			this.endCONCEPTOS(out);
 			this.endTAGS(out);
@@ -1517,7 +1517,7 @@ public class GeneraXML_CFDV3_3
 							// Al parecer aqui se hace el timbrado, AMDA v 3.3 verificar las mayusculas tambien 
 							String xmlTimbrado = xmlTimbradoConPipe.substring(0, xmlTimbradoConPipe.length()-1);
 							
-							//logger.info("XML Timbrado: " + xmlTimbrado);
+							logger.info("XML Timbrado: " + xmlTimbrado);
 							xmlTimbrado = xmlTimbrado.replace("IdRespuesta=\"1\"><?xml version=\"1.0\" encoding=\"UTF-8\"?>", "IdRespuesta=\"1\">");
 				            //Convertir de string a Document
 				            Document dom = stringToDocument(xmlTimbrado);
@@ -1590,7 +1590,7 @@ public class GeneraXML_CFDV3_3
 								
 								xmlString2 += xmlString.substring(39);
 								
-								System.out.println("xmlString2: " + xmlString2);
+								//System.out.println("xmlString2: " + xmlString2);
 																	            	
 								 if(!strAddenda.trim().equals("") && strAddenda != null){
 									 String strAddendaComp = "";
@@ -1602,7 +1602,7 @@ public class GeneraXML_CFDV3_3
 								 }else{
 									 xmlFinal = xmlString2.toString();
 								 }
-								System.out.println("xmlFinal: " + xmlFinal);							 
+								//System.out.println("xmlFinal: " + xmlFinal);							 
 				            	
 				            	//System.out.println("OK: " + descripcion);
 				            			            	

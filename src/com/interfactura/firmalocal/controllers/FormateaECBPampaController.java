@@ -37,13 +37,11 @@ public class FormateaECBPampaController {
 
 	List<String[]> pampasConceptList = null;
 
-	String documentType = null;
-
 	public FormateaECBPampaController() {
 
 	}
 
-	public boolean processECBTxtFile(String fileName) {
+	public boolean processECBTxtFile(String fileName, String timeStamp) {
 		System.out.println("Inicia Formatea PAMPA - " + fileName);
 		boolean result = true;
 		try {
@@ -101,12 +99,8 @@ public class FormateaECBPampaController {
 							fileBlockOne.append(strLine + "\n");
 
 						} else if (lineNum > 1 && lineNum < 6) {// lineas 2 a 5
-							if (lineNum == 2) {
-								documentType = arrayValues[1];
-							}
 							fileBlockOne.append(strLine + "\n");
 						} else if (lineNum == 6) {// linea 6
-
 							// quitar los conceptos "-" del catalogo
 							if (!removeIsNeeded(arrayValues[1])) {
 								lineSixSb.append(strLine + "\n");
@@ -130,8 +124,7 @@ public class FormateaECBPampaController {
 
 				fileWriter.close();
 				br.close();
-				String timeStamp = new SimpleDateFormat("HHmmss").format(Calendar.getInstance().getTime());
-				File movedFile = new File(PathECBSalida + fileName + "ORIGINAL_" + timeStamp + filesExtension);
+				File movedFile = new File(PathECBSalida + fileName + "ORIGINAL_PAMPA_" + timeStamp + filesExtension);
 				if (moveFile(inputFile, movedFile)) {// mover archivo original
 					// renombrar archivo generado
 					if (moveFile(outputFile, new File(PathECBEntrada + fileName + filesExtension))) {
@@ -171,7 +164,6 @@ public class FormateaECBPampaController {
 		fileBlockOne = new StringBuilder();
 		fileBlockTwo = new StringBuilder();
 		lineSixSb = new StringBuilder();
-		documentType = null;
 	}
 
 	private void loadPampasConceptList() throws Exception {

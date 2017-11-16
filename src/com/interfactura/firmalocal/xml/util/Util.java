@@ -535,7 +535,7 @@ public class Util
 	{
 		OutputStreamWriter outSW = new OutputStreamWriter(out);
 		String enconding = outSW.getEncoding();
-		logger.debug(enconding);
+		//logger.debug(enconding);
 		//System.out.println("stringUTF8:" + out.toString());
 		if (!enconding.equals("UTF-8")) 
 		{
@@ -545,7 +545,7 @@ public class Util
 			outSW = new OutputStreamWriter(outUTF8, "UTF-8");
 			outSW.write(stringUTF8);
 			outSW.close();
-			logger.debug(outUTF8.toString());
+			//logger.debug(outUTF8.toString());
 			out = outUTF8;
 		}
 

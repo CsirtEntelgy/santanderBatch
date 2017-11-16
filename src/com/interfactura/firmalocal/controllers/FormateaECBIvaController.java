@@ -10,6 +10,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -53,10 +55,8 @@ public class FormateaECBIvaController {
 
 	}
 
-	public boolean processECBTxtFile(String name, String date) {
-		String fileName = name + date;
-		System.out.println("---------------"+name+"----------------");
-		System.out.println("Inicia Formatea IVA/Tipo de cambio - " + fileName);
+	public boolean processECBTxtFile(String fileName, String timeStamp) {
+		System.out.println("Inicia Formatea IVA - " + fileName);
 		boolean result = true;
 		try {
 			FileInputStream fileToProcess = null;
@@ -82,7 +82,7 @@ public class FormateaECBIvaController {
 				String strLine;
 
 				outputFile = new File(PathECBEntrada + "GENERATED_" + fileName + filesExtension);
-				outputControlFile = new File(PathECBSalida + fileName + "_CONTROL" + filesExtension);
+				outputControlFile = new File(PathECBSalida + fileName + "_CONTROL_" + timeStamp + filesExtension);
 
 				fos = new FileOutputStream(outputFile);
 				osw = new OutputStreamWriter(fos, "UTF-8");
@@ -109,8 +109,10 @@ public class FormateaECBIvaController {
 				lineEleven = "";
 
 				boolean firstLoop = true;
-				int ecbCount = 0;
-				int ecbWritten = 0;
+				BigInteger ecbCount = BigInteger.ZERO;
+				BigInteger ecbWritten = BigInteger.ZERO;
+				StringBuilder ecbError = new StringBuilder();
+				String numCta = "NumeroDefault";
 				while ((strLine = br.readLine()) != null) {
 					strLine = strLine.trim();
 					if (!strLine.equals("")) {
@@ -118,57 +120,102 @@ public class FormateaECBIvaController {
 						int lineNum = Integer.parseInt(arrayValues[0]);
 
 						if (lineNum == 1) {// linea 1
-							ecbCount++;
 
 							if (!firstLoop) {
-								if(!name.equalsIgnoreCase("CFDPTCARTER") && !name.equalsIgnoreCase("CFDPTSOFOMC")){
-									if(tasa.compareTo(BigDecimal.ZERO) != 0){
-										// calcula iva
-										newIvaMn = newTotalMn.multiply(tasa).divide(new BigDecimal(100));
-										newIvaMn = newIvaMn.setScale(2, BigDecimal.ROUND_HALF_EVEN);
-										if (ivaMnOriginal.compareTo(newIvaMn) != 0) {
-											String[] lineOne = firstLine.split("\\|");
-											// guardar NumTarjeta, TotalMn e ivaMn en
-											// control file
-											String controlLine = generateControlLine(lineOne[4], lineOne[5], newTotalMn,
-													lineOne[6], newIvaMn);
-											fileWriterControl.write(controlLine);
-											// generar linea 1
-											firstLine = replaceTotalsFromFirstLine(firstLine, newTotalMn, newIvaMn);
-											//generar linea 2
-											lineTwo = replaceTotalsFromLineTwo(lineTwo, newTotalMn, newIvaMn);
-											// generar linea 7
-											lineSeven = replaceIvaFromLineSeven(lineSeven, newIvaMn);
-											// generar linea 9
-											if (!lineNine.isEmpty()) {
-												lineNine = replaceIvaFromLineNine(lineNine, newIvaMn);
+								boolean exception = false;
+								String ecbBakup = firstLine + "\n" + lineTwo + "\n" + fileBlockOne.toString() + lineSeven
+										+ "\n" + (lineEigth.isEmpty() ? "" : lineEigth + "\n")
+										+ (lineNine.isEmpty() ? "" : lineNine + "\n") + lineTen + "\n"
+										+ lineElevenSb.toString();
+								try{
+									firstLine = truncateExcangeFromFirstLine(firstLine);
+								}catch(Exception e){
+									ecbError.append("-error:Error al convertir tipo de cambio a dos decimales\n");
+								}
+								
+								if (ecbError.toString().isEmpty()) {
+									if (tasa.compareTo(BigDecimal.ZERO) != 0) {
+										try {
+											// calcula iva
+											newIvaMn = newTotalMn.multiply(tasa).divide(new BigDecimal(100));
+											newIvaMn = newIvaMn.setScale(2, BigDecimal.ROUND_HALF_EVEN);
+
+											if (ivaMnOriginal.compareTo(newIvaMn) != 0) {
+												String[] lineOne = firstLine.split("\\|");
+												// guardar NumTarjeta, TotalMn e
+												// ivaMn en control file
+												String controlLine = generateControlLine(numCta, lineOne[4], lineOne[5],
+														newTotalMn, lineOne[6], newIvaMn);
+												fileWriterControl.write(controlLine);
+												// generar linea 1
+												firstLine = replaceTotalsFromFirstLine(firstLine, newTotalMn, newIvaMn);
+												// generar linea 2
+												lineTwo = replaceTotalsFromLineTwo(lineTwo, newTotalMn, newIvaMn);
+												// generar linea 7
+												lineSeven = replaceIvaFromLineSeven(lineSeven, newIvaMn);
+												// generar linea 9
+												if (!lineNine.isEmpty()) {
+													lineNine = replaceIvaFromLineNine(lineNine, newIvaMn);
+												}
 											}
+										} catch (Exception e) {
+											System.out.println(ecbCount.toString() + "---Excepcion al hacer calculos en ECB numero de cuenta: "
+													+ numCta);
+											exception = true;
 										}
 									}
+								} else {
+									System.out.println(ecbCount.toString() + "---Errores en ECB numero de cuenta: " + numCta);
+									System.out.println(ecbError.toString());
+								}
+								
+								if(!exception){
+									fileWriter.write(firstLine + "\n" + lineTwo + "\n" + fileBlockOne.toString() + lineSeven
+											+ "\n" + (lineEigth.isEmpty() ? "" : lineEigth + "\n")
+											+ (lineNine.isEmpty() ? "" : lineNine + "\n") + lineTen + "\n"
+											+ lineElevenSb.toString());
+								}else{
+									fileWriter.write(ecbBakup);
 								}
 
-								fileWriter.write(firstLine + "\n" + lineTwo + "\n"
-										+ fileBlockOne.toString() + lineSeven + "\n"
-										+ (lineEigth.isEmpty() ? "" : lineEigth + "\n")
-										+ (lineNine.isEmpty() ? "" : lineNine + "\n") 
-										+ lineTen + "\n"
-										+ lineElevenSb.toString());
-
-								ecbWritten++;
+								ecbWritten = ecbWritten.add(BigInteger.ONE);
 								resetECB();
 							}
 
-							firstLine = truncateExcangeFromFirstLine(strLine);
-							totalMnOriginal = new BigDecimal(arrayValues[5]);
-							ivaMnOriginal = new BigDecimal(arrayValues[6]);
+							ecbCount = ecbCount.add(BigInteger.ONE);
+							ecbError = new StringBuilder();
+							firstLine = strLine;
+							
+							try {
+								totalMnOriginal = new BigDecimal(arrayValues[5].trim());
+							} catch (Exception e) {
+								ecbError.append("-error: no se pudo leer el subtotal\n");
+							}
+							try {
+								ivaMnOriginal = new BigDecimal(arrayValues[6].trim());
+							} catch (Exception e) {
+								ecbError.append("-error: no se pudo leer el iva informado en linea 1\n");
+							}
+							try{
+								numCta = arrayValues[2].trim();
+							}catch(Exception e){
+								numCta = "NumeroDefault";
+								ecbError.append("-error: no se pudo leer el numero de cuenta\n");
+							}
 
-						}else if(lineNum == 2){
+						} else if (lineNum == 2) {
 							lineTwo = strLine;
-							documentType = arrayValues[1];
+							// documentType = arrayValues[1];
 						} else if (lineNum > 2 && lineNum < 6) {// lineas 3 a 5
 							fileBlockOne.append(strLine + "\n");
 						} else if (lineNum == 6) {// linea 6
-							newTotalMn = newTotalMn.add(new BigDecimal(arrayValues[2].trim()));
+							BigDecimal importeActual = new BigDecimal(0);
+							try {
+								importeActual = new BigDecimal(arrayValues[2].trim());
+							} catch (Exception e) {
+								ecbError.append("-error: no se pudo leer el importe de concepto\n");
+							}
+							newTotalMn = newTotalMn.add(importeActual);
 							fileBlockOne.append(strLine + "\n");
 						} else if (lineNum == 7) {// linea 7
 							lineSeven = strLine;
@@ -176,9 +223,14 @@ public class FormateaECBIvaController {
 							lineEigth = strLine;
 						} else if (lineNum == 9) {// linea 9
 							lineNine = strLine;
-							if (arrayValues[1].equalsIgnoreCase("IVA")) {
-								tasa = new BigDecimal(arrayValues[2]);
+							try {
+								if (arrayValues[1].equalsIgnoreCase("IVA")) {
+									tasa = new BigDecimal(arrayValues[2].trim());
+								}
+							} catch (Exception e) {
+								ecbError.append("-error: No se pudo leer el valor de tasa\n");
 							}
+
 						} else if (lineNum == 10) {// linea 10
 							lineTen = strLine;
 						} else if (lineNum == 11) {// linea 11
@@ -187,48 +239,73 @@ public class FormateaECBIvaController {
 					}
 					firstLoop = false;
 				}
-				if (ecbWritten < ecbCount) {// escribir ultimo ecb
+				if (ecbWritten.compareTo(ecbCount) != 0) {// escribir ultimo ecb
 					System.out.println("Escribiendo ultimo ECB - Formatea IVA");
-					if(!name.equalsIgnoreCase("CFDPTCARTER") && !name.equalsIgnoreCase("CFDPTSOFOMC")){
-						if(tasa.compareTo(BigDecimal.ZERO) != 0){
-							// calcula iva
-							newIvaMn = newTotalMn.multiply(tasa).divide(new BigDecimal(100));
-							newIvaMn = newIvaMn.setScale(2, BigDecimal.ROUND_HALF_EVEN);
-							if (ivaMnOriginal.compareTo(newIvaMn) != 0) {
-								String[] lineOne = firstLine.split("\\|");
-								// guardar NumTarjeta, TotalMn e ivaMn en control file
-								String controlLine = generateControlLine(lineOne[4], lineOne[5], newTotalMn, lineOne[6],
-										newIvaMn);
-								fileWriterControl.write(controlLine);
-								// generar linea 1
-								firstLine = replaceTotalsFromFirstLine(firstLine, newTotalMn, newIvaMn);
-								//generar linea 2
-								lineTwo = replaceTotalsFromLineTwo(lineTwo, newTotalMn, newIvaMn);
-								// generar linea 7
-								lineSeven = replaceIvaFromLineSeven(lineSeven, newIvaMn);
-								// generar linea 9
-								if (!lineNine.isEmpty()) {
-									lineNine = replaceIvaFromLineNine(lineNine, newIvaMn);
+
+					boolean exception = false;
+					String ecbBakup = firstLine + "\n" + lineTwo + "\n" + fileBlockOne.toString() + lineSeven
+							+ "\n" + (lineEigth.isEmpty() ? "" : lineEigth + "\n")
+							+ (lineNine.isEmpty() ? "" : lineNine + "\n") + lineTen + "\n"
+							+ lineElevenSb.toString();
+					try{
+						firstLine = truncateExcangeFromFirstLine(firstLine);
+					}catch(Exception e){
+						ecbError.append("-error:Error al convertir tipo de cambio a dos decimales\n");
+					}
+					
+					if (ecbError.toString().isEmpty()) {
+						if (tasa.compareTo(BigDecimal.ZERO) != 0) {
+							try {
+								// calcula iva
+								newIvaMn = newTotalMn.multiply(tasa).divide(new BigDecimal(100));
+								newIvaMn = newIvaMn.setScale(2, BigDecimal.ROUND_HALF_EVEN);
+
+								if (ivaMnOriginal.compareTo(newIvaMn) != 0) {
+									String[] lineOne = firstLine.split("\\|");
+									// guardar NumTarjeta, TotalMn e
+									// ivaMn en control file
+									String controlLine = generateControlLine(numCta, lineOne[4], lineOne[5],
+											newTotalMn, lineOne[6], newIvaMn);
+									fileWriterControl.write(controlLine);
+									// generar linea 1
+									firstLine = replaceTotalsFromFirstLine(firstLine, newTotalMn, newIvaMn);
+									// generar linea 2
+									lineTwo = replaceTotalsFromLineTwo(lineTwo, newTotalMn, newIvaMn);
+									// generar linea 7
+									lineSeven = replaceIvaFromLineSeven(lineSeven, newIvaMn);
+									// generar linea 9
+									if (!lineNine.isEmpty()) {
+										lineNine = replaceIvaFromLineNine(lineNine, newIvaMn);
+									}
 								}
+							} catch (Exception e) {
+								System.out.println(ecbCount.toString() + "---Excepcion al hacer calculos en ECB numero de cuenta: "
+										+ numCta);
+								exception = true;
 							}
 						}
+					} else {
+						System.out.println(ecbCount.toString() + "---Errores en ECB numero de cuenta: " + numCta);
+						System.out.println(ecbError.toString());
+					}
+					
+					if(!exception){
+						fileWriter.write(firstLine + "\n" + lineTwo + "\n" + fileBlockOne.toString() + lineSeven
+								+ "\n" + (lineEigth.isEmpty() ? "" : lineEigth + "\n")
+								+ (lineNine.isEmpty() ? "" : lineNine + "\n") + lineTen + "\n"
+								+ lineElevenSb.toString());
+					}else{
+						fileWriter.write(ecbBakup);
 					}
 
-					fileWriter.write(firstLine + "\n" + lineTwo + "\n"
-							+ fileBlockOne.toString() + lineSeven + "\n"
-							+ (lineEigth.isEmpty() ? "" : lineEigth + "\n")
-							+ (lineNine.isEmpty() ? "" : lineNine + "\n") 
-							+ lineTen + "\n"
-							+ lineElevenSb.toString());
-
-					ecbWritten++;
+					ecbWritten = ecbWritten.add(BigInteger.ONE);
 					resetECB();
+				
 				}
 
 				fileWriter.close();
 				fileWriterControl.close();
 				br.close();
-				String timeStamp = new SimpleDateFormat("HHmmss").format(Calendar.getInstance().getTime());
 				File movedFile = new File(PathECBSalida + fileName + "ORIGINAL_IVA_" + timeStamp + filesExtension);
 				if (FormateaECBPampaController.moveFile(inputFile, movedFile)) {// mover archivo original
 					// renombrar archivo generado
@@ -245,7 +322,8 @@ public class FormateaECBIvaController {
 				}
 
 			} else {
-				System.out.println("No se encontro el archivo de entrada: " + PathECBEntrada + fileName + filesExtension);
+				System.out
+						.println("No se encontro el archivo de entrada: " + PathECBEntrada + fileName + filesExtension);
 				result = false;
 			}
 			if (!result) {
@@ -260,8 +338,8 @@ public class FormateaECBIvaController {
 			if (delete.exists()) {
 				delete.delete();
 			}
+			System.out.println("Exception formateaECBIva - " + fileName + ": " + e.getMessage());
 			e.printStackTrace();
-			System.out.println("Exception formateaECBIva: " + e.getMessage());
 			return false;
 		}
 	}
@@ -283,41 +361,44 @@ public class FormateaECBIvaController {
 			}
 		}
 		String lastChar = originalLine.substring(originalLine.length() - 1);
-		if(!lastChar.equals("|")){
-			controlLineSb.setLength(controlLineSb.length() - 1);//remove last pipe
+		if (!lastChar.equals("|")) {
+			controlLineSb.setLength(controlLineSb.length() - 1);// remove last pipe
 		}
-		
+
 		return controlLineSb.toString();
 	}
-	private String truncateExcangeFromFirstLine(String originalLine) {
+
+	public static String truncateExcangeFromFirstLine(String originalLine) {
 		StringBuilder controlLineSb = new StringBuilder();
 		String[] originalLineArray = originalLine.split("\\|");
 
 		for (int i = 0; i < originalLineArray.length; i++) {
 			if (i == 9) {
-				if(originalLineArray[i] != null && !originalLineArray[i].isEmpty()){
-					BigDecimal tipoCambio = new BigDecimal(originalLineArray[i].trim());
-					tipoCambio = tipoCambio.setScale(2);
-					controlLineSb.append(tipoCambio.toString() + "|");
+				if (originalLineArray[i] != null && !originalLineArray[i].trim().isEmpty()) {
+					String tipoCambioS = originalLineArray[i].trim();
+					DecimalFormat df = new DecimalFormat("0.00");
+					BigDecimal tipoCambio = new BigDecimal(tipoCambioS);
+					tipoCambioS = df.format(tipoCambio);
+					controlLineSb.append(tipoCambioS + "|");
 				}
-			}else {
+			} else {
 				controlLineSb.append(originalLineArray[i] + "|");
 			}
 		}
 		String lastChar = originalLine.substring(originalLine.length() - 1);
-		if(!lastChar.equals("|")){
-			controlLineSb.setLength(controlLineSb.length() - 1);//remove last pipe
+		if (!lastChar.equals("|")) {
+			controlLineSb.setLength(controlLineSb.length() - 1);// remove last pipe
 		}
-		
+
 		return controlLineSb.toString();
 	}
-	private String replaceTotalsFromLineTwo(String originalLine, BigDecimal newTotalMnValue,
-			BigDecimal newIvaMnValue) {
+
+	private String replaceTotalsFromLineTwo(String originalLine, BigDecimal newTotalMnValue, BigDecimal newIvaMnValue) {
 		StringBuilder controlLineSb = new StringBuilder();
 		String[] originalLineArray = originalLine.split("\\|");
 		newIvaMnValue = newIvaMnValue.setScale(2, BigDecimal.ROUND_HALF_EVEN);
 		newTotalMnValue = newTotalMnValue.setScale(2, BigDecimal.ROUND_HALF_EVEN);
-		
+
 		BigDecimal newTotal = newTotalMnValue.add(newIvaMnValue);
 		newTotal = newTotal.setScale(2, BigDecimal.ROUND_HALF_EVEN);
 
@@ -332,10 +413,10 @@ public class FormateaECBIvaController {
 		}
 
 		String lastChar = originalLine.substring(originalLine.length() - 1);
-		if(!lastChar.equals("|")){
-			controlLineSb.setLength(controlLineSb.length() - 1);//remove last pipe
+		if (!lastChar.equals("|")) {
+			controlLineSb.setLength(controlLineSb.length() - 1);// remove last pipe
 		}
-		
+
 		return controlLineSb.toString();
 	}
 
@@ -351,12 +432,12 @@ public class FormateaECBIvaController {
 				controlLineSb.append(originalLineArray[i] + "|");
 			}
 		}
-		
+
 		String lastChar = originalLine.substring(originalLine.length() - 1);
-		if(!lastChar.equals("|")){
-			controlLineSb.setLength(controlLineSb.length() - 1);//remove last pipe
+		if (!lastChar.equals("|")) {
+			controlLineSb.setLength(controlLineSb.length() - 1);// remove last pipe
 		}
-		
+
 		return controlLineSb.toString();
 	}
 
@@ -374,14 +455,14 @@ public class FormateaECBIvaController {
 		}
 
 		String lastChar = originalLine.substring(originalLine.length() - 1);
-		if(!lastChar.equals("|")){
-			controlLineSb.setLength(controlLineSb.length() - 1);//remove last pipe
+		if (!lastChar.equals("|")) {
+			controlLineSb.setLength(controlLineSb.length() - 1);// remove last pipe
 		}
-		
+
 		return controlLineSb.toString();
 	}
 
-	private String generateControlLine(String NumTarjeta, String totalMnOriginalVal, BigDecimal newTotalMnVal,
+	private String generateControlLine(String NumCuenta, String NumTarjeta, String totalMnOriginalVal, BigDecimal newTotalMnVal,
 			String ivaMnOriginalVal, BigDecimal newIvaMnVal) {
 
 		StringBuilder controlLineSb = new StringBuilder();
@@ -389,6 +470,7 @@ public class FormateaECBIvaController {
 		newTotalMnVal = newTotalMnVal.setScale(2, BigDecimal.ROUND_HALF_EVEN);
 		newIvaMnVal = newIvaMnVal.setScale(2, BigDecimal.ROUND_HALF_EVEN);
 
+		controlLineSb.append(NumCuenta + "|");
 		controlLineSb.append(NumTarjeta + "|");
 		controlLineSb.append(totalMnOriginalVal + "|");
 		controlLineSb.append(newTotalMnVal.toString() + "|");

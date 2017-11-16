@@ -28,9 +28,11 @@ public class FormateaECB {
 			
 			String[] filenames = args[0].split(",");
 			String date = args[1].trim();
+			String timeStamp = args[2].trim();
 			
 			System.out.println("names: "+args[0]);
 			System.out.println("date: "+args[1]);
+			System.out.println("timestamp: "+args[2]);
 			
 			for(int i = 0; i < filenames.length; i ++){
 				
@@ -38,26 +40,26 @@ public class FormateaECB {
 				
 				if(filenames[i].trim().equalsIgnoreCase("CFDLMPAMPAS")
 						|| filenames[i].trim().equalsIgnoreCase("CFDLMPAMPAA")){//ajuste lineas 6 para pampa
-					if(!ecbPampaUtil.processECBTxtFile(filenames[i].trim() + date)){
+					if(!ecbPampaUtil.processECBTxtFile(filenames[i].trim() + date, timeStamp)){
 						continua = false;
 						System.out.println("Error al procesar pampa: " + filenames[i].trim());
 					}
 				}else if(filenames[i].trim().equalsIgnoreCase("CFDPTCARTER")
 						|| filenames[i].trim().equalsIgnoreCase("CFDPTSOFOMC")) {//ajuste para carter
-					if(!ecbCarterUtil.processECBTxtFile(filenames[i].trim() + date)){
-						continua = false;
+					continua = false;
+					if(!ecbCarterUtil.processECBTxtFile(filenames[i].trim() + date, timeStamp)){
 						System.out.println("Error al procesar carter: " + filenames[i].trim());
 					}
 				}
 				
-				if(continua){//ajuste iva para todas las interfaces -carter no ajusta iva
-					if(!ecbIvaUtil.processECBTxtFile(filenames[i].trim(), date)){
+				if(continua){//ajuste iva para todas las interfaces - iva de carter se ajusta en el paso anterior
+					if(!ecbIvaUtil.processECBTxtFile(filenames[i].trim() + date, timeStamp)){
 						System.out.println("Error al procesar iva: " + filenames[i].trim().trim());
 					}
 				}
 				
 			}
-			context.close();
+			
 			System.out.println("Fin del procesamiento Formatea ECB");
 			System.exit(0);
 		} 

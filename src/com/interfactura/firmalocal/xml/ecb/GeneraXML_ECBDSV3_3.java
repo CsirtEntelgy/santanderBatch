@@ -224,7 +224,7 @@ public class GeneraXML_ECBDSV3_3 {
 				contCFD += 1;
 				if (!linea.startsWith(";")&&linea.length()>0) 
 				{	this.formatLinea(idProceso, fecha, fileNames, numeroMalla);	}
-				logger.debug("Numero de linea: "+contCFD+" "+this.nameFile + " . . . " + linea);
+				//logger.debug("Numero de linea: "+contCFD+" "+this.nameFile + " . . . " + linea);
 			}
 			logger.info("Fin de lectura del archivo");
 			this.endMOVIMIENTOS();
@@ -601,7 +601,7 @@ public class GeneraXML_ECBDSV3_3 {
 			t1 = System.currentTimeMillis();
 			System.out.println("ANTES DE ENTRAR TIMBRAR SACANDO VALORES: "+lstObjECBs.size());						
 			for(int index=0; index<lstObjECBs.size(); index++){
-				System.out.println("xmlATimbrar " + index + " :" + lstObjECBs.get(index).getXmlSinECB().toString("UTF-8"));
+				//System.out.println("xmlATimbrar " + index + " :" + lstObjECBs.get(index).getXmlSinECB().toString("UTF-8"));
 				System.out.println("periodos " + index + " :" + lstObjECBs.get(index).getTagEMISION_PERIODO());
 				System.out.println("nombreAplicativo" + index + " :" + lstObjECBs.get(index).getTagNOMBRE_APP_REPECB());
 				if(index < lstObjECBs.size()-1){
@@ -718,7 +718,7 @@ public class GeneraXML_ECBDSV3_3 {
 						//System.out.println("XML Timbrado con addenda incluida: " + sbTimbradoFinal.toString());
 						long length = sbTimbradoFinal.toString().getBytes("UTF-8").length;
 						this.salidaODM.write(sbTimbradoFinal.toString().getBytes("UTF-8"));
-						System.out.println("Bloque AMDA 3 : " + sbTimbradoFinal.toString());
+						//System.out.println("Bloque AMDA 3 : " + sbTimbradoFinal.toString());
 						//Route route = new Route();
 						String routeName = properties.getPathDirGenr() + File.separator + fecha + "ODM-" + idProceso;
 						
@@ -1850,21 +1850,21 @@ public class GeneraXML_ECBDSV3_3 {
 									if(nodo3 instanceof Element && nodo3.getNodeName().equals("Santander:Movimientos")){
 										
 										//Ordenar movimientos por fecha de forma descendente
-										System.out.println("Movimientos sin orden");
-										for(int iTest=0; iTest<lstMovimientosECBx.size(); iTest++){
-											System.out.println("fecha:" + lstMovimientosECBx.get(iTest).getFecha());
-											System.out.println("fechaOrden:" + lstMovimientosECBx.get(iTest).getFechaOrden());
-										}
+//										System.out.println("Movimientos sin orden");
+//										for(int iTest=0; iTest<lstMovimientosECBx.size(); iTest++){
+//											System.out.println("fecha:" + lstMovimientosECBx.get(iTest).getFecha());
+//											System.out.println("fechaOrden:" + lstMovimientosECBx.get(iTest).getFechaOrden());
+//										}
 										
 										MovimientoECB [] arrayMov = new MovimientoECB[lstMovimientosECBx.size()];
 										lstMovimientosECBx.toArray(arrayMov);
 										Arrays.sort(arrayMov);
 										
-										System.out.println("Movimientos ordenados");
-										for(int iTest=0; iTest<arrayMov.length; iTest++){
-											System.out.println("fecha:" + arrayMov[iTest].getFecha());
-											System.out.println("fechaOrden:" + arrayMov[iTest].getFechaOrden());
-										}
+//										System.out.println("Movimientos ordenados");
+//										for(int iTest=0; iTest<arrayMov.length; iTest++){
+//											System.out.println("fecha:" + arrayMov[iTest].getFecha());
+//											System.out.println("fechaOrden:" + arrayMov[iTest].getFechaOrden());
+//										}
 										
 										for(int iMov=0; iMov<arrayMov.length; iMov++){
 											//Element movEcb = domComprobante.createElement("ecb:MovimientoECB");
@@ -2138,9 +2138,9 @@ public class GeneraXML_ECBDSV3_3 {
 										
 										ByteArrayOutputStream originalString = xmlProcess.generatesOriginalString(xmlFinal);
 										String cadena = originalString.toString("UTF-8");
-										System.out.println("Esta es la cadena: " + cadena);
-										System.out.println("Este es properties.getLabelMetodoPago: " + properties.getLabelMetodoPago());
-										System.out.println("Este es conver.getTags.METODO_PAGO: " + conver.getTags().METODO_PAGO);
+										//System.out.println("Esta es la cadena: " + cadena);
+										//System.out.println("Este es properties.getLabelMetodoPago: " + properties.getLabelMetodoPago());
+										//System.out.println("Este es conver.getTags.METODO_PAGO: " + conver.getTags().METODO_PAGO);
 										cadena = cadena.replaceFirst(properties.getLabelLugarExpedicion(), conver.getTags().LUGAR_EXPEDICION);
 										cadena = cadena.replaceFirst(properties.getLabelMetodoPago(), conver.getTags().METODO_PAGO);
 										cadena = cadena.replaceFirst(properties.getlabelFormaPago(), conver.getTags().FORMA_PAGO);
