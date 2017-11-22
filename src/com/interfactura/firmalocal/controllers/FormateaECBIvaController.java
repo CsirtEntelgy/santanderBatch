@@ -95,6 +95,9 @@ public class FormateaECBIvaController {
 				fileBlockOne = new StringBuilder();
 				fileBlockTwo = new StringBuilder();
 				lineElevenSb = new StringBuilder();
+				
+				ivaMnOriginal = BigDecimal.ZERO;
+				newIvaMn = BigDecimal.ZERO;
 
 				newTotalMn = BigDecimal.ZERO;
 				totalMnOriginal = BigDecimal.ZERO;

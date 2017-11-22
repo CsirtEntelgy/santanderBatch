@@ -2611,4 +2611,21 @@ public class UtilCatalogos
 			return response;
 		}
 		
+		//retorna true si un concepto aplica iva: impuesto 002, !Exento
+		public static boolean conceptoAplicaIva(Map<String, ArrayList<CatalogosDom>> mapCatalogos, String descCon){
+			boolean response = false;
+
+			if(mapCatalogos.size() > 0 && descCon.trim().length() > 0){
+				
+				for(int i=0; i<mapCatalogos.get("EquivalenciaConceptoImpuesto").size(); i++){
+					if( mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal1().equalsIgnoreCase("002")
+							&& !mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal2().equalsIgnoreCase("Exento")
+							&& mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal5().equalsIgnoreCase(descCon)){
+						response = true;
+						break;
+					}
+				}
+			}
+			return response;
+		}
 }
