@@ -57,8 +57,6 @@ public class FormateaECBAjusteIvaController {
 	String lineNine = null;
 	String lineTen = null;
 	String lineEleven = null;
-	
-	List<String[]> ajusteIvaConceptList = null;
 
 	public FormateaECBAjusteIvaController() {
 
@@ -91,8 +89,6 @@ public class FormateaECBAjusteIvaController {
 				in = new DataInputStream(fileToProcess);
 				br = new BufferedReader(new InputStreamReader(in, "UTF-8"));
 				String strLine;
-				
-				loadAjusteIvaConceptList();
 
 				outputFile = new File(PathECBEntrada + "GENERATED_" + fileName + filesExtension);
 				outputControlFile = new File(PathECBSalida + fileName + "_CONTROL_AJUSTE_" + timeStamp + filesExtension);
@@ -322,22 +318,6 @@ public class FormateaECBAjusteIvaController {
 		controlLineSb.append(newIvaMnVal.toString() + "\n");
 
 		return controlLineSb.toString();
-	}
-	
-	private void loadAjusteIvaConceptList() throws Exception {
-		FileInputStream fis = new FileInputStream(PathECBCatalogos + ajusteIvaConceptsFileName);
-		DataInputStream dis = new DataInputStream(fis);
-		BufferedReader bfr = new BufferedReader(new InputStreamReader(dis, "UTF-8"));
-		String conceptLine = null;
-		ajusteIvaConceptList = new ArrayList<String[]>();
-
-		while ((conceptLine = bfr.readLine()) != null) {
-			String[] conceptArray = conceptLine.split("\\|");
-			if(conceptArray[0].trim().equals("002") && !conceptArray[1].trim().equalsIgnoreCase("Exento")){
-				ajusteIvaConceptList.add(conceptArray);
-			}
-		}
-		bfr.close();
 	}
 
 	private void resetECB() {
