@@ -78,6 +78,7 @@ public class UtilCFDIComplementoPago {
 			referencia = linea[0].toString().trim();
 			System.out.println("Referencia: " + referencia);
 		}
+		comp.setReferenciaFactura(referencia);
 
 		/* Emisor Posicion 1--row 1 */
 		comp.setEmisor(new CfdiEmisor());
@@ -516,18 +517,18 @@ public class UtilCFDIComplementoPago {
 				}
 			}
 		}
-		/* Tipo de operacion */
-		comp.setComplemento(new CfdiComplemento());
-		if (!linea[29].toString().trim().equals("")) {
-			if (linea[29].toString().trim().toLowerCase().equals("compra")
-					|| linea[29].toString().trim().toLowerCase().equals("venta")) {
-				comp.getComplemento().setDivisaTipoOperacion(linea[29].toString().toLowerCase().trim());
-			} else {
-				comp.getComplemento().setDivisaTipoOperacion("");
-			}
-		} else {
-			comp.getComplemento().setDivisaTipoOperacion("");
-		}
+		
+		/* Tipo de operacion - no aplica para pagos */
+//		if (!linea[29].toString().trim().equals("")) {
+//			if (linea[29].toString().trim().toLowerCase().equals("compra")
+//					|| linea[29].toString().trim().toLowerCase().equals("venta")) {
+//				comp.getComplemento().setDivisaTipoOperacion(linea[29].toString().toLowerCase().trim());
+//			} else {
+//				comp.getComplemento().setDivisaTipoOperacion("");
+//			}
+//		} else {
+//			comp.getComplemento().setDivisaTipoOperacion("");
+//		}
 
 		/* Valida rfc cliente extranjero */
 		if (comp.getReceptor() != null && comp.getReceptor().getRfc() != null) {
@@ -541,17 +542,18 @@ public class UtilCFDIComplementoPago {
 			}
 		}
 		// No de autorización
-		if (linea[30] == null) {
+		if (linea[29] == null) {
 			comp.setNoAutorizacion("");
 		} else {
-			comp.setNoAutorizacion(linea[30].trim());
+			comp.setNoAutorizacion(linea[29].trim());
 		}
 		// UUID
+		comp.setComplemento(new CfdiComplemento());
 		comp.getComplemento().setTimbreFiscalDigital(new CfdiTimbreFiscalDigital());
-		if (linea[31] == null || linea[31].trim().isEmpty()) {
+		if (linea[30] == null || linea[30].trim().isEmpty()) {
 			comp.getComplemento().getTimbreFiscalDigital().setUuid("");
 		} else {
-			comp.getComplemento().getTimbreFiscalDigital().setUuid(linea[31].trim());
+			comp.getComplemento().getTimbreFiscalDigital().setUuid(linea[30].trim());
 
 		}
 
@@ -583,7 +585,7 @@ public class UtilCFDIComplementoPago {
 		
 		comp.setLugarExpedicion("01219");
 		System.out.println("Tamaño de conceptos: " + conceptos.size());
-		int nextPosition = 32, maxPosition = linea.length - 1, posicionComplemento = 1;
+		int nextPosition = 31, maxPosition = linea.length - 1, posicionComplemento = 1;
 		ComplementoPago complemento = null;
 		List<ComplementoPago> pagos = new ArrayList<ComplementoPago>();
 		boolean finFactura = false;

@@ -100,6 +100,7 @@ public class UtilCFDIValidations {
 	private static final String APARTADO_COMPLEMENT_SERIE = "[^|]{1,25}";
 	private static final String APARTADO_COMPLEMENT_FOLIO = "[^|]{1,40}";
 	private static final String APARTADO_COMPLEMENT_NUM_PARCIALIDAD = "[1-9][0-9]{0,2}";
+	private static final String REFERENCIA_FACTURA = "[A-Z0-9]{10,50}";
 
 	Vector<String> vectorCantidad = null;
 	Vector<String> vectorUM = null;
@@ -2968,8 +2969,7 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 	}
 
 	/* Tipo de operacion */
-	if (comp.getTipoEmision().equalsIgnoreCase(TipoEmision.DIVISAS)
-			|| comp.getTipoEmision().equalsIgnoreCase(TipoEmision.RECEPCION_PAGOS)) {
+	if (comp.getTipoEmision().equalsIgnoreCase(TipoEmision.DIVISAS)) {
 		if (!comp.getComplemento().getDivisaTipoOperacion().trim().equals("")) {
 			if (!(comp.getComplemento().getDivisaTipoOperacion().trim().toLowerCase().equals("compra")
 					|| comp.getComplemento().getDivisaTipoOperacion().trim().toLowerCase().equals("venta"))) {
@@ -3429,6 +3429,16 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 	//Validacion de complemento
 	int complementos = 0;
 	if(comp.getTipoEmision().equalsIgnoreCase(TipoEmision.RECEPCION_PAGOS)){
+		
+		//validacion referencia factura
+		if (comp.getReferenciaFactura() != null && !comp.getReferenciaFactura().isEmpty()) {
+			if (!validaDatoRELongitud(comp.getReferenciaFactura(), REFERENCIA_FACTURA, 50)) {
+				sbError.append("Referencia factura  con formato incorrecto - Factura " + factura + "\n");
+            }
+		}else{
+			sbError.append("Referencia factura requerida - factura " + factura + "\n");
+		}
+		
 		if(comp.getComplementPagos() != null && comp.getComplementPagos().size() > 0){
 			for(ComplementoPago complementoPago : comp.getComplementPagos()){
 				complementos++;

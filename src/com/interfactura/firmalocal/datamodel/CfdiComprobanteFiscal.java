@@ -51,6 +51,7 @@ public class CfdiComprobanteFiscal {
     private Integer decimalesMoneda;
     private List<ComplementoPago> complementPagos;
     private String numeroCuentaPago;
+    private String referenciaFactura;
 
     public BigDecimal getDescuento() {
         return descuento;
@@ -338,6 +339,14 @@ public class CfdiComprobanteFiscal {
 
 	public void setNumeroCuentaPago(String numeroCuentaPago) {
 		this.numeroCuentaPago = numeroCuentaPago;
+	}
+
+	public String getReferenciaFactura() {
+		return referenciaFactura;
+	}
+
+	public void setReferenciaFactura(String referenciaFactura) {
+		this.referenciaFactura = referenciaFactura;
 	}
 
 	@Override
