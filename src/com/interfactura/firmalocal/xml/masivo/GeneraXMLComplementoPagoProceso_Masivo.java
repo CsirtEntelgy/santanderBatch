@@ -731,7 +731,7 @@ public class GeneraXMLComplementoPagoProceso_Masivo {
 		temp.append(invoiceM.getXmlRoute() + "<#EMasfUD,>");
 		temp.append(strSourceFileName + "<#EMasfUD,>");
 		temp.append(Integer.parseInt(this.statusActive) + "<#EMasfUD,>");
-		temp.append(1 + "<#EMasfUD,>");
+		temp.append(8 + "<#EMasfUD,>");
 		temp.append(invoiceM.getRfc() + "<#EMasfUD,>");
 		temp.append(invoiceM.getSubTotal() * invoiceM.getExchange() + "<#EMasfUD,>");
 		temp.append(invoiceM.getIva() * invoiceM.getExchange() + "<#EMasfUD,>");
