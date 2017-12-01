@@ -1223,8 +1223,7 @@ public class UtilCFDIDivisas {
 											.setNoInterior(customer.getAddress().getInternalNumber());
 									comp.getReceptor().getDomicilio()
 											.setPais(customer.getAddress().getState().getCountry().getName());
-									comp.getReceptor().getDomicilio()
-											.setReferencia(customer.getAddress().getReference());
+									//comp.getReceptor().getDomicilio().setReferencia(customer.getAddress().getReference());
 								}
 							}else{
 								readFromFile = true;
@@ -1267,7 +1266,7 @@ public class UtilCFDIDivisas {
 										.setNoInterior(customer.getAddress().getInternalNumber());
 								comp.getReceptor().getDomicilio()
 										.setPais(customer.getAddress().getState().getCountry().getName());
-								comp.getReceptor().getDomicilio().setReferencia(customer.getAddress().getReference());
+								//comp.getReceptor().getDomicilio().setReferencia(customer.getAddress().getReference());
 							}
 						}else{
 							readFromFile = true;
@@ -1286,13 +1285,15 @@ public class UtilCFDIDivisas {
 			}else{
 				comp.getReceptor().setNombre(linea[11].toString().trim());
 			}
-			//referencia
-			if (linea[16] == null || linea[16].toString().trim().equals("")) {
-				comp.getReceptor().getDomicilio().setReferencia("");
-			}else{
-				comp.getReceptor().getDomicilio().setReferencia(linea[16].toString().trim());
-			}
+			
 		}
+		//referencia
+		if (linea[16] == null || linea[16].toString().trim().equals("")) {
+			comp.getReceptor().getDomicilio().setReferencia("");
+		}else{
+			comp.getReceptor().getDomicilio().setReferencia(linea[16].toString().trim());
+		}
+		
 		comp.setAddenda(new CfdiAddendaSantanderV1());
 		comp.getAddenda().setInformacionPago(new CfdiAddendaInformacionPago());
 		/* Numero de cuenta */
@@ -1306,74 +1307,26 @@ public class UtilCFDIDivisas {
 		if (linea[17] == null || linea[17].toString().trim().equals("")) {
 			comp.getAddenda().getInformacionEmision().setCodigoCliente("");
 		} else {
-			String strCellType = linea[17].toString().trim();
-			if (!strCellType.equals("")) {
-				comp.getAddenda().getInformacionEmision().setCodigoCliente("");
-			} else {
-				if (linea[17].toString().trim().length() > 0) {
-					comp.getAddenda().getInformacionEmision().setCodigoCliente(linea[17].toString().trim());
-				} else {
-					comp.getAddenda().getInformacionEmision().setCodigoCliente(linea[17].toString().trim());
-				}
-			}
+				comp.getAddenda().getInformacionEmision().setCodigoCliente(linea[17].toString().trim());
 		}
+		
 		/* Contrato */
-		if (linea[18] == null) {
+		if (linea[18] == null || linea[18].toString().trim().equals("")) {
 			comp.getAddenda().getInformacionEmision().setContrato("");
 		} else {
-			if (linea[18].toString().trim().equals("")) {
-				comp.getAddenda().getInformacionEmision().setContrato("");
-			} else {
-				String strCellType = linea[18].toString().trim();
-				if (!strCellType.equals("")) {
-					comp.getAddenda().getInformacionEmision().setContrato("");
-				} else {
-					if (linea[18].toString().trim().length() > 0) {
-						comp.getAddenda().getInformacionEmision().setContrato(linea[18].toString().trim());
-					} else {
-						comp.getAddenda().getInformacionEmision().setContrato(linea[18].toString().trim());
-					}
-				}
-			}
-
+			comp.getAddenda().getInformacionEmision().setContrato(linea[18].toString().trim());
 		}
 		/* Periodo */
-		if (linea[19] == null) {
+		if (linea[19] == null || linea[19].toString().trim().equals("")) {
 			comp.getAddenda().getInformacionEmision().setPeriodo("");
 		} else {
-			if (linea[19].toString().trim().equals("")) {
-				comp.getAddenda().getInformacionEmision().setPeriodo("");
-			} else {
-				String strCellType = linea[19].toString().trim();
-				if (!strCellType.equals("")) {
-					comp.getAddenda().getInformacionEmision().setPeriodo("");
-				} else {
-					if (linea[19].toString().trim().length() > 0) {
-						comp.getAddenda().getInformacionEmision().setPeriodo(linea[19].toString().trim());
-					} else {
-						comp.getAddenda().getInformacionEmision().setPeriodo(linea[19].toString().trim());
-					}
-				}
-			}
+			comp.getAddenda().getInformacionEmision().setPeriodo(linea[19].toString().trim());
 		}
 		/* Centro de costos */
 		if (linea[20] == null) {
 			comp.getAddenda().getInformacionEmision().setCentroCostos("");
 		} else {
-			if (linea[20].toString().trim().equals("")) {
-				comp.getAddenda().getInformacionEmision().setCentroCostos("");
-			} else {
-				String strCellType = linea[20].toString().trim();
-				if (!strCellType.equals("")) {
-					comp.getAddenda().getInformacionEmision().setCentroCostos("");
-				} else {
-					if (linea[21].toString().trim().length() > 0) {
-						comp.getAddenda().getInformacionEmision().setCentroCostos(linea[20].toString().trim());
-					} else {
-						comp.getAddenda().getInformacionEmision().setCentroCostos(linea[20].toString().trim());
-					}
-				}
-			}
+			comp.getAddenda().getInformacionEmision().setCentroCostos(linea[20].toString().trim());
 		}
 		comp.getAddenda().setCampoAdicional(new HashMap<String, String>());
 		/* Descriptcion concepto */
@@ -1400,11 +1353,46 @@ public class UtilCFDIDivisas {
 			if (validaDatoRE(linea[23].toString().trim(), RE_DECIMAL)) {
 				String strTipoAddenda = linea[23].toString().trim();
 				System.out.println("tipoAddendaClean: " + strTipoAddenda);
-				if (strTipoAddenda.equals("1") || strTipoAddenda.equals("2") || strTipoAddenda.equals("3")) {
+				
+				//Nombre Beneficiario
+				if (linea[32] == null) {
 					comp.getAddenda().getInformacionPago().setNombreBeneficiario("");
+				} else {
+					comp.getAddenda().getInformacionPago().setNombreBeneficiario(linea[32].toString().trim());
+				}
+				//institucion receptora
+				if (linea[33] == null) {
 					comp.getAddenda().getInformacionPago().setInstitucionReceptora("");
+				} else {
+					comp.getAddenda().getInformacionPago()
+							.setInstitucionReceptora(linea[33].toString().trim());
+				}
+				//Numero de cuenta
+				if (linea[34] == null) {
 					comp.getAddenda().getInformacionPago().setNumeroCuenta("");
+				} else {
+					if (linea[34].toString().trim().equals("")) {
+						comp.getAddenda().getInformacionPago().setNumeroCuenta(linea[34].toString().trim());
+					} else {
+						comp.getAddenda().getInformacionPago().setNumeroCuenta(linea[34].toString().trim());
+					}
+				}
+				//num proveedor
+				if (linea[35] == null) {
 					comp.getAddenda().getInformacionPago().setNumProveedor("");
+				} else {
+					if (linea[35].toString().trim().equals("")) {
+						comp.getAddenda().getInformacionPago().setNumProveedor("");
+					} else {
+						comp.getAddenda().getInformacionPago().setNumProveedor(linea[35].toString().trim());
+					}
+				}
+				
+				if (strTipoAddenda.equals("1") || strTipoAddenda.equals("2") || strTipoAddenda.equals("3")) {
+//					comp.getAddenda().getInformacionPago().setNombreBeneficiario("");
+//					comp.getAddenda().getInformacionPago().setInstitucionReceptora("");
+//					comp.getAddenda().getInformacionPago().setNumeroCuenta("");
+//					comp.getAddenda().getInformacionPago().setNumProveedor("");
 					//email proveedor
 					if (linea[24] == null) {
 						comp.getAddenda().getInformacionPago().setEmail("");
@@ -1506,39 +1494,6 @@ public class UtilCFDIDivisas {
 					comp.getAddenda().getInformacionPago().setEmail("");
 					comp.getAddenda().getInformacionPago().setOrdenCompra("");
 
-					//Nombre Beneficiario
-					if (linea[32] == null) {
-						comp.getAddenda().getInformacionPago().setNombreBeneficiario("");
-					} else {
-						comp.getAddenda().getInformacionPago().setNombreBeneficiario(linea[32].toString().trim());
-					}
-					//institucion receptora
-					if (linea[33] == null) {
-						comp.getAddenda().getInformacionPago().setInstitucionReceptora("");
-					} else {
-						comp.getAddenda().getInformacionPago()
-								.setInstitucionReceptora(linea[33].toString().trim());
-					}
-					//Numero de cuenta
-					if (linea[34] == null) {
-						comp.getAddenda().getInformacionPago().setNumeroCuenta("");
-					} else {
-						if (linea[34].toString().trim().equals("")) {
-							comp.getAddenda().getInformacionPago().setNumeroCuenta(linea[34].toString().trim());
-						} else {
-							comp.getAddenda().getInformacionPago().setNumeroCuenta(linea[34].toString().trim());
-						}
-					}
-					//num proveedor
-					if (linea[35] == null) {
-						comp.getAddenda().getInformacionPago().setNumProveedor("");
-					} else {
-						if (linea[35].toString().trim().equals("")) {
-							comp.getAddenda().getInformacionPago().setNumProveedor("");
-						} else {
-							comp.getAddenda().getInformacionPago().setNumProveedor(linea[35].toString().trim());
-						}
-					}
 				} 
 			}
 		}

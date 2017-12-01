@@ -1,6 +1,7 @@
 package com.interfactura.firmalocal.xml.util;
 
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map.Entry;
@@ -13,6 +14,7 @@ import com.interfactura.firmalocal.datamodel.CfdiConceptoImpuestoTipo;
 import com.interfactura.firmalocal.datamodel.ComplementoPago;
 import com.interfactura.firmalocal.xml.Properties;
 import com.interfactura.firmalocal.xml.util.UtilCatalogos;
+import com.interfactura.firmalocal.xml.util.ValidationConstants.TipoEmision;
 
 @Component
 public class ConvertirCfdiImplV3_3 {
@@ -29,9 +31,6 @@ public class ConvertirCfdiImplV3_3 {
 	public String fComprobante(CfdiComprobanteFiscal comp , Date date){
 		StringBuilder concat =  new StringBuilder();
 		
-		concat.append("xmlns:cfdi=\"http://www.sat.gob.mx/cfd/3\" ");
-		concat.append("xmlns:ecb=\"http://www.sat.gob.mx/ecb\" ");
-		concat.append("xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" ");
 		//Certificado
 		concat.append("Certificado=\"" + properties.getLblCERTIFICADO() + "\" ");
 		if (comp.getDescuento() != null && comp.getDescuento().doubleValue() > 0){
@@ -39,48 +38,65 @@ public class ConvertirCfdiImplV3_3 {
 		}
 		concat.append("Fecha=\"" + Util.convertirFecha(date) + "\" ");
 		concat.append(Util.isNullEmpity(comp.getFolio(), "Folio"));
-		
 		if(comp.getFormaPago() != null && !comp.getFormaPago().isEmpty()){
 			concat.append("FormaPago=\"" + comp.getFormaPago() + "\" ");
 		}
-		concat.append("LugarExpedicion=\"" + "01219" + "\" ");
+		if(comp.getEmisor().getDomicilio().getCodigoPostal() != null){
+			concat.append("LugarExpedicion=\"" + comp.getEmisor().getDomicilio().getCodigoPostal() + "\" ");
+		}
 		if(comp.getMetodoPago() != null && comp.getMetodoPago().trim() != ""){
 			concat.append("MetodoPago=\"" + comp.getMetodoPago() + "\" ");
 		}
 		concat.append("Moneda=\"" + comp.getMoneda() + "\" ");
-		if(comp.getSerie() != null && !comp.getSerie().isEmpty()){
-			concat.append("Serie=\"" + comp.getSerie() + "\" ");
-		}
+		
 		//NoCertificado
 		concat.append("NoCertificado=\"" + properties.getLblNO_CERTIFICADO() + "\" ");
 		//Sello
 		concat.append("Sello=\"" + properties.getLabelSELLO() + "\" ");
-		
+		if(comp.getSerie() != null && !comp.getSerie().isEmpty()){
+			concat.append("Serie=\"" + comp.getSerie() + "\" ");
+		}
 		String subtotal = "0";
 		if(!comp.getMoneda().equalsIgnoreCase("XXX")){
 			subtotal = UtilCatalogos.decimales(comp.getSubTotal().toString(), comp.getDecimalesMoneda());
 		}
 		concat.append("SubTotal=\"" + subtotal + "\" ");
-		
 		if(comp.getTipoCambio() != null && comp.getTipoCambio().trim() != ""){
 			concat.append("TipoCambio=\"" + comp.getTipoCambio() + "\" ");
 		}
 		concat.append("TipoDeComprobante=\"" + comp.getTipoDeComprobante() + "\" ");
-		
 		String total = "0";
 		if(!comp.getMoneda().equalsIgnoreCase("XXX")){
 			total = UtilCatalogos.decimales(comp.getTotal().toString(), comp.getDecimalesMoneda());
 		}
 		concat.append("Total=\"" + total + "\" ");
-		
 		concat.append("Version=\"" + "3.3" + "\" ");
 		
+		StringBuilder concatSchemaLocation = new StringBuilder();
+		concatSchemaLocation.append("xsi:schemaLocation=\"");
+		concatSchemaLocation.append("http://www.sat.gob.mx/cfd/3 ");
+		concatSchemaLocation.append("http://www.sat.gob.mx/sitio_internet/cfd/3/cfdv33.xsd ");
+		
+		concat.append("xmlns:cfdi=\"http://www.sat.gob.mx/cfd/3\" ");
+		if(comp.getTipoEmision().equalsIgnoreCase(TipoEmision.DIVISAS)){
+			concat.append("xmlns:divisas=\"http://www.sat.gob.mx/divisas\" ");
+			concatSchemaLocation.append("http://www.sat.gob.mx/divisas ");
+			concatSchemaLocation.append("http://www.sat.gob.mx/sitio_internet/cfd/divisas/Divisas.xsd ");
+		}
+		if(comp.getTipoEmision().equalsIgnoreCase(TipoEmision.DONATARIAS)){
+			concat.append("xmlns:donat=\"http://www.sat.gob.mx/donat\" ");
+			concatSchemaLocation.append("http://www.sat.gob.mx/donat ");
+			concatSchemaLocation.append("http://www.sat.gob.mx/sitio_internet/cfd/donat/donat11.xsd ");
+		}
+		concat.append("xmlns:ecb=\"http://www.sat.gob.mx/ecb\" ");
+		concat.append("xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" ");
+		concatSchemaLocation = new StringBuilder(concatSchemaLocation.toString().trim()).append("\" ");
 		return Util
 				.conctatArguments(
 						"\n<cfdi:Comprobante ",
 						concat.toString(),
-						"xsi:schemaLocation=\"http://www.sat.gob.mx/cfd/3 ", 
-						"http://www.sat.gob.mx/sitio_internet/cfd/3/cfdv33.xsd\">")
+						concatSchemaLocation.toString(), 
+						">")
 				.toString();
 	}
 	
@@ -158,7 +174,9 @@ public class ConvertirCfdiImplV3_3 {
 				if(concepto.getUnidad() != null){
 					sbConceptos.append("Unidad=\"" + concepto.getUnidad().toUpperCase() + "\" ");
 				}
-				sbConceptos.append("ValorUnitario=\"" + concepto.getValorUnitario() + "\"");
+				DecimalFormat df = new DecimalFormat("0.00000000");
+				String valUnitario = df.format(concepto.getValorUnitario());
+				sbConceptos.append("ValorUnitario=\"" + UtilCatalogos.decimales(valUnitario, comp.getDecimalesMoneda()) + "\"");
 				sbConceptos.append(">");
 				sbConceptos.append(conceptoImpuesto(concepto));
 				sbConceptos.append("\n</cfdi:Concepto>");
@@ -255,6 +273,13 @@ public class ConvertirCfdiImplV3_3 {
 		StringBuilder childs = new StringBuilder();
 		
 		childs.append(pagos(comp));
+		if(comp.getTipoEmision().equalsIgnoreCase(TipoEmision.DIVISAS) 
+				&& comp.getComplemento().getDivisaTipoOperacion() != null){
+			childs.append("<divisas:Divisas ");
+			childs.append("version=\"1.0\" ");
+			childs.append("tipoOperacion=\""+comp.getComplemento().getDivisaTipoOperacion()+"\" ");
+			childs.append("/>");
+		}
 		
 		if(childs.toString().length() > 0){
 			concat.append("<cfdi:Complemento>");
@@ -423,7 +448,10 @@ public class ConvertirCfdiImplV3_3 {
 		if(comp.getAddenda() != null){
 			concat.append("\n<cfdi:Addenda ");
 			concat.append("xmlns:as=\"http://www.santander.com.mx/schemas/xsd/AddendaSantanderV1\" ");
-			concat.append("xmlns:asant=\"http://www.santander.com.mx/schemas/xsd/AddendaSantanderV1\" ");
+			if(!comp.getTipoEmision().equalsIgnoreCase(TipoEmision.DONATARIAS)){
+				concat.append("xmlns:asant=\"http://www.santander.com.mx/schemas/xsd/AddendaSantanderV1\" ");
+			}
+			
 			concat.append(">");
 			concat.append(addendaAsant(comp));
 			concat.append("\n<as:AddendaSantanderV1>");
@@ -431,8 +459,8 @@ public class ConvertirCfdiImplV3_3 {
 			concat.append(informacionPago(comp));
 			concat.append(informacionEmision(comp));
 			concat.append(camposAdicionales(comp));
-			concat.append(domicilioEmisor(comp));
 			concat.append(domicilioReceptor(comp));
+			concat.append(domicilioEmisor(comp));
 			concat.append("\n</as:AddendaSantanderV1>");
 			concat.append("\n</cfdi:Addenda>");
 		}
@@ -534,12 +562,12 @@ public class ConvertirCfdiImplV3_3 {
 			attributes.append(Util.isNullEmpity(comp.getAddenda().getInformacionEmision().getFolioInterno(), "FolioInterno"));
 			attributes.append(Util.isNullEmpity(comp.getAddenda().getInformacionEmision().getClaveSantander(), "ClaveSantander"));
 		}
-		if(attributes.toString().trim().length() > 0){
+		//if(attributes.toString().trim().length() > 0){
 			concat.append("\n<as:InformacionEmision ");
 			concat.append(attributes.toString());
 			concat.append(" />");
 			//concat.append("\n</as:InformacionEmision>");
-		}
+		//}
 		
 		return concat.toString();
 	}
@@ -561,16 +589,44 @@ public class ConvertirCfdiImplV3_3 {
 		StringBuilder concat = new StringBuilder();
 		//Domicilio Emisor
 		StringBuilder attributes = new StringBuilder();
-		attributes.append(Util.isNullEmpity(comp.getEmisor().getDomicilio().getCalle(), "Calle"));
-		attributes.append(Util.isNullEmpity(comp.getEmisor().getDomicilio().getLocalidad(), "Ciudad"));
-		attributes.append(Util.isNullEmpity(comp.getEmisor().getDomicilio().getCodigoPostal(), "CodigoPostal"));
-		attributes.append(Util.isNullEmpity(comp.getEmisor().getDomicilio().getColonia(), "Colonia"));
-		attributes.append(Util.isNullEmpity(comp.getEmisor().getDomicilio().getEstado(), "Estado"));
-		attributes.append(Util.isNullEmpity(comp.getEmisor().getDomicilio().getMunicipio(), "Municipio"));
-		attributes.append(Util.isNullEmpity(comp.getEmisor().getDomicilio().getNoExterior(), "NoExterior"));
-		attributes.append(Util.isNullEmpity(comp.getEmisor().getDomicilio().getNoInterior(), "NoInterior"));
-		attributes.append(Util.isNullEmpity(comp.getEmisor().getDomicilio().getPais(), "Pais"));
-		attributes.append(Util.isNullEmpity(comp.getEmisor().getDomicilio().getReferencia(), "Referecncia"));
+		if(comp.getEmisor().getDomicilio().getCalle() != null){
+			attributes.append("Calle=\"" + comp.getEmisor().getDomicilio().getCalle().toUpperCase()  + "\" ");
+		}
+		if(comp.getEmisor().getDomicilio().getLocalidad() != null){
+			attributes.append("Ciudad=\"" + comp.getEmisor().getDomicilio().getLocalidad() + "\" ");
+		}
+		if(comp.getEmisor().getDomicilio().getCodigoPostal() != null){
+			attributes.append("CodigoPostal=\"" + comp.getEmisor().getDomicilio().getCodigoPostal() + "\" ");
+		}
+		if(comp.getEmisor().getDomicilio().getColonia() != null){
+			attributes.append("Colonia=\"" + comp.getEmisor().getDomicilio().getColonia().toUpperCase()  + "\" ");
+		}
+		if(comp.getEmisor().getDomicilio().getEstado() != null){
+			attributes.append("Estado=\"" + comp.getEmisor().getDomicilio().getEstado().toUpperCase()  + "\" ");
+		}
+		//if(comp.getEmisor().getDomicilio().getLocalidad() != null){
+			attributes.append("Localidad=\"\" ");
+		//}
+		if(comp.getEmisor().getDomicilio().getMunicipio() != null){
+			attributes.append("Municipio=\"" + comp.getEmisor().getDomicilio().getMunicipio().toUpperCase()  + "\" ");
+		}
+		if(comp.getEmisor().getDomicilio().getNoExterior() != null){
+			attributes.append("NoExterior=\"" + comp.getEmisor().getDomicilio().getNoExterior() + "\" ");
+		}
+		if(comp.getEmisor().getDomicilio().getNoInterior() != null){
+			attributes.append("NoInterior=\"" + comp.getEmisor().getDomicilio().getNoInterior() + "\" ");
+		}
+		if(comp.getNumeroCuentaPago() != null && comp.getTipoEmision().equalsIgnoreCase(TipoEmision.DONATARIAS)){
+			attributes.append("NumCtaPagoEntidad=\"" + comp.getNumeroCuentaPago() + "\" ");
+		}
+		if(comp.getEmisor().getDomicilio().getReferencia() != null){
+			attributes.append("Referencia=\"" + comp.getEmisor().getDomicilio().getReferencia() + "\" ");
+		}else{
+			attributes.append("Referencia=\"\" ");
+		}
+		if(comp.getEmisor().getDomicilio().getPais() != null){
+			attributes.append("pais=\"" + comp.getEmisor().getDomicilio().getPais().toUpperCase()  + "\" ");
+		}
 		
 		if(attributes.toString().trim().length() > 0){
 			concat.append("\n<as:DomicilioEmisor ");
@@ -584,18 +640,38 @@ public class ConvertirCfdiImplV3_3 {
 		StringBuilder concat = new StringBuilder();
 		StringBuilder attributes = new StringBuilder();
 		//DomicilioReceptor
-		attributes.append(Util.isNullEmpity(comp.getReceptor().getDomicilio().getCalle(), "Calle"));
-		attributes.append(Util.isNullEmpity(comp.getReceptor().getDomicilio().getLocalidad(), "Ciudad"));
-		attributes.append(Util.isNullEmpity(comp.getReceptor().getDomicilio().getCodigoPostal(), "CodigoPostal"));
-		attributes.append(Util.isNullEmpity(comp.getReceptor().getDomicilio().getColonia(), "Colonia"));
-		attributes.append(Util.isNullEmpity(comp.getReceptor().getDomicilio().getEstado(), "Estado"));
-		attributes.append(Util.isNullEmpity(comp.getReceptor().getDomicilio().getMunicipio(), "Municipio"));
-		attributes.append(Util.isNullEmpity(comp.getReceptor().getDomicilio().getNoExterior(), "NoExterior"));
-		attributes.append(Util.isNullEmpity(comp.getNumeroCuentaPago(), "NumCtaPagoEntidad"));
-		attributes.append(Util.isNullEmpity(comp.getNumeroCuenta(), "NumCtaPagoEntidad"));
-		attributes.append(Util.isNullEmpity(comp.getReceptor().getDomicilio().getNoInterior(), "NoInterior"));
-		attributes.append(Util.isNullEmpity(comp.getReceptor().getDomicilio().getPais(), "Pais"));
-		attributes.append(Util.isNullEmpity(comp.getReceptor().getDomicilio().getReferencia(), "Referencia"));
+		if(comp.getReceptor().getDomicilio().getCalle() != null){
+			attributes.append("Calle=\"" + comp.getReceptor().getDomicilio().getCalle().toUpperCase() + "\" ");
+		}
+		if(comp.getReceptor().getDomicilio().getCodigoPostal() != null){
+			attributes.append("CodigoPostal=\"" + comp.getReceptor().getDomicilio().getCodigoPostal()  + "\" ");
+		}
+		if(comp.getReceptor().getDomicilio().getColonia() != null){
+			attributes.append("Colonia=\"" + comp.getReceptor().getDomicilio().getColonia().toUpperCase()  + "\" ");
+		}		
+		if(comp.getReceptor().getDomicilio().getEstado() != null){
+			attributes.append("Estado=\"" + comp.getReceptor().getDomicilio().getEstado().toUpperCase()  + "\" ");
+		}
+		if(comp.getReceptor().getDomicilio().getLocalidad() != null){
+			attributes.append("Localidad=\"" + comp.getReceptor().getDomicilio().getLocalidad().toUpperCase()  + "\" ");
+		}
+		if(comp.getReceptor().getDomicilio().getMunicipio() != null){
+			attributes.append("Municipio=\"" + comp.getReceptor().getDomicilio().getMunicipio().toUpperCase()  + "\" ");
+		}
+		if(comp.getReceptor().getDomicilio().getNoExterior() != null){
+			attributes.append("NoExterior=\"" + comp.getReceptor().getDomicilio().getNoExterior().toUpperCase()  + "\" ");
+		}
+		if(comp.getReceptor().getDomicilio().getNoInterior() != null){
+			attributes.append("NoInterior=\"" + comp.getReceptor().getDomicilio().getNoInterior().toUpperCase()  + "\" ");
+		}
+		if(comp.getReceptor().getDomicilio().getPais() != null){
+			attributes.append("Pais=\"" + comp.getReceptor().getDomicilio().getPais().toUpperCase()  + "\" ");
+		}
+		if(comp.getReceptor().getDomicilio().getReferencia() != null){
+			attributes.append("Referencia=\"" + comp.getReceptor().getDomicilio().getReferencia().toUpperCase()  + "\" ");
+		}else{
+			attributes.append("Referencia=\"\" ");
+		}
 		
 		if(attributes.toString().trim().length() > 0){
 			concat.append("\n<as:DomicilioReceptor ");

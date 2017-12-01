@@ -1256,7 +1256,7 @@ public class UtilCFDIDonatarias {
 										.setNoInterior(customer.getAddress().getInternalNumber());
 								comp.getReceptor().getDomicilio()
 										.setPais(customer.getAddress().getState().getCountry().getName());
-								comp.getReceptor().getDomicilio().setReferencia(customer.getAddress().getReference());
+								//comp.getReceptor().getDomicilio().setReferencia(customer.getAddress().getReference());
 							}
 						}else{
 							readFromFile = true;
@@ -1297,7 +1297,7 @@ public class UtilCFDIDonatarias {
 										.setNoInterior(customer.getAddress().getInternalNumber());
 								comp.getReceptor().getDomicilio()
 										.setPais(customer.getAddress().getState().getCountry().getName());
-								comp.getReceptor().getDomicilio().setReferencia(customer.getAddress().getReference());
+								//comp.getReceptor().getDomicilio().setReferencia(customer.getAddress().getReference());
 							}
 						}else{
 							readFromFile = true;
@@ -1366,12 +1366,7 @@ public class UtilCFDIDonatarias {
 			}else{
 				comp.getReceptor().getDomicilio().setLocalidad(linea[22].toString().trim());
 			}
-			// posicion 23 referencia
-			if(linea[23] == null || linea[23].toString().trim().equals("")){
-				comp.getReceptor().getDomicilio().setReferencia("");
-			}else{
-				comp.getReceptor().getDomicilio().setReferencia(linea[23].toString().trim());
-			}
+			
 			// posicion 24 municipio
 			if(linea[24] == null || linea[24].toString().trim().equals("")){
 				comp.getReceptor().getDomicilio().setMunicipio("");
@@ -1397,6 +1392,13 @@ public class UtilCFDIDonatarias {
 				comp.getReceptor().getDomicilio().setCodigoPostal(linea[27].toString().trim());
 			}
 		}
+		// posicion 23 referencia
+		if(linea[23] == null || linea[23].toString().trim().equals("")){
+			comp.getReceptor().getDomicilio().setReferencia("");
+		}else{
+			comp.getReceptor().getDomicilio().setReferencia(linea[23].toString().trim());
+		}
+					
 		// posicion 16 fecha de recepccion
 		if (linea[16] == null || linea[16].toString().trim().equals("")) {
 			comp.setFecha("");

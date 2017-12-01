@@ -2236,6 +2236,9 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 						+ factura + "\n");
 	}
 
+	if(comp.getAddenda().getCampoAdicional() == null){
+		comp.getAddenda().setCampoAdicional(new HashMap<String, String>());
+	}
 	// fiscalEntity = new FiscalEntity();
 	/* Emisor Posicion 0--row 0 */
 	if (comp.getEmisor() == null || comp.getEmisor().getRfc() == null || comp.getEmisor().getRfc() == "") {
@@ -2254,6 +2257,11 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 			} else if (fiscalEntity.getIsDonataria() == 0 && comp.getTipoEmision().equals(TipoEmision.DONATARIAS)) {
 				sbError.append("Entidad Fiscal incorrecta, no es donataria - Factura " + factura + "\n");
 			} else {
+				if(fiscalEntity.getIsDonataria() == 1 
+						&& fiscalEntity.getLeyendaDonataria() != null
+						&& !fiscalEntity.getLeyendaDonataria().isEmpty()){
+					comp.getAddenda().getCampoAdicional().put("LeyendaDonataria", fiscalEntity.getLeyendaDonataria());
+				}
 				comp.getEmisor().setNombre(fiscalEntity.getFiscalName());
 				comp.getEmisor().setRfc(fiscalEntity.getTaxID());
 				if (fiscalEntity.getAddress() != null) {
@@ -2262,10 +2270,10 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 					comp.getEmisor().getDomicilio().setCodigoPostal(fiscalEntity.getAddress().getZipCode());
 					comp.getEmisor().getDomicilio().setColonia(fiscalEntity.getAddress().getNeighborhood());
 					comp.getEmisor().getDomicilio().setEstado(fiscalEntity.getAddress().getState().getName());
-					comp.getEmisor().getDomicilio().setLocalidad(fiscalEntity.getAddress().getRegion());
-					comp.getEmisor().getDomicilio().setMunicipio(fiscalEntity.getAddress().getCity());
+					comp.getEmisor().getDomicilio().setLocalidad(fiscalEntity.getAddress().getCity());
+					comp.getEmisor().getDomicilio().setMunicipio(fiscalEntity.getAddress().getRegion());
 					comp.getEmisor().getDomicilio().setNoExterior(fiscalEntity.getAddress().getExternalNumber());
-					comp.getEmisor().getDomicilio().setNoInterior(fiscalEntity.getAddress().getExternalNumber());
+					comp.getEmisor().getDomicilio().setNoInterior(fiscalEntity.getAddress().getInternalNumber());
 					comp.getEmisor().getDomicilio()
 							.setPais(fiscalEntity.getAddress().getState().getCountry().getName());
 					comp.getEmisor().getDomicilio().setReferencia(fiscalEntity.getAddress().getReference());
@@ -2317,7 +2325,7 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 						comp.setDescuento(BigDecimal.ZERO);
 					}
 				} else {
-					sbError.append("Descuento con formato incorrecto " + " - factura " + factura + "\n");
+					sbError.append("Descuento con formato incorrecto, se espera ("+RE_DECIMAL_NEGATIVO+") - factura " + factura + "\n");
 				}
 			}
 		} else {
@@ -2335,13 +2343,13 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 									+ " - factura " + factura + "\n");
 						}
 					} else {
-						sbError.append("Descuento con formato incorrecto " + " - factura " + factura + "\n");
+						sbError.append("Descuento con formato incorrecto, se espera ("+RE_DECIMAL_NEGATIVO+") - factura " + factura + "\n");
 					}
 
 				}
 
 			} else {
-				sbError.append("Motivo de descuento con formato incorrecto " + " - factura " + factura + "\n");
+				sbError.append("Motivo de descuento no debe exceder 1500 caracteres  - factura " + factura + "\n");
 			}
 		}
 	}
@@ -2364,7 +2372,7 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 	}
 	//campo adicional moneda
 	if(comp.getAddenda().getCampoAdicional() != null){
-		comp.getAddenda().getCampoAdicional().put("MONEDA", comp.getMoneda().trim());
+		comp.getAddenda().getCampoAdicional().put("Moneda", comp.getMoneda().trim());
 	}
 
 	/* Tipo de cambio */
@@ -2385,7 +2393,7 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 						DecimalFormat df = new DecimalFormat("0.0000");
 						if(comp.getAddenda().getCampoAdicional() != null){
 							Double tipoCambio = new Double(comp.getTipoCambio());
-							comp.getAddenda().getCampoAdicional().put("TIPO CAMBIO", df.format(tipoCambio));
+							comp.getAddenda().getCampoAdicional().put("Tipo Cambio", df.format(tipoCambio));
 						}
 					} else {
 						sbError.append(tipoCam.get("message").toString() + " factura: " + factura + "\n");
@@ -2409,7 +2417,7 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 			}
 		}else{
 			if (!validaDatoRELongitud(comp.getLugarExpedicion(), RE_CHAR, 250)) {
-				sbError.append("Lugar de expedicion con formato incorrecto - Factura " + factura + "\n");
+				sbError.append("Lugar de expedicion con formato incorrecto, se espera ("+RE_CHAR+") - Factura " + factura + "\n");
             }
 		}
 	}
@@ -2534,7 +2542,7 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 			sbError.append("Nombre de Cliente no puede contener mas de 100 caracteres - Factura " + factura + "\n");
 		}
 		if(!validaDatoRE(comp.getReceptor().getNombre(), RE_CHAR_ALL)){
-			sbError.append("Nombre de cliente con formato incorrecto - Factura " + factura  + "\n");
+			sbError.append("Nombre de cliente con formato incorrecto, se espera ("+RE_CHAR_ALL+") - Factura " + factura  + "\n");
 		}
 
 	}
@@ -2549,7 +2557,7 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 				sbError.append("Calle de cliente no puede contener mas de 100 caracteres - Factura " + factura + "\n");
 			}
 			if(!validaDatoRE(comp.getReceptor().getDomicilio().getCalle(), RE_CHAR_ALL)){
-				sbError.append("Calle de cliente con formato incorrecto - Factura " + factura  + "\n");
+				sbError.append("Calle de cliente con formato incorrecto, se espera ("+RE_CHAR_ALL+") - Factura " + factura  + "\n");
 			}
 		}
 	}
@@ -2560,7 +2568,7 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 			sbError.append("No.Exterior no puede contener mas de 50 caracteres - Factura " + factura + "\n");
 		}
 		if(!validaDatoRE(comp.getReceptor().getDomicilio().getNoExterior(), RE_NUMBER)){
-			sbError.append("No.Exterior con formato incorrecto - Factura " + factura  + "\n");
+			sbError.append("No.Exterior con formato incorrecto, se espera ("+RE_NUMBER+") - Factura " + factura  + "\n");
 		}
 	}
 	//No interior
@@ -2570,7 +2578,7 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 			sbError.append("No.interior no puede contener mas de 100 caracteres - Factura " + factura + "\n");
 		}
 		if(!validaDatoRE(comp.getReceptor().getDomicilio().getNoExterior(), RE_CHAR_ALL)){
-			sbError.append("No.interior con formato incorrecto - Factura " + factura  + "\n");
+			sbError.append("No.interior con formato incorrecto, se espera ("+RE_CHAR_ALL+") - Factura " + factura  + "\n");
 		}
 	}
 	//Colonia
@@ -2585,7 +2593,7 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 				sbError.append("Colonia no puede contener mas de 100 caracteres - Factura " + factura + "\n");
 			}
 			if(!validaDatoRE(comp.getReceptor().getDomicilio().getColonia(), RE_CHAR_ALL)){
-				sbError.append("Colonia con formato incorrecto - Factura " + factura  + "\n");
+				sbError.append("Colonia con formato incorrecto, se espera ("+RE_CHAR_ALL+") - Factura " + factura  + "\n");
 			}
 		}
 	}
@@ -2616,7 +2624,7 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 				sbError.append("Localidad no puede contener mas de 100 caracteres - Factura " + factura + "\n");
 			}
 			if(!validaDatoRE(comp.getReceptor().getDomicilio().getLocalidad(), RE_CHAR_ALL)){
-				sbError.append("Localidad con formato incorrecto - Factura " + factura  + "\n");
+				sbError.append("Localidad con formato incorrecto, se espera ("+RE_CHAR_ALL+") - Factura " + factura  + "\n");
 			}
 		}
 	}
@@ -2625,10 +2633,10 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 			&& !comp.getReceptor().getDomicilio().getReferencia().equals("")){
 		if(comp.getReceptor().getDomicilio().getReferencia().length() <= 250){
 			if (!validaDatoRE(comp.getReceptor().getDomicilio().getReferencia(), RE_CHAR)) {
-				sbError.append("Referencia con formato incorrecto - Factura " + factura + "\n");
+				sbError.append("Referencia con formato incorrecto, se espera ("+RE_CHAR+") - Factura " + factura + "\n");
             }
 		}else{
-			sbError.append("Referencia no puede contener mas de 100 caracteres - Factura " + factura + "\n");
+			sbError.append("Referencia no puede contener mas de 250 caracteres - Factura " + factura + "\n");
 		}
 	}
 	//Municipio
@@ -2643,7 +2651,7 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 				sbError.append("Municipio no puede contener mas de 100 caracteres - Factura " + factura + "\n");
 			}
 			if(!validaDatoRE(comp.getReceptor().getDomicilio().getMunicipio(), RE_CHAR_ALL)){
-				sbError.append("Municipio con formato incorrecto - Factura " + factura  + "\n");
+				sbError.append("Municipio con formato incorrecto, se espera ("+RE_CHAR_ALL+") - Factura " + factura  + "\n");
 			}
 		}
 	}
@@ -2659,7 +2667,7 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 				sbError.append("Estado no puede contener mas de 100 caracteres - Factura " + factura + "\n");
 			}
 			if(!validaDatoRE(comp.getReceptor().getDomicilio().getEstado(), RE_CHAR_ALL)){
-				sbError.append("Estado con formato incorrecto - Factura " + factura  + "\n");
+				sbError.append("Estado con formato incorrecto, se espera ("+RE_CHAR_ALL+") - Factura " + factura  + "\n");
 			}
 		}
 	}
@@ -2675,7 +2683,7 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 				sbError.append("Pais no puede contener mas de 100 caracteres - Factura " + factura + "\n");
 			}
 			if(!validaDatoRE(comp.getReceptor().getDomicilio().getPais(), RE_CHAR_ALL)){
-				sbError.append("Pais con formato incorrecto - Factura " + factura  + "\n");
+				sbError.append("Pais con formato incorrecto, se espera ("+RE_CHAR_ALL+") - Factura " + factura  + "\n");
 			}
 		}
 	}
@@ -2706,7 +2714,7 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 			&& !comp.getAddenda().getInformacionEmision().getCodigoCliente().trim().isEmpty()){
 		if(comp.getAddenda().getInformacionEmision().getCodigoCliente().trim().length() <= 250){
 			if (!validaDatoRE(comp.getAddenda().getInformacionEmision().getCodigoCliente(), RE_CHAR)) {
-				sbError.append("Codigo de Cliente con formato incorrecto - Factura " + factura + "\n");
+				sbError.append("Codigo de Cliente con formato incorrecto, se espera ("+RE_CHAR+") - Factura " + factura + "\n");
             }
 		}else{
 			sbError.append("Codigo de Cliente no puede contener mas de 250 caracteres - Factura " + factura + "\n");
@@ -2716,24 +2724,24 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 	/* Contrato */
 	if(comp.getAddenda().getInformacionEmision().getContrato() != null 
 			&& !comp.getAddenda().getInformacionEmision().getContrato().trim().isEmpty()){
-		if(comp.getAddenda().getInformacionEmision().getContrato().trim().length() <= 250){
+		if(comp.getAddenda().getInformacionEmision().getContrato().trim().length() <= 20){
 			if (!validaDatoRE(comp.getAddenda().getInformacionEmision().getContrato(), RE_CHAR)) {
-				sbError.append("Contrato con formato incorrecto - Factura " + factura + "\n");
+				sbError.append("Contrato con formato incorrecto, se espera ("+RE_CHAR+") - Factura " + factura + "\n");
             }
 		}else{
-			sbError.append("Contrato no puede contener mas de 250 caracteres - Factura " + factura + "\n");
+			sbError.append("Contrato no puede contener mas de 20 caracteres - Factura " + factura + "\n");
 		}
 	}
 
 	/* Periodo */
 	if(comp.getAddenda().getInformacionEmision().getPeriodo() != null 
 			&& !comp.getAddenda().getInformacionEmision().getPeriodo().trim().isEmpty()){
-		if(comp.getAddenda().getInformacionEmision().getPeriodo().trim().length() <= 250){
+		if(comp.getAddenda().getInformacionEmision().getPeriodo().trim().length() <= 19){
 			if (!validaDatoRE(comp.getAddenda().getInformacionEmision().getPeriodo(), RE_CHAR)) {
-				sbError.append("Periodo con formato incorrecto - Factura " + factura + "\n");
+				sbError.append("Periodo con formato incorrecto, se espera ("+RE_CHAR+") - Factura " + factura + "\n");
             }
 		}else{
-			sbError.append("Periodo no puede contener mas de 250 caracteres - Factura " + factura + "\n");
+			sbError.append("Periodo no puede contener mas de 19 caracteres - Factura " + factura + "\n");
 		}
 	}
 
@@ -2745,12 +2753,13 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 				sbError.append("Centro de Costos con formato incorrecto - Factura " + factura + "\n");
             }
 		}else{
-			sbError.append("Centro de Costos no puede contener mas de 250 caracteres - Factura " + factura + "\n");
+			sbError.append("Centro de Costos no puede contener mas de 20 caracteres - Factura " + factura + "\n");
 		}
 	}
 
 	/* Descripcion concepto */
-	if(comp.getAddenda().getCampoAdicional() != null){
+	if(comp.getAddenda().getCampoAdicional() != null 
+			&& !comp.getTipoEmision().equalsIgnoreCase(TipoEmision.DONATARIAS)){
 		String descripcionConcepto = comp.getAddenda().getCampoAdicional().get("DESCRIPCIÓN CONCEPTO");
 		if(descripcionConcepto != null && !descripcionConcepto.trim().isEmpty()){
 			if(descripcionConcepto.trim().length() > 250){
@@ -2811,10 +2820,10 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 				System.out.println("tipoAddendaClean: " + strTipoAddenda);
 
 				if (strTipoAddenda.equals("1") || strTipoAddenda.equals("2") || strTipoAddenda.equals("3")) {
-					comp.getAddenda().getInformacionPago().setNombreBeneficiario("");
-					comp.getAddenda().getInformacionPago().setInstitucionReceptora("");
-					comp.getAddenda().getInformacionPago().setNumeroCuenta("");
-					comp.getAddenda().getInformacionPago().setNumProveedor("");
+//					comp.getAddenda().getInformacionPago().setNombreBeneficiario("");
+//					comp.getAddenda().getInformacionPago().setInstitucionReceptora("");
+//					comp.getAddenda().getInformacionPago().setNumeroCuenta("");
+//					comp.getAddenda().getInformacionPago().setNumProveedor("");
 
 					// Email Proveedor
 					if (comp.getAddenda().getInformacionPago().getEmail() == null) {
@@ -2942,19 +2951,19 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 
 					if (comp.getAddenda().getInformacionPago().getNombreBeneficiario() == null
 							|| comp.getAddenda().getInformacionPago().getNombreBeneficiario() == "") {
-						comp.getAddenda().getInformacionPago().setNombreBeneficiario("");
+						sbError.append("Nombre beneficiario requerido - factura " + factura + "\n");
 					}
 					if (comp.getAddenda().getInformacionPago().getInstitucionReceptora() == null
 							|| comp.getAddenda().getInformacionPago().getInstitucionReceptora() == "") {
-						comp.getAddenda().getInformacionPago().setInstitucionReceptora("");
+						sbError.append("Institucion receptora requerida - factura " + factura + "\n");
 					}
 					if (comp.getAddenda().getInformacionPago().getNumeroCuenta() == null
 							|| comp.getAddenda().getInformacionPago().getNumeroCuenta() == "") {
-						comp.getAddenda().getInformacionPago().setNumeroCuenta("");
+						sbError.append("Numero de cuenta requerida - factura " + factura + "\n");
 					}
 					if (comp.getAddenda().getInformacionPago().getNumProveedor() == null
 							|| comp.getAddenda().getInformacionPago().getNumProveedor() == "") {
-						comp.getAddenda().getInformacionPago().setNumProveedor("");
+						sbError.append("Numero de proveedor requerido - factura " + factura + "\n");
 					}
 
 				} else {
@@ -3033,7 +3042,9 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 		//Numero de empleado-donatarias
 		if (comp.getNumEmpledo() != null && !comp.getNumEmpledo().trim().isEmpty()) {
             if (!validaDatoRELongitud(comp.getNumEmpledo(), RE_CHAR_NUMBER, 50)) {
-            	sbError.append("La Numero de Empleado tiene formato incorrecto" + " - factura " + factura + "\n");
+            	sbError.append("El Numero de Empleado tiene formato incorrecto" + " - factura " + factura + "\n");
+            }else{
+            	comp.getAddenda().getCampoAdicional().put("NumeroEmpleado", comp.getNumEmpledo());
             }
         }
 	}
@@ -3124,16 +3135,16 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 						concepto.setClaveProdServ(tipoClaveProdServ.get("value").toString());
 					}
 				} else {
-					sbError.append("ClaveProdServ con formato incorrecto " + " en el Concepto "
+					sbError.append("ClaveProdServ null o vacio " + " en el Concepto "
 							+ contadorConceptos + " - factura " + factura + "\n");
 				}
 
 				// Cantidad
 				if (concepto.getCantidad() == null) {
-					sbError.append("Cantidad con formato incorrecto " + " en el Concepto "
+					sbError.append("Cantidad null " + " en el Concepto "
 							+ contadorConceptos + " - factura " + factura + "\n");
 				} else if (!validaDatoRE(concepto.getCantidad().toString(), RE_DECIMAL)) {
-					sbError.append("Cantidad con formato incorrecto " + " en el Concepto "
+					sbError.append("Cantidad con formato incorrecto, se espera ("+RE_DECIMAL+") en el Concepto "
 							+ contadorConceptos + " - factura " + factura + "\n");
 				}
 
@@ -3150,7 +3161,7 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 						concepto.setClaveUnidad(tipoClaveUnidad.get("value").toString());
 					}
 				} else {
-					sbError.append("ClaveUnidad con formato incorrecto " + " en el Concepto "
+					sbError.append("ClaveUnidad null o vacia" + " en el Concepto "
 							+ contadorConceptos + " - factura " + factura + "\n");
 				}
 
@@ -3173,7 +3184,7 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 				// Descripcion
 				if (concepto.getDescripcion() == null || concepto.getDescripcion().length() <= 0
 						|| concepto.getDescripcion().length() > 1000) {
-					sbError.append("Concepto Expedicion con formato incorrecto "
+					sbError.append("Concepto descripcion null o vacio "
 							+ " en el Concepto " + contadorConceptos + " - factura " + factura + "\n");
 				}
 
@@ -3192,7 +3203,7 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 								+ " en el Concepto " + contadorConceptos + " - factura " + factura + "\n");
 					}
 				} else {
-					sbError.append("Precio Unitario con formato incorrecto " + " en el Concepto "
+					sbError.append("Precio Unitario null o vacio " + " en el Concepto "
 							+ contadorConceptos + " - factura " + factura + "\n");
 				}
 
@@ -3233,7 +3244,7 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 					if (concepto.getAplicaIva() == null) {
 						concepto.setAplicaIva("");
 					} else if (!concepto.getAplicaIva().equals("1") && !concepto.getAplicaIva().equals("")) {
-						sbError.append("APLICA IVA con formato incorrecto " + " en el Concepto "
+						sbError.append("APLICA IVA null " + " en el Concepto "
 								+ contadorConceptos + " - factura " + factura + "\n");
 					} else if (concepto.getAplicaIva().equals("1")) {
 						fAplicaIVA = true;
@@ -3271,7 +3282,7 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 									+ contadorConceptos + " - factura " + factura + "\n");
 						}
 					} else {
-						sbError.append("Impuesto con formato incorrecto " + " en el Concepto "
+						sbError.append("Impuesto con null o vacio " + " en el Concepto "
 								+ contadorConceptos + " - factura " + factura + "\n");
 					}
 
