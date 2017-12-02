@@ -49,6 +49,9 @@ public class FormateaECBCarterController {
 	List<String> lineSixList = null;
 
 	List<String> carterConceptList = null;
+	
+	//rodolform
+        BigDecimal UDIVal = BigDecimal.ZERO;
 
 	public FormateaECBCarterController() {
 
