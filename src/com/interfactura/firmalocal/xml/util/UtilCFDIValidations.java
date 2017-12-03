@@ -2979,6 +2979,14 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 		}
 	}
 
+	if(!comp.getTipoEmision().equalsIgnoreCase(TipoEmision.DONATARIAS)){
+		//AMDA Centro Costos V3.3 Prueba para datos Addenda
+		if(comp.getCostCenter() != null ) {
+			System.out.println("*********AMDAController Centro Costos Addenda: " + comp.getCostCenter());
+			comp.getAddenda().getInformacionEmision().setCentroCostos(comp.getCostCenter());
+		}
+	}
+	
 	/* Tipo de operacion */
 	if (comp.getTipoEmision().equalsIgnoreCase(TipoEmision.DIVISAS)) {
 		if (!comp.getComplemento().getDivisaTipoOperacion().trim().equals("")) {
@@ -3066,7 +3074,7 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 			boolean resVal = UtilCatalogos.validaCFDIRelacional(tags.mapCatalogos
 					, comp.getComplemento().getTimbreFiscalDigital().getUuid().trim());
 			if(!resVal){
-				sbError.append( "El campo UUID con formato incorrecto" + " - factura " + factura + "\n");
+				sbError.append( "El campo UUID no cumple con el patron [a-f0-9A-F]{8}-[a-f0-9A-F]{4}-[a-f0-9A-F]{4}-[a-f0-9A-F]{4}-[a-f0-9A-F]{12}" + " - factura " + factura + "\n");
 			}
 		}
 		

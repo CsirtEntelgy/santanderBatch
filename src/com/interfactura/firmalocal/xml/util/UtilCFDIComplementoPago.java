@@ -348,6 +348,17 @@ public class UtilCFDIComplementoPago {
 					comp.getAddenda().getInformacionPago().setNumProveedor(linea[28].toString().trim());
 				}
 				
+				//centro de costos
+				if (linea[28] == null) {
+					comp.setCostCenter("");
+				} else {
+					if (linea[28].toString().trim().equals("")) {
+						comp.setCostCenter("");
+					} else {
+						comp.setCostCenter(linea[28].trim());
+					}
+				}
+				
 				if (strTipoAddenda.equals("1") || strTipoAddenda.equals("2") || strTipoAddenda.equals("3")) {
 //					comp.getAddenda().getInformacionPago().setNombreBeneficiario("");
 //					comp.getAddenda().getInformacionPago().setInstitucionReceptora("");
@@ -450,16 +461,6 @@ public class UtilCFDIComplementoPago {
 							System.out.println("cuenta contable Fin: " + strCuentaContableFin);
 						}
 					}
-					//centro de costos
-					if (linea[28] == null) {
-						comp.setCostCenter("");
-					} else {
-						if (linea[28].toString().trim().equals("")) {
-							comp.setCostCenter("");
-						} else {
-							comp.setCostCenter(linea[28].trim());
-						}
-					}
 
 				} else if (strTipoAddenda.equals("3")) {
 					// invoice.setTipoAddenda("3");
@@ -545,17 +546,21 @@ public class UtilCFDIComplementoPago {
 		}
 		// UUID
 		comp.setComplemento(new CfdiComplemento());
+		
 		comp.getComplemento().setTimbreFiscalDigital(new CfdiTimbreFiscalDigital());
-		if (linea[30] == null || linea[30].trim().isEmpty()) {
-			comp.getComplemento().getTimbreFiscalDigital().setUuid("");
-		} else {
+		if (linea[30] != null ) {
 			comp.getComplemento().getTimbreFiscalDigital().setUuid(linea[30].trim());
-
+		} else {
+			comp.getComplemento().getTimbreFiscalDigital().setUuid("");
 		}
-
-		comp.setCfdiRelacionados(new CfdiRelacionado());
-		comp.getCfdiRelacionados().setTipoRelacion("04");
-
+		
+		if(comp.getComplemento().getTimbreFiscalDigital()!=null 
+				&& comp.getComplemento().getTimbreFiscalDigital().getUuid()!=null
+				&& !comp.getComplemento().getTimbreFiscalDigital().getUuid().trim().isEmpty()) {
+			comp.setCfdiRelacionados(new CfdiRelacionado());
+			comp.getCfdiRelacionados().setTipoRelacion("04");
+		}
+		
 		/* SECCION DEL LLENADO DEL CONCEPTO */
 
 		List<CfdiConcepto> conceptos = new ArrayList<CfdiConcepto>();

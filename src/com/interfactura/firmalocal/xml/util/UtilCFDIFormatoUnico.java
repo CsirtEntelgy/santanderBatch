@@ -1485,6 +1485,17 @@ public class UtilCFDIFormatoUnico {
 					}
 				}
 				
+				//centro de costos
+				if (linea[28] == null) {
+					comp.setCostCenter("");
+				} else {
+					if (linea[28].toString().trim().equals("")) {
+						comp.setCostCenter("");
+					} else {
+						comp.setCostCenter(linea[28].trim());
+					}
+				}
+				
 				if (strTipoAddenda.equals("1") || strTipoAddenda.equals("2") || strTipoAddenda.equals("3")) {
 //					comp.getAddenda().getInformacionPago().setNombreBeneficiario("");
 //					comp.getAddenda().getInformacionPago().setInstitucionReceptora("");
@@ -1550,16 +1561,7 @@ public class UtilCFDIFormatoUnico {
 							comp.getAddenda().getInformacionPago().setCuentaContable(linea[27].toString().trim());
 						}
 					}
-					//centro de costos
-					if (linea[28] == null) {
-						comp.setCostCenter("");
-					} else {
-						if (linea[28].toString().trim().equals("")) {
-							comp.setCostCenter("");
-						} else {
-							comp.setCostCenter(linea[28].trim());
-						}
-					}
+					
 				}else if (strTipoAddenda.equals("3")) {
 					//num contrato
 					if (linea[29] == null) {

@@ -1388,6 +1388,17 @@ public class UtilCFDIDivisas {
 					}
 				}
 				
+				//centro de costos
+				if (linea[28] == null) {
+					comp.setCostCenter("");
+				} else {
+					if (linea[28].toString().trim().equals("")) {
+						comp.setCostCenter("");
+					} else {
+						comp.setCostCenter(linea[28].trim());
+					}
+				}
+				
 				if (strTipoAddenda.equals("1") || strTipoAddenda.equals("2") || strTipoAddenda.equals("3")) {
 //					comp.getAddenda().getInformacionPago().setNombreBeneficiario("");
 //					comp.getAddenda().getInformacionPago().setInstitucionReceptora("");
@@ -1452,17 +1463,6 @@ public class UtilCFDIDivisas {
 							comp.getAddenda().getInformacionPago().setCuentaContable("");
 						} else {
 							comp.getAddenda().getInformacionPago().setCuentaContable(linea[28].toString().trim());
-						}
-					}
-					
-					//centro de costos
-					if (linea[28] == null) {
-						comp.setCostCenter("");
-					} else {
-						if (linea[28].toString().trim().equals("")) {
-							comp.setCostCenter("");
-						} else {
-							comp.setCostCenter(linea[28].trim());
 						}
 					}
 
