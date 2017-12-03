@@ -22,6 +22,8 @@ public class ConvertirCfdiImplV3_3 {
 	@Autowired
 	Properties properties;
 	
+	boolean fTipoAddenda;
+	
 	public String startXml(){
 		return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
 	}
@@ -238,28 +240,28 @@ public class ConvertirCfdiImplV3_3 {
 	public String impuestos(CfdiComprobanteFiscal comp){
 		StringBuilder concat = new StringBuilder();
 		StringBuilder attributes = new StringBuilder();
-		
-		if(comp.getImpuestos() != null){
-			if(comp.getImpuestos().getTotalImpuestosRetenidos() != null){
-				String valueRet ="0.00";
-				if(comp.getImpuestos().getTotalImpuestosRetenidos().doubleValue() > 0){
-					valueRet = comp.getImpuestos().getTotalImpuestosRetenidos().toString();
+		if(!comp.getTipoEmision().equalsIgnoreCase(TipoEmision.DONATARIAS)){
+			if(comp.getImpuestos() != null){
+				if(comp.getImpuestos().getTotalImpuestosRetenidos() != null){
+					String valueRet ="0.00";
+					if(comp.getImpuestos().getTotalImpuestosRetenidos().doubleValue() > 0){
+						valueRet = comp.getImpuestos().getTotalImpuestosRetenidos().toString();
+					}
+					attributes.append( "TotalImpuestosRetenidos=\"" 
+							+ UtilCatalogos.decimales(valueRet, comp.getDecimalesMoneda()) 
+							+ "\" ");
 				}
-				attributes.append( "TotalImpuestosRetenidos=\"" 
-						+ UtilCatalogos.decimales(valueRet, comp.getDecimalesMoneda()) 
-						+ "\" ");
-			}
-			if(comp.getImpuestos().getTotalImpuestosTrasladados() != null){
-				String valueTra ="0.00";
-				if(comp.getImpuestos().getTotalImpuestosTrasladados().doubleValue() > 0){
-					valueTra = comp.getImpuestos().getTotalImpuestosTrasladados().toString();
+				if(comp.getImpuestos().getTotalImpuestosTrasladados() != null){
+					String valueTra ="0.00";
+					if(comp.getImpuestos().getTotalImpuestosTrasladados().doubleValue() > 0){
+						valueTra = comp.getImpuestos().getTotalImpuestosTrasladados().toString();
+					}
+					attributes.append( "TotalImpuestosTrasladados=\"" 
+							+ UtilCatalogos.decimales(valueTra, comp.getDecimalesMoneda()) 
+							+ "\" ");
 				}
-				attributes.append( "TotalImpuestosTrasladados=\"" 
-						+ UtilCatalogos.decimales(valueTra, comp.getDecimalesMoneda()) 
-						+ "\" ");
 			}
 		}
-		
 		if(attributes.toString().trim().length() > 0){
 			concat.append("\n<cfdi:Impuestos ");
 			concat.append(attributes);
@@ -444,16 +446,26 @@ public class ConvertirCfdiImplV3_3 {
 	}
 	
 	public String addenda(CfdiComprobanteFiscal comp){
+		
+		fTipoAddenda = false;
+		if (!Util.isNullEmpty(comp.getTipoAddendaCellValue())) {
+			if (!comp.getTipoAddendaCellValue().equals("0")) {
+				fTipoAddenda = true;
+			}
+		}
+		
 		StringBuilder concat = new StringBuilder();
 		if(comp.getAddenda() != null){
 			concat.append("\n<cfdi:Addenda ");
 			concat.append("xmlns:as=\"http://www.santander.com.mx/schemas/xsd/AddendaSantanderV1\" ");
-			if(!comp.getTipoEmision().equalsIgnoreCase(TipoEmision.DONATARIAS)){
+			if(fTipoAddenda){
 				concat.append("xmlns:asant=\"http://www.santander.com.mx/schemas/xsd/AddendaSantanderV1\" ");
 			}
 			
 			concat.append(">");
-			concat.append(addendaAsant(comp));
+			if(fTipoAddenda){
+				concat.append(addendaAsant(comp));
+			}
 			concat.append("\n<as:AddendaSantanderV1>");
 			//concat.append("xmlns:as=\"http://www.santander.com.mx/schemas/xsd/AddendaSantanderV1\">");
 			concat.append(informacionPago(comp));
@@ -470,36 +482,90 @@ public class ConvertirCfdiImplV3_3 {
 	
 	public String addendaAsant(CfdiComprobanteFiscal comp){
 		StringBuilder concat = new StringBuilder();
+		
+		if(comp.getAddenda().getInformacionPago() != null){			
+			concat.append("\n<asant:AddendaSantanderV1 ");
+			concat.append("xsi:schemaLocation=\"http://www.santander.com.mx/schemas/xsd/AddendaSantanderV1 AddendaSantanderV1.xsd\" >");
+			concat.append(asantInformacionPago(comp));
+			concat.append(asantInformacionEmision(comp));
+			concat.append(asantInmuebles(comp));
+			concat.append("</asant:AddendaSantanderV1>");
+		}
+		return concat.toString();
+	}
+	public String asantInformacionPago(CfdiComprobanteFiscal comp){
+		StringBuilder concat = new StringBuilder();
 		StringBuilder attributes = new StringBuilder();
 		
-		if(comp.getAddenda().getInformacionPago() != null){
-			if(comp.getAddenda().getInformacionPago().getCodigoISOMoneda() != null){
-				attributes.append(Util.isNullEmpity(comp.getAddenda().getInformacionPago().getCodigoISOMoneda().toUpperCase()
-						, "codigoISOMoneda"));
-			}
-			
-			if(comp.getAddenda().getInformacionPago().getEmail() != null){
-				attributes.append(Util.isNullEmpity(comp.getAddenda().getInformacionPago().getEmail().toUpperCase()
-						, "email"));
-			}
-			
+		if(comp.getAddenda().getInformacionPago().getEmail() != null){
+			attributes.append(Util.isNullEmpity(comp.getAddenda().getInformacionPago().getEmail().toUpperCase()
+					, "email"));
+		}
+		
+		if(comp.getAddenda().getInformacionPago().getCodigoISOMoneda() != null){
+			attributes.append(Util.isNullEmpity(comp.getAddenda().getInformacionPago().getCodigoISOMoneda().toUpperCase()
+					, "codigoISOMoneda"));
+		}
+				
+		if(comp.getTipoAddendaCellValue().equals("1")){
 			if(comp.getAddenda().getInformacionPago().getOrdenCompra() != null){
 				attributes.append(Util.isNullEmpity(comp.getAddenda().getInformacionPago().getOrdenCompra().toUpperCase()
 						, "ordenCompra"));
 			}
 			
 			if(comp.getAddenda().getInformacionPago().getPosCompra() != null){
-				attributes.append(Util.isNullEmpity(comp.getAddenda().getInformacionPago().getPosCompra().toUpperCase(), "posCompra"));
+				attributes.append(Util.isNullEmpity(comp.getAddenda().getInformacionPago().getPosCompra().toUpperCase()
+						, "posCompra"));
 			}
+		}else if (comp.getTipoAddendaCellValue().equals("2")){
+			attributes.append(Util.isNullEmpity(comp.getAddenda().getInformacionPago().getCuentaContable().toUpperCase()
+					, "cuentaContable"));
 			
-			if(attributes.toString().trim().length() > 0){
-				concat.append("\n<asant:AddendaSantanderV1 ");
-				concat.append("xsi:schemaLocation=\"http://www.santander.com.mx/schemas/xsd/AddendaSantanderV1 AddendaSantanderV1.xsd\" >");
-				concat.append("<asant:InformacionPago ");
-				concat.append(attributes.toString());
-				concat.append("/>");
-				concat.append("</asant:AddendaSantanderV1>");
+		}
+		if(attributes.toString().trim().length() > 0){
+			concat.append("\n<asant:InformacionPago ");
+			concat.append(attributes.toString());
+			concat.append("/>");
+		}
+		return concat.toString();
+	}
+	
+	public String asantInformacionEmision(CfdiComprobanteFiscal comp){
+		StringBuilder concat = new StringBuilder();
+		StringBuilder attributes = new StringBuilder();
+		
+		if(comp.getTipoAddendaCellValue().equals("2")){
+			if(comp.getAddenda().getInformacionEmision() !=  null){
+				attributes.append(Util.isNullEmpity(comp.getAddenda().getInformacionEmision().getCentroCostos()
+						, "centroCostos"));
 			}
+		}
+		
+		if(attributes.toString().trim().length() > 0){
+			concat.append("\n<asant:InformacionEmision ");
+			concat.append(attributes.toString());
+			concat.append("/>");
+		}
+		return concat.toString();
+	}
+	
+	public String asantInmuebles(CfdiComprobanteFiscal comp){
+		StringBuilder concat = new StringBuilder();
+		StringBuilder attributes = new StringBuilder();
+		
+		if(comp.getTipoAddendaCellValue().equals("3")){
+			if(comp.getAddenda().getInmuebles() != null){
+				attributes.append(Util.isNullEmpity(comp.getAddenda().getInmuebles().getNumContrato()
+						, "numContrato"));
+				attributes.append(Util.isNullEmpity(comp.getAddenda().getInmuebles().getFechaVencimiento()
+						, "fechaVencimiento"));
+			}
+		}
+		
+		if(attributes.toString().trim().length() > 0){
+			concat.append("\n<asant:Inmuebles ");
+			concat.append(attributes.toString());
+			concat.append("/>");
 		}
 		return concat.toString();
 	}

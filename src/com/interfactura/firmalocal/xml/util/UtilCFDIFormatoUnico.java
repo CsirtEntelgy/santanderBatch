@@ -1552,12 +1552,12 @@ public class UtilCFDIFormatoUnico {
 					}
 					//centro de costos
 					if (linea[28] == null) {
-						comp.getAddenda().getInformacionEmision().setCentroCostos("");
+						comp.setCostCenter("");
 					} else {
 						if (linea[28].toString().trim().equals("")) {
-							comp.getAddenda().getInformacionEmision().setCentroCostos("");
+							comp.setCostCenter("");
 						} else {
-							comp.getAddenda().getInformacionEmision().setCentroCostos(linea[28].toString().trim());
+							comp.setCostCenter(linea[28].trim());
 						}
 					}
 				}else if (strTipoAddenda.equals("3")) {

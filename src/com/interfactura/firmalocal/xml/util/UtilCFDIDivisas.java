@@ -1456,13 +1456,13 @@ public class UtilCFDIDivisas {
 					}
 					
 					//centro de costos
-					if (linea[29] == null) {
-						comp.getAddenda().getInformacionEmision().setCentroCostos("");
+					if (linea[28] == null) {
+						comp.setCostCenter("");
 					} else {
-						if (linea[29].toString().trim().equals("")) {
-							comp.getAddenda().getInformacionEmision().setCentroCostos("");
+						if (linea[28].toString().trim().equals("")) {
+							comp.setCostCenter("");
 						} else {
-							comp.getAddenda().getInformacionEmision().setCentroCostos(linea[29].toString().trim());
+							comp.setCostCenter(linea[28].trim());
 						}
 					}
 

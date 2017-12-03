@@ -450,19 +450,14 @@ public class UtilCFDIComplementoPago {
 							System.out.println("cuenta contable Fin: " + strCuentaContableFin);
 						}
 					}
-					if (linea[22] == null) {
-						comp.getAddenda().getInformacionEmision().setCentroCostos("");
+					//centro de costos
+					if (linea[28] == null) {
+						comp.setCostCenter("");
 					} else {
-						if (linea[22].toString().trim().equals("")) {
-							comp.getAddenda().getInformacionEmision().setCentroCostos("");
+						if (linea[28].toString().trim().equals("")) {
+							comp.setCostCenter("");
 						} else {
-							System.out.println("centro costos: " + linea[22].trim());
-							String strCentroCostosFin = linea[22].trim();
-//							if (!strCentroCostosFin
-//									.equals(comp.getAddenda().getInformacionEmision().getCentroCostos())) {
-//								comp.getAddenda().getInformacionEmision().setCentroCostos("");
-//							}
-							comp.getAddenda().getInformacionEmision().setCentroCostos(strCentroCostosFin);
+							comp.setCostCenter(linea[28].trim());
 						}
 					}
 

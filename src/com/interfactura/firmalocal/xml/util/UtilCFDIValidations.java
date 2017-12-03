@@ -101,6 +101,8 @@ public class UtilCFDIValidations {
 	private static final String APARTADO_COMPLEMENT_FOLIO = "[^|]{1,40}";
 	private static final String APARTADO_COMPLEMENT_NUM_PARCIALIDAD = "[1-9][0-9]{0,2}";
 	private static final String REFERENCIA_FACTURA = "[A-Z0-9]{10,50}";
+	
+	private static final String CCOSTOS = "[A-za-z0-9_/& -]{0,20}";
 
 	Vector<String> vectorCantidad = null;
 	Vector<String> vectorUM = null;
@@ -2748,13 +2750,9 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 	/* Centro de costos */
 	if(comp.getAddenda().getInformacionEmision().getCentroCostos() != null 
 			&& !comp.getAddenda().getInformacionEmision().getCentroCostos().trim().isEmpty()){
-		if(comp.getAddenda().getInformacionEmision().getCentroCostos().trim().length() <= 250){
-			if (!validaDatoRE(comp.getAddenda().getInformacionEmision().getCentroCostos(), RE_CHAR)) {
-				sbError.append("Centro de Costos con formato incorrecto - Factura " + factura + "\n");
+			if (!validaDatoRELongitud(comp.getAddenda().getInformacionEmision().getCentroCostos(), CCOSTOS, 20)) {
+				sbError.append("Centro de Costos con formato incorrecto, se espera ("+CCOSTOS+") - Factura " + factura + "\n");
             }
-		}else{
-			sbError.append("Centro de Costos no puede contener mas de 20 caracteres - Factura " + factura + "\n");
-		}
 	}
 
 	/* Descripcion concepto */
@@ -2902,12 +2900,16 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 					}
 
 					// Centro Costos
-					if (comp.getAddenda().getInformacionEmision().getCentroCostos() == null) {
-						sbError.append("Posicion Centro costos requerido (Null) - factura " + factura + "\n");
-					} else {
-						if (comp.getAddenda().getInformacionEmision().getCentroCostos().trim().equals("")) {
-							sbError.append("Centro costos requerido - factura " + factura + "\n");
-						}
+					if (comp.getCostCenter() == null) {
+						sbError.append("Posicion Centro costos addenda requerido (Null) - factura " + factura + "\n");
+					} else if (comp.getCostCenter().isEmpty()){
+						sbError.append("Centro costos requerido addenda - factura " + factura + "\n");
+					}else{
+						String strCentroCostosFin = comp.getCostCenter();
+						if(!strCentroCostosFin
+								.equals(comp.getAddenda().getInformacionEmision().getCentroCostos())){			                    						
+                			sbError.append("Centros costos diferentes" + "\n");
+    					}
 					}
 
 				} else if (strTipoAddenda.equals("3")) {

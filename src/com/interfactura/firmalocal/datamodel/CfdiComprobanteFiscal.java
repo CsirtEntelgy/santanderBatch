@@ -52,6 +52,7 @@ public class CfdiComprobanteFiscal {
     private List<ComplementoPago> complementPagos;
     private String numeroCuentaPago;
     private String referenciaFactura;
+    private String costCenter;
 
     public BigDecimal getDescuento() {
         return descuento;
@@ -347,6 +348,14 @@ public class CfdiComprobanteFiscal {
 
 	public void setReferenciaFactura(String referenciaFactura) {
 		this.referenciaFactura = referenciaFactura;
+	}
+
+	public String getCostCenter() {
+		return costCenter;
+	}
+
+	public void setCostCenter(String costCenter) {
+		this.costCenter = costCenter;
 	}
 
 	@Override
