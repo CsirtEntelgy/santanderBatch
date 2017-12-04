@@ -78,7 +78,7 @@ public class FormateaECBCarterController {
                 //File outputControlFile;   
                 
                 //cambio rodolfor
-                File inputFileUDI = new File(PathECBEntrada + "UDI" + fileName.substring(fileName.length() - 8) + filesExtension );
+                File inputFileUDI = new File(PathECBEntrada + "UDIPTCARTER" + fileName.substring(fileName.length() - 8) + filesExtension );
                 FileInputStream fileToProcessUDI;
                 DataInputStream inUDI;
                 BufferedReader brUDI;               
@@ -91,8 +91,9 @@ public class FormateaECBCarterController {
                     String strLineUDI;
 
                     while ((strLineUDI = brUDI.readLine()) != null) {
-                        strLineUDI = strLineUDI.trim();                           
-                        UDIVal = new BigDecimal(strLineUDI);                        
+                        strLineUDI = strLineUDI.trim();         
+                        BigDecimal newValue = new BigDecimal(strLineUDI).setScale(2, java.math.RoundingMode.DOWN);                  
+                        UDIVal = newValue;
                     }
                     System.out.println("Valor UDI - " + UDIVal);
                    
@@ -441,6 +442,7 @@ public class FormateaECBCarterController {
                 return false;
             }
         }
+	
 	private StringBuilder processSixLines(List<String> sixLines, BigDecimal subTotalOriginal, BigDecimal subTotalNuevo){
 		StringBuilder result = new StringBuilder();
 		
