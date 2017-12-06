@@ -3466,7 +3466,7 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 				
 				// 2 Fecha de pago 
 				if(complementoPago.getFechaPago() ==  null || complementoPago.getFechaPago().toString().trim().length() == 0){
-					sbError.append("Posicion fecha vacia o con formato incorrecto, se espera ISO 8601 - Factura " + factura 
+					sbError.append("Posicion fecha vacia o con formato incorrecto, se espera ISO 8601(aaaa-mm-ddThh:mm:ss) - Factura " + factura 
 							+ " - Complemento " + complementos + "\n");
 				}
 				
