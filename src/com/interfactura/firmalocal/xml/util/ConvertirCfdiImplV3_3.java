@@ -176,9 +176,14 @@ public class ConvertirCfdiImplV3_3 {
 				if(concepto.getUnidad() != null){
 					sbConceptos.append("Unidad=\"" + concepto.getUnidad().toUpperCase() + "\" ");
 				}
-				DecimalFormat df = new DecimalFormat("0.00000000");
-				String valUnitario = df.format(concepto.getValorUnitario());
-				sbConceptos.append("ValorUnitario=\"" + UtilCatalogos.decimales(valUnitario, comp.getDecimalesMoneda()) + "\"");
+				
+				importe = "0";
+				if(!comp.getMoneda().equalsIgnoreCase("XXX")){
+					DecimalFormat df = new DecimalFormat("0.00000000");
+					String valUnitario = df.format(concepto.getValorUnitario());
+					importe = UtilCatalogos.decimales(valUnitario, comp.getDecimalesMoneda());
+				}
+				sbConceptos.append("ValorUnitario=\"" + importe + "\"");
 				sbConceptos.append(">");
 				sbConceptos.append(conceptoImpuesto(concepto));
 				sbConceptos.append("\n</cfdi:Concepto>");

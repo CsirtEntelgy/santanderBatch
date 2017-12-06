@@ -188,7 +188,7 @@ public class ReadExcelSaxComplementoPago {
 					break;
 				}
 			}
-			for (int i = 0; i < 32; i++) {
+			for (int i = 0; i < 31; i++) {
 				if (rowCont.getCell(i) != null) {
 					rowCont.getCell(i).setCellType(Cell.CELL_TYPE_STRING);
 					if (i == 0) {
