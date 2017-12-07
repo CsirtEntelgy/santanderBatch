@@ -2908,7 +2908,7 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 						String strCentroCostosFin = comp.getCostCenter();
 						if(!strCentroCostosFin
 								.equals(comp.getAddenda().getInformacionEmision().getCentroCostos())){			                    						
-                			sbError.append("Centros costos diferentes" + "\n");
+                			sbError.append("Centros costos diferentes - factura " + factura + "\n");
     					}
 					}
 
@@ -2951,22 +2951,22 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 					comp.getAddenda().getInformacionPago().setOrdenCompra("");
 					
 
-					if (comp.getAddenda().getInformacionPago().getNombreBeneficiario() == null
-							|| comp.getAddenda().getInformacionPago().getNombreBeneficiario() == "") {
-						sbError.append("Nombre beneficiario requerido - factura " + factura + "\n");
-					}
-					if (comp.getAddenda().getInformacionPago().getInstitucionReceptora() == null
-							|| comp.getAddenda().getInformacionPago().getInstitucionReceptora() == "") {
-						sbError.append("Institucion receptora requerida - factura " + factura + "\n");
-					}
-					if (comp.getAddenda().getInformacionPago().getNumeroCuenta() == null
-							|| comp.getAddenda().getInformacionPago().getNumeroCuenta() == "") {
-						sbError.append("Numero de cuenta requerida - factura " + factura + "\n");
-					}
-					if (comp.getAddenda().getInformacionPago().getNumProveedor() == null
-							|| comp.getAddenda().getInformacionPago().getNumProveedor() == "") {
-						sbError.append("Numero de proveedor requerido - factura " + factura + "\n");
-					}
+//					if (comp.getAddenda().getInformacionPago().getNombreBeneficiario() == null
+//							|| comp.getAddenda().getInformacionPago().getNombreBeneficiario() == "") {
+//						sbError.append("Nombre beneficiario requerido - factura " + factura + "\n");
+//					}
+//					if (comp.getAddenda().getInformacionPago().getInstitucionReceptora() == null
+//							|| comp.getAddenda().getInformacionPago().getInstitucionReceptora() == "") {
+//						sbError.append("Institucion receptora requerida - factura " + factura + "\n");
+//					}
+//					if (comp.getAddenda().getInformacionPago().getNumeroCuenta() == null
+//							|| comp.getAddenda().getInformacionPago().getNumeroCuenta() == "") {
+//						sbError.append("Numero de cuenta requerida - factura " + factura + "\n");
+//					}
+//					if (comp.getAddenda().getInformacionPago().getNumProveedor() == null
+//							|| comp.getAddenda().getInformacionPago().getNumProveedor() == "") {
+//						sbError.append("Numero de proveedor requerido - factura " + factura + "\n");
+//					}
 
 				} else {
 					sbError.append("Tipo de Addenda incorrecto - factura " + factura + "\n");
@@ -3076,32 +3076,40 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 			if(!resVal){
 				sbError.append( "El campo UUID no cumple con el patron [a-f0-9A-F]{8}-[a-f0-9A-F]{4}-[a-f0-9A-F]{4}-[a-f0-9A-F]{4}-[a-f0-9A-F]{12}" + " - factura " + factura + "\n");
 			}
+		}else{
+			if(comp.getTipoEmision().equalsIgnoreCase(TipoEmision.RECEPCION_PAGOS)){
+				sbError.append( "El campo UUID es obligatorio - factura " + factura + "\n");
+			}
 		}
 		
 		//Tipo Relacion
-		if(comp.getCfdiRelacionados() != null && comp.getCfdiRelacionados().getTipoRelacion() != null 
-				&& !comp.getCfdiRelacionados().getTipoRelacion().trim().isEmpty()) {
-			
-			if(comp.getComplemento().getTimbreFiscalDigital().getUuid() != null 
-					&& !comp.getComplemento().getTimbreFiscalDigital().getUuid().trim().isEmpty()) {
-				if(!comp.getCfdiRelacionados().getTipoRelacion().trim().equalsIgnoreCase("04")){
-					String resVal = UtilCatalogos.validaTipoRelacion(tags.mapCatalogos
-							, comp.getCfdiRelacionados().getTipoRelacion().trim(), 0);
-					if(!resVal.equalsIgnoreCase("No se encontro el Tipo de Relacion en el catalogo c_TipoRelacion")
-							&& !resVal.equalsIgnoreCase("Es requerido un Tipo de Relacion ya que el campo UUID tiene informacion")){
-						comp.getCfdiRelacionados().setTipoRelacion(resVal);
-					}else{
-						sbError.append( resVal + " - factura " + factura + "\n");
-					}
-				}
-			}else{
-				sbError.append( "Para agregar un Tipo Relacion debe de traer informacion el campo UUID" + " - factura " + factura + "\n");
-			}
-			
+		if (comp.getTipoEmision().equalsIgnoreCase(TipoEmision.RECEPCION_PAGOS)){
+			comp.getCfdiRelacionados().setTipoRelacion("04");
 		}else{
-			if(comp.getComplemento().getTimbreFiscalDigital().getUuid() != null 
-					&& !comp.getComplemento().getTimbreFiscalDigital().getUuid().trim().isEmpty()) {
-				sbError.append( "Es requerido un Tipo de Relacion ya que el campo UUID tiene informacion" + " - factura " + factura + "\n");
+			if(comp.getCfdiRelacionados() != null && comp.getCfdiRelacionados().getTipoRelacion() != null 
+					&& !comp.getCfdiRelacionados().getTipoRelacion().trim().isEmpty()) {
+				
+				if(comp.getComplemento().getTimbreFiscalDigital().getUuid() != null 
+						&& !comp.getComplemento().getTimbreFiscalDigital().getUuid().trim().isEmpty()) {
+					if(!comp.getCfdiRelacionados().getTipoRelacion().trim().equalsIgnoreCase("04")){
+						String resVal = UtilCatalogos.validaTipoRelacion(tags.mapCatalogos
+								, comp.getCfdiRelacionados().getTipoRelacion().trim(), 0);
+						if(!resVal.equalsIgnoreCase("No se encontro el Tipo de Relacion en el catalogo c_TipoRelacion")
+								&& !resVal.equalsIgnoreCase("Es requerido un Tipo de Relacion ya que el campo UUID tiene informacion")){
+							comp.getCfdiRelacionados().setTipoRelacion(resVal);
+						}else{
+							sbError.append( resVal + " - factura " + factura + "\n");
+						}
+					}
+				}else{
+					sbError.append( "Para agregar un Tipo Relacion debe de traer informacion el campo UUID" + " - factura " + factura + "\n");
+				}
+				
+			}else{
+				if(comp.getComplemento().getTimbreFiscalDigital().getUuid() != null 
+						&& !comp.getComplemento().getTimbreFiscalDigital().getUuid().trim().isEmpty()) {
+					sbError.append( "Es requerido un Tipo de Relacion ya que el campo UUID tiene informacion" + " - factura " + factura + "\n");
+				}
 			}
 		}
 	}

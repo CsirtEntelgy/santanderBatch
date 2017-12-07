@@ -39,6 +39,7 @@ import org.xml.sax.InputSource;
 import com.interfactura.firmalocal.controllers.MassiveReadComplementoPagoController;
 import com.interfactura.firmalocal.controllers.MassiveReadController;
 import com.interfactura.firmalocal.datamodel.CfdiComprobanteFiscal;
+import com.interfactura.firmalocal.datamodel.ComplementoPago;
 import com.interfactura.firmalocal.datamodel.ElementsInvoice;
 import com.interfactura.firmalocal.datamodel.Invoice_Masivo;
 import com.interfactura.firmalocal.domain.entities.CFDFieldsV22;
@@ -723,6 +724,10 @@ public class GeneraXMLComplementoPagoProceso_Masivo {
 		Date date = Calendar.getInstance().getTime();
 		String strDate = Util.convertirFecha(date);
 		strDate = strDate.replaceAll("T", " ");
+		
+		if (invoiceM.getPagos() != null && invoiceM.getPagos().size() > 0){
+			invoiceM.setFoliosComplPago(getConcatenatedFolioPagosComplementoPago(invoiceM));
+		}
 
 		temp.append("c<#EMasfUD,>");
 		temp.append(strDate + "<#EMasfUD,>");
@@ -751,6 +756,7 @@ public class GeneraXMLComplementoPagoProceso_Masivo {
 		temp.append(idUsuario + "<#EMasfUD,>");
 		temp.append(idArea + "<#EMasfUD,>");
 		temp.append(nombreUsuario + "<#EMasfUD,>");
+		temp.append(invoiceM.getFoliosComplPago() + "<#EMasfUD,>");
 		temp.append(nombreUsuario + "\r\n");
 
 		return temp.toString();
@@ -2800,5 +2806,21 @@ public class GeneraXMLComplementoPagoProceso_Masivo {
 		domResultado = this.db.parse(new InputSource(new StringReader(strXML)));
 
 		return domResultado;
+	}
+	public String getConcatenatedFolioPagosComplementoPago(Invoice_Masivo invoiceMasivo) {
+		StringBuilder result = new StringBuilder();
+		for (ComplementoPago pago : invoiceMasivo.getPagos()) {
+			if (pago.getFolioPago() != null && !pago.getFolioPago().trim().isEmpty()) {
+				result.append(pago.getFolioPago() + ",");
+			}
+		}
+		if (result.length() > 1000) {
+			result.setLength(1000);
+		}
+		int lastIndex = result.lastIndexOf(",");
+		if (lastIndex != -1) {
+			result.delete(lastIndex, result.length());
+		}
+		return result.toString();
 	}
 }

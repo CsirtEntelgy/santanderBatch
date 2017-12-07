@@ -310,6 +310,9 @@ public class UtilCFDIComplementoPago {
 		comp.setIvaCellValue(linea[15].toString());
 		/* Tipo adenda */
 		comp.getAddenda().setInmuebles(new CfdiAddendaInmuebles());
+		if (linea[16]  == null){//addenda vacia
+			linea[16] = "";
+		}
 		if (linea[16] != null) {
 			if (linea[16].toString().contains(".")) {
 				System.out.println("*** response Dentro IF AMDA: " + linea[16].toString());
@@ -349,13 +352,13 @@ public class UtilCFDIComplementoPago {
 				}
 				
 				//centro de costos
-				if (linea[28] == null) {
+				if (linea[22] == null) {
 					comp.setCostCenter("");
 				} else {
-					if (linea[28].toString().trim().equals("")) {
+					if (linea[22].toString().trim().equals("")) {
 						comp.setCostCenter("");
 					} else {
-						comp.setCostCenter(linea[28].trim());
+						comp.setCostCenter(linea[22].trim());
 					}
 				}
 				
@@ -554,12 +557,8 @@ public class UtilCFDIComplementoPago {
 			comp.getComplemento().getTimbreFiscalDigital().setUuid("");
 		}
 		
-		if(comp.getComplemento().getTimbreFiscalDigital()!=null 
-				&& comp.getComplemento().getTimbreFiscalDigital().getUuid()!=null
-				&& !comp.getComplemento().getTimbreFiscalDigital().getUuid().trim().isEmpty()) {
-			comp.setCfdiRelacionados(new CfdiRelacionado());
-			comp.getCfdiRelacionados().setTipoRelacion("04");
-		}
+		comp.setCfdiRelacionados(new CfdiRelacionado());
+		comp.getCfdiRelacionados().setTipoRelacion("04");
 		
 		/* SECCION DEL LLENADO DEL CONCEPTO */
 

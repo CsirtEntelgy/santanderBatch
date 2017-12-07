@@ -174,7 +174,8 @@ public class Invoice_Masivo {
 	private String tipoRelacion;
 	private String estadoEmisor;
 	
-	ArrayList<ComplementoPago> pagos;
+	private ArrayList<ComplementoPago> pagos;
+	private String foliosComplPago;
     
     public String getNumCtaPago() {
         return numCtaPago;
@@ -1201,6 +1202,14 @@ public class Invoice_Masivo {
 
 	public void setPagos(ArrayList<ComplementoPago> pagos) {
 		this.pagos = pagos;
+	}
+
+	public String getFoliosComplPago() {
+		return foliosComplPago;
+	}
+
+	public void setFoliosComplPago(String foliosComplPago) {
+		this.foliosComplPago = foliosComplPago;
 	}
 	
 }
