@@ -443,9 +443,9 @@ this.listComprobantes = new ArrayList<CfdiComprobanteFiscal>();
 											
 											/* Se obtiene el totalIvaretenido y se asigna al IVA*/
 								    		Document document = UtilCatalogos.convertStringToDocument(invoice.getByteArrXMLSinAddenda().toString("UTF-8"));
-								    		String totalIvaRet = UtilCatalogos.getStringValByExpression(document, "//Comprobante/Impuestos/@TotalImpuestosTrasladados");
-								    		BigDecimal bdIva = new BigDecimal(totalIvaRet);
-								    		invoice.setIva(bdIva.doubleValue());
+//								    		String totalIvaRet = UtilCatalogos.getStringValByExpression(document, "//Comprobante/Impuestos/@TotalImpuestosTrasladados");
+//								    		BigDecimal bdIva = new BigDecimal(totalIvaRet);
+								    		invoice.setIva(0.0);
 								    		/*Fin Cambio*/
 								    		
 								    		//doc = UtilCatalogos.convertPathFileToDocument(nameFile);
