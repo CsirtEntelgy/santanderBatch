@@ -40,6 +40,8 @@ public class FormateaECBCarterController {
 	BigDecimal ivaB;
 	BigDecimal montoConceptosGrav;
 	
+	BigDecimal totalOriginal;
+	
 	BigDecimal subTotalResult = BigDecimal.ZERO;
 	BigDecimal totalResult = BigDecimal.ZERO;
 	BigDecimal ivaResult = BigDecimal.ZERO;
@@ -150,6 +152,8 @@ public class FormateaECBCarterController {
                     ivaB = BigDecimal.ZERO;
                     montoConceptosGrav = BigDecimal.ZERO;
                     
+                    totalOriginal = BigDecimal.ZERO;
+                    
 
                     firstLine = "";
     				lineTwo = "";
@@ -234,6 +238,14 @@ public class FormateaECBCarterController {
                                                         + numCta);
                                                 exception = true;
                                             }
+                                        }else{
+                                        	try{
+                                        		lineSixSb = processSixLinesTasaZero(lineSixList);
+                                        	}catch(Exception e){
+                                                System.out.println(ecbCount.toString() + "---Excepcion al procesar conceptos para tasa 0 en ECB numero de cuenta: "
+                                                        + numCta);
+                                                exception = true;
+                                            }
                                         }
                                     } else {
                                         System.out.println(ecbCount.toString() + "---Errores en ECB numero de cuenta: " + numCta);
@@ -312,6 +324,11 @@ public class FormateaECBCarterController {
                                     subTotalMnOriginal = new BigDecimal(arrayValues[6].trim());
                                 } catch (Exception e) {
                                     ecbError.append("-error: no se pudo leer el subtotal\n");
+                                }
+                            	try {
+                                    totalOriginal = new BigDecimal(arrayValues[7].trim());
+                                } catch (Exception e) {
+                                    ecbError.append("-error: no se pudo leer el total\n");
                                 }
                             	lineTwo = strLine;
                             } else if (lineNum > 2 && lineNum < 6) {// lineas 3 a 5
@@ -407,6 +424,14 @@ public class FormateaECBCarterController {
                                     }
                                 }catch(Exception e){
                                     System.out.println(ecbCount.toString() + "---Excepcion al hacer calculos en ECB numero de cuenta: "
+                                            + numCta);
+                                    exception = true;
+                                }
+                            }else{
+                            	try{
+                            		lineSixSb = processSixLinesTasaZero(lineSixList);
+                            	}catch(Exception e){
+                                    System.out.println(ecbCount.toString() + "---Excepcion al procesar conceptos para tasa 0 en ECB numero de cuenta: "
                                             + numCta);
                                     exception = true;
                                 }
@@ -565,6 +590,10 @@ public class FormateaECBCarterController {
 		subTotalResult = BigDecimal.ZERO;
 		totalResult = BigDecimal.ZERO;
 		ivaResult = BigDecimal.ZERO;
+		
+		tasa = BigDecimal.ZERO;
+		totalOriginal = BigDecimal.ZERO;
+		subTotalMnOriginal = BigDecimal.ZERO;
 	}
 
 	private void loadCarterConceptList() throws Exception {
@@ -712,5 +741,40 @@ public class FormateaECBCarterController {
 		}
 
 		return controlLineSb.toString();
+	}
+	
+	private StringBuilder processSixLinesTasaZero(List<String> sixLines){
+		StringBuilder result = new StringBuilder();
+		
+		BigDecimal importeSum = BigDecimal.ZERO;
+		//sumar todos los importes
+		for(String line : sixLines){
+			String[] lineArray = line.split("\\|");
+			
+			BigDecimal importeOriginal = new BigDecimal(lineArray[2]);
+			importeSum = importeSum.add(importeOriginal);
+			
+			result.append(line);
+		}
+		
+		if(importeSum.compareTo(subTotalMnOriginal) == 0 && importeSum.compareTo(totalOriginal) == 0){
+			result = new StringBuilder();
+			for(String line : sixLines){
+				String lastChar = line.substring(line.length() - 1);
+				String[] lineArray = line.split("\\|");
+				String newLine = "";
+				
+				result.append("06");
+				result.append("|");
+				result.append(lineArray[1] + " EXENTO");
+				result.append("|");
+				result.append(lineArray[2]);
+				if (lastChar.equals("|")) {
+					result.append("|");
+				}
+			}
+		}
+		result.append("\n");
+		return result;
 	}
 }
