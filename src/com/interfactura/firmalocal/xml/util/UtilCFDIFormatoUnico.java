@@ -1177,6 +1177,7 @@ public class UtilCFDIFormatoUnico {
 		boolean readFromFile = false;
 		Customer customer = null;
 		comp.setReceptor(new CfdiReceptor());
+		comp.getReceptor().setDomicilio(new CfdiDomicilio());
 		if (linea[10] == null) {
 			comp.setCustomerRfcCellValue("");
 		} else {
@@ -1369,6 +1370,9 @@ public class UtilCFDIFormatoUnico {
 			} else {
 				comp.getReceptor().getDomicilio().setPais(linea[43].trim());
 			}
+		}
+		if(comp.getReceptor() != null && comp.getReceptor().getDomicilio() == null){
+			comp.getReceptor().setDomicilio(new CfdiDomicilio());
 		}
 		/* Referencia */
 		if (linea[15] == null || linea[15].trim().equals("")) {

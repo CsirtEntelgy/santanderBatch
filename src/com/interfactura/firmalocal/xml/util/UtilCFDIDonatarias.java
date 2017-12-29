@@ -1197,6 +1197,7 @@ public class UtilCFDIDonatarias {
 		/* Posicion 5 Rfc del cliente */
 		boolean readFromFile = false;
 		comp.setReceptor(new CfdiReceptor());
+		comp.getReceptor().setDomicilio(new CfdiDomicilio());
 		if (linea[5] == null) {
 			comp.setCustomerRfcCellValue("");
 		} else {
@@ -1391,6 +1392,9 @@ public class UtilCFDIDonatarias {
 			}else{
 				comp.getReceptor().getDomicilio().setCodigoPostal(linea[27].toString().trim());
 			}
+		}
+		if(comp.getReceptor() != null && comp.getReceptor().getDomicilio() == null){
+			comp.getReceptor().setDomicilio(new CfdiDomicilio());
 		}
 		// posicion 23 referencia
 		if(linea[23] == null || linea[23].toString().trim().equals("")){

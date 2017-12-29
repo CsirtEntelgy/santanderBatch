@@ -126,6 +126,7 @@ public class UtilCFDIComplementoPago {
 		/* RFC Posicion 4 */
 		boolean readFromFile = false;
 		comp.setReceptor(new CfdiReceptor());
+		comp.getReceptor().setDomicilio(new CfdiDomicilio());
 		if (linea[4] == null) {
 			comp.setCustomerRfcCellValue("");
 		} else {
@@ -223,9 +224,9 @@ public class UtilCFDIComplementoPago {
 										.setPais(customer.getAddress().getState().getCountry().getName());
 								//comp.getReceptor().getDomicilio().setReferencia(customer.getAddress().getReference());
 							}
-						} // fin del if customer != null
-					} else {
-						readFromFile = true;
+						}else{// fin del if customer != null
+							readFromFile = true; //leer del archivo cuando customer no esta eb bd
+						}
 					}
 				}
 			}
@@ -250,6 +251,9 @@ public class UtilCFDIComplementoPago {
 			// asignacion de USOCFDI
 			comp.getReceptor().setUsoCFDI("P01");
 			
+		}
+		if(comp.getReceptor() != null && comp.getReceptor().getDomicilio() == null){
+			comp.getReceptor().setDomicilio(new CfdiDomicilio());
 		}
 		// referencia
 		if (linea[9] == null || linea[9].toString().trim().equals("")) {

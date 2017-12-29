@@ -1161,6 +1161,7 @@ public class UtilCFDIDivisas {
 		}
 		/* RFC del cliente */
 		comp.setReceptor(new CfdiReceptor());
+		comp.getReceptor().setDomicilio(new CfdiDomicilio());
 		boolean readFromFile = false;
 		if (linea[10] == null) {
 			comp.setCustomerRfcCellValue("");
@@ -1285,7 +1286,21 @@ public class UtilCFDIDivisas {
 			}else{
 				comp.getReceptor().setNombre(linea[11].toString().trim());
 			}
-			
+			//uso cfdi
+			if (linea[13] == null || linea[13].toString().trim().length() == 0) {
+				comp.getReceptor().setUsoCFDI("D04");
+			} else {
+				comp.getReceptor().setUsoCFDI(linea[13].toString().trim());								
+			}
+			//NumRegIdTrib
+			if (linea[14] == null || linea[14].toString().trim().equals("")) {
+				comp.getReceptor().setNumRegIdTrib("");
+			} else {
+				comp.getReceptor().setNumRegIdTrib(linea[14].toString().trim());
+			}
+		}
+		if(comp.getReceptor() != null && comp.getReceptor().getDomicilio() == null){
+			comp.getReceptor().setDomicilio(new CfdiDomicilio());
 		}
 		//referencia
 		if (linea[16] == null || linea[16].toString().trim().equals("")) {
