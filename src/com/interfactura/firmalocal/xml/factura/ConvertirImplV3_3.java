@@ -753,26 +753,26 @@ public class ConvertirImplV3_3
 		//System.out.println("Factura:Antes de reemplazo RFC Generico Receptor: ");
 		if (tokens.length >= 4) 
 		{
-			//reempazar RFC incorrecto por generico
+			//reempazar RFC incorrecto por generico - ya no aplica para factoraje
 			//System.out.println("Factura:Antes a reemplazo RFC Generico Receptor: ");
-			if (tokens[1].trim().length() > 0){
-				pattern = Pattern.compile(RFC_PATTERN);
-				matcher = pattern.matcher(tokens[1].trim());
-				
-				if(matcher.matches()){
-					pattern = Pattern.compile(RFC_PATTERN_TWO);
-					matcher = pattern.matcher(tokens[1].trim());
-					if(matcher.matches()){
-						System.out.println("RFC valido:"+tokens[1].trim());
-					}else{
-						System.out.println("Reemplazar RFC incorrecto: "+tokens[1].trim()+" por generico: XAXX010101000");
-						tokens[1] = "XAXX010101000";
-					}
-				}else{
-					System.out.println("Reemplazar RFC incorrecto: "+tokens[1].trim()+" por generico: XAXX010101000");
-					tokens[1] = "XAXX010101000";
-				}
-			}
+//			if (tokens[1].trim().length() > 0){
+//				pattern = Pattern.compile(RFC_PATTERN);
+//				matcher = pattern.matcher(tokens[1].trim());
+//				
+//				if(matcher.matches()){
+//					pattern = Pattern.compile(RFC_PATTERN_TWO);
+//					matcher = pattern.matcher(tokens[1].trim());
+//					if(matcher.matches()){
+//						System.out.println("RFC valido:"+tokens[1].trim());
+//					}else{
+//						System.out.println("Reemplazar RFC incorrecto: "+tokens[1].trim()+" por generico: XAXX010101000");
+//						tokens[1] = "XAXX010101000";
+//					}
+//				}else{
+//					System.out.println("Reemplazar RFC incorrecto: "+tokens[1].trim()+" por generico: XAXX010101000");
+//					tokens[1] = "XAXX010101000";
+//				}
+//			}
 			
 			tags.RECEPCION_RFC = tokens[1].trim();
 			if(tags.RECEPCION_RFC.trim().length() == 0){ // Validacion AMDA Version 3.3

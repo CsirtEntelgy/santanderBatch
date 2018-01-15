@@ -1276,7 +1276,7 @@ public class ConvertirV3_3 {
 	 * @return
 	 * @throws UnsupportedEncodingException
 	 */
-	public byte[] concepto(String linea, long numberLine, HashMap fiscalEntities, HashMap campos22)
+	public byte[] concepto(String linea, long numberLine, HashMap fiscalEntities, HashMap campos22, String fileNames)
 			throws UnsupportedEncodingException {
 		lineas = linea.split("\\|");
 		if (lineas.length >= 3) {
@@ -1310,7 +1310,7 @@ public class ConvertirV3_3 {
 				valDescConcep = valDescConcep.replaceAll("/", "");
 			}
 			if (valDescConcep.equalsIgnoreCase("sin cargos")) {
-				return conceptoEnCeros();
+				return conceptoEnCeros(fileNames);
 			} else {
 				// Nuevo Campo AMDA Version 3.3 regimenStr = "\n<cfdi:RegimenFiscal Regimen=\""
 				// + regVal + "\" />";
@@ -1631,11 +1631,17 @@ public class ConvertirV3_3 {
 					valVal  = Double.parseDouble(tags.sumTotalImpuestosTras);
 				}
 				tags.sumTotalImpuestosTrasDou = tags.sumTotalImpuestosTrasDou + valVal;
-
+				
+				//agregar complemento terceros para interface CFDOPGEST
+				String complementoTerceros = "";
+				if(fileNames.equals("CFDOPGEST")){
+					complementoTerceros = complementoTerceros();
+				}
+				
 				String nodoConcepto = "\n<cfdi:Concepto " + claveProdServVal + "\" Cantidad=\"" + "1"
 						+ "\" ClaveUnidad=\"" + claveUnidad + // Pendiente el valor de ClaveUnidad
 						"\" Unidad=\"" + unidadVal + "\" Descripcion=\"" + valDescConcep.toUpperCase()
-						+ nodoValorUnitarioStr + lineImporte + "\" " + " >" + elementImpuestos + "\n</cfdi:Concepto>";
+						+ nodoValorUnitarioStr + lineImporte + "\" " + " >" + elementImpuestos + complementoTerceros + "\n</cfdi:Concepto>";
 				// Cambio de estructura AMDA Version 3.3
 				return Util.conctatArguments(nodoConcepto.toString()).toString().getBytes("UTF-8");
 			}
@@ -1644,7 +1650,7 @@ public class ConvertirV3_3 {
 		}
 	}
 
-	public byte[] conceptoEnCeros() throws UnsupportedEncodingException {
+	public byte[] conceptoEnCeros(String fileNames) throws UnsupportedEncodingException {
 		tags.isECBEnCeros = true;
 		tags.subtotalDoubleTag = 0.0;
 		String claveProdServVal = "";
@@ -1656,12 +1662,19 @@ public class ConvertirV3_3 {
 		} else {
 			claveProdServVal = "ErrConClavPro001=\"" + "vacio";
 		}
+		
+		//agregar complemento terceros para interface CFDOPGEST
+		String complementoTerceros = "";
+		if(fileNames.equals("CFDOPGEST")){
+			complementoTerceros = complementoTerceros();
+		}
+		
 		String nodoConcepto = "<cfdi:Concepto " + claveProdServVal
 				+ "\" Cantidad=\"1\" ClaveUnidad=\"E48\" Unidad=\"SERVICIO\" "
 				+ "Descripcion=\"SERVICIOS DE FACTURACIÓN\"  ValorUnitario=\"0.01\" Importe=\"0.01\"><cfdi:Impuestos>"
 				+ "<cfdi:Traslados>"
 				+ "<cfdi:Traslado Base=\"1.00\" Impuesto=\"002\" TipoFactor=\"Tasa\" TasaOCuota=\"0.000000\" Importe=\"0.00\"  />"
-				+ "</cfdi:Traslados>" + "</cfdi:Impuestos></cfdi:Concepto>";
+				+ "</cfdi:Traslados>" + "</cfdi:Impuestos>" + complementoTerceros + "</cfdi:Concepto>";
 		return nodoConcepto.getBytes("UTF-8");
 	}
 
@@ -2595,6 +2608,59 @@ public class ConvertirV3_3 {
 
 	public void setValImporteTraslado(String valImporteTraslado) {
 		this.valImporteTraslado = valImporteTraslado;
+	}
+	
+	private String complementoTerceros(){
+		StringBuilder result = new StringBuilder();
+		String attrName = "";
+		if (tags.fis != null){
+			if (tags.fis.getFiscalName() != null) {
+				String valNombre = tags.fis.getFiscalName().replaceAll("\\.", "");
+				valNombre = valNombre.replaceAll("\\(", "");
+				valNombre = valNombre.replaceAll("\\)", "");
+				valNombre = valNombre.replace("/", "").toUpperCase();
+				
+				attrName = " nombre=\"" + valNombre + "\"";
+			} else {
+				attrName = " nombre=\"" + "" + "\"";
+			}
+			result.append("\n<cfdi:ComplementoConcepto>");
+			//terceros start
+			result.append("\n<terceros:PorCuentadeTerceros xmlns:terceros=\"http://www.sat.gob.mx/terceros\" version=\"1.1\" ");
+			result.append("rfc=\"").append(tags.EMISION_RFC).append("\" ");
+			result.append(attrName).append(">");
+			//<terceros:InformacionFiscalTercero
+			result.append("\n<terceros:InformacionFiscalTercero ");
+			result.append("calle=\"" + Util.isNull(tags.fis.getAddress().getStreet()) + "\" ");
+			result.append(Util.isNullEmpity(tags.fis.getAddress().getExternalNumber(), "noExterior"));
+			result.append(Util.isNullEmpity(tags.fis.getAddress().getInternalNumber(), "noInterior"));
+			result.append(Util.isNullEmpity(tags.fis.getAddress().getNeighborhood(), "colonia"));
+			result.append(Util.isNullEmpity("", "localidad"));
+			result.append("municipio=\"" + Util.convierte(tags.fis.getAddress().getRegion()) + "\" ");
+			if (tags.fis.getAddress().getState() != null) {
+				result.append("estado=\"" + Util.convierte(tags.fis.getAddress().getState().getName()) + "\" ");
+				result.append(" pais=\"" + Util.convierte(tags.fis.getAddress().getState().getCountry().getName()) + "\" ");
+			} else {
+				result.append("estado=\"\" ");
+				result.append(" pais=\"\" ");
+			}
+			result.append("codigoPostal=\"" + tags.fis.getAddress().getZipCode() + "\"/>");
+			//terceros:impuestos
+			result.append("\n<terceros:Impuestos>");
+			result.append("\n<terceros:Retenciones>");
+			result.append("\n<terceros:Retencion impuesto=\"IVA\" importe=\"0.00\"/>");
+			result.append("\n</terceros:Retenciones>");
+			result.append("\n<terceros:Traslados>");
+			result.append("\n<terceros:Traslado impuesto=\"IVA\" tasa=\"0\" importe=\"0.00\"/>");
+			result.append("\n</terceros:Traslados>");
+			result.append("</terceros:Impuestos>");
+			//terceros end
+			result.append("\n</terceros:PorCuentadeTerceros>");
+			
+			result.append("\n</cfdi:ComplementoConcepto>");
+		}
+		
+		return result.toString();
 	}
 
 }

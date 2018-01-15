@@ -1037,7 +1037,7 @@ public class GeneraXML_ECBDSV3_3 {
 			this.beginCONCEPTOS();
 			break;
 		case 6:
-			out.write(conver.concepto(linea, contCFD, lstFiscal, campos22));
+			out.write(conver.concepto(linea, contCFD, lstFiscal, campos22, fileNames));
 			break;
 		case 7:
 			if(!conver.getTags().tipoComprobante.equalsIgnoreCase("T") && !conver.getTags().tipoComprobante.equalsIgnoreCase("P")){
@@ -2121,6 +2121,7 @@ public class GeneraXML_ECBDSV3_3 {
 										fileINCIDENCIACIFRAS(ex.getMessage() + " ", "ERROR", 
 												conver.getTags().EMISION_RFC, conver.getTags().NUM_CTE, conver.getTags().NUM_CTA, conver.getTags().EMISION_PERIODO, conver.getTags().NUM_TARJETA, conver.getTags().CFD_TYPE,
 												conver.getTags().SUBTOTAL_MN, conver.getTags().TOTAL_IMP_TRA, conver.getTags().TOTAL_IMP_RET, fileNames, conver.getTags().SERIE_FISCAL_CFD, numeroMalla);
+										System.out.println("XML error validacion: " + xmlFinal.toString("UTF-8"));
 									}
 									
 									if(fValidaXMLSinAddenda){
@@ -2399,7 +2400,7 @@ public class GeneraXML_ECBDSV3_3 {
 				"CADENA_TIMBRE",
 				Integer.parseInt(objECB.getTagLONGITUD())));	
 		StringBuffer sbConcat = new StringBuffer("https://verificacfdi.facturaelectronica.sat.gob.mx/default.aspx");
-		sbConcat.append("&id=").append(strUUID);
+		sbConcat.append("?id=").append(strUUID);
 		sbConcat.append("&re=").append(strEmisorRFC);
 		sbConcat.append("&rr=").append(strReceptorRFC);
 		sbConcat.append("&tt=").append(strTotalZeros);
