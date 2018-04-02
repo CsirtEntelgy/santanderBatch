@@ -886,6 +886,7 @@ public class UtilCatalogos
 										}
 										
 										importeLine = "\" Importe=\"" + decimales(importeTrasladoMul.toString(), decimalesMoneda);
+										System.out.println("DecimalesMoneda = " +decimalesMoneda);
 									}else{
 										exento = true;
 									}
@@ -2134,14 +2135,16 @@ public class UtilCatalogos
 	    	//logger.info("validateCfdiDocument:"+convertDocumentXmlToString(doc));
 	    	//System.out.println("******************************************************");
 	    	StringBuilder sbError = new StringBuilder();
+	    	System.out.println("******************************************************");
 	    	sbError.append(validateDecimals(doc, maxDecimals));
 	    	//logger.info("validateCfdiDocument:"+convertDocumentXmlToString(doc));
-	    	System.out.println("******************************************************");
+	    	//System.out.println("******************************************************");
 	    	/*En esta seccion se agregaran todas las validciones que se les necesite hacer al comprobante*/
-	    	
+        	System.out.println("******************************************************");
 	    	sbError.append(evaluateCalulationMasiva(doc, maxDecimals));
 	    	//logger.info("validateCfdiDocument:"+convertDocumentXmlToString(doc));
 	    	//System.out.println("******************************************************");
+	    	
 	    	if (sbError.length() == 0) {
 	            logger.info("Complementando los impuestos:");
 	            complementTaxes(doc);
@@ -2268,9 +2271,11 @@ public class UtilCatalogos
 	        StringBuilder sbError = new StringBuilder();
 	        evaluateDecimals(doc, "//Comprobante/@SubTotal", maxDecimals, "Subtotal", sbError);
 	        evaluateDecimals(doc, "//Comprobante/@Total", maxDecimals, "Total", sbError);
-	        if (!Util.isNullEmpty(getStringValByExpression(doc, "//Comprobante/@TipoCambio"))) {
-	            evaluateDecimals(doc, "//Comprobante/@TipoCambio", maxDecimals, "Tipo de Cambio", sbError);
-	        }
+	        if (!getStringValByExpression(doc, "//Comprobante//@Moneda").equalsIgnoreCase("MXN"))
+		        if (!Util.isNullEmpty(getStringValByExpression(doc, "//Comprobante/@TipoCambio"))) {
+		        		evaluateDecimals(doc, "//Comprobante/@TipoCambio", maxDecimals, "Tipo de Cambio", sbError);
+		            
+		        }
 	        if (!Util.isNullEmpty(getStringValByExpression(doc, "//Comprobante/@Descuento"))) {
 	            evaluateDecimals(doc, "//Comprobante/@Descuento", maxDecimals, "Descuento", sbError);
 	        }

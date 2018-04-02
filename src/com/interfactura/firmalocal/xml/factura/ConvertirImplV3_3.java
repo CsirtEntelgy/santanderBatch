@@ -228,13 +228,13 @@ public class ConvertirImplV3_3
 			
 			if(tags.TIPO_MONEDA.trim().equalsIgnoreCase("MXN")){ 
 				// Si la moneda es MXN automaticamente se debe de colocar el tipo cambio cambio es 1
-				tags.TIPO_CAMBIO = "1.00";
+				tags.TIPO_CAMBIO = "1";
 			}
 			
 			String patternReg = "";
 			double valueTipoCambioDoubl = 0.00;
 			//System.out.println("ANTES TIP CAM :: " + tags.TIPO_CAMBIO);
-			if(tags.TIPO_CAMBIO.trim().length() > 0){
+			if(tags.TIPO_CAMBIO.trim().length() > 0 && !tags.TIPO_MONEDA.equalsIgnoreCase("MXN")){
 				patternReg = "[0-9]{1,14}(.([0-9]{1,6}))";
 				
 				if(!patternReg.trim().equalsIgnoreCase("vacio") && patternReg.trim().length() > 0){
@@ -266,7 +266,7 @@ public class ConvertirImplV3_3
 								String resultadoRipoCam = UtilCatalogos.findTipoCambioPorcentaje(tags.mapCatalogos, tags.TIPO_MONEDA, tags.TIPO_CAMBIO);
 							    if(resultadoRipoCam.equalsIgnoreCase("OK")){
 //							       System.out.println("Tipo Cambio Bien");
-							       concat.append(" TipoCambio=\"" + tags.TIPO_CAMBIO + "\"");
+							       concat.append(" TipoCambio=\"" + "1" + "\"");
 							    }else{
 //							    	System.out.println("Tipo Cambio No dentro de limites");
 							    	concat.append(" ErrCompTipMon002" + "=\"" + tags.TIPO_CAMBIO + "\"");
@@ -277,7 +277,7 @@ public class ConvertirImplV3_3
 								 if(valueTipoCambioDoubl > 1 || valueTipoCambioDoubl < 1){
 										concat.append(" ErrCompTipMon003" + "=\"" + tags.TIPO_CAMBIO + "\"");
 								 }else{
-										concat.append(" TipoCambio=\"" + tags.TIPO_CAMBIO + "\""); 
+										concat.append(" TipoCambio=\"" + "1" + "\""); 
 								 }
 							}else if(tags.TIPO_MONEDA.equalsIgnoreCase("XXX")){
 //								 System.out.println("Cuendo es XXX La Moneda AMDA");
@@ -327,7 +327,11 @@ public class ConvertirImplV3_3
 ////					concat.append(" TipoCambio=\"" + tags.TIPO_CAMBIO + "\"");
 //				} // Termina Validacion AMDA
 			}else if(tags.TIPO_MONEDA.equalsIgnoreCase("MXN")){
-				 concat.append(" ErrCompTipMon003" + "=\"" + tags.TIPO_CAMBIO + "\"");
+				if (tags.TIPO_CAMBIO.trim().length() > 0) {
+					concat.append(" TipoCambio=\"" + "1" + "\"");
+				} else
+					concat.append(" ErrCompTipoCambio004" + "=\"" + tags.TIPO_CAMBIO + "\""); 
+				
 			}else if(!tags.TIPO_MONEDA.equalsIgnoreCase("MXN") && !tags.TIPO_MONEDA.equalsIgnoreCase("XXX")){
 				concat.append(" ErrCompTipCam001" + "=\"" + tags.TIPO_CAMBIO + "\"");
 			}
@@ -1431,12 +1435,12 @@ public class ConvertirImplV3_3
 			//System.out.println("Validacion Subtotal totalRetAndTraDoubl AMDA : " + tags.sumTotalImpuestosTrasDou);
 			if(tags.tipoComprobante.trim().equalsIgnoreCase("I") || tags.tipoComprobante.trim().equalsIgnoreCase("E") || tags.tipoComprobante.trim().equalsIgnoreCase("N")){
 				//System.out.println("Validando Subtotal con total Conceptos AMDA : ");
-				if(!tags.subtotalDoubleTag.equals(tags.sumTotalImpuestosTrasDou)){
+				if(!tags.subtotalDoubleTag.equals(tags.sumTotalImpuestosTrasDou ) && tags.noExentoT){
 					valSubTotalDou = " ErrCompSubTot004=\"" + "vacio" + "\" ";
 				}
 			}
 			// Reseteo de dato
-			//System.out.println("Validacion Subtotal totalRetAndTraDoubl AMDA Antes RESETEO: " + tags.sumTotalImpuestosTrasDou);
+			//System.out.println("Validacion Sutotal totalRetAndTraDoubl AMDA Antes RESETEO: " + tags.sumTotalImpuestosTrasDou);
 			tags.sumTotalImpuestosTrasDou = 0.00;
 			
 			if (tags.isParte) 

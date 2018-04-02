@@ -339,7 +339,7 @@ public class ConvertirV3_3 {
 																			// 1
 
 					} else {
-						tags.TIPO_CAMBIO = "1.00";
+						tags.TIPO_CAMBIO = "1";
 					}
 
 				}
@@ -350,7 +350,7 @@ public class ConvertirV3_3 {
 
 					String patternReg = "";
 					double valueTipoCambioDoubl = 0.00;
-					if (tags.TIPO_CAMBIO.trim().length() > 0) {
+					if (tags.TIPO_CAMBIO.trim().length() > 0  && !tags.TIPO_MONEDA.trim().equalsIgnoreCase("MXN")) {
 						patternReg = "[0-9]{1,14}(.([0-9]{1,6}))";
 						// System.out.println("PATTERN REGEX: " + patternReg);
 						if (!patternReg.trim().equalsIgnoreCase("vacio") && patternReg.trim().length() > 0) {
@@ -423,7 +423,7 @@ public class ConvertirV3_3 {
 										String tipocambioVal = UtilCatalogos.findTipoCambioByMoneda(tags.mapCatalogos,
 												tags.TIPO_MONEDA);
 										if (!tipocambioVal.equalsIgnoreCase("vacio")) {
-											concat.append(" TipoCambio=\"" + tipocambioVal + "\"");
+											concat.append(" TipoCambio=\"" + "1" + "\"");
 										} else {
 											concat.append(
 													" ErrCompTipoCambio003=\"" + UtilCatalogos.findTipoCambioByMoneda(
@@ -443,7 +443,15 @@ public class ConvertirV3_3 {
 							}
 						}
 					} else if (tags.TIPO_MONEDA.equalsIgnoreCase("MXN")) {
-						concat.append(" ErrCompTipoCambio004" + "=\"" + tags.TIPO_CAMBIO + "\"");
+						String tipocambioVal = UtilCatalogos.findTipoCambioByMoneda(tags.mapCatalogos,
+								tags.TIPO_MONEDA);
+						if (!tipocambioVal.equalsIgnoreCase("vacio")) {
+							concat.append(" TipoCambio=\"" + "1" + "\"");
+						} else {
+							concat.append(
+									" ErrCompTipoCambio003=\"" + UtilCatalogos.findTipoCambioByMoneda(
+											tags.mapCatalogos, tags.TIPO_MONEDA) + "\"");
+						}
 					} else if (!tags.TIPO_MONEDA.equalsIgnoreCase("MXN") && !tags.TIPO_MONEDA.equalsIgnoreCase("XXX")) {
 						concat.append(" ErrCompTipoCambio005" + "=\"" + tags.TIPO_CAMBIO + "\"");
 					}
@@ -466,7 +474,7 @@ public class ConvertirV3_3 {
 					// {
 					String patternReg = "";
 					double valueTipoCambioDoubl = 0.00;
-					if (tags.TIPO_CAMBIO.trim().length() > 0) {
+					if (tags.TIPO_CAMBIO.trim().length() > 0 && !tags.TIPO_MONEDA.trim().equalsIgnoreCase("MXN")) {
 						patternReg = "[0-9]{1,14}(.([0-9]{1,6}))";
 						// System.out.println("PATTERN REGEX: " + patternReg);
 						if (!patternReg.trim().equalsIgnoreCase("vacio") && patternReg.trim().length() > 0) {
@@ -546,7 +554,7 @@ public class ConvertirV3_3 {
 											if (tipoCamDou > 1 || tipoCamDou < 1) {
 												concat.append(" ErrCompTipoCambio004=\"" + tags.TIPO_CAMBIO + "\"");
 											} else {
-												concat.append(" TipoCambio=\"" + tags.TIPO_CAMBIO + "\"");
+												concat.append(" TipoCambio=\"" + "1" + "\"");
 											}
 										} catch (NumberFormatException e) {
 											// System.out.println("Cuendo es MXN La Moneda AMDA 2 no viene vacio No
@@ -580,7 +588,12 @@ public class ConvertirV3_3 {
 							}
 						}
 					} else if (tags.TIPO_MONEDA.equalsIgnoreCase("MXN")) {
-						concat.append(" ErrCompTipoCambio004" + "=\"" + tags.TIPO_CAMBIO + "\"");
+						if (tags.TIPO_CAMBIO.trim().length() > 0) {
+								
+							concat.append(" TipoCambio=\"" + "1" + "\"");
+														
+						} else
+							concat.append(" ErrCompTipoCambio004" + "=\"" + tags.TIPO_CAMBIO + "\"");
 					} else if (!tags.TIPO_MONEDA.equalsIgnoreCase("MXN") && !tags.TIPO_MONEDA.equalsIgnoreCase("XXX")) {
 						concat.append(" ErrCompTipoCambio005" + "=\"" + tags.TIPO_CAMBIO + "\"");
 					}
@@ -603,7 +616,7 @@ public class ConvertirV3_3 {
 				//System.out.println("Tipo Cambio 3 : " + tags.TIPO_CAMBIO);
 				String patternReg = "";
 				double valueTipoCambioDoubl = 0.00;
-				if (tags.TIPO_CAMBIO.trim().length() > 0) {
+				if (tags.TIPO_CAMBIO.trim().length() > 0 && !tags.TIPO_MONEDA.trim().equalsIgnoreCase("MXN")) {
 					patternReg = "[0-9]{1,14}(.([0-9]{1,6}))";
 					// System.out.println("PATTERN REGEX: " + patternReg);
 					if (!patternReg.trim().equalsIgnoreCase("vacio") && patternReg.trim().length() > 0) {
@@ -657,7 +670,7 @@ public class ConvertirV3_3 {
 								if (valueTipoCambioDoubl > 1 || valueTipoCambioDoubl < 1) {
 									concat.append(" ErrCompTipoCambio004=\"" + tags.TIPO_CAMBIO + "\"");
 								} else {
-									concat.append(" TipoCambio=\"" + tags.TIPO_CAMBIO + "\"");
+									concat.append(" TipoCambio=\"" + "1" + "\"");
 								}
 							} else if (tags.TIPO_MONEDA.equalsIgnoreCase("XXX")) {
 								// System.out.println("Cuendo es XXX La Moneda AMDA");
@@ -670,7 +683,7 @@ public class ConvertirV3_3 {
 
 					}
 				} else if (tags.TIPO_MONEDA.equalsIgnoreCase("MXN")) {
-					concat.append(" ErrCompTipoCambio004" + "=\"" + tags.TIPO_CAMBIO + "\"");
+					concat.append(" TipoCambio=\"" + "1" + "\"");
 				} else if (!tags.TIPO_MONEDA.equalsIgnoreCase("MXN") && !tags.TIPO_MONEDA.equalsIgnoreCase("XXX")) {
 					concat.append(" ErrCompTipoCambio005" + "=\"" + tags.TIPO_CAMBIO + "\"");
 				}
@@ -1276,9 +1289,10 @@ public class ConvertirV3_3 {
 	 * @return
 	 * @throws UnsupportedEncodingException
 	 */
-	public byte[] concepto(String linea, long numberLine, HashMap fiscalEntities, HashMap campos22, String fileNames)
+	public byte[] concepto(String linea, long numberLine, HashMap fiscalEntities, HashMap campos22)///, String fileNames)
 			throws UnsupportedEncodingException {
 		lineas = linea.split("\\|");
+		String fileNames = "";
 		if (lineas.length >= 3) {
 
 			// System.out.println("Asignando Numero De Conceptos: " +
@@ -1479,7 +1493,7 @@ public class ConvertirV3_3 {
 					//System.out
 					//		.println("Valor Importe AMDA T : " + tags.trasladoImporteVal + " : " + valImporteTraslado);
 					if (tags.trasladoImporteVal.trim().length() > 0) {
-						valImporteImpTras = "\" Importe=\"" + tags.trasladoImporteVal.trim() + "\"";
+						valImporteImpTras = "\" Importe=\"" + UtilCatalogos.decimales(tags.trasladoImporteVal.trim(), tags.decimalesMoneda)  + "\"";
 					} else {
 						valImporteImpTras = "\" Importe=\"" + "0.00" + "\"";
 					}
@@ -1766,7 +1780,7 @@ public class ConvertirV3_3 {
 			if (tags.tipoComprobante.trim().equalsIgnoreCase("I") || tags.tipoComprobante.trim().equalsIgnoreCase("E")
 					|| tags.tipoComprobante.trim().equalsIgnoreCase("N")) {
 				System.out.println("Validando Subtotal con total Conceptos AMDA : ");
-				if (!tags.subtotalDoubleTag.equals(tags.totalRetAndTraDoubl)) {
+				if (!tags.subtotalDoubleTag.equals(tags.totalRetAndTraDoubl) && tags.noExentoT) {
 					valSubTotalDou = " ErrCompSubTot004=\"" + "vacio" + "\" ";
 				}
 			}
