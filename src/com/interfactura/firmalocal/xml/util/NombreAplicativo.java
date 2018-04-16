@@ -63,18 +63,18 @@ public class NombreAplicativo {
 		boolean exit = false;
 		while (i < arrayInterfaces.length && !exit)
 		{	Iterator it = hashApps.entrySet().iterator();
-			System.out.println("arrayInterfaces " + i + ":" + arrayInterfaces[i]);
+			//System.out.println("arrayInterfaces " + i + ":" + arrayInterfaces[i]);
 			while (it.hasNext() && !exit) {
 				Map.Entry e = (Map.Entry)it.next();
 				String nombresApps = (String) e.getValue();
-				System.out.println("keyApp: " + e.getKey());
+				//System.out.println("keyApp: " + e.getKey());
 			
 				String [] arrayValues = nombresApps.split(","); 
-				System.out.println("arrayValues :" + nombresApps);
+				//System.out.println("arrayValues :" + nombresApps);
 				for(int j=0; j<arrayValues.length; j++){
-					System.out.println("arrayValues " + j + ":" + arrayValues[j]);
-					System.out.println("nombreAplicativo:" + nombreAplicativo);
-					System.out.println("---");
+					//System.out.println("arrayValues " + j + ":" + arrayValues[j]);
+					//System.out.println("nombreAplicativo:" + nombreAplicativo);
+					//System.out.println("---");
 					if(arrayInterfaces[i].trim().equals(arrayValues[j].trim())){
 						if(nombreAplicativo.equals("")){
 							nombreAplicativo = (String) e.getKey();

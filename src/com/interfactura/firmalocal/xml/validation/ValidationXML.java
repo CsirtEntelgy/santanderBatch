@@ -60,7 +60,8 @@ public class ValidationXML {
 		throws SAXException, ParserConfigurationException, IOException
 	{
 
-		logger.debug("Validando XML");
+		//logger.debug("Validando XML");
+		System.out.println("Validando XML");
 		XMLReader xmlReader = createXMLReader();
 		final ValidatorHandler validatorHandler = val;
 		xmlReader.setContentHandler(validatorHandler);

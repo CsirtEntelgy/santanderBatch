@@ -7,6 +7,7 @@ public class ValidationConstants {
 		public static final String DONATARIAS = "Donatarias";
 		public static final String FORMATO_UNICO = "FormatoUnico";
 		public static final String RECEPCION_PAGOS = "RecepcionPagos";
+		public static final String QUITAS = "Quitas";
 	}
 	
 	public static final class TipoComprobante{

@@ -268,7 +268,8 @@ public class GeneraXML_ECBDSV3_3 {
 	public boolean convierte(long byteStart, long byteEnd, String path, long cont, String idProceso, String fecha, String fileNames, String numeroMalla) 
 	{
 		//System.out.println("convierte");
-		System.out.println("LINEA PROCESO: Inicia bloque - " + cont + "," + byteStart + "," + byteEnd + "," + idProceso);
+		//System.out.println("LINEA PROCESO: Inicia bloque - " + cont + "," + byteStart + "," + byteEnd + "," + idProceso);
+		System.out.println("Inicia proceso de Estados de cuenta");
 		flagProcesado = true;	
 		//Cadena que contiene la linea leida del archivo
 		//StringBuilder linea = new StringBuilder();
@@ -296,8 +297,8 @@ public class GeneraXML_ECBDSV3_3 {
 			this.nameFile = this.file.getName();
 			 
 			// Se crea el archivo de salida
-			logger.debug("Paso 3.- Creando archivo de salida byte de inicio: " + byteStart);
-			logger.debug("Paso 3.- Creando archivo de salida byte de final: " + byteEnd);
+			System.out.println("Creando archivos de salida " );
+			//logger.debug("Paso 3.- Creando archivo de salida byte de final: " + byteEnd);
 			File fileExit=new File(this.getNameFile(properties.getPathSalida(), cont,"XML", idProceso));
 			this.salida = new FileOutputStream(fileExit);
 			File fileExitBD=new File(this.getNameFile(properties.getPathSalida(), cont,"BD", idProceso));
@@ -313,24 +314,25 @@ public class GeneraXML_ECBDSV3_3 {
 				this.salidaODM = new FileOutputStream(fileExitODM, true);	
 			}
 			// Se crea el archivo de incidencias
-			logger.debug("Paso 3.- Creando archivo de incidencia byte de inicio: "+byteStart);
-			logger.debug("Paso 3.- Creando archivo de incidencia byte de final: "+byteEnd);
+			System.out.println("Creando archivo de incidencia");
+			//logger.debug("Paso 3.- Creando archivo de incidencia byte de final: "+byteEnd);
 			File fileIncidence=new File(this.getNameFile(properties.getPathIncidencia(), cont,"INC", idProceso));
 			this.incidencia = new FileOutputStream(fileIncidence);
 			
 			//Se crea el archivo de incidencias para cifras control
-			logger.debug("Paso 3.- Creando archivo de incidencia cifras control byte de inicio: "+byteStart);
-			logger.debug("Paso 3.- Creando archivo de incidencia cifras control byte de final: "+byteEnd);
+			System.out.println("Creando archivo de incidencia cifras control");
+			//logger.debug("Paso 3.- Creando archivo de incidencia cifras control byte de final: "+byteEnd);
 			File fileIncidenceCifras=new File(this.getNameFile(properties.getPathIncidencia(), cont,"ERR", idProceso));
 			this.incidenciaCifras = new FileOutputStream(fileIncidenceCifras);
 			
-			logger.debug("Paso 3.- BackUp de la parte del archivo");
+			System.out.println("BackUp de la parte del archivo");
 			copy(byteStart, byteEnd, path, cont, idProceso);
 			file = new RandomAccessFile(path, "r");
 			int sizeArray = 1024 * 8;
 			long byteEndLine = 10;
 					
 			contCFD = byteStart;
+			System.out.println("Comienza el formateo de las lineas");
 			this.begin();
 			do 
 			{
@@ -405,6 +407,7 @@ public class GeneraXML_ECBDSV3_3 {
 				if (array[0] == 0) 
 				{	flagEnd = true;		}
 			} while (!flagEnd);
+			System.out.println("Finaliza el formateo de las lineas");
 			
 			// Problema de incidencia duplicada de entidad fiscal no existente
 			if((linea.toString().length()>0)&&(!activo))
@@ -414,10 +417,12 @@ public class GeneraXML_ECBDSV3_3 {
 			}
 			this.endMOVIMIENTOS();
 			this.endADDENDA();
-			System.out.println("filenamesContabilizar:" + fileNames);
-			
+			//System.out.println("filenamesContabilizar:" + fileNames);
+			System.out.println("Inicia cerrado y verificacion de XML");
 			this.end(0, idProceso, fecha, fileNames, numeroMalla);
+			System.out.println("Termina cerrado y verificacion de XML");
 			
+			System.out.println("Inicia Actualizacion de DB");
 			if (lstECB.size() > 0) 
 			{
 				try
@@ -540,7 +545,7 @@ public class GeneraXML_ECBDSV3_3 {
 				}
 				lstECB = new ArrayList<CFDIssued>();
 			}
-			
+			System.out.println("Termina Actualizacion de DB");
 		} 
 		catch (FileNotFoundException e) 
 		{
@@ -580,7 +585,7 @@ public class GeneraXML_ECBDSV3_3 {
 		StringBuffer sbXmlATimbrar = new StringBuffer();
 		StringBuffer sbPeriodos = new StringBuffer();
 		StringBuffer sbNombresAplicativo = new StringBuffer();
-		
+		System.out.println("Enviando bloque a timbrar");
 		long t1;
 		long t2;
 		String timbrados = null;
@@ -602,8 +607,8 @@ public class GeneraXML_ECBDSV3_3 {
 			System.out.println("ANTES DE ENTRAR TIMBRAR SACANDO VALORES: "+lstObjECBs.size());						
 			for(int index=0; index<lstObjECBs.size(); index++){
 				//System.out.println("xmlATimbrar " + index + " :" + lstObjECBs.get(index).getXmlSinECB().toString("UTF-8"));
-				System.out.println("periodos " + index + " :" + lstObjECBs.get(index).getTagEMISION_PERIODO());
-				System.out.println("nombreAplicativo" + index + " :" + lstObjECBs.get(index).getTagNOMBRE_APP_REPECB());
+				//System.out.println("periodos " + index + " :" + lstObjECBs.get(index).getTagEMISION_PERIODO());
+				//System.out.println("nombreAplicativo" + index + " :" + lstObjECBs.get(index).getTagNOMBRE_APP_REPECB());
 				if(index < lstObjECBs.size()-1){
 					sbXmlATimbrar.append(lstObjECBs.get(index).getXmlSinECB().toString("UTF-8") + "|");		
 					sbPeriodos.append(lstObjECBs.get(index).getTagEMISION_PERIODO() + "|");
@@ -619,24 +624,24 @@ public class GeneraXML_ECBDSV3_3 {
 			System.out.println("TIME: Unir XMLs a Timbrar:" + t2 + " ms");
 			
 			//System.out.println("Bloque de XMLs a timbrar: " + sbXmlATimbrar.toString());
-			System.out.println("NombreInterface:" +  this.nameFile);
-			System.out.println("NumeroProceso:" + idProceso);
+			//System.out.println("NombreInterface:" +  this.nameFile);
+			//System.out.println("NumeroProceso:" + idProceso);
 			
 			if(!sbXmlATimbrar.toString().trim().equals("")){ // Aqui se timbra al parecer AMDA
-				System.out.println("Num xmls A Timbrar:" + lstObjECBs.size());
+				//System.out.println("Num xmls A Timbrar:" + lstObjECBs.size());
 				
 				t1 = System.currentTimeMillis();
 				timbrados = "";
-//				System.out.println("Lo que se manda a Timbrado:" + sbXmlATimbrar.toString());
+				System.out.println("EnvioWebService" + sbXmlATimbrar.toString());
 				timbrados = this.servicePort.generaTimbre(sbXmlATimbrar.toString(), false, this.urlWebService, properties, this.nameFile, Integer.parseInt(idProceso), 0, sbPeriodos.toString(), sbNombresAplicativo.toString());
 //				System.out.println("Respuesta Timbrado:" + timbrados);
-				t2 = t1- System.currentTimeMillis();
+				t2 =  System.currentTimeMillis() - t1;
 				System.out.println("TIME: Timbrado:" + t2 + " ms - contador: " + lstObjECBs.size());
 				System.out.println("Timbrado del bloque " + cont + " terminado.");
 				//System.out.println("Bloque de XMLs timbrados por Interfactura: " + timbrados);
 
 				String [] xmlsTimbrados = timbrados.split("\\|");
-				System.out.println("Num xmls Timbrados:" + xmlsTimbrados.length);
+				//System.out.println("Num xmls Timbrados:" + xmlsTimbrados.length);
 				
 				t1 = System.currentTimeMillis();
 				StringBuffer sbFoliosSAT = new StringBuffer();
@@ -661,14 +666,14 @@ public class GeneraXML_ECBDSV3_3 {
 					}
 				}
 				
-				System.out.println("Bloque: " + cont);
-				System.out.println("Folios-SAT timbrados: " + sbFoliosSAT.toString());
+				//System.out.println("Bloque: " + cont);
+				//System.out.println("Folios-SAT timbrados: " + sbFoliosSAT.toString());
 				if(catalogoCincoCampos33.isEmpty()) {
 					fillCatalogoCincoCampos33();
 				}
 				
 				for(int index=0; index<xmlsTimbrados.length; index++){
-					System.out.println("xmlTimbrado " + index + " :" + xmlsTimbrados[index]);
+					//System.out.println("xmlTimbrado " + index + " :" + xmlsTimbrados[index]);
 					//Convertir xmlTimbrado a objeto Document						
 					//Document domResultado = stringToDocument(xmlsTimbrados[index]);
 				
@@ -849,7 +854,7 @@ public class GeneraXML_ECBDSV3_3 {
 		file.seek(byteStart);
 		//StringBuilder line = null;
 		StringBuffer line = null;
-		System.out.println("inicioDo");
+		System.out.println("Inicia copiado");
 		do 
 		{
 			//line = new StringBuilder();
@@ -868,11 +873,11 @@ public class GeneraXML_ECBDSV3_3 {
 			}
 			fileW.write(line.toString());
 		} while (flagReader);
-		System.out.println("finDo");
+		System.out.println("Finaliza copiado");
 		file.close();
 		fileW.close();
-		long t2 = t1- System.currentTimeMillis();
-		System.out.println("TIME: Copiando archivo " + path + "," + byteStart + "," + byteEnd + t2 + " ms");
+		long t2 =  System.currentTimeMillis() - t1;
+		System.out.println("TIME: Tiempo de  Copiando transcurrido:  " + t2 + " MS");
 		
 		/*
 		Date dateInicio2 = new Date();
@@ -1037,7 +1042,7 @@ public class GeneraXML_ECBDSV3_3 {
 			this.beginCONCEPTOS();
 			break;
 		case 6:
-			out.write(conver.concepto(linea, contCFD, lstFiscal, campos22, fileNames));
+			out.write(conver.concepto(linea, contCFD, lstFiscal, campos22));// , fileNames)); Correccion para funcion concepto que recibe 4 parametro
 			break;
 		case 7:
 			if(!conver.getTags().tipoComprobante.equalsIgnoreCase("T") && !conver.getTags().tipoComprobante.equalsIgnoreCase("P")){
@@ -1050,7 +1055,7 @@ public class GeneraXML_ECBDSV3_3 {
 			break;
 		case 9:
 			if(!conver.getTags().tipoComprobante.equalsIgnoreCase("T") && !conver.getTags().tipoComprobante.equalsIgnoreCase("P")){
-				System.out.println("Conver Tags Tipo Comprobante DEntro De Ret y Tra: " + conver.getTags().tipoComprobante);
+				//System.out.println("Conver Tags Tipo Comprobante DEntro De Ret y Tra: " + conver.getTags().tipoComprobante);
 			}
 			break;
 		case 10:
@@ -1310,7 +1315,7 @@ public class GeneraXML_ECBDSV3_3 {
 	public void addendaDomicilios() throws IOException {
 		this.beginAddendaDomicilios();
 		out.write(conver.domicilioEmisor());		
-		out.write(conver.domicilioReceptor());		
+		//out.write(conver.domicilioReceptor());		
 		this.endAddendaDomicilios();
 	}
 	private void beginAddendaDomicilios() throws IOException {
@@ -1549,7 +1554,7 @@ public class GeneraXML_ECBDSV3_3 {
 											ecb.setVersion(atributo.getValue());											
 										}else if(atributo.getName().equals("numeroCuenta")){
 											this.existNumeroCuenta = true;
-											if(!isNotNumeric(atributo.getValue())){
+											if(atributo.getValue().length() > 0 &&  atributo.getValue().length() <= 40){
 												if (this.valorVacio(atributo.getValue())){
 													this.fnumeroCuenta = true;
 													
@@ -1723,7 +1728,7 @@ public class GeneraXML_ECBDSV3_3 {
 							}
 						}else if (root.getChildNodes().item(i).getChildNodes().item(x) instanceof Element && root.getChildNodes()
 								.item(i).getChildNodes().item(x).getNodeName().equals("as:AddendaSantanderV1")) {
-							System.out.println("Elimina addenda domicilios");
+							//System.out.println("Elimina addenda domicilios");
 							String domStr="";
 							domStr=UtilCatalogos.convertDocumentXmlToString(dom);
 							if (domStr.indexOf("<as:AddendaSantanderV1") != -1){
@@ -1965,7 +1970,7 @@ public class GeneraXML_ECBDSV3_3 {
 					StringBuffer numberLines = new StringBuffer();
 					for (String error : conver.getDescriptionFormat()) 
 					{
-						System.out.println("TIME: getDescriptionFormat ERR:" + error + " ms");
+						//System.out.println("TIME: getDescriptionFormat ERR:" + error + " ms");
 						numberLines.append(error);
 						numberLines.append(" ");
 					}
@@ -2128,7 +2133,7 @@ public class GeneraXML_ECBDSV3_3 {
 										conver.getTags().NUM_CERTIFICADO = certificate.getSerialNumber();
 										xmlProcess.setTransf(transf);
 										
-										t2 = t1- System.currentTimeMillis();
+										t2 = System.currentTimeMillis()- t1;
 										System.out.println("TIME: xmlProcess:" + t2 + " ms");
 
 										/*Se asigna el NoCertificado ya que antes se hacia despues de generar la cadena original*/
@@ -2154,7 +2159,7 @@ public class GeneraXML_ECBDSV3_3 {
 										long t1b = System.currentTimeMillis();
 										//System.out.println("originalString: " + originalString.toString("UTF-8"));
 										String seal = xmlProcess.sealEncryption(originalString, certificate);
-										long t2b = t1b- System.currentTimeMillis();
+										long t2b =  System.currentTimeMillis() - t1b;
 										System.out.println("TIME: EncriptionFuera:" + t2b + " ms");
 
 										objEcbActual.setSeal(seal);
@@ -2207,7 +2212,7 @@ public class GeneraXML_ECBDSV3_3 {
 										
 										this.lstObjECBs.add(objEcbActual);
 										
-										t2 = t1- System.currentTimeMillis();
+										t2 = System.currentTimeMillis() - t1;
 										System.out.println("TIME: Procesar ECB:" + t2 + " ms");									
 									}
 									
@@ -2224,9 +2229,9 @@ public class GeneraXML_ECBDSV3_3 {
 									}else{
 										strMsgError = "Informacion no valida dentro de Santander:Movimientos";										
 									}
-									logger.error("ERROR: " + strMsgError);
+									System.out.println("ERROR: " + strMsgError);
 									fileINCIDENCIA(strMsgError, "ERROR", 
-											conver.getTags().EMISION_RFC, conver.getTags().NUM_CTE, conver.getTags().NUM_CTA, conver.getTags().EMISION_PERIODO, conver.getTags().NUM_TARJETA, conver.getTags().CFD_TYPE);
+										conver.getTags().EMISION_RFC, conver.getTags().NUM_CTE, conver.getTags().NUM_CTA, conver.getTags().EMISION_PERIODO, conver.getTags().NUM_TARJETA, conver.getTags().CFD_TYPE);
 									
 									//Generar Archivo de incidentes para Cifras (ERR...TXT)
 									

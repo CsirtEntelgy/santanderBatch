@@ -2135,22 +2135,22 @@ public class UtilCatalogos
 	    	//logger.info("validateCfdiDocument:"+convertDocumentXmlToString(doc));
 	    	//System.out.println("******************************************************");
 	    	StringBuilder sbError = new StringBuilder();
-	    	System.out.println("******************************************************");
+	    	//System.out.println("******************************************************");
 	    	sbError.append(validateDecimals(doc, maxDecimals));
 	    	//logger.info("validateCfdiDocument:"+convertDocumentXmlToString(doc));
 	    	//System.out.println("******************************************************");
 	    	/*En esta seccion se agregaran todas las validciones que se les necesite hacer al comprobante*/
-        	System.out.println("******************************************************");
+        	//System.out.println("******************************************************");
 	    	sbError.append(evaluateCalulationMasiva(doc, maxDecimals));
 	    	//logger.info("validateCfdiDocument:"+convertDocumentXmlToString(doc));
 	    	//System.out.println("******************************************************");
 	    	
 	    	if (sbError.length() == 0) {
-	            logger.info("Complementando los impuestos:");
+	            //ogger.info("Complementando los impuestos:");
 	            complementTaxes(doc);
-	            //logger.info("validateCfdiDocument:" + convertDocumentXmlToString(doc));
+	            //logger.info(":" + convertDocumentXmlToString(doc));
 	            //System.out.println("******************************************************");
-	            logger.info("Limpiando nodo impuestos de Conceptos vacios");
+	            //logger.info("Limpiando nodo impuestos de Conceptos vacios");
 	            clearTaxes(doc);
 	        }else{
 	        	System.out.println("******************************************************");
@@ -2369,10 +2369,10 @@ public class UtilCatalogos
 		                    "El campo Total no corresponde con la suma del subtotal, menos los descuentos aplicables, más las contribuciones recibidas (impuestos trasladados - federales o locales, derechos, productos, aprovechamientos, aportaciones de seguridad social, contribuciones de mejoras) menos los impuestos retenidos");
 		        }
 		
-		        logger.info("Validando descuentos");
+		        //logger.info("Validando descuentos");
 		        /*Asignacion y validacion de Descuento*/
 		        String voucherType = getStringValByExpression(doc, "//Comprobante/@TipoDeComprobante");
-		        System.out.println("discount:" + discount);
+		        //System.out.println("discount:" + discount);
 		        boolean validateDiscount = false;
 		        if (discount.doubleValue() > 0) {//Si no viene con valor omitimos este paso
 		            validateDiscount = true;
@@ -2389,7 +2389,7 @@ public class UtilCatalogos
 		            }
 		            String concepts = "//Comprobante/Conceptos/Concepto";
 		            BigDecimal totalConcept = BigDecimal.valueOf(getDoubleByExpression(doc, "count(".concat(concepts.intern()).concat(")")));
-		            System.out.println("Conceptos:" + totalConcept);
+		            //System.out.println("Conceptos:" + totalConcept);
 		            if (totalConcept.doubleValue() > 0) {//Verificamos que vengan conceptos
 		                //Obtenemos el decuento por concepto
 		                BigDecimal discPerConcept = discount.divide(totalConcept, maxDecimals, RoundingMode.HALF_UP);

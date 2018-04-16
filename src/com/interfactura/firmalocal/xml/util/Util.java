@@ -1047,7 +1047,7 @@ public class Util
 		            for (int i=0; i<workbook.getNumberOfSheets(); i++) { // PARA ITERAR VARIAS HOJAS (SHEETS)
 		            	key = workbook.getSheetName(i);
 		            	HSSFSheet sheetDin = workbook.getSheetAt(i);
-		            	System.out.println("Key Sheet : "+ key );
+		            	//System.out.println("Key Sheet : "+ key );
 		            	ArrayList<CatalogosDom> listValDom = new ArrayList<CatalogosDom>();
 
 		            // Iterate through each rows from first sheet
@@ -1157,7 +1157,7 @@ public class Util
 		        } catch (IOException e) {
 		            e.printStackTrace();
 		        }
-		        System.out.println("Principal MapValDom SIZE : "+mapValDom.size());
+		        /*System.out.println("Principal MapValDom SIZE : "+mapValDom.size());
 		        System.out.println("TipoDeComprobante SIZE : "+mapValDom.get("TipoDeComprobante").size());
 		        System.out.println("MetodoPago SIZE : "+mapValDom.get("MetodoPago").size());
 		        System.out.println("TipoRelacion SIZE : "+mapValDom.get("TipoRelacion").size());
@@ -1165,7 +1165,7 @@ public class Util
 		        System.out.println("UsoCFDI SIZE : "+mapValDom.get("UsoCFDI").size());
 		        System.out.println("Impuesto SIZE : "+mapValDom.get("Impuesto").size());
 		        System.out.println("TipoFactor SIZE : "+mapValDom.get("TipoFactor").size());
-		        System.out.println("TasaOCuota SIZE : "+mapValDom.get("TasaOCuota").size());
+		        System.out.println("TasaOCuota SIZE : "+mapValDom.get("TasaOCuota").size());*/
 		        return mapValDom;
 		        
 	}

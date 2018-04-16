@@ -103,7 +103,7 @@ public class ConvertirImplV3_3
 	public void set(String tokens[], long numberLine) 
 		throws UnsupportedEncodingException 
 	{
-		logger.debug("Inicio de Formateo de Linea");
+		System.out.println("Inicio de Formateo de Linea");
 		pila = new Stack<String>();
 		clearFlag();
 		tags.lstCustoms = new HashSet<AddendumCustoms>();
@@ -139,7 +139,7 @@ public class ConvertirImplV3_3
 			if (Util.isNullEmpty(tags.IVA_TOTAL_REPORTE)) 
 			{	tags.IVA_TOTAL_REPORTE = "0";	}
 
-			System.out.println("tokens.length" + tokens.length);
+			//System.out.println("tokens.length" + tokens.length);
 			if (tokens.length >= 20) 
 			{
 				tags.TIPO_MONEDA = tokens[17];
@@ -483,7 +483,7 @@ public class ConvertirImplV3_3
 //				System.out.println("SubTotal agregando decimales : " + tags.decimalesMoneda + " : " + tags.SUBTOTAL_MN);
 //				concat.append(" SubTotal=\"" + UtilCatalogos.decimales(tags.SUBTOTAL_MN, tags.decimalesMoneda ) + "\"");
 //			}
-			System.out.println("SubTotal : " + tags.SUBTOTAL_MN);
+			//System.out.println("SubTotal : " + tags.SUBTOTAL_MN);
 			try {
 			    double valSubTotal = Double.parseDouble(tags.SUBTOTAL_MN.trim());
 			    tags.subtotalDoubleTag = valSubTotal;
@@ -648,11 +648,11 @@ public class ConvertirImplV3_3
 							" xsi:schemaLocation=\"http://www.sat.gob.mx/cfd/3",
 							" http://www.sat.gob.mx/sitio_internet/cfd/3/cfdv33.xsd ",
 							" http://www.sat.gob.mx/ecb http://www.sat.gob.mx/sitio_internet/cfd/ecb/ecb.xsd\" ",
-							" Sello=\"", properties.getLabelSELLO(), "\" ",
+							" Sello=\"", properties.getLabelSELLO().trim(), "\" ",
 							" NoCertificado=\"",
-							properties.getLblNO_CERTIFICADO(),
+							properties.getLblNO_CERTIFICADO().trim(),
 							"\" " + " Certificado=\"",
-							properties.getLblCERTIFICADO(), "\" " + " ",														
+							properties.getLblCERTIFICADO().trim(), "\" " + " ",														
 							"LugarExpedicion=\"" + "01219" + "\"",//properties.getLabelLugarExpedicion()  + "\" ",
 //							"NumCtaPago=\"" + properties.getlabelFormaPago()  + "\" ",
 							" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" >")
@@ -691,7 +691,7 @@ public class ConvertirImplV3_3
 		if (tokens.length >= 3) 
 		{
 			tags.EMISION_RFC = tokens[1].trim().toUpperCase();
-			logger.debug("RFC EMISOR: " + tags.EMISION_RFC);
+			//logger.debug("RFC EMISOR: " + tags.EMISION_RFC);
 			tags.fis = null;
 			tags.fis = lstFiscal.get(tags.EMISION_RFC);
 			if(tags.fis != null){

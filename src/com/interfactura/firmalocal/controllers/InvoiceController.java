@@ -109,7 +109,7 @@ public class InvoiceController
 			{	zeros+="0";	}
 			path+=zeros+idProceso+".txt";
 		}
-		logger.info("Paso 2.- Nombre del Archivo de tareas: " + path);
+		//logger.info("Nombre del Archivo de tareas: " + path);
 		String args[]=null;
 		LineNumberReader reader=null;
 		File fileout=null;
@@ -122,7 +122,7 @@ public class InvoiceController
 		
 		//**** Archivo Cadena Original (Carga-Inicio)****
 		try 
-		{	System.out.println("getPathFileSello:" + properties.getPathFileSello());
+		{	//System.out.println("getPathFileSello:" + properties.getPathFileSello());
 			tr = (SAXTransformerFactory) SAXTransformerFactory.newInstance();
 			transf = tr.newTransformer(new StreamSource(properties
 					.getPathFileSello()));
@@ -140,11 +140,12 @@ public class InvoiceController
 		
 		//**** Certificados (Carga-Inicio)****
 		List<SealCertificate> lstSeal = sealCertificateManager.listar();
+		System.out.println("Inicio de decrypt private key para certificados");
 		for (SealCertificate objC : lstSeal) 
 		{
 			if (objC.getFiscalEntity() != null) 
 			{
-				logger.info(objC.getFiscalEntity().getTaxID());
+				//logger.info(objC.getFiscalEntity().getTaxID());
 				try 
 				{
 					StringEncrypter encrypter = new StringEncrypter(StringEncrypter.DES_ENCRYPTION_SCHEME);
@@ -158,7 +159,9 @@ public class InvoiceController
 				}
 			}
 		}
-		logger.debug("Numero de Certificados: " + lstSeal.size());
+		System.out.println("Inicio de decrypt private key para certificados");
+		System.out.println("Numero de Certificados: " + lstSeal.size());
+		//logger.debug("Numero de Certificados: " + lstSeal.size());
 		//**** Certificados (Carga-Fin)****
 
 		//**** Entidades Fiscales (Carga-Inicio)****
@@ -180,23 +183,23 @@ public class InvoiceController
 		listaInterfaces = interfaceMetPagManager.listByColumn(fileNames);
 		listFields = fields22Manager.listAll();
 		
-		System.out.println("Estas son todas las interfaces que me trajo el manager: ");
-
+		//System.out.println("Estas son todas las interfaces que me trajo el manager: ");
+		System.out.println("Creando lista HashMap  que contiene como llave la Entidad Fiscal, y la interface de pago como objeto.");
 		for(InterfaceMetodoPago iMP: listaInterfaces){
-			System.out.println("Entidad Fiscal: " + iMP.getFiscalEntity().getId());
-			System.out.println("Nombre de Interface: " + iMP.getNombreInterface());
+			//System.out.println("Entidad Fiscal: " + iMP.getFiscalEntity().getId());
+			//System.out.println("Nombre de Interface: " + iMP.getNombreInterface());
 			listIntMetPag.put(iMP.getFiscalEntity().getId(), iMP);
 		}
+		System.out.println("Lista creada");
 		
-		System.out.println("-----------------------------------------------------------------------------------------------------------------");
+		/*System.out.println("-----------------------------------------------------------------------------------------------------------------");
 		System.out.println("A continuacion el MAP con todas las interfaces traidas: ");
 		for(InterfaceMetodoPago iMP : listIntMetPag.values()){
 			System.out.println("Fiscal Entity del MAP: " + iMP.getFiscalEntity().getId());
 			System.out.println("Nombre de Interface: " + iMP.getNombreInterface());
-		}
-		
-		for (FiscalEntity obj : lstFiscal) 
-		{	
+		}*/
+		System.out.println("Comenzar a agregar valores 22 para taxId o id");
+		for (FiscalEntity obj : lstFiscal) {	
 			String taxId = obj.getTaxID();
 			setF.put(taxId, obj);	
 			// Agregar valores 22 para taxId o id
@@ -216,20 +219,20 @@ public class InvoiceController
 						}
 					}
 					
-					System.out.println("Fiscal Entity ID a buscar: " + obj2.getFiscalEntity().getId() );
+					//System.out.println("Fiscal Entity ID a buscar: " + obj2.getFiscalEntity().getId() );
 					
 					if(listIntMetPag.containsKey(obj2.getFiscalEntity().getId())){
 						
 						if( !(listIntMetPag.get(obj2.getFiscalEntity().getId()).getNombreInterface() == null )){
-							System.out.println("Este es el nombre de la interace de pago: " + listIntMetPag.get(obj2.getFiscalEntity().getId()).getNombreInterface());
-							System.out.println("FileNames: " + fileNames);
+							//System.out.println("Este es el nombre de la interace de pago: " + listIntMetPag.get(obj2.getFiscalEntity().getId()).getNombreInterface());
+							//System.out.println("FileNames: " + fileNames);
 							
 							
 							String[] splitNames = fileNames.split(",");
 							
 							for(String fileName : splitNames){
 								if(fileName.equals(listIntMetPag.get(obj2.getFiscalEntity().getId()).getNombreInterface()) && listIntMetPag.get(obj2.getFiscalEntity().getId()).getActivo().equals("1")){
-									System.out.println("El Id Entidad Fiscal y el nombre de Interface, Es igual, cambiare el metodo de pago por el de Interface Metodo de Pago");
+									//System.out.println("El Id Entidad Fiscal y el nombre de Interface, Es igual, cambiare el metodo de pago por el de Interface Metodo de Pago");
 									valores22.put("metodoDePago", listIntMetPag.get(obj2.getFiscalEntity().getId()).getClaveMetodoPago());
 									valores22.put("descripcion", listIntMetPag.get(obj2.getFiscalEntity().getId()).getDescripcion());
 								}
@@ -238,11 +241,11 @@ public class InvoiceController
 							
 							
 						}else{
-							System.out.println("El nombre de la interface era null");
+							System.out.println("  El nombre de la interface con entidada fiscal: "+obj2.getFiscalEntity().getId()+" era null");
 						}
 						
 					}else{
-						System.out.println("El Fiscal Entity no estuvo en la listaMetodos de Pago");
+						System.out.println("El Fiscal Entity: "+obj2.getFiscalEntity().getId()+" no estuvo en la listaMetodos de Pago");
 						
 						valores22.put("metodoDePago", obj2.getMetodoDePago());
 						valores22.put("descripcion", "");
@@ -252,7 +255,7 @@ public class InvoiceController
 					
 					
 					lstCampos22.put(taxId, valores22);
-					System.out.println("***Colocando valores para: " + taxId);
+					//System.out.println("***Colocando valores para: " + taxId);
 					break;
 				}
 			}
@@ -260,6 +263,7 @@ public class InvoiceController
 			/////Buscar en el nuevo catalogo y si esta coincidiendo el fiscal entyty... sobre escribir metodo de pago y descripcion del pago...
 			//Filenames y fiscalentity ID...
 		}
+		System.out.println("Se termino de agregar valores 22 para taxId o id");
 		
 		// leer archivos de tipo de cambio y cargar en lstTipoCambio
 		/*
@@ -323,7 +327,7 @@ public class InvoiceController
 					else 
 					{
 											
-						logger.info("Paso 2.- Procesando Estados de Cuenta por Tareas: "+idProceso);
+						System.out.println("Procesando Estados de Cuenta por Tareas: "+idProceso);
 						
 						/*
 						Thread hilo1 = new Thread(new Thread1(path, byteStart,  byteEnd,  cont,
@@ -341,22 +345,22 @@ public class InvoiceController
 													
 				            line = null;
 				            //int counter = 0;
-				            System.out.println("LineNumber: " + reader.getLineNumber());
+				            //System.out.println("LineNumber: " + reader.getLineNumber());
 				            while ((line = reader.readLine()) != null) 
 							{			
-				            	System.out.println("processingLines: " + line.length());
+				            	//System.out.println("processingLines: " + line.length());
 								//System.out.println("counter: " + counter);
-								System.out.println("LINEA PROCESO: Inicia - " + line);
-								System.out.println("transf: " + transf);
+								//System.out.println("LINEA PROCESO: Inicia - " + line);
+								//System.out.println("transf: " + transf);
 								args=line.split("\\|");
 								if(args!=null&&args.length>=5)
 								{	
-									System.out.println("args[1]: " + args[1].toString());
+									//System.out.println("args[1]: " + args[1].toString());
 									byteStart = Long.parseLong(args[2]);
 									byteEnd = Long.parseLong(args[3]);
 									cont = Long.parseLong(args[4]);
-							    	logger.info("Paso 2.- Procesando Estados de Cuenta (byte Inicio)"+byteStart);
-							    	logger.info("Paso 2.- Procesando Estados de Cuenta (byte Inicio)"+byteEnd);
+							    	//logger.info("Paso 2.- Procesando Estados de Cuenta (byte Inicio)"+byteStart);
+							    	//logger.info("Paso 2.- Procesando Estados de Cuenta (byte Inicio)"+byteEnd);
 							    	/*
 							    	String pathXML = args[1].toString().substring(0, 42);
 							    	String pathXML2 = args[1].toString().substring(45, args[1].toString().length()-4);
@@ -371,7 +375,7 @@ public class InvoiceController
 							    	this.processing(true, setF, lstTipoCambio, lstCampos22, 
 											lstSeal, lstIva, transf, val, byteStart, byteEnd, args[1], cont, idProceso, fecha, fileNames, urlWebService, numeroMalla);
 								}
-								System.out.println("LINEA PROCESO: Termina - " + line);
+								//System.out.println("LINEA DE PROCESO Terminada:  " + line);
 								//counter+=1;
 							}
 				            					
@@ -389,7 +393,8 @@ public class InvoiceController
 					//if(path.equals("null")){
 					if(idProceso.equals("-1"))
 					{
-						logger.info("Paso 2.- Procesando Facturas Completo: "+idProceso);
+						//logger.info("Paso 2.- Procesando Facturas Completo: "+idProceso);
+						System.out.println("Procesando facturas");
 						FiltroParam filter =new FiltroParam(new String[]{"XML","INC","backUp"}, 
 								new String[]{"CFDLZELAVON","CFDOPOPICS","CFDCONFIRMINGFACTURAS","CFDFACTORAJEFACTURAS","CFDCONFIRMINGNEW"});
 						this.processing(
@@ -641,11 +646,11 @@ class Thread1 implements Runnable{
 		for (File objF : file) 
 		{	
 			// Revisa que venga en los argumentos
-			System.out.println(" ..archivo: " + objF.getName());
+			//System.out.println(" ..archivo: " + objF.getName());
 			boolean isOk = false;
 			for (int y = 0; y < fileNamesArr.length; y++)
 			{
-				System.out.println(" ....comparando con: " + fileNamesArr[y]);
+				//System.out.println(" ....comparando con: " + fileNamesArr[y]);
 				if(objF.getName().equals(fileNamesArr[y]))
 				{
 					isOk = true;
@@ -657,7 +662,8 @@ class Thread1 implements Runnable{
 			
 			if(objF.length()>0)
 			{
-				logger.debug("Paso2.- El Archivo a procesar es: " + objF.getName());
+				//logger.debug("Paso2.- El Archivo a procesar es: " + objF.getName());
+				System.out.println("El Archivo a procesar es: " + objF.getName());
 				if (isECB) 
 				{
 					if(!versionTypo){
@@ -672,7 +678,7 @@ class Thread1 implements Runnable{
 						xmlECB.setValidator(val);
 						xmlECB.convierte(idProceso, fecha, fileNames, numeroMalla);
 					}else{
-						logger.debug("Path de ECB V 3.3: " + properties.getPathDirProECB());
+						System.out.println("Path de ECB V 3.3: " + properties.getPathDirProECB());
 						xmlECBV3.setNombresApps(NombreAplicativo.cargaNombresApps());
 						xmlECBV3.setNameFile(objF.getName());
 						xmlECBV3.setLstFiscal(lstFiscal);
@@ -701,7 +707,8 @@ class Thread1 implements Runnable{
 						xmlCFD.setUrlWebService(urlWebService);
 						xmlCFD.convierte(objF.getName());
 					}else{
-						logger.debug("Paso 2.- Path de CFD V 3.3: " + properties.getPathDirProCFD());
+						//logger.debug("Paso 2.- Path de CFD V 3.3: " + properties.getPathDirProCFD());
+						System.out.println("Path de CFD V 3.3: \" + properties.getPathDirProCFD()");
 						xmlCFDV3.setNombresApps(NombreAplicativo.cargaNombresApps());
 						xmlCFDV3.setLstFiscal(lstFiscal);
 						xmlCFDV3.setLstSeal(lstSeal);
@@ -749,7 +756,7 @@ class Thread1 implements Runnable{
 		boolean versionTypo = true; // Tipo version AMDA
 		if(file.length()>0)
 		{
-			logger.debug("Paso 2.- El Archivo a procesar es:" + path);
+			logger.debug("El archivo a procesar es: " + path);
 			if (isECB) 
 				
 			{
@@ -766,7 +773,7 @@ class Thread1 implements Runnable{
 					xmlECB.setUrlWebService(urlWebService);
 					xmlECB.convierte(byteStart, byteEnd, path, cont, idProceso, fecha, fileNames, numeroMalla);
 				}else{
-					logger.debug("Procesando Estados de Cuenta V3.3");
+					System.out.println("Procesando Estados de Cuenta V3.3");
 					xmlECBV3.setNombresApps(NombreAplicativo.cargaNombresApps());
 					xmlECBV3.setNameFile(file.getName());
 					xmlECBV3.setLstFiscal(lstFiscal);

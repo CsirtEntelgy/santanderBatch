@@ -2250,7 +2250,9 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 		fiscalEntity = new FiscalEntity();
 		fiscalEntity.setTaxID(comp.getEmisor().getRfc());
 		fiscalEntity = fiscalEntityManager.findByRFCA(fiscalEntity);
+		System.out.println("rfcEnt: " + comp.getEmisor().getRfc());
 		if (fiscalEntity == null) {
+			System.out.println("ErrorDB");
 			sbError.append("Entidad Fiscal no existe en BD - Factura " + factura + "\n");
 		} else {
 			cfdFieldsV22 = cfdFieldsV22Manager.findByFiscalID(fiscalEntity.getId());
@@ -3132,6 +3134,7 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 			sbError.append("Esta emision(Recepcion de pagos) solo admite un concepto - factura " + factura + "\n");
 		}
 	} else {
+		System.out.println("conceptosSize: "+ comp.getConceptos().size());
 		if (comp.getConceptos() != null && comp.getConceptos().size() > 0) {
 			for (CfdiConcepto concepto : comp.getConceptos()) {
 				// validaciones conceptos
@@ -3427,6 +3430,7 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 			}
 			// Calcular totales
 			String stringDescuento = "";
+			System.out.println();
 			try {
 				if (subtotal.doubleValue() > 0) {
 					total = ((subtotal.add(totalTraslado)).subtract(totalRetencion));
