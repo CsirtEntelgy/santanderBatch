@@ -2716,12 +2716,12 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 	/* Codigo cliente */
 	if(comp.getAddenda().getInformacionEmision().getCodigoCliente() != null 
 			&& !comp.getAddenda().getInformacionEmision().getCodigoCliente().trim().isEmpty()){
-		if(comp.getAddenda().getInformacionEmision().getCodigoCliente().trim().length() <= 250){
+		if(comp.getAddenda().getInformacionEmision().getCodigoCliente().trim().length() <= 10){
 			if (!validaDatoRE(comp.getAddenda().getInformacionEmision().getCodigoCliente(), RE_CHAR)) {
 				sbError.append("Codigo de Cliente con formato incorrecto, se espera ("+RE_CHAR+") - Factura " + factura + "\n");
             }
 		}else{
-			sbError.append("Codigo de Cliente no puede contener mas de 250 caracteres - Factura " + factura + "\n");
+			sbError.append("Codigo de Cliente no puede contener mas de 10 caracteres - Factura " + factura + "\n");
 		}
 	}
 

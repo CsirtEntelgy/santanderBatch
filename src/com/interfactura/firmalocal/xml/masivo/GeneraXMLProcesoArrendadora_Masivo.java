@@ -272,7 +272,7 @@ public class GeneraXMLProcesoArrendadora_Masivo {
 					//Obtener Id del Area y del usuario que hizo la solicitud 
 					//Massive massive = massiveManager.getById(Long.parseLong(idMassive));
 					//User user = userManager.findByName(massive.getAuthor());					
-					String idUsuario = null;
+					String idUsuario = "";
 					String idArea = "1";
 					String nombreUsuario = "masivo";
 

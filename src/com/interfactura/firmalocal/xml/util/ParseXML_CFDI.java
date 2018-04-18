@@ -5,27 +5,21 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-
-import mx.gob.sat.cfd.x3.ComprobanteDocument;
-import mx.gob.sat.cfd.x3.TCampoAdicional;
-import mx.gob.sat.cfd.x3.TInformacionAduanera;
-import mx.gob.sat.cfd.x3.TUbicacion;
-import mx.gob.sat.cfd.x3.ComprobanteDocument.Comprobante;
-import mx.gob.sat.cfd.x3.ComprobanteDocument.Comprobante.Receptor;
-import mx.gob.sat.cfd.x3.ComprobanteDocument.Comprobante.Conceptos.Concepto;
-import mx.gob.sat.cfd.x3.ComprobanteDocument.Comprobante.Conceptos.Concepto.CuentaPredial;
-import mx.gob.sat.cfd.x3.ComprobanteDocument.Comprobante.Conceptos.Concepto.Parte;
-import mx.gob.sat.cfd.x3.ComprobanteDocument.Comprobante.Impuestos.Traslados.Traslado;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.log4j.Logger;
-import org.springframework.util.FileCopyUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.interfactura.firmalocal.datamodel.CustomsInformation;
@@ -35,6 +29,18 @@ import com.interfactura.firmalocal.datamodel.Invoice_Masivo;
 import com.interfactura.firmalocal.datamodel.Part;
 import com.interfactura.firmalocal.datamodel.TimbreFiscal;
 
+import mx.gob.sat.cfd.x3.ComprobanteDocument;
+import mx.gob.sat.cfd.x3.ComprobanteDocument.Comprobante;
+import mx.gob.sat.cfd.x3.ComprobanteDocument.Comprobante.Conceptos.Concepto;
+import mx.gob.sat.cfd.x3.ComprobanteDocument.Comprobante.Conceptos.Concepto.CuentaPredial;
+import mx.gob.sat.cfd.x3.ComprobanteDocument.Comprobante.Conceptos.Concepto.Parte;
+import mx.gob.sat.cfd.x3.ComprobanteDocument.Comprobante.Impuestos.Traslados.Traslado;
+import mx.gob.sat.cfd.x3.ComprobanteDocument.Comprobante.Receptor;
+import mx.gob.sat.cfd.x3.TCampoAdicional;
+import mx.gob.sat.cfd.x3.TInformacionAduanera;
+import mx.gob.sat.cfd.x3.TUbicacion;
+
+
 public class ParseXML_CFDI {
 
     private Logger logger = Logger.getLogger(ParseXML_CFDI.class);
@@ -43,9 +49,187 @@ public class ParseXML_CFDI {
     public ParseXML_CFDI() {
 
     }
+    
+    
+	public Invoice_Masivo parseQuitas(File xmlFile) throws Exception {
+    	
+        //FileCopyUtils.copy(new FileInputStream(xmlFile), outA);
+    	DocumentBuilderFactory docbf = DocumentBuilderFactory.newInstance();
+		DocumentBuilder docb = docbf.newDocumentBuilder();
+    	Document xml = docb.parse(xmlFile);
+    	
+    	/*********************************************************************
+    	 * Datos principales del comprobante
+    	 */
+    	 InputStreamReader isreader = new InputStreamReader(new FileInputStream(xmlFile), "UTF-8");
+         BufferedReader fr = new BufferedReader(isreader);
+         
+         StringBuilder s = new StringBuilder();
+         while (fr.ready()) {
+             s.append(fr.readLine());
+         }
+         fr.close();
+         ComprobanteDocument compDoc = ComprobanteDocument.Factory.parse(
+                 s.toString().replace("xmlns=\"http://www.santander.com.mx/schemas/xsd/AddendaSantanderV1\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"", ""));
+         
+    	Element root = xml.getDocumentElement();
+    	Element impuestos = null;
+    	Element conceptos = null;
+    	NodeList comprobantesChilds = root.getChildNodes();
+		for (int i = 0; i < comprobantesChilds.getLength(); i++) {
+			Node nodo = comprobantesChilds.item(i);
+			if (nodo.getNodeType() == Node.ELEMENT_NODE) {
+				Element element = (Element) nodo;
+				if (element.getNodeName().equalsIgnoreCase("cfdi:Conceptos")) {
+					conceptos = element;
+				} else if (element.getNodeName().equalsIgnoreCase("cfdi:Impuestos")) {
+					impuestos = element;
+				}
+			}
+		}
+    	
+       
+        invoice = new Invoice_Masivo();
+        invoice.setPorcentaje(0.00);
 
-    public Invoice_Masivo parse(File xmlFile) throws Exception {
-        ByteArrayOutputStream outA = new ByteArrayOutputStream();
+        invoice.setVersion(compDoc.getComprobante().getVersion());
+        
+        if (compDoc.getComprobante().getImpuestos().getTraslados() != null) {
+        	NodeList trasladoList = impuestos.getChildNodes();
+    		for (int i = 0; i < trasladoList.getLength(); i++) {
+    			Node nodo = trasladoList.item(i);
+    			if (nodo.getNodeType() == Node.ELEMENT_NODE) {
+    				Element element = (Element) nodo;
+    				if (element.getNodeName().equalsIgnoreCase("cfdi:Traslado")) {
+    					if (element.getAttribute("Impuesto").equalsIgnoreCase(String.valueOf( Traslado.Impuesto.IVA))) {
+    						invoice.setPorcentaje(Double.parseDouble(element.getAttribute("TasaOCuota")));    						
+    					}
+    				}
+    			}
+    		}
+        }
+
+        //Comprobante comprobante = compDoc.getComprobante();
+        //asignaInformacionInvoice(compDoc);
+        asignaInformacionInvoiceQuitas(xmlFile);
+        //asignaConceptos(comprobante);
+        asignaConceptosQuitas(xmlFile, conceptos);
+        asignaElementosFaltantes(xmlFile);
+        return invoice;
+    }
+	
+	
+	public void asignaInformacionInvoiceQuitas(File xmlFile) throws Exception {
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        DocumentBuilder db = dbf.newDocumentBuilder();
+        Document dom = db.parse(xmlFile);
+        Element comprobante = dom.getDocumentElement();
+        Element impuestos = null;
+    	Element emisor = null;
+    	Element receptor = null;
+    	Element conceptos = null;
+    	Element complementos = null;
+    	Element addenda = null;
+    	NodeList comprobantesChilds = comprobante.getChildNodes();
+		for (int i = 0; i < comprobantesChilds.getLength(); i++) {
+			Node nodo = comprobantesChilds.item(i);
+			if (nodo.getNodeType() == Node.ELEMENT_NODE) {
+				Element element = (Element) nodo;
+				if (element.getNodeName().equalsIgnoreCase("cfdi:Emisor")) {
+					emisor = element;
+				} else if (element.getNodeName().equalsIgnoreCase("cfdi:Receptor")) {
+					receptor = element;
+				} else if (element.getNodeName().equalsIgnoreCase("cfdi:Conceptos")) {
+					conceptos = element;
+				} else if (element.getNodeName().equalsIgnoreCase("cfdi:Impuestos")) {
+					impuestos = element;
+				} else if (element.getNodeName().equalsIgnoreCase("cfdi:Complemento")) {
+					complementos = element;
+				} else if (element.getNodeName().equalsIgnoreCase("cfdi:Addenda")) {
+					addenda = element;
+				}
+			}
+		}
+        /*************************************************************************++
+		 * Cabecera del comprobante
+		 */
+		invoice.setNoCertificado(comprobante.getAttribute("NoCertificado"));
+		if (!comprobante.getAttribute("Descuento").equalsIgnoreCase("") && comprobante.getAttribute("Descuento") != null)
+			invoice.setDescuento(Double.parseDouble(comprobante.getAttribute("Descuento")));
+		else
+			invoice.setDescuento(0.00);
+		invoice.setFechaHora(comprobante.getAttribute("Fecha"));
+		invoice.setFormaPago(comprobante.getAttribute("FormaPago"));
+		invoice.setLugarExpedicion(comprobante.getAttribute("LugarExpedicion"));
+		invoice.setMetodoPago(comprobante.getAttribute("MetodoPago"));
+		invoice.setMoneda(comprobante.getAttribute("Moneda"));
+		invoice.setSello(comprobante.getAttribute("Sello"));
+		invoice.setSerie(comprobante.getAttribute("Serie"));
+		invoice.setSubTotal(Double.parseDouble(comprobante.getAttribute("SubTotal")));
+		invoice.setTipoCambio(comprobante.getAttribute("TipoCambio"));
+		invoice.setTipoDeComprobante(comprobante.getAttribute("TipoDeComprobante"));
+		invoice.setTotal(Double.parseDouble(comprobante.getAttribute("Total")));
+		invoice.setVersion(comprobante.getAttribute("Version"));
+		invoice.setDate(comprobante.getAttribute("Fecha"));
+		invoice.setQuantityWriting(NumberToLetterConverter.convertNumberToLetter(invoice.getTotal()));
+		/****************************************************************************
+		 * Datos emisor
+		 */
+		String direccion = emisor.getAttribute("Nombre")
+				+ " " + emisor.getAttribute("RegimenFiscal")
+				+ " R.F.C."
+                + emisor.getAttribute("Rfc");
+		invoice.setDireccion(direccion);
+		
+		/****************************************************************************
+		 * Datos Receptor
+		 */
+		invoice.setRfc(receptor.getAttribute("Rfc"));
+        //invoice.setFormaPago(comprobante.getFormaDePago());
+        invoice.setName(receptor.getAttribute("Nombre"));
+        invoice.setUsoCFDI(receptor.getAttribute("UsoCFDI"));
+        /*invoice.setCalle(tUbicacion.getCalle());
+        invoice.setCodigoPostal(tUbicacion.getCodigoPostal());
+        invoice.setColonia(tUbicacion.getColonia());
+        invoice.setEstado(tUbicacion.getEstado());
+        invoice.setExterior(tUbicacion.getNoExterior());
+        invoice.setInterior(tUbicacion.getNoInterior());
+        invoice.setMunicipio(tUbicacion.getMunicipio());
+        invoice.setReferencia(tUbicacion.getReferencia());
+        invoice.setLocalidad(tUbicacion.getLocalidad());
+        invoice.setPais(tUbicacion.getPais());*/
+        if (impuestos != null) {
+        	if (impuestos.getAttribute("TotalImpuestosTrasladados") != null && !impuestos.getAttribute("TotalImpuestosTrasladados").equalsIgnoreCase(""))
+        		invoice.setIva(Double.parseDouble(impuestos.getAttribute("TotalImpuestosTrasladados")));
+        	else
+        		invoice.setIva(0.00);
+        } else 
+        	invoice.setIva(0.00);
+        
+		
+	}
+    
+	public void asignaConceptosQuitas(File xmlFile, Element conceptos) throws Exception {
+		List<ElementsInvoice> elements = new ArrayList<ElementsInvoice>();
+		NodeList nl = conceptos.getElementsByTagName("cfdi:Concepto");
+        if (nl != null && nl.getLength() > 0) {
+            for (int i = 0; i < nl.getLength(); i++) {
+                Element concepto = (Element) nl.item(i);
+                ElementsInvoice element = new ElementsInvoice();
+                element.setAmount(Double.parseDouble(concepto.getAttribute("Importe")));
+                element.setDescription(concepto.getAttribute("DEscripcion"));
+                element.setQuantity(Double.parseDouble(concepto.getAttribute("Cantidad")));
+                element.setUnitMeasure(concepto.getAttribute("Unidad"));
+                element.setUnitPrice(Double.parseDouble(concepto.getAttribute("ValorUnitario")));
+                //invoice.setRegimenFiscal(el.getAttribute("Regimen"));
+                elements.add(element);
+            }
+            
+        }
+        invoice.setElements(elements);
+	}
+
+    public Invoice_Masivo parse(File xmlFile) throws Exception {        
         //FileCopyUtils.copy(new FileInputStream(xmlFile), outA);
         InputStreamReader isreader = new InputStreamReader(new FileInputStream(xmlFile), "UTF-8");
         BufferedReader fr = new BufferedReader(isreader);
@@ -62,9 +246,14 @@ public class ParseXML_CFDI {
         invoice.setPorcentaje(0.00);
 
         invoice.setVersion(compDoc.getComprobante().getVersion());
-
-        if (compDoc.getComprobante().getImpuestos().getTraslados() != null) {
+        
+        if (compDoc.getComprobante().getImpuestos().getTraslados() != null) {        	
             for (Traslado objT : compDoc.getComprobante().getImpuestos().getTraslados().getTrasladoArray()) {
+            	
+            	if (objT != null)
+            		System.out.println(objT.getImpuesto()+" importeImpuestos = " +objT.getImporte());
+            	else
+            		System.out.println("El objeto esta vacio");
                 if (objT.getImpuesto().equals(Traslado.Impuesto.IVA)) {
                     invoice.setPorcentaje(objT.getTasa().doubleValue());
                 }
@@ -81,7 +270,7 @@ public class ParseXML_CFDI {
 
     private void asignaInformacionInvoice(ComprobanteDocument compDoc) {
         Comprobante comprobante = compDoc.getComprobante();
-        invoice.setMoneda("");
+        //invoice.setMoneda("");
         invoice.setIvaDescription("");
         String encabezadoConcepto = "";
         if (comprobante.getAddenda()!= null && comprobante.getAddenda().getAddendaSantanderV1()!=null && comprobante.getAddenda().getAddendaSantanderV1().getCampoAdicionalArray() != null) {
@@ -90,16 +279,14 @@ public class ParseXML_CFDI {
                 if (campo.getCampo().equals("Descripcion Concepto")) {
                     encabezadoConcepto = campo.getValor();
                 }
-
                 if (campo.getCampo().equals("Moneda")) {
-                    invoice.setMoneda(campo.getValor());
+                    //invoice.setMoneda(campo.getValor());
                 }
-
                 if (campo.getCampo().equals("Descripcion IVA")) {
                     invoice.setIvaDescription(campo.getValor());
                 }
                 if (campo.getCampo().equals("Tipo Cambio")) {
-                    invoice.setTipoCambio(campo.getValor());
+                    ///invoice.setTipoCambio(campo.getValor());
                 }
             }
         }
@@ -143,15 +330,15 @@ public class ParseXML_CFDI {
                 + compDoc.getComprobante().getEmisor().getRfc();
 
         invoice.setDireccion(direccion);
-        invoice.setNoCertificado(comprobante.getNoCertificado());
-        invoice.setFechaHora(Util.convertirFecha(comprobante.getFecha().getTime(), null));
+        //invoice.setNoCertificado(comprobante.getNoCertificado());
+        //invoice.setFechaHora(Util.convertirFecha(comprobante.getFecha().getTime(), null));
 
         invoice.setFolio(comprobante.getFolio());
-        invoice.setDate(Util.convertirFecha(comprobante.getFecha().getTime()));
+        //invoice.setDate(Util.convertirFecha(comprobante.getFecha().getTime()));
         Receptor receptor = comprobante.getReceptor();
 
         invoice.setRfc(receptor.getRfc());
-        invoice.setFormaPago(comprobante.getFormaDePago());
+        //invoice.setFormaPago(comprobante.getFormaDePago());
         invoice.setName(receptor.getNombre());
         TUbicacion tUbicacion = receptor.getDomicilio();
         invoice.setCalle(tUbicacion.getCalle());
@@ -164,9 +351,9 @@ public class ParseXML_CFDI {
         invoice.setReferencia(tUbicacion.getReferencia());
         invoice.setLocalidad(tUbicacion.getLocalidad());
         invoice.setPais(tUbicacion.getPais());
-        invoice.setSubTotal(comprobante.getSubTotal().doubleValue());
+        //invoice.setSubTotal(comprobante.getSubTotal().doubleValue());
         System.out.println("--------------->TOTAL Org:" + comprobante.getTotal().doubleValue() + ":");
-        invoice.setTotal(comprobante.getTotal().doubleValue());
+        //invoice.setTotal(comprobante.getTotal().doubleValue());
         
         if(comprobante.getImpuestos() != null){
         	if(comprobante.getImpuestos()
@@ -182,8 +369,8 @@ public class ParseXML_CFDI {
         	invoice.setIva(0.0);
         }       
        System.out.println("----------------->TOTAL:" + invoice.getTotal() + ":");
-        invoice.setQuantityWriting(NumberToLetterConverter.convertNumberToLetter(invoice.getTotal()));
-        invoice.setMetodoPago(comprobante.getMetodoDePago());
+        //invoice.setQuantityWriting(NumberToLetterConverter.convertNumberToLetter(invoice.getTotal()));
+        //invoice.setMetodoPago(comprobante.getMetodoDePago());
     }
 
     private void asignaConceptos(Comprobante comprobante) {
@@ -262,6 +449,7 @@ public class ParseXML_CFDI {
             // Se asignan al objeto invoice los nuevos elementos de CFD 22
             // se leen con SAX ya que el objeto de XML no esta actualizado
             Element docEle = dom.getDocumentElement();
+            
 
             invoice.setMetodoPago(docEle.getAttribute("metodoDePago"));
 

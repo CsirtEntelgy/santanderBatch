@@ -36,8 +36,8 @@ public class MassiveGenerateIdsArrendadoraController {
 			//String strLine;
 			//int counter = 0;
 			//FileOutputStream fileStatus = new FileOutputStream(properties.getPathFacturacionProceso() + "STATUS_DECOMPRESS_" + nProceso + ".TXT");
-			FileOutputStream fileStatus = new FileOutputStream(PathArrendadoraProceso + "massiveIdsInvoiceQuitas.txt");
-			fileStatus.write(("Status del proceso bash massiveIdsInvoiceQuitas.sh" + "\n").getBytes("UTF-8"));
+			FileOutputStream fileStatus = new FileOutputStream(PathArrendadoraProceso + "massiveIdsInvoiceArrendadora.txt");
+			fileStatus.write(("Status del proceso bash massiveIdsInvoiceArrendadora.sh" + "\n").getBytes("UTF-8"));
 			
 			File fileProcesoTxt = new File(PathArrendadoraProceso + fileName + "/" + fileName + ".TXT" );
 			if(fileProcesoTxt.exists()){
@@ -49,7 +49,8 @@ public class MassiveGenerateIdsArrendadoraController {
 				fileQuery.close();
 			
 				fileStatus.write(("El archivo IDS" + fileName + "QUERY.SQL se ha generado exitosamente\n").getBytes("UTF-8"));
-			}
+			} else
+				fileStatus.write(("El archivo " + fileName + ".TXT no existe\n").getBytes("UTF-8"));
 			//while((strLine = br.readLine()) != null){
 				//if(!strLine.trim().equals("")){
 					//String [] arrayValues = strLine.trim().split("\\|");

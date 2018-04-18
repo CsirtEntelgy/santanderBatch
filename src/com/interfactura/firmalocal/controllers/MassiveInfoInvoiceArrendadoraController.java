@@ -65,8 +65,8 @@ public class MassiveInfoInvoiceArrendadoraController {
 			//String strLine;
 			//int counter = 0;
 			//FileOutputStream fileStatus = new FileOutputStream(properties.getPathFacturacionProceso() + "STATUS_DECOMPRESS_" + nProceso + ".TXT");
-			FileOutputStream fileStatus = new FileOutputStream(PathArrendadoraProceso + "massiveInfoInvoiceQuitas.txt");
-			fileStatus.write(("Status del proceso bash massiveInfoInvoiceQuitas.sh" + "\n").getBytes("UTF-8"));
+			FileOutputStream fileStatus = new FileOutputStream(PathArrendadoraProceso + "massiveInfoInvoiceArrendadora.txt");
+			fileStatus.write(("Status del proceso bash massiveInfoInvoiceArrendadora.sh" + "\n").getBytes("UTF-8"));
 			
 			File fileProcesoTxt = new File(PathArrendadoraProceso + fileName + "/" + fileName + ".TXT" );
 			if(fileProcesoTxt.exists()){
@@ -81,7 +81,8 @@ public class MassiveInfoInvoiceArrendadoraController {
 				
 					fileStatus.write(("El archivo BD" + fileName + ".TXT no ha sido leido en la ruta " + PathArrendadoraProceso + fileName + "/" + "\n").getBytes("UTF-8"));
 				}
-			}
+			} else
+				fileStatus.write(("El archivo " + fileName + ".TXT no ha sido leido en la ruta " + PathArrendadoraProceso + fileName + "/" + "\n").getBytes("UTF-8"));
 			//while((strLine = br.readLine()) != null){
 				//if(!strLine.trim().equals("")){
 					//String [] arrayValues = strLine.trim().split("\\|");
@@ -299,11 +300,15 @@ public class MassiveInfoInvoiceArrendadoraController {
         sb.append(valuesCfd[24]).append(">");											//IdUsuario
         String nombreUsuario = "";
         
-        User user = userManager.get(Long.parseLong(valuesCfd[24]));
-        if(user != null){
-        	nombreUsuario = user.getUserName();
-        }
-        sb.append(nombreUsuario).append(">");											//NombreUsuario
+        if (valuesCfd[24] != null && !valuesCfd[24].equalsIgnoreCase("")) {
+        	User user = userManager.get(Long.parseLong(valuesCfd[24]));
+            if(user != null){
+            	nombreUsuario = user.getUserName();
+            }
+            sb.append(nombreUsuario).append(">");											//NombreUsuario
+        } else
+        	sb.append("masivo").append(">");											//NombreUsuario
+        
         
         sb.append(valuesCfd[25]).append(">");											//IdArea               
         String nombreArea = "";

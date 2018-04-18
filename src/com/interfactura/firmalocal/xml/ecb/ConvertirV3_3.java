@@ -66,7 +66,7 @@ public class ConvertirV3_3 {
 	public void set(String linea, long numberLine, String fileNames, HashMap<String, String> hashApps,
 			String numeroMalla) {
 		lineas = linea.split("\\|");
-		logger.debug("Iniciando parseo de lineas");
+		System.out.println("Iniciando parseo de lineas");
 		clearFlag();
 		pila = new Stack<String>();
 
@@ -103,7 +103,7 @@ public class ConvertirV3_3 {
 		 */
 		// Cualquier malla de Estados de Cuenta (excepto Reproceso ECB)
 		if (lineas.length >= 9) {
-			System.out.println("entra If");
+			//System.out.println("entra If");
 			tags.NUM_CTE = lineas[1];
 			tags.NUM_CTA = lineas[2];
 			tags.EMISION_PERIODO = lineas[3];
@@ -248,7 +248,7 @@ public class ConvertirV3_3 {
 			tags.SERIE_FISCAL_CFD = lineas[3].trim();
 			if (tags.SERIE_FISCAL_CFD == null || "".equals(tags.SERIE_FISCAL_CFD.intern().trim())) {
 				tags.SERIE_FISCAL_CFD = monedaMexicana.intern();
-				System.out.println("--SMS--: Linea sin Moneda : Asignando sinMoneda a true");
+				//System.out.println("--SMS--: Linea sin Moneda : Asignando sinMoneda a true");
 				sinMoneda = true;
 			}
 			String valEqMoneda = ""; // AMDA Version 3.3
@@ -724,26 +724,29 @@ public class ConvertirV3_3 {
 
 			// UtilCatalogos.findTipoCambioPorcentaje(tags.mapCatalogos, tags.TIPO_MONEDA,
 			// tags.TIPO_CAMBIO.trim());
-
-			if (!isNotNumeric(lineas[4].trim()) && lineas[4].trim().length() <= 40) {
-				tags.FOLIO_FISCAL_CFD = lineas[4].trim();
-				concat.append(" Folio=\"" + tags.FOLIO_FISCAL_CFD + "\"");
+			if (lineas[4].trim().length() <= 40) {
+				try {
+					Long in = Long.parseLong(lineas[4].trim());
+					System.out.println("numerico:"+ lineas[4].trim().matches("[0-9+]"));
+					tags.FOLIO_FISCAL_CFD = lineas[4].trim();
+					concat.append(" Folio=\"" + tags.FOLIO_FISCAL_CFD + "\"");
+					//System.out.println("FolioCorrecto");
+				} catch (Exception e) {
+					//System.out.println("FolioError");
+					tags.FOLIO_FISCAL_CFD = lineas[4].trim();
+					concat.append(" CuentaIncorrecta" + tags.FOLIO_FISCAL_CFD + "=\"" + tags.FOLIO_FISCAL_CFD + "\"");
+				}
 			} else {
+				//System.out.println("FolioError");
+				isNotNumeric("");
 				tags.FOLIO_FISCAL_CFD = lineas[4].trim();
 				concat.append(" CuentaIncorrecta" + tags.FOLIO_FISCAL_CFD + "=\"" + tags.FOLIO_FISCAL_CFD + "\"");
 			}
-
-			// System.out.println("antesCalendar ");
+			
 
 			tags.FECHA_CFD = Util.convertirFecha(Calendar.getInstance().getTime());
 
-			// System.out.println("despuesCalendar " + tags.FECHA_CFD );
-
-			// System.out.println("tags.EMISION_PERIODO " + tags.EMISION_PERIODO);
-			//System.out.println("FECHA_CFD " + tags.FECHA_CFD);
-			// concat.append(" fecha=\"" + Util.convertirFecha(tags.EMISION_PERIODO,
-			// tags.FECHA_CFD) + "\"");
-			// System.out.println("Validando PATTERN REGEX");
+			
 			Pattern p = Pattern.compile(
 					"[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])T(([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9])");
 			Matcher m = p.matcher(tags.FECHA_CFD);
@@ -759,10 +762,7 @@ public class ConvertirV3_3 {
 			// concat.append(" Fecha=\"" + tags.FECHA_CFD + "\"");
 
 			// Doble Sellado
-			//System.out.println("TIPO DE COMPROBANTE PRUEBA: " + lineas[1].trim().toUpperCase());
-			// System.out.println("TAG CATALOGOS PRUEBA: " + tags.mapCatalogos.size());
-			// System.out.println("Respuesta a funcion de busqueda de TIPOCOMPROBANTE:
-			// "+UtilCatalogos.findTipoComprobante(tags.mapCatalogos, "I"));
+			
 			// Se valida por medio de un catalogo AMDA
 			if (UtilCatalogos.findTipoComprobante(tags.mapCatalogos, lineas[1].trim().toUpperCase())
 					.equals("tipoDeComprobanteIncorrecto")) {
@@ -805,9 +805,9 @@ public class ConvertirV3_3 {
 					concat.append(" ErrCompSubTotal001" + "=\"" + tags.SUBTOTAL_MN.trim() + "\"");
 				} else {
 					// System.out.println("SubTotal: " + " es positivo");
-					System.out.println(
-							"SubTotal agregando decimales : " + tags.decimalesMoneda + " : " + tags.SUBTOTAL_MN.trim());
-					System.out.println("SubTotal: " + " es positivo" + tags.tipoComprobante);
+					//System.out.println(
+							//"SubTotal agregando decimales : " + tags.decimalesMoneda + " : " + tags.SUBTOTAL_MN.trim());
+					//System.out.println("SubTotal: " + " es positivo" + tags.tipoComprobante);
 					if (tags.tipoComprobante.equalsIgnoreCase("T") || tags.tipoComprobante.equalsIgnoreCase("P")) {
 						if (valSubTotal > 0 || valSubTotal < 0) {
 							concat.append(" ErrCompSubTotal002=\""
@@ -884,7 +884,7 @@ public class ConvertirV3_3 {
 				// }
 				//
 				// }else{
-				System.out.println("Total : " + lineas[7].trim());
+				//System.out.println("Total : " + lineas[7].trim());
 				try {
 					double valTotal = Double.parseDouble(lineas[7].trim());
 					if (valTotal < 0) {
@@ -892,8 +892,8 @@ public class ConvertirV3_3 {
 						concat.append(" ErrCompTotal001" + valTotal + "=\"" + lineas[7].trim() + "\" ");
 					} else {
 						// System.out.println("Total: " + " es positivo");
-						System.out.println(
-								"Total agregando decimales : " + tags.decimalesMoneda + " : " + lineas[7].trim());
+						//System.out.println(
+							//	"Total agregando decimales : " + tags.decimalesMoneda + " : " + lineas[7].trim());
 						concat.append(
 								" Total=\"" + UtilCatalogos.decimales(lineas[7].trim(), tags.decimalesMoneda) + "\" ");
 
@@ -1002,8 +1002,8 @@ public class ConvertirV3_3 {
 					"http://www.sat.gob.mx/sitio_internet/cfd/3/cfdv33.xsd\" ",
 					// "http://www.santander.com.mx/addendaECB
 					// http://www.santander.com.mx/cfdi/addendaECB.xsd\" ",
-					"Sello=\"", properties.getLabelSELLO(), "\" ", "NoCertificado=\"",
-					properties.getLblNO_CERTIFICADO(), "\" ", "Certificado=\"", properties.getLblCERTIFICADO(), "\" ",
+					"Sello=\"", properties.getLabelSELLO().trim(), "\" ", "NoCertificado=\"",
+					properties.getLblNO_CERTIFICADO().trim(), "\" ", "Certificado=\"", properties.getLblCERTIFICADO().trim(), "\" ",
 					// "formaDePago=\"" + "PAGO EN UNA SOLA EXHIBICION" + "\" ",
 					// "metodoDePago=\"" + properties.getLabelMetodoPago() + "\" ",
 					"LugarExpedicion=\"" + "01219" + "\" ", // antes properties.getLabelLugarExpedicion() AMDA
@@ -1117,7 +1117,7 @@ public class ConvertirV3_3 {
 					pattern = Pattern.compile(RFC_PATTERN_TWO);
 					matcher = pattern.matcher(lineas[1].trim());
 					if(matcher.matches()){
-						System.out.println("RFC valido:"+lineas[1].trim());
+						//System.out.println("RFC valido:"+lineas[1].trim());
 					}else{
 						System.out.println("Reemplazar RFC incorrecto: "+lineas[1].trim()+" por generico: XAXX010101000");
 						lineas[1] = "XAXX010101000";
@@ -1289,6 +1289,7 @@ public class ConvertirV3_3 {
 	 * @return
 	 * @throws UnsupportedEncodingException
 	 */
+	@SuppressWarnings("unused")
 	public byte[] concepto(String linea, long numberLine, HashMap fiscalEntities, HashMap campos22)///, String fileNames)
 			throws UnsupportedEncodingException {
 		lineas = linea.split("\\|");
@@ -1406,7 +1407,7 @@ public class ConvertirV3_3 {
 				String lineImporte = "";
 				// Double totalRetAndTraDoubl = 0.00;
 				if (lineas[2].trim().length() > 0) {
-					System.out.println("Importe en Concepto: " + lineas[2].trim());
+					//System.out.println("Importe en Concepto: " + lineas[2].trim());
 					valImporte = lineas[2].trim();
 					try {
 						Double valImpCon = Double.parseDouble(valImporte);
@@ -1436,7 +1437,7 @@ public class ConvertirV3_3 {
 
 				}
 
-				// Descuento V 3.3 AMDA este campo es opcional, esta por definir tengo entendido
+				// Descuento V 3.3 AMDA este campo es opcional, por definir
 
 				// Elemento Impuestos V3.3 AMDA
 				String elementImpuestos = "";
@@ -1461,7 +1462,7 @@ public class ConvertirV3_3 {
 				}
 
 				if (tags.trasladoImpuestoVal.trim().length() > 0) { // Validando el codigo del Impuesto
-					System.out.println("Valor Impuesto Traslado AMDA : " + tags.trasladoImpuestoVal);
+					//System.out.println("Valor Impuesto Traslado AMDA : " + tags.trasladoImpuestoVal);
 					claveImp = UtilCatalogos.findValClaveImpuesto(tags.mapCatalogos, tags.trasladoImpuestoVal);
 					//System.out.println("Valor Clave Impuesto Traslado AMDA : " + claveImp);
 				}
@@ -1490,10 +1491,8 @@ public class ConvertirV3_3 {
 				}
 
 				if (valTipoFactor.equalsIgnoreCase("Tasa") || valTipoFactor.equalsIgnoreCase("Cuota")) {
-					//System.out
-					//		.println("Valor Importe AMDA T : " + tags.trasladoImporteVal + " : " + valImporteTraslado);
 					if (tags.trasladoImporteVal.trim().length() > 0) {
-						valImporteImpTras = "\" Importe=\"" + UtilCatalogos.decimales(tags.trasladoImporteVal.trim(), tags.decimalesMoneda)  + "\"";
+						//valImporteImpTras = "\" Importe=\"" + UtilCatalogos.decimales(tags.trasladoImporteVal.trim(), tags.decimalesMoneda)  + "\"";
 					} else {
 						valImporteImpTras = "\" Importe=\"" + "0.00" + "\"";
 					}
@@ -1726,7 +1725,7 @@ public class ConvertirV3_3 {
 
 		String regimenStr = "";
 		HashMap map = (HashMap) campos22.get(tags.EMISION_RFC);
-		System.out.println("***Buscando campos cfd22 para: " + tags.EMISION_RFC);
+		//System.out.println("***Buscando campos cfd22 para: " + tags.EMISION_RFC);
 		if (map != null) {
 			tags.regimenFiscalCode = (String) map.get("regimenFiscalCode");
 			// System.out.println("***Buscando campos cfd22 para Regimen Fiscal Code: " +
@@ -1775,11 +1774,11 @@ public class ConvertirV3_3 {
 		if (lineas.length >= 3) {
 
 			String valSubTotalDou = "";
-			System.out.println("Validacion Subtotal subtotalDoubleTag AMDA : " + tags.subtotalDoubleTag);
-			System.out.println("Validacion Subtotal totalRetAndTraDoubl AMDA : " + tags.totalRetAndTraDoubl);
+			//System.out.println("Validacion Subtotal subtotalDoubleTag AMDA : " + tags.subtotalDoubleTag);
+			//System.out.println("Validacion Subtotal totalRetAndTraDoubl AMDA : " + tags.totalRetAndTraDoubl);
 			if (tags.tipoComprobante.trim().equalsIgnoreCase("I") || tags.tipoComprobante.trim().equalsIgnoreCase("E")
 					|| tags.tipoComprobante.trim().equalsIgnoreCase("N")) {
-				System.out.println("Validando Subtotal con total Conceptos AMDA : ");
+				//System.out.println("Validando Subtotal con total Conceptos AMDA : ");
 				if (!tags.subtotalDoubleTag.equals(tags.totalRetAndTraDoubl) && tags.noExentoT) {
 					valSubTotalDou = " ErrCompSubTot004=\"" + "vacio" + "\" ";
 				}
@@ -2341,7 +2340,7 @@ public class ConvertirV3_3 {
 	 */
 	public byte[] movimeinto(String linea, long numberLine) throws UnsupportedEncodingException {
 
-		System.out.println("length: " + lineas.length);
+		//System.out.println("length: " + lineas.length);
 		lineas = linea.split("\\|");
 		if (lineas.length >= 7) {
 			Calendar c = Calendar.getInstance();
@@ -2437,7 +2436,7 @@ public class ConvertirV3_3 {
 			// Emisor
 			//System.out.println("Emisor ? LoadInfoV33 lin.length: " + lin.length);
 			if (lin.length >= 2) {
-				System.out.println("Emisor ? LoadInfoV33: " + lin[1].trim() + " : " + lin[2].trim());
+				//System.out.println("Emisor ? LoadInfoV33: " + lin[1].trim() + " : " + lin[2].trim());
 				tags.EMISION_RFC = lin[1].trim();
 				if (tags.EMISION_RFC.trim().length() == 0) { // Validacion AMDA Version 3.3
 					tags.EMISION_RFC = "RFCNecesario";

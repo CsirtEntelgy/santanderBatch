@@ -126,6 +126,7 @@ public class GeneraXML_CFDV3_3
 	{
 		// este sera el que se utilizara, aqui debe retornar un numero de folios
 		// a utilizar
+		System.out.println("Inicia convercion");
 		List<CfdBean> cfdBeans = new LinkedList<CfdBean>();
 		boolean flagProcesado = true;
 		File file = null;
@@ -151,7 +152,7 @@ public class GeneraXML_CFDV3_3
 			InputStreamReader isreader = new InputStreamReader(new FileInputStream(file), "UTF-8");
 			br = new BufferedReader(isreader);
 			cont = 1;
-			logger.debug(nameFile + " " + br);
+			//logger.debug(nameFile + " " + br);
 			out = new ByteArrayOutputStream();
 			begin(out);
 			lstCFD = new ArrayList<CFDIssued>();
@@ -159,6 +160,7 @@ public class GeneraXML_CFDV3_3
 			lstCFDIncidence = new ArrayList<CFDIssuedIn>();
 			copy(this.getNameFile(properties.getPathDirBackup(), -1, null,nameFile), file);
 			conver.setTags(new TagsXML());
+			System.out.println("Inicia formateo de lineas");
 			while ((linea = br.readLine()) != null) 
 			{
 //				System.out.println("Lin AMDA antes:" + linea);
@@ -180,11 +182,14 @@ public class GeneraXML_CFDV3_3
 			}
 			this.endCONCEPTOS(out);
 			this.endTAGS(out);
-						
+			System.out.println("Termina formateo de lineas");
+			System.out.println("Inicia cerrado y validacion de XML");
 			this.end(cont, incidencia, numberLineCFD, nameFile, out, cfdBeans, date, 0);
 			// aqui cierra el xml, y guarda en la bd, esta finalizado el objeto
 			// list cfdBeans
+			
 			pendientes = finalize(cfdBeans, incidencia, salida, nameFile);
+			System.out.println("Termina cerrado y validacion de XML");
 			// Manda a guardar los ultimos CFD
 			if (lstCFD != null && lstCFD.size() > 0) 
 			{
@@ -290,7 +295,8 @@ public class GeneraXML_CFDV3_3
 //			{	numElement = Integer.parseInt(tok);	} 
 //			catch (NumberFormatException numberEx) 
 //			{	logger.error("No empieza con un numero " + linea);	}
-//			
+//			syso
+			System.out.println("Carga de info V33");
 			conver.loadInfoV33(linea);
 			// AMDA termina fucnion prueba
 
@@ -333,27 +339,27 @@ public class GeneraXML_CFDV3_3
 				out.write(conver.domicilio(tokens, numberLineCFD));
 				this.beginCONCEPTOS(out);
 			} else if (tokens[0].equals(conver.getTags()._CONCEPTO)) {
-				System.out.println("LineaConcepto Genera AMDA:  " + tokens);
+				//System.out.println("LineaConcepto Genera AMDA:  " + tokens);
 				conver.getTags().lineaAnteriorConceptoTokens = tokens;
 				conver.getTags().contCFDAnteriorConcepto = numberLineCFD;
 				String tokenC = "tokenC";
 				String numberLineCFDC = "numberLineCFDC";
 //				conver.getTags().numControl = 0;
 				conver.getTags().numControl = conver.getTags().numControl + 1;
-				System.out.println("Num AMDA:  " + conver.getTags().numControl);
+				//System.out.println("Num AMDA:  " + conver.getTags().numControl);
 				tokenC = tokenC + conver.getTags().numControl ;
 				numberLineCFDC = numberLineCFDC + conver.getTags().numControl;
-				System.out.println("TokenC AMDA:  " + tokenC);
-				System.out.println("numberLineCFDC AMDA:  " + numberLineCFDC);
+				//System.out.println("TokenC AMDA:  " + tokenC);
+				//System.out.println("numberLineCFDC AMDA:  " + numberLineCFDC);
 				
 				conver.getTags().mapConcep.put(tokenC, conver.getTags().lineaAnteriorConceptoTokens);
-				System.out.println("Saliendo de CONECPTO AMDA  " + conver.getTags().mapConcep.size());
+				//System.out.println("Saliendo de CONECPTO AMDA  " + conver.getTags().mapConcep.size());
 				conver.getTags().mapConcepL.put(numberLineCFDC, conver.getTags().contCFDAnteriorConcepto);
-				System.out.println("Saliendo de CONECPTOL AMDA  " + conver.getTags().mapConcepL.size());
+				//System.out.println("Saliendo de CONECPTOL AMDA  " + conver.getTags().mapConcepL.size());
 
 //				out.write(conver.concepto(tokens, numberLineCFD));
 			} else if (tokens[0].equals(conver.getTags()._INFOADUANERA)) {
-				System.out.println("Saliendo de InfoAduanera AMDA  ");
+				//System.out.println("Saliendo de InfoAduanera AMDA  ");
 				out.write(conver.infoAduanera(tokens, date, numberLineCFD));
 			} else if (tokens[0].equals(conver.getTags()._PREDIAL)) {
 				out.write(conver.predial(tokens, numberLineCFD));
@@ -376,7 +382,7 @@ public class GeneraXML_CFDV3_3
 //					out.write(conver.retenciones(tokens, numberLineCFD));
 				}
 			} else if (tokens[0].equals(conver.getTags()._TRASLADO)) {
-				System.out.println("MAP CONCEP SIZE: " + conver.getTags().mapConcep.size());
+				//System.out.println("MAP CONCEP SIZE: " + conver.getTags().mapConcep.size());
 				String tokenCTr = "";
 				String numberLineCFDCTr = "" ;
 				Integer numTr = 0;
@@ -1406,7 +1412,7 @@ public class GeneraXML_CFDV3_3
 				}
 				open.setSequence_value(open.getSequence_value()+1);
 				openJpaManager.update(open);
-				System.out.println("sequenceValue: " + open.getSequence_value());
+				//System.out.println("sequenceValue: " + open.getSequence_value());
 				//if (folioRange != null) 
 				//{
 					//cfdBean.setFolioRange(folioRange);
@@ -1426,7 +1432,7 @@ public class GeneraXML_CFDV3_3
 					
 					ByteArrayOutputStream originalString = null;
 					originalString= xmlProcess.generatesOriginalString(cfdBean.getBaosXml()); 
-					System.out.println("originalString: " + originalString.toString("UTF-8"));
+					//System.out.println("originalString: " + originalString.toString("UTF-8"));
 					String seal = xmlProcess.sealEncryption(originalString, cfdBean.getSealCertificate());
 					
 					ByteArrayOutputStream replaceOS = null;
@@ -1455,11 +1461,11 @@ public class GeneraXML_CFDV3_3
 						//System.out.println("replaceOS: " + replaceOS.toString("UTF-8"));
 						
 						//Obtener nombre de aplicativo
-						System.out.println("nameFile recibido:" + nameFile);
+						//System.out.println("nameFile recibido:" + nameFile);
 						
 						String nombreAplicativo = NombreAplicativo.obtieneNombreApp(getNombresApps(), nameFile.substring(0, nameFile.length()-12), "");
 											
-						System.out.println("nombreAplicativo:" + nombreAplicativo);
+						//System.out.println("nombreAplicativo:" + nombreAplicativo);
 						
 						/*if(nombreAplicativo.equals("")){
 							System.out.println("ERROR: " + "El nombre de Aplicativo no existe para la interface " + nameFile);
@@ -1477,7 +1483,7 @@ public class GeneraXML_CFDV3_3
 								int iEnd = replaceOS.toString("UTF-8").indexOf("</cfdi:Addenda>");
 								iEnd = iEnd + 15;
 								strAddenda = replaceOS.toString("UTF-8").substring(iStart, iEnd);
-								System.out.println("addendax: " + strAddenda);
+								//System.out.println("addendax: " + strAddenda);
 								xmlSinAddenda = replaceOS.toString("UTF-8").replace(strAddenda, " ");
 							}
 							if(xmlSinAddenda.equals("") || xmlSinAddenda == null){
@@ -1490,7 +1496,7 @@ public class GeneraXML_CFDV3_3
 							
 							//System.out.println("XML antes de Timbrado: " + strSinAddenda.toString());
 							
-							System.out.println("Periodo antes de Timbrado: " + conver.getTags().EMISION_PERIODO);
+							//System.out.println("Periodo antes de Timbrado: " + conver.getTags().EMISION_PERIODO);
 							
 							//Instalar certificados
 							System.setProperty("javax.net.ssl.keyStoreType", "PKCS12");
@@ -1517,7 +1523,8 @@ public class GeneraXML_CFDV3_3
 							// Al parecer aqui se hace el timbrado, AMDA v 3.3 verificar las mayusculas tambien 
 							String xmlTimbrado = xmlTimbradoConPipe.substring(0, xmlTimbradoConPipe.length()-1);
 							
-							logger.info("XML Timbrado: " + xmlTimbrado);
+							//logger.info("XML Timbrado: " + xmlTimbrado);
+							
 							xmlTimbrado = xmlTimbrado.replace("IdRespuesta=\"1\"><?xml version=\"1.0\" encoding=\"UTF-8\"?>", "IdRespuesta=\"1\">");
 				            //Convertir de string a Document
 				            Document dom = stringToDocument(xmlTimbrado);
