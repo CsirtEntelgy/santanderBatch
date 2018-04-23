@@ -149,6 +149,11 @@ public ByteArrayOutputStream convierte(CfdiComprobanteFiscal comp) throws Unsupp
 		
 		Document doc = UtilCatalogos.convertStringToDocument(in.toString("UTF-8"));
 		UtilCatalogos.setValueOnDocumentElement(doc, "//Comprobante/@NoCertificado", certificado.getCertificado().getSerialNumber());
+    	if (UtilCatalogos.getStringValByExpression(doc, "//Comprobante//@Moneda").equalsIgnoreCase("MXN"))
+    		UtilCatalogos.setValueOnDocumentElement(doc, "//Comprobante/@TipoCambio", "1");
+    	
+    	System.out.println("tipocambioXD: " + UtilCatalogos.getStringValByExpression(doc, "//Comprobante//@TipoCambio"));
+  
 		out = UtilCatalogos.convertStringToOutpuStream(UtilCatalogos.convertDocumentXmlToString(doc));
 		out = xmlProcessGeneral.replacesOriginalString(out, xmlProcessGeneral.generatesOriginalString(out, "3.3"), certificado);
 		

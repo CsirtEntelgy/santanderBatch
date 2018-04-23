@@ -224,8 +224,8 @@ public class Properties
     private String pathFileSelloCFDI33;
 	
 	//
-	@Value("${xml.xsd.ECBTerceros33}")
-    private String pathComplementoTerceros33;
+	//@Value("${xml.xsd.ECBTerceros33}")
+    //private String pathComplementoTerceros33;
 	
 	
 	public String getInterfaces() {
@@ -1034,12 +1034,12 @@ public class Properties
 		this.catalogoCincoCampos33 = catalogoCincoCampos33;
 	}
 
-	public String getPathComplementoTerceros33() {
+	/*public String getPathComplementoTerceros33() {
 		return pathComplementoTerceros33;
 	}
 
 	public void setPathComplementoTerceros33(String pathComplementoTerceros33) {
 		this.pathComplementoTerceros33 = pathComplementoTerceros33;
-	}
+	}*/
 	
 }

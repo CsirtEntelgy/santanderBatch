@@ -58,7 +58,8 @@ public class NumberToLetterConverter {
 	public static String convertNumberToLetter(double number)
 			throws NumberFormatException {
 		String converted = "";
- 
+		System.out.println("DatoXD: " + number);
+		System.out.println("datoXd2: " + formatNumber(number));
 		String splitNumber[] = String.valueOf(formatNumber(number)).replace('.', '#')
 				.split("#");
  

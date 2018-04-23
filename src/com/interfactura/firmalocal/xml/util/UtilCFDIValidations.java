@@ -2386,7 +2386,7 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 				if (!comp.getMoneda().trim().equalsIgnoreCase("XXX")) {
 
 					if (comp.getMoneda().equalsIgnoreCase("MXN")) {
-						comp.setTipoCambio("1.0");
+						comp.setTipoCambio("1");
 					}
 
 					Map<String, Object> tipoCam = UtilValidationsXML.validTipoCambio(tags.mapCatalogos,

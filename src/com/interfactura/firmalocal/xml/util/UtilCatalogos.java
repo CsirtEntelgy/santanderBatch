@@ -2271,11 +2271,12 @@ public class UtilCatalogos
 	        StringBuilder sbError = new StringBuilder();
 	        evaluateDecimals(doc, "//Comprobante/@SubTotal", maxDecimals, "Subtotal", sbError);
 	        evaluateDecimals(doc, "//Comprobante/@Total", maxDecimals, "Total", sbError);
-	        if (!getStringValByExpression(doc, "//Comprobante//@Moneda").equalsIgnoreCase("MXN"))
-		        if (!Util.isNullEmpty(getStringValByExpression(doc, "//Comprobante/@TipoCambio"))) {
-		        		evaluateDecimals(doc, "//Comprobante/@TipoCambio", maxDecimals, "Tipo de Cambio", sbError);
-		            
-		        }
+	        
+	        if (!Util.isNullEmpty(getStringValByExpression(doc, "//Comprobante/@TipoCambio"))) 
+	        	if (!getStringValByExpression(doc, "//Comprobante//@Moneda").equalsIgnoreCase("MXN"))
+	        		evaluateDecimals(doc, "//Comprobante/@TipoCambio", maxDecimals, "Tipo de Cambio", sbError);
+	            
+		        
 	        if (!Util.isNullEmpty(getStringValByExpression(doc, "//Comprobante/@Descuento"))) {
 	            evaluateDecimals(doc, "//Comprobante/@Descuento", maxDecimals, "Descuento", sbError);
 	        }

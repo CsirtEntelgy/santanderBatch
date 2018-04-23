@@ -885,8 +885,8 @@ class Thread1 implements Runnable{
 	private ValidatorHandler createValidatorHandler() throws SAXException {
 		String path[] = { properties.getPathFileValidation(),
 				properties.getPathFileValidationECB(),
-				properties.getPathFileValidaationADD(),
-				properties.getPathComplementoTerceros33()};
+				properties.getPathFileValidaationADD(),};
+				//properties.getPathComplementoTerceros33()};
 		SchemaFactory schemaFactory = SchemaFactory
 				.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);// (XMLConstants.XML_NS_URI)
 		StreamSource[] schemas = new StreamSource[path.length];

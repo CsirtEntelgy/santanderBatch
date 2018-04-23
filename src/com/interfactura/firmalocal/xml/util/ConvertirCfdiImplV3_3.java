@@ -64,7 +64,10 @@ public class ConvertirCfdiImplV3_3 {
 		}
 		concat.append("SubTotal=\"" + subtotal + "\" ");
 		if(comp.getTipoCambio() != null && comp.getTipoCambio().trim() != ""){
-			concat.append("TipoCambio=\"" + comp.getTipoCambio() + "\" ");
+			if (comp.getMoneda().equalsIgnoreCase("MXN"))
+				concat.append("TipoCambio=\"" + "1" + "\" ");
+			else
+				concat.append("TipoCambio=\"" + comp.getTipoCambio() + "\" ");
 		}
 		concat.append("TipoDeComprobante=\"" + comp.getTipoDeComprobante() + "\" ");
 		String total = "0";
