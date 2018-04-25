@@ -9,6 +9,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -120,10 +121,17 @@ public ByteArrayOutputStream convierte(CfdiComprobanteFiscal comp) throws Unsupp
 	}
 	
 	public Document agregaAddenda(Document doc, CfdiComprobanteFiscal comp) throws SAXException
-	, IOException, ParserConfigurationException, FactoryConfigurationError{
+	, IOException, ParserConfigurationException, FactoryConfigurationError, XPathExpressionException, TransformerConfigurationException, TransformerException{
 	
 		String addenda = "";
+		comp.setTipoCambio("1");
+		if (UtilCatalogos.getStringValByExpression(doc, "//Comprobante//@Moneda").equalsIgnoreCase("MXN")) 
+			for (Entry<String, String> entry : comp.getAddenda().getCampoAdicional().entrySet()) {
+				if (entry.getKey().trim().equalsIgnoreCase("tipocambio") || entry.getKey().equalsIgnoreCase("tipo cambio"))
+					entry.setValue("1");
+			}
 		addenda = conver.addenda(comp);
+		System.out.println("AddendaXD: " + addenda);
 		if (addenda.trim().length() > 0){
 			
 			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
@@ -136,6 +144,7 @@ public ByteArrayOutputStream convierte(CfdiComprobanteFiscal comp) throws Unsupp
 			Node addendaNode = doc.importNode(addendaDoc.getDocumentElement(), true);
 			element.appendChild(addendaNode);
 		}
+		
 		return doc;
 	}
 	
@@ -149,10 +158,10 @@ public ByteArrayOutputStream convierte(CfdiComprobanteFiscal comp) throws Unsupp
 		
 		Document doc = UtilCatalogos.convertStringToDocument(in.toString("UTF-8"));
 		UtilCatalogos.setValueOnDocumentElement(doc, "//Comprobante/@NoCertificado", certificado.getCertificado().getSerialNumber());
-    	if (UtilCatalogos.getStringValByExpression(doc, "//Comprobante//@Moneda").equalsIgnoreCase("MXN"))
+    	if (UtilCatalogos.getStringValByExpression(doc, "//Comprobante//@Moneda").equalsIgnoreCase("MXN")) {
     		UtilCatalogos.setValueOnDocumentElement(doc, "//Comprobante/@TipoCambio", "1");
+    	}
     	
-    	System.out.println("tipocambioXD: " + UtilCatalogos.getStringValByExpression(doc, "//Comprobante//@TipoCambio"));
   
 		out = UtilCatalogos.convertStringToOutpuStream(UtilCatalogos.convertDocumentXmlToString(doc));
 		out = xmlProcessGeneral.replacesOriginalString(out, xmlProcessGeneral.generatesOriginalString(out, "3.3"), certificado);
