@@ -12,6 +12,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -302,6 +303,8 @@ public class GeneraXML_CFDV3_3
 
 			if (tokens[0].equals(conver.getTags()._CONTROLCFD)) 
 			{
+				
+				
 				if (conver.getTags().isComprobante) 
 				{
 					String temp = Util.tags("", conver.getPila());
@@ -336,6 +339,7 @@ public class GeneraXML_CFDV3_3
 //				out.write(conver.receptor(tokens, numberLineCFD));
 			} else if (tokens[0].equals(conver.getTags()._DOMICILIO)) {
 				out.write(conver.receptor(conver.getTags().lineaAnteriorTokens, conver.getTags().contCFDAnterior));
+				
 				out.write(conver.domicilio(tokens, numberLineCFD));
 				this.beginCONCEPTOS(out);
 			} else if (tokens[0].equals(conver.getTags()._CONCEPTO)) {
@@ -676,21 +680,85 @@ public class GeneraXML_CFDV3_3
 	private void beginDomicilioReceptor(ByteArrayOutputStream out)
 			throws IOException {
 		String temp = "";
-		temp+= conver.getTags()._Calle;
-		temp+= conver.getTags()._NoExterior;
-		temp+= conver.getTags()._NoInterior;
-		temp+= conver.getTags()._Colonia;
-		temp+= conver.getTags()._Localidad;
-		temp+= conver.getTags()._Referencia;
-		temp+= conver.getTags()._Municipio;
-		temp+= conver.getTags()._Estado;
-		temp+= conver.getTags()._Pais;
-		temp+= conver.getTags()._CodigoPostal;
+		if (conver.getTags()._Calle.split("=").length > 1 && conver.getTags()._Calle.split("=")[1].trim().equals("\"\"")) {
+			temp+= conver.getTags()._Calle;
+		} else {
+			temp += " Calle=\"\" ";
+		}
+		
+		
+		//temp+= conver.getTags()._NoExterior;
+		if (conver.getTags()._NoExterior.split("=").length > 1 && conver.getTags()._NoExterior.split("=")[1].trim().equals("\"\"")) {
+			temp+= conver.getTags()._NoExterior;
+		} else {
+			temp += " NoExterior=\"\" ";
+		}
+		
+		//temp+= conver.getTags()._NoInterior;
+		if (conver.getTags()._NoInterior.split("=").length > 1 && conver.getTags()._NoInterior.split("=")[1].trim().equals("\"\"")) {
+			temp+= conver.getTags()._NoInterior;
+		}else {
+			temp += " NoInterior=\"\" ";
+		}
+		
+		//temp+= conver.getTags()._Colonia;
+		if (conver.getTags()._Colonia.split("=").length > 1 && conver.getTags()._Colonia.split("=")[1].trim().equals("\"\"")) {
+			temp+= conver.getTags()._Colonia;
+		}else {
+			temp += " Colonia=\"\" ";
+		}
+		
+		//temp+= conver.getTags()._Localidad;
+		if (conver.getTags()._Localidad.split("=").length > 1 && conver.getTags()._Localidad.split("=")[1].trim().equals("\"\"")) {
+			temp+= conver.getTags()._Localidad;
+		}else {
+			temp += " Localidad=\"\" ";
+		}
+		
+		//temp+= conver.getTags()._Referencia;
+		if (conver.getTags()._Referencia.split("=").length > 1 && conver.getTags()._Referencia.split("=")[1].trim().equals("\"\"")) {
+			temp+= conver.getTags()._Referencia;
+		}
+		else {
+			temp += " Referencia=\"\" ";
+		}
+		//temp+= conver.getTags()._Municipio;
+		if (conver.getTags()._Municipio.split("=").length > 1 && conver.getTags()._Municipio.split("=")[1].trim().equals("\"\"")) {
+			temp+= conver.getTags()._Municipio;
+		} else {
+			temp += " Municipio=\"\" ";
+		}
+		
+		//temp+= conver.getTags()._Estado;
+		if (conver.getTags()._Estado.split("=").length > 1 && conver.getTags()._Estado.split("=")[1].trim().equals("\"\"")) {
+			temp+= conver.getTags()._Estado;
+		}else {
+			temp += " Estado=\"\" ";
+		}
+		
+		//temp+= conver.getTags()._Pais;
+		if (conver.getTags()._Pais.split("=").length > 1 && conver.getTags()._Pais.split("=")[1].trim().equals("\"\"")) {
+			temp+= conver.getTags()._Pais;
+		}else {
+			temp += " Pais=\"\" ";
+		}
+		
+		//temp+= conver.getTags()._CodigoPostal;
+		if (conver.getTags()._CodigoPostal.split("=").length > 1 && conver.getTags()._CodigoPostal.split("=")[1].trim().equals("\"\"")) {
+			temp+= conver.getTags()._CodigoPostal;
+		}else {
+			temp += " CodigoPostal=\"\" ";
+		}
+		
+		
+		
+		
+		
 		System.out.println("Domicilio Receptor"+temp);
-		if (temp.length() > 0) {
+		if (temp.trim().length() > 0 && !temp.trim().equalsIgnoreCase("")) {
 			temp = "\n<as:DomicilioReceptor " + temp + "/>";
 			out.write(temp.getBytes("UTF-8"));
-		}
+		} 
 	}
 
 	private void beginDomicilioEmisor(ByteArrayOutputStream out) throws IOException {
@@ -763,6 +831,73 @@ public class GeneraXML_CFDV3_3
 			if(!UtilCatalogos.lstErrors.toString().isEmpty()){
 				throw new Exception(UtilCatalogos.lstErrors.toString());
 			}
+			
+			
+			
+			BigDecimal diferencia = BigDecimal.ONE;
+			
+			/*Validacion de IVA a .05*/
+			System.out.println("antesValidarTotal: " + UtilCatalogos.convertDocumentXmlToString(doc));
+			Boolean ivaOk = true;
+			BigDecimal compIva =BigDecimal.valueOf(UtilCatalogos.getDoubleByExpression(doc, "//Comprobante/Impuestos/@TotalImpuestosTrasladados"));
+			BigDecimal opIva = UtilCatalogos.getDocTotalIVA(doc);
+			if (opIva.compareTo(compIva) > 0) 
+				diferencia = opIva.subtract(compIva);
+			else
+				diferencia = compIva.subtract(opIva);
+			
+			if(diferencia.compareTo(new BigDecimal("0.05")) < 0) {
+	        	UtilCatalogos.setValueOnDocumentElement(doc,  "//Comprobante/Impuestos/@TotalImpuestosTrasladados", opIva.toString());
+	        	ivaOk = false;
+	        }
+			
+			
+			/*Validacion de subtotal a 0.05*/
+			diferencia = BigDecimal.ONE;
+			Boolean subTotalOK = true;
+			BigDecimal compSubTotal =BigDecimal.valueOf(UtilCatalogos.getDoubleByExpression(doc, "//Comprobante/@SubTotal"));
+			BigDecimal opSubTotal = UtilCatalogos.getDocSubtotal(doc);
+			
+			
+			System.out.println("SubTotal: " + compSubTotal + " " + opSubTotal);
+			if (opSubTotal.compareTo(compSubTotal) > 0) 
+				diferencia = opSubTotal.subtract(compSubTotal);
+			else
+				diferencia = compSubTotal.subtract(opSubTotal);
+			
+			if(diferencia.compareTo(new BigDecimal("0.05")) < 0) {
+	        	UtilCatalogos.setValueOnDocumentElement(doc,  "//Comprobante/@SubTotal", opSubTotal.toString());
+	        	subTotalOK = false;
+	        }
+			
+			
+			/*Validacio  de total a 0.05*/
+			BigDecimal totalOper = BigDecimal.ZERO;
+	        
+	        if (!ivaOk || !subTotalOK) {
+	        		totalOper = opSubTotal.add(opIva);
+	        		UtilCatalogos.setValueOnDocumentElement(doc,  "//Comprobante/@Total", totalOper.toString());
+	        }
+	        
+	        diferencia = BigDecimal.ONE;
+			
+			BigDecimal compTotal = BigDecimal.valueOf(UtilCatalogos.getDoubleByExpression(doc, "//Comprobante/@Total"));
+			        
+	
+	        totalOper = UtilCatalogos.getDocTotalOper(doc);
+	        
+	        System.out.println("asjg: " + compTotal + " " +totalOper + " bandera: " + ivaOk + " / " + subTotalOK);
+	        if(totalOper.compareTo(compTotal) > 0){
+				diferencia = totalOper.subtract(compTotal);
+			}else{
+				diferencia = compTotal.subtract(totalOper);
+			}
+	        
+	        if(diferencia.compareTo(new BigDecimal("0.05")) < 0) {
+	        	UtilCatalogos.setValueOnDocumentElement(doc,  "//Comprobante/@Total", totalOper.toString());
+	        }
+	        	
+	        
 			String errors = UtilCatalogos.validateCfdiDocument(doc,conver.getTags().decimalesMoneda);
 			if (errors != null && !errors.isEmpty()) {
 				throw new Exception(errors);

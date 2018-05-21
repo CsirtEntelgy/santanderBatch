@@ -2141,6 +2141,8 @@ public class UtilCatalogos
 	    	//System.out.println("******************************************************");
 	    	/*En esta seccion se agregaran todas las validciones que se les necesite hacer al comprobante*/
         	//System.out.println("******************************************************");
+	    	
+	    	//System.out.println("mexderValidar: " + convertDocumentXmlToString(doc));
 	    	sbError.append(evaluateCalulationMasiva(doc, maxDecimals));
 	    	//logger.info("validateCfdiDocument:"+convertDocumentXmlToString(doc));
 	    	//System.out.println("******************************************************");
@@ -2343,6 +2345,59 @@ public class UtilCatalogos
 	            }
 	        }
 	    }
+		
+		
+		public static BigDecimal getDocTotalOper(Document doc) {
+			try {
+			 StringBuilder sb = new StringBuilder("(//Comprobante/Conceptos/Concepto/@Importe)");
+		        BigDecimal conceptTotal = getBigDecimalByNodeExpression(doc, sb.toString());
+		        sb = new StringBuilder("(//Comprobante/Conceptos/Concepto/Impuestos/Traslados/Traslado/@Importe)");
+		        BigDecimal traslTotal = getBigDecimalByNodeExpression(doc, sb.toString());
+		        BigDecimal traslados = conceptTotal.add(traslTotal);
+		        sb = new StringBuilder("(//Comprobante/Conceptos/Concepto/Impuestos/Retenciones/Retencion/@Importe)");
+		        BigDecimal retenciones = getBigDecimalByNodeExpression(doc, sb.toString());
+		        BigDecimal discount = getBigDecimalByNodeExpression(doc, "//Comprobante/@Descuento");
+		        retenciones = retenciones.add(discount);	        
+		
+		        BigDecimal totalOper = retenciones.equals(BigDecimal.valueOf(0)) ? traslados : traslados.add(retenciones.multiply(BigDecimal.valueOf(-1)));
+		        return totalOper;
+			} catch(Exception ex){
+	    		logger.error(ex);
+	    		return BigDecimal.ZERO;
+	    	}
+		}
+		
+		public static BigDecimal getDocTotalIVA(Document doc) {
+			try {
+				
+		        StringBuilder sb = new StringBuilder("(//Comprobante/Conceptos/Concepto/Impuestos/Traslados/Traslado/@Importe)");
+		        BigDecimal traslTotal = getBigDecimalByNodeExpression(doc, sb.toString());
+		        sb = new StringBuilder("(//Comprobante/Conceptos/Concepto/Impuestos/Retenciones/Retencion/@Importe)");
+		        BigDecimal retenciones = getBigDecimalByNodeExpression(doc, sb.toString());
+		        
+		        return traslTotal.add(retenciones);
+		        
+			} catch (Exception e) {
+				return BigDecimal.ZERO;
+			}
+		}
+		
+		
+		public static BigDecimal getDocSubtotal(Document doc) {
+			try {
+				 
+			        StringBuilder sb = new StringBuilder("(//Comprobante/Conceptos/Concepto/@Importe)");
+			        BigDecimal conceptTotal = getBigDecimalByNodeExpression(doc, sb.toString());
+			      
+			        return conceptTotal;
+			        
+			} catch (Exception e) {
+				// TODO: handle exception
+				return BigDecimal.ZERO;
+			}
+		}
+		
+		
 		public static String evaluateCalulationMasiva(Document doc, int maxDecimals){
 	    	try{    	
 		        logger.info("Iniciando Validaciones de Calculos");
@@ -2361,11 +2416,11 @@ public class UtilCatalogos
 		        if (compTotal.doubleValue() == totalOper.doubleValue()) {
 		
 		        } else {
-		            System.out.println("totalOper=" + totalOper);
-		            System.out.println("compTotal=" + compTotal);
-		            System.out.println("retenciones=" + retenciones);
-		            System.out.println("traslados=" + traslados);
-		            System.out.println("Comptaracion=" + (compTotal.doubleValue() == totalOper.doubleValue()));
+//		            System.out.println("totalOper=" + totalOper);
+//		            System.out.println("compTotal=" + compTotal);
+//		            System.out.println("retenciones=" + retenciones);
+//		            System.out.println("traslados=" + traslados);
+//		            System.out.println("Comptaracion=" + (compTotal.doubleValue() == totalOper.doubleValue()));
 		            throw new Exception(
 		                    "El campo Total no corresponde con la suma del subtotal, menos los descuentos aplicables, más las contribuciones recibidas (impuestos trasladados - federales o locales, derechos, productos, aprovechamientos, aportaciones de seguridad social, contribuciones de mejoras) menos los impuestos retenidos");
 		        }

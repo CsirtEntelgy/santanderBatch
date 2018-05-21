@@ -135,12 +135,22 @@ public class ConvertirImplV3_3
 			//System.out.println("Antes de leer Archivo XLS Convertir CFD");
 			tags.mapCatalogos = Util.readXLSFile(properties.getUrlArchivoCatalogs());
 			//System.out.println("Despues de leer Archivo XLS Convertir CFD: "+ tags.mapCatalogos.size());
-
+			
 			if (Util.isNullEmpty(tags.IVA_TOTAL_REPORTE)) 
 			{	tags.IVA_TOTAL_REPORTE = "0";	}
-
+			
+			
+			String salida = "";
+			for (String string : tokens) {
+				salida += string +"|";
+			}
+			
+			System.out.println("lineaxd: " +salida);
+			System.out.println("lineaxd: " + tokens[17]);
+			
+			
 			//System.out.println("tokens.length" + tokens.length);
-			if (tokens.length >= 20) 
+			if (tokens.length >= 19) 
 			{
 				tags.TIPO_MONEDA = tokens[17];
 				tags.TIPO_CAMBIO = tokens[18];
@@ -151,7 +161,7 @@ public class ConvertirImplV3_3
 				tags.TIPO_CAMBIO = "1.0000";
 			}
 			//System.out.println("tags.TIPO_MONEDA:" + tags.TIPO_MONEDA);
-			//System.out.println("tags.TIPO_CAMBIO:" + tags.TIPO_CAMBIO);
+			//System.out.println("tags.TIPO_CAMBIO:" +  tags.TIPO_CAMBIO);
 		} 
 		else 
 		{	formatCFD(numberLine);	}
@@ -211,7 +221,7 @@ public class ConvertirImplV3_3
 						tags.TIPO_MONEDA = valEqMoneda;
 //						System.out.println("Tipo Moneda AMDA Else true: " + tags.TIPO_MONEDA + " : " + tags.SERIE_FISCAL_CFD);
 					}else{
-						concat.append(" ErrCompMon001" + "=\"" + tags.SERIE_FISCAL_CFD + "\"");
+						concat.append(" Moneda=\"" + tags.TIPO_MONEDA + "\"");
 					}	
 				}
 				
@@ -264,12 +274,14 @@ public class ConvertirImplV3_3
 //								    	concat.append(" TipoCambioMinimoRequerido" + tags.TIPO_CAMBIO + "=\"" + tags.TIPO_CAMBIO + "\"");
 //								    }
 								String resultadoRipoCam = UtilCatalogos.findTipoCambioPorcentaje(tags.mapCatalogos, tags.TIPO_MONEDA, tags.TIPO_CAMBIO);
+								
 							    if(resultadoRipoCam.equalsIgnoreCase("OK")){
 //							       System.out.println("Tipo Cambio Bien");
-							       concat.append(" TipoCambio=\"" + "1" + "\"");
+							       concat.append(" TipoCambio=\"" + "1.00" + "\"");
 							    }else{
-//							    	System.out.println("Tipo Cambio No dentro de limites");
-							    	concat.append(" ErrCompTipMon002" + "=\"" + tags.TIPO_CAMBIO + "\"");
+							    	//System.out.println("Tipo Cambio No  dentro de limites");
+							    	//System.out.println("DatosXD: " + tags.TIPO_MONEDA + "    " + tags.TIPO_CAMBIO);
+							    	concat.append(" TipoCambio=\"" + tags.TIPO_CAMBIO + "\"");
 							    }
 
 							}else if(tags.TIPO_MONEDA.equalsIgnoreCase("MXN")){
@@ -801,8 +813,8 @@ public class ConvertirImplV3_3
 			String numRegIdTribReceptor = "";
 			String usoCFDIReceptor = "" ;//" UsoCFDI=\"" + "P01" + "\"";
 			
-			if(!UtilCatalogos.findUsoCfdi(tags.mapCatalogos, "Adquisición de mercancías").equalsIgnoreCase("vacio")){ // Fijo por el momento
-				usoCFDIReceptor = " UsoCFDI=\"" + UtilCatalogos.findUsoCfdi(tags.mapCatalogos, "Adquisición de mercancías") + "\"";
+			if(!UtilCatalogos.findUsoCfdi(tags.mapCatalogos, "Gastos en general").equalsIgnoreCase("vacio")){ // Fijo por el momento
+				usoCFDIReceptor = " UsoCFDI=\"" + UtilCatalogos.findUsoCfdi(tags.mapCatalogos, "Gastos en general") + "\"";
 			}else{
 				usoCFDIReceptor = " ErrRecUsoCfdi001=\"" + UtilCatalogos.findUsoCfdi(tags.mapCatalogos, "Por definir") + "\"";
 			}
@@ -1054,6 +1066,9 @@ public class ConvertirImplV3_3
 					Double valImpCon = Double.parseDouble(valImporte);
 //					totalRetAndTraDoubl = totalRetAndTraDoubl + valImpCon;
 					tags.sumTotalImpuestosTrasDou = tags.sumTotalImpuestosTrasDou + valImpCon;
+					System.out.println("sumaImpuestos1: " + UtilCatalogos.decimales(tags.sumTotalImpuestosTrasDou.toString(), tags.decimalesMoneda));
+					tags.sumTotalImpuestosTrasDou = Double.parseDouble(UtilCatalogos.decimales(tags.sumTotalImpuestosTrasDou.toString(), tags.decimalesMoneda));
+					System.out.println("sumaImpuestos:" + tags.sumTotalImpuestosTrasDou);
 				}catch(NumberFormatException e){
 					System.out.println("Importe en Concepto Problema al convertir en Numerico: " + tokens[6].trim());
 				}
@@ -1435,8 +1450,9 @@ public class ConvertirImplV3_3
 			//System.out.println("Validacion Subtotal totalRetAndTraDoubl AMDA : " + tags.sumTotalImpuestosTrasDou);
 			if(tags.tipoComprobante.trim().equalsIgnoreCase("I") || tags.tipoComprobante.trim().equalsIgnoreCase("E") || tags.tipoComprobante.trim().equalsIgnoreCase("N")){
 				//System.out.println("Validando Subtotal con total Conceptos AMDA : ");
+				System.out.println("SubtotalXD: " + tags.subtotalDoubleTag + " Total/Impuestos: " + tags.sumTotalImpuestosTrasDou);
 				if(!tags.subtotalDoubleTag.equals(tags.sumTotalImpuestosTrasDou ) && tags.noExentoT){
-					valSubTotalDou = " ErrCompSubTot004=\"" + "vacio" + "\" ";
+					//valSubTotalDou = " ErrCompSubTot004=\"" + "vacio" + "\" ";
 				}
 			}
 			// Reseteo de dato
