@@ -25,6 +25,7 @@ public class Properties
 	private String LblFOLIOCFD="FOLIOTMP";
 	private String LblNUMEROAPROBACIONCFD="NUMEROATMP";
 	private String LblAPROBACIONCFD="APROBACIONTMP";
+	private String LblLUGAREXPEDICION = "LETEMP";
 	private String nameSpace = "http://www.sat.gob.mx/cfd/3";
 	
 	
@@ -76,6 +77,8 @@ public class Properties
 	private String pathDirProECB;
 	@Value("${xml.procesarCFD}")
 	private String pathDirProCFD;
+	@Value("${xml.procesarContabilidad}")
+	private String pathDirProContabilidad;
 	@Value("${xml.incidencias}")
 	private String pathDirIncd;
 	@Value("${xml.procesados.salida}")
@@ -1030,8 +1033,20 @@ public class Properties
 		return catalogoCincoCampos33;
 	}
 
+	public String getPathDirProContabilidad() {
+		return pathDirProContabilidad;
+	}
+
 	public void setCatalogoCincoCampos33(String catalogoCincoCampos33) {
 		this.catalogoCincoCampos33 = catalogoCincoCampos33;
+	}
+
+	public String getLblLUGAREXPEDICION() {
+		return LblLUGAREXPEDICION;
+	}
+
+	public void setLblLUGAREXPEDICION(String lblLUGAREXPEDICION) {
+		LblLUGAREXPEDICION = lblLUGAREXPEDICION;
 	}
 
 	/*public String getPathComplementoTerceros33() {
@@ -1041,5 +1056,9 @@ public class Properties
 	public void setPathComplementoTerceros33(String pathComplementoTerceros33) {
 		this.pathComplementoTerceros33 = pathComplementoTerceros33;
 	}*/
+	
+	
+	
+	
 	
 }

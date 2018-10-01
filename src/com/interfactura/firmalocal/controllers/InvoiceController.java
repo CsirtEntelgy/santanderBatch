@@ -44,6 +44,7 @@ import com.interfactura.firmalocal.xml.ecb.GeneraXML_ECBDSV3_3;
 import com.interfactura.firmalocal.xml.factura.GeneraXML_CFD;
 import com.interfactura.firmalocal.xml.factura.GeneraXML_CFDV3_3;
 import com.interfactura.firmalocal.xml.nc.GeneraXML_NC;
+import com.interfactura.firmalocal.xml.pagos.GeneraXML_PAGOSV3_3;
 import com.interfactura.firmalocal.xml.util.FiltroParam;
 import com.interfactura.firmalocal.xml.util.NombreAplicativo;
 
@@ -59,6 +60,9 @@ public class InvoiceController
 	private GeneraXML_ECBDSV3_3 xmlECBV3; // Clase para version 3.3 AMDA
 	@Autowired
 	private GeneraXML_CFDV3_3 xmlCFDV3; // Clase para version 3.3 AMDA
+	@Autowired
+	private GeneraXML_PAGOSV3_3 xmlPagoV3;
+	
 	@Autowired
 	private GeneraXML_CFD xmlCFD;
 	@Autowired
@@ -99,7 +103,22 @@ public class InvoiceController
 		System.setProperty("javax.net.ssl.keyStorePassword", properties.getCertificadoPass());													
 		System.setProperty("javax.net.ssl.trustStore", properties.getCertificadoInterfactura());
 		*/
-		
+		System.out.println(numeroMalla);
+		String tipo ="";
+		if (numeroMalla.indexOf("|") > -1) {
+			String[] contenido = numeroMalla.split("|");
+			
+			if (contenido.length > 1) {
+				numeroMalla = contenido[0];
+				tipo = "pago";
+			} else  {
+				numeroMalla = contenido[0];
+				tipo = "ecb";
+			}
+		} else {
+			tipo = "ecb";
+		}
+		System.out.println("tipoXD: " + tipo + " numero: " + numeroMalla);
 		String path=properties.getConfigurationPath();
 		String zeros="";
 		if(!idProceso.equals("-1"))
@@ -315,14 +334,27 @@ public class InvoiceController
 				{
 					if(path.equals("null"))
 					{
-						logger.info("Paso 2.- Procesando Estados de Cuenta Completo: "+idProceso);
-						FiltroParam filter=new FiltroParam(
-								new String[]{"XML","INC","backUp","CFDLZELAVON","CFDOPOPICS","CFDCONFIRMINGFACTURAS","CFDFACTORAJEFACTURAS"});
-						this.processing(
-								new File(properties.getPathDirProECB())
-									.listFiles(filter),
-									true, setF, lstTipoCambio, lstCampos22, lstSeal, lstIva, transf, val,
-									fileNames, fecha, idProceso, urlWebService, numeroMalla);
+						
+						if (tipo.equals("ecb")) {
+							logger.info("Paso 2.- Procesando Pagos Completo: "+idProceso);
+							FiltroParam filter=new FiltroParam(
+									new String[]{"XML","INC","backUp","CFDLZELAVON","CFDOPOPICS","CFDCONFIRMINGFACTURAS","CFDFACTORAJEFACTURAS"});
+							this.processing(
+									new File(properties.getPathDirProECB())
+										.listFiles(filter),
+										true, setF, lstTipoCambio, lstCampos22, lstSeal, lstIva, transf, val,
+										fileNames, fecha, idProceso, urlWebService, numeroMalla);
+						} else {
+							logger.info("Paso 2.- Procesando Estados de Cuenta Completo: "+idProceso);
+							FiltroParam filter=new FiltroParam(
+									new String[]{"XML","INC","backUp","CFDLZELAVON","CFDOPOPICS","CFDCONFIRMINGFACTURAS","CFDFACTORAJEFACTURAS"});
+							this.processing(
+									new File(properties.getPathDirProECB())
+										.listFiles(filter),
+										true, setF, lstTipoCambio, lstCampos22, lstSeal, lstIva, transf, val,
+										fileNames, fecha, idProceso, urlWebService, numeroMalla);
+						}
+						
 					}
 					else 
 					{
@@ -337,55 +369,106 @@ public class InvoiceController
 			            hilo1.start();
 			            */
 			            
-			            
-						if(file.exists()&&file.length()>0)
-						{
-							reader = new LineNumberReader(new FileReader(file));	
-							//fileout=new File(properties.getPathDirProcesados()+file.getName());
-													
-				            line = null;
-				            //int counter = 0;
-				            //System.out.println("LineNumber: " + reader.getLineNumber());
-				            while ((line = reader.readLine()) != null) 
-							{			
-				            	//System.out.println("processingLines: " + line.length());
-								//System.out.println("counter: " + counter);
-								//System.out.println("LINEA PROCESO: Inicia - " + line);
-								//System.out.println("transf: " + transf);
-								args=line.split("\\|");
-								if(args!=null&&args.length>=5)
-								{	
-									//System.out.println("args[1]: " + args[1].toString());
-									byteStart = Long.parseLong(args[2]);
-									byteEnd = Long.parseLong(args[3]);
-									cont = Long.parseLong(args[4]);
-							    	//logger.info("Paso 2.- Procesando Estados de Cuenta (byte Inicio)"+byteStart);
-							    	//logger.info("Paso 2.- Procesando Estados de Cuenta (byte Inicio)"+byteEnd);
-							    	/*
-							    	String pathXML = args[1].toString().substring(0, 42);
-							    	String pathXML2 = args[1].toString().substring(45, args[1].toString().length()-4);
-							    								    	
-							    	System.out.println("pathXML: " + pathXML + "XML" + pathXML2 + "_" + cont + "_" + idProceso + ".TXT");
-							    								    	
-							    	File fileXML = new File(pathXML + "XML" + pathXML2 + "_" + cont + "_" + idProceso + ".TXT");
-							    	if(!fileXML.exists() || fileXML.length() == 0){
-							    		this.processing(true, setF, lstTipoCambio, lstCampos22, 
-												lstSeal, lstIva, transf, val, byteStart, byteEnd, args[1], cont, idProceso, fecha, fileNames, urlWebService);	
-							    	}*/									
-							    	this.processing(true, setF, lstTipoCambio, lstCampos22, 
-											lstSeal, lstIva, transf, val, byteStart, byteEnd, args[1], cont, idProceso, fecha, fileNames, urlWebService, numeroMalla);
-								}
-								//System.out.println("LINEA DE PROCESO Terminada:  " + line);
-								//counter+=1;
-							}
-				            					
-				            reader.close();
-				            
-				            //Copia el archivo en el directoria de procesados
-				            //FileCopyUtils.copy(file,fileout);
-				            //file.delete();
-						}
+			            if (tipo.equals("ecb")) {
 						
+							if(file.exists()&&file.length()>0)
+							{
+								reader = new LineNumberReader(new FileReader(file));	
+								//fileout=new File(properties.getPathDirProcesados()+file.getName());
+														
+					            line = null;
+					            //int counter = 0;
+					            //System.out.println("LineNumber: " + reader.getLineNumber());
+					            while ((line = reader.readLine()) != null) 
+								{			
+					            	//System.out.println("processingLines: " + line.length());
+									//System.out.println("counter: " + counter);
+									//System.out.println("LINEA PROCESO: Inicia - " + line);
+									//System.out.println("transf: " + transf);
+									args=line.split("\\|");
+									if(args!=null&&args.length>=5)
+									{	
+										//System.out.println("args[1]: " + args[1].toString());
+										byteStart = Long.parseLong(args[2]);
+										byteEnd = Long.parseLong(args[3]);
+										cont = Long.parseLong(args[4]);
+								    	//logger.info("Paso 2.- Procesando Estados de Cuenta (byte Inicio)"+byteStart);
+								    	//logger.info("Paso 2.- Procesando Estados de Cuenta (byte Inicio)"+byteEnd);
+								    	/*
+								    	String pathXML = args[1].toString().substring(0, 42);
+								    	String pathXML2 = args[1].toString().substring(45, args[1].toString().length()-4);
+								    								    	
+								    	System.out.println("pathXML: " + pathXML + "XML" + pathXML2 + "_" + cont + "_" + idProceso + ".TXT");
+								    								    	
+								    	File fileXML = new File(pathXML + "XML" + pathXML2 + "_" + cont + "_" + idProceso + ".TXT");
+								    	if(!fileXML.exists() || fileXML.length() == 0){
+								    		this.processing(true, setF, lstTipoCambio, lstCampos22, 
+													lstSeal, lstIva, transf, val, byteStart, byteEnd, args[1], cont, idProceso, fecha, fileNames, urlWebService);	
+								    	}*/									
+								    	this.processing(true, setF, lstTipoCambio, lstCampos22, 
+												lstSeal, lstIva, transf, val, byteStart, byteEnd, args[1], cont, idProceso, fecha, fileNames, urlWebService, numeroMalla);
+									}
+									//System.out.println("LINEA DE PROCESO Terminada:  " + line);
+									//counter+=1;
+								}
+					            					
+					            reader.close();
+					            
+					            //Copia el archivo en el directoria de procesados
+					            //FileCopyUtils.copy(file,fileout);
+					            //file.delete();
+							}
+			            } else {
+			            	
+			            	if(file.exists()&&file.length()>0)
+							{
+								reader = new LineNumberReader(new FileReader(file));	
+								//fileout=new File(properties.getPathDirProcesados()+file.getName());
+														
+					            line = null;
+					            //int counter = 0;
+					            //System.out.println("LineNumber: " + reader.getLineNumber());
+					            while ((line = reader.readLine()) != null) 
+								{			
+					            	//System.out.println("processingLines: " + line.length());
+									//System.out.println("counter: " + counter);
+									//System.out.println("LINEA PROCESO: Inicia - " + line);
+									//System.out.println("transf: " + transf);
+									args=line.split("\\|");
+									if(args!=null&&args.length>=5)
+									{	
+										//System.out.println("args[1]: " + args[1].toString());
+										byteStart = Long.parseLong(args[2]);
+										byteEnd = Long.parseLong(args[3]);
+										cont = Long.parseLong(args[4]);
+								    	//logger.info("Paso 2.- Procesando Estados de Cuenta (byte Inicio)"+byteStart);
+								    	//logger.info("Paso 2.- Procesando Estados de Cuenta (byte Inicio)"+byteEnd);
+								    	/*
+								    	String pathXML = args[1].toString().substring(0, 42);
+								    	String pathXML2 = args[1].toString().substring(45, args[1].toString().length()-4);
+								    								    	
+								    	System.out.println("pathXML: " + pathXML + "XML" + pathXML2 + "_" + cont + "_" + idProceso + ".TXT");
+								    								    	
+								    	File fileXML = new File(pathXML + "XML" + pathXML2 + "_" + cont + "_" + idProceso + ".TXT");
+								    	if(!fileXML.exists() || fileXML.length() == 0){
+								    		this.processing(true, setF, lstTipoCambio, lstCampos22, 
+													lstSeal, lstIva, transf, val, byteStart, byteEnd, args[1], cont, idProceso, fecha, fileNames, urlWebService);	
+								    	}*/									
+								    	this.processingTareas(setF, lstTipoCambio, lstCampos22, 
+												lstSeal, lstIva, transf, val, byteStart, byteEnd, args[1], cont, idProceso, fecha, fileNames, urlWebService, numeroMalla);
+									}
+									//System.out.println("LINEA DE PROCESO Terminada:  " + line);
+									//counter+=1;
+								}
+					            					
+					            reader.close();
+					            
+					            //Copia el archivo en el directoria de procesados
+					            //FileCopyUtils.copy(file,fileout);
+					            //file.delete();
+							}
+						
+			            }
 					}
 				} 
 				else 
@@ -442,195 +525,7 @@ public class InvoiceController
 		System.exit(0);
 	}
 
-	/**
-	 * Procesa varios archivos CFD o ECB
-	 * @param file
-	 * @param isECB
-	 * @param lstFiscal
-	 * @param lstSeal
-	 * @param lstIva
-	 * @param transf
-	 * @param val
-	 */
-	/*
-	public void processingLines(String path, long byteStart, long byteEnd, long cont, 
-			HashMap<String, FiscalEntity> setF, HashMap<String, HashMap> lstTipoCambio, 
-			HashMap<String, HashMap> lstCampos22, List<SealCertificate> lstSeal, List<Iva> lstIva, 
-			ValidatorHandler val, String idProceso, String fecha, String fileNames){
-		
-		try {
-			LineNumberReader readerLines = null;
-			File file=new File(path);
-			if(file.exists()&&file.length()>0)
-			{
-				readerLines = new LineNumberReader(new FileReader(file));
-				int counter=0;
-				
-				String lineLines = null;
-				String args[] = null;
-				
-				while ((lineLines = readerLines.readLine()) != null) 
-				{
-					System.out.println("processingLines: " + lineLines.length());
-					if (counter % 2 == 0){
-						System.out.println("counter: " + counter);
-						System.out.println("LINEA PROCESO: Inicia - " + lineLines);
-						System.out.println("transf: " + transf);
-						args=lineLines.split("\\|");
-						if(args!=null&&args.length>=5)
-						{	System.out.println("args[1]: " + args[1].toString());
-					    	byteStart = Long.parseLong(args[2]);
-					    	byteEnd = Long.parseLong(args[3]);
-					    	cont= Long.parseLong(args[4]);
-					    	logger.info("Paso 2.- Procesando Estados de Cuenta (byte Inicio)"+byteStart);
-					    	logger.info("Paso 2.- Procesando Estados de Cuenta (byte Inicio)"+byteEnd);
-							this.processing(true, setF, lstTipoCambio, lstCampos22, 
-									lstSeal, lstIva, transf, val, byteStart, byteEnd, args[1], cont, idProceso, fecha, fileNames);
-						}
-						System.out.println("LINEA PROCESO: Termina - " + lineLines);
-					}				
-					counter+=1;
-				}	
-				readerLines.close();
-				file.delete();
-			}
-								
-		}
-		catch (Exception e) 
-		{
-			e.printStackTrace();
-			logger.error(e.getLocalizedMessage().replace("ORA-", "ORACLE-"));
-			System.exit(-1);
-		}
-		
-	}
-	
-	public void processingLines2(String path, long byteStart, long byteEnd, long cont, 
-			HashMap<String, FiscalEntity> setF, HashMap<String, HashMap> lstTipoCambio, 
-			HashMap<String, HashMap> lstCampos22, List<SealCertificate> lstSeal, List<Iva> lstIva, 
-			ValidatorHandler val, String idProceso, String fecha, String fileNames){
-		
-		try {
-			LineNumberReader readerLines2 = null;
-			File file=new File(path);
-			if(file.exists()&&file.length()>0)
-			{
-				readerLines2 = new LineNumberReader(new FileReader(file));
-				int counter=0;
-				
-				String lineLines2 =null;
-				String args[] = null;
-				
-				while ((lineLines2 = readerLines2.readLine()) != null) 
-				{
-					System.out.println("processingLines2: " + lineLines2.length());
-					if (counter % 2 > 0){
-						System.out.println("counter2: " + counter);
-						System.out.println("LINEA PROCESO: Inicia - " + lineLines2);
-						System.out.println("transf: " + transf);
-						args=lineLines2.split("\\|");
-						if(args!=null&&args.length>=5)
-						{	System.out.println("args[1]2: " + args[1].toString());
-					    	byteStart = Long.parseLong(args[2]);
-					    	byteEnd = Long.parseLong(args[3]);
-					    	cont= Long.parseLong(args[4]);
-					    	logger.info("Paso 2.- Procesando Estados de Cuenta (byte Inicio)"+byteStart);
-					    	logger.info("Paso 2.- Procesando Estados de Cuenta (byte Inicio)"+byteEnd);
-							this.processing(true, setF, lstTipoCambio, lstCampos22, 
-									lstSeal, lstIva, transf, val, byteStart, byteEnd, args[1], cont, idProceso, fecha, fileNames);
-						}
-						System.out.println("LINEA PROCESO: Termina - " + lineLines2);
-					}				
-					counter+=1;
-				}	
-				readerLines2.close();
-				file.delete();
-			}
-		}
-		catch (Exception e) 
-		{
-			e.printStackTrace();
-			logger.error(e.getLocalizedMessage().replace("ORA-", "ORACLE-"));
-			System.exit(-1);
-		}
-		
-	}
-	
-class Thread1 implements Runnable{
-		
-		String pathT;
-		long byteStartT; 
-		long byteEndT; 
-		long contT; 
-		HashMap<String, FiscalEntity> setFT;
-		HashMap<String, HashMap> lstTipoCambioT; 
-		HashMap<String, HashMap> lstCampos22T; 
-		List<SealCertificate> lstSealT; 
-		List<Iva> lstIvaT; 
-		ValidatorHandler valT; 
-		String idProcesoT; 
-		String fechaT; 
-		String fileNamesT;
-		
-		boolean flag;	
-		
-		Transformer transfT;
-		
-		private Logger logger = Logger.getLogger(InvoiceController.class);
-		
-		public Thread1(String path, long byteStart, long byteEnd, long cont,
-				HashMap<String, FiscalEntity> setF, HashMap<String, HashMap> lstTipoCambio, HashMap<String, HashMap> lstCampos22, 
-				List<SealCertificate> lstSeal, List<Iva> lstIva, ValidatorHandler val, String idProceso, String fecha, 
-				String fileNames, boolean flag, Transformer transf) {
-			// TODO Auto-generated constructor stub
-			
-			try{
-				System.out.println("THREAD");			
-											
-				this.pathT = path;
-				this.byteStartT = byteStart; 
-				this.byteEndT = byteEnd; 
-				this.contT = cont;				
-				this.setFT = new HashMap<String, FiscalEntity>();
-				this.setFT = setF;
-				this.lstTipoCambioT = new HashMap<String, HashMap>();
-				this.lstTipoCambioT = lstTipoCambio;
-				this.lstCampos22T = new HashMap<String, HashMap>();
-				this.lstCampos22T = lstCampos22;
-				this.lstSealT = lstSeal; 
-				this.lstIvaT = lstIva; 
-				this.valT=val;			 
-				this.idProcesoT = idProceso; 
-				this.fechaT = fecha; 
-				this.fileNamesT = fileNames;
-				
-				this.flag = flag;				
-				
-				this.transfT = transf;
-				
-			}catch(Exception ex){
-				ex.printStackTrace();
-				System.out.println(ex.getMessage());
-			}			
-		}
-		@Override
-		public synchronized  void run() {
-			System.out.println("RUN");		
-			
-			// TODO Auto-generated method stub
-			if (this.flag){				
-				InvoiceController.this.processingLines(this.pathT, this.byteStartT,  this.byteEndT,  this.contT,
-						this.setFT,  this.lstTipoCambioT, this.lstCampos22T, 
-						this.lstSealT,  this.lstIvaT,  this.valT, this.idProcesoT, this.fechaT, this.fileNamesT);					
-			}else{			
-				InvoiceController.this.processingLines2(this.pathT, this.byteStartT,  this.byteEndT,  this.contT,
-						this.setFT,  this.lstTipoCambioT, this.lstCampos22T, 
-						this.lstSealT,  this.lstIvaT,  this.valT, this.idProcesoT, this.fechaT, this.fileNamesT);				
-			}
-		}
-		
-	}
-	*/
+
 	public void processing(File[] file, boolean isECB,
 			HashMap<String, FiscalEntity> lstFiscal,
 			HashMap<String, HashMap> lstTipoCambio,
@@ -784,6 +679,7 @@ class Thread1 implements Runnable{
 					xmlECBV3.setValidator(val);
 					xmlECBV3.setUrlWebService(urlWebService);
 					xmlECBV3.convierte(byteStart, byteEnd, path, cont, idProceso, fecha, fileNames, numeroMalla);
+				
 				}
 				
 							
@@ -818,6 +714,55 @@ class Thread1 implements Runnable{
 			}
 		}
 	}
+	
+	
+	
+	
+	
+	/**
+	 * Procesa un complemento pago
+	 * 
+	 * @param isECB
+	 * @param lstFiscal
+	 * @param lstSeal
+	 * @param lstIva
+	 * @param transf
+	 * @param val
+	 * @param byteStart
+	 * @param byteEnd
+	 * @param path
+	 * @param cont
+	 */
+	public void processingTareas(HashMap<String, FiscalEntity> lstFiscal,
+			HashMap<String, HashMap> lstTipoCambio,
+			HashMap<String, HashMap> lstCampos22,
+			List<SealCertificate> lstSeal, List<Iva> lstIva, 
+			Transformer transf, ValidatorHandler val, 
+			long byteStart, long byteEnd, String path,long cont, String idProceso, String fecha, String fileNames, String urlWebService, String numeroMalla) throws Exception
+	{
+		File file=new File(path);
+		boolean versionTypo = true; // Tipo version AMDA
+		if(file.length()>0)
+		{
+			logger.debug("El archivo a procesar es: " + path);
+			System.out.println("Procesando Estados de Cuenta V3.3");
+					xmlPagoV3.setNombresApps(NombreAplicativo.cargaNombresApps());
+					xmlPagoV3.setNameFile(file.getName());
+					xmlPagoV3.setLstFiscal(lstFiscal);
+					xmlPagoV3.setLstSeal(lstSeal);
+					xmlPagoV3.setCampos22(lstCampos22);
+					xmlPagoV3.setTipoCambio(lstTipoCambio);
+					xmlPagoV3.setTransf(transf);
+					xmlPagoV3.setValidator(val);
+					xmlPagoV3.setUrlWebService(urlWebService);
+					xmlPagoV3.convierteTareas(byteStart, byteEnd, path, cont, idProceso, fecha, fileNames, numeroMalla);
+					
+							
+		}
+	}
+	
+	
+	
 	
 	/**
 	 * Obtiene si el proceso esta en 
@@ -885,7 +830,8 @@ class Thread1 implements Runnable{
 	private ValidatorHandler createValidatorHandler() throws SAXException {
 		String path[] = { properties.getPathFileValidation(),
 				properties.getPathFileValidationECB(),
-				properties.getPathFileValidaationADD(),};
+				properties.getPathFileValidaationADD(),
+				properties.getPathPagos(),};
 				//properties.getPathComplementoTerceros33()};
 		SchemaFactory schemaFactory = SchemaFactory
 				.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);// (XMLConstants.XML_NS_URI)

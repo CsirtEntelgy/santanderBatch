@@ -989,6 +989,7 @@ public class GeneraXML_CFDV3_3
 		{
 			logger.info(out.toString());
 			logger.info(ex);
+			logger.info(ex.getLocalizedMessage());
 			msgError = ex.getMessage();
 
 			String typeIncidence = "ERROR";
@@ -1557,13 +1558,31 @@ public class GeneraXML_CFDV3_3
 					xmlProcess.getValidator().valida(cfdBean.getBaosXml(), this.validator);
 					String fecha = Util.systemDate();
 					xmlProcess.setTransf(transf);
-
-
-					/*Se asigna el NoCertificado ya que antes se hacia despues de generar la cadena original*/
+					
+					//Cambiar forma pago para CFDFACTORAJEFACTURAS, CONFIRMING Y NEWCONFIRMING ultimos dos en espera
+					String fileVerify = nameFile.split("\\.")[0];
 					Document doc = UtilCatalogos.convertStringToDocument(cfdBean.getBaosXml().toString("UTF-8"));
+					if (fileVerify.contains("CFDFACTORAJEFACTURAS") || fileVerify.contains("CONFIRMING") || fileVerify.contains("NEWCONFIRMING")) {
+						UtilCatalogos.setValueOnDocumentElement(doc, "//Comprobante/@FormaPago", "17");
+						//UtilCatalogos.setValueOnDocumentElement(doc, "//Comprobante/@MetodoPago", "PPD");
+						//cfdBean.setBaosXml(UtilCatalogos.convertStringToOutpuStream(MetodoPago.convertDocumentXmlToString(doc)));
+					}
+						
+					//System.out.println("XMLTipoxd:" + cfdBean.getBaosXml().toString("UTF-8"));
+					/*Se asigna el NoCertificado ya que antes se hacia despues de generar la cadena original*/
+					//doc = UtilCatalogos.convertStringToDocument(cfdBean.getBaosXml().toString("UTF-8"));
 					UtilCatalogos.setValueOnDocumentElement(doc, "//Comprobante/@NoCertificado", cfdBean.getSealCertificate().getSerialNumber());
 					cfdBean.setBaosXml(UtilCatalogos.convertStringToOutpuStream(UtilCatalogos.convertDocumentXmlToString(doc)));
 					/*Fin asignaciones*/
+					
+					
+					/*Se asigna tipo de cambio 1 cuando la moneda es MXN*/
+					doc = UtilCatalogos.convertStringToDocument(cfdBean.getBaosXml().toString("UTF-8"));
+					if (UtilCatalogos.getStringValByExpression(doc, "//Comprobante//@Moneda").equalsIgnoreCase("MXN")) {
+			    		UtilCatalogos.setValueOnDocumentElement(doc, "//Comprobante/@TipoCambio", "1");
+			    	}
+					
+					
 					
 					ByteArrayOutputStream originalString = null;
 					originalString= xmlProcess.generatesOriginalString(cfdBean.getBaosXml()); 

@@ -397,7 +397,17 @@ public class GeneraXMLProcesoQuitas_Masivo {
 								    		/*Fin Cambio*/
 								    		
 								    		//doc = UtilCatalogos.convertPathFileToDocument(nameFile);
-								            String errors = UtilCatalogos.validateCfdiDocument(document, comp.getDecimalesMoneda());            
+								            String errors = UtilCatalogos.validateCfdiDocument(document, comp.getDecimalesMoneda());
+								            
+								            
+								            if (UtilCatalogos.getStringValByExpression(document, "//Comprobante//@Moneda").equalsIgnoreCase("MXN")) {
+									    		UtilCatalogos.setValueOnDocumentElement(document, "//Comprobante/@TipoCambio", "1");
+									    		invoice.setTipoCambio("1");
+									    	}
+								            
+								            System.out.println("invoiceXD:" + invoice.getByteArrXMLSinAddenda().toString("UTF-8"));
+								            System.out.println(UtilCatalogos.convertDocumentXmlToString(document));
+								            
 								            if(!Util.isNullEmpty(errors)){
 								            	throw new Exception(errors);
 								            }else{

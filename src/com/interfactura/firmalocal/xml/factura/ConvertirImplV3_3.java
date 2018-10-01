@@ -145,9 +145,6 @@ public class ConvertirImplV3_3
 				salida += string +"|";
 			}
 			
-			System.out.println("lineaxd: " +salida);
-			System.out.println("lineaxd: " + tokens[17]);
-			
 			
 			//System.out.println("tokens.length" + tokens.length);
 			if (tokens.length >= 19) 
@@ -183,6 +180,7 @@ public class ConvertirImplV3_3
 		{
 			tags.CFD_TYPE = util.getCFDType(tokens[1]);
 			tags.FOLIO_REFERENCE = tokens[2];
+			
 
 			concat = new StringBuilder();
 			boolean sinMoneda = false;
@@ -702,13 +700,14 @@ public class ConvertirImplV3_3
 	{
 		if (tokens.length >= 3) 
 		{
+			
 			tags.EMISION_RFC = tokens[1].trim().toUpperCase();
 			//logger.debug("RFC EMISOR: " + tags.EMISION_RFC);
 			tags.fis = null;
 			tags.fis = lstFiscal.get(tags.EMISION_RFC);
 			if(tags.fis != null){
 				tags.LUGAR_EXPEDICION = (String) campos22.get(tags.EMISION_RFC).get("LugarExpedicion");
-				tags.FORMA_PAGO = (String) campos22.get(tags.EMISION_RFC).get("formaDePago");
+					tags.FORMA_PAGO = (String) campos22.get(tags.EMISION_RFC).get("formaDePago");
 			}else{
 				tags.LUGAR_EXPEDICION = null;
 				tags.FORMA_PAGO = null;
@@ -1477,10 +1476,12 @@ public class ConvertirImplV3_3
 			String totalImpRetLine = "";
 			if(!Util.isNullEmpty(tokens[1].trim())){
 				if(UtilCatalogos.decimalesValidationMsj(tags.TOTAL_IMP_RET, tags.decimalesMoneda)){
-					totalImpRetLine = " TotalImpuestosRetenidos=\"" + tags.TOTAL_IMP_RET + "\" ";
-					tags.atributoTotalImpuestosReten = true;
+					
+						totalImpRetLine = " TotalImpuestosRetenidos=\"" + tags.TOTAL_IMP_RET + "\" ";
+						tags.atributoTotalImpuestosReten = true;
+					
 				}else{
-					totalImpRetLine = " ErrImpTotImpRet001=\"" + tags.TOTAL_IMP_RET + "\" ";
+					//totalImpRetLine = " ErrImpTotImpRet001=\"" + tags.TOTAL_IMP_RET + "\" ";
 					tags.atributoTotalImpuestosReten = false;
 				}
 			}else{
@@ -1490,10 +1491,15 @@ public class ConvertirImplV3_3
 			String totalImpTraLine = "";
 			if(!Util.isNullEmpty(tokens[2].trim())){
 				if(UtilCatalogos.decimalesValidationMsj(tags.TOTAL_IMP_TRA, tags.decimalesMoneda)){
-					totalImpTraLine = " TotalImpuestosTrasladados=\"" + tags.TOTAL_IMP_TRA + "\" ";
-					tags.atributoTotalImpuestosTras = true;
+					BigDecimal retImp = new BigDecimal(tags.TOTAL_IMP_TRA);
+					if (retImp.compareTo(new BigDecimal("0")) !=  0) {
+						totalImpTraLine = " TotalImpuestosTrasladados=\"" + tags.TOTAL_IMP_TRA + "\" ";
+						tags.atributoTotalImpuestosTras = true;
+					} else 
+						tags.atributoTotalImpuestosTras = false;
+					
 				}else{
-					totalImpTraLine = " ErrImpTotImpTra002=\"" + tags.TOTAL_IMP_TRA + "\" ";
+					//totalImpTraLine = " ErrImpTotImpTra002=\"" + tags.TOTAL_IMP_TRA + "\" ";
 					tags.atributoTotalImpuestosTras = false;
 				}
 			}else{
@@ -1996,6 +2002,7 @@ public class ConvertirImplV3_3
 		{	return formatCFD(numberLine);	}
 	}
 
+	
 	/**
 	 * Consume el folio
 	 * 

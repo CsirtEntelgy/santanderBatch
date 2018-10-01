@@ -1,4 +1,4 @@
-package com.interfactura.firmalocal.xml.ecb;
+package com.interfactura.firmalocal.xml.pagos;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;

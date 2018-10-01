@@ -63,9 +63,9 @@ public class ConcatenateFileControllers
 				fileTemp=new File(line[1]);
 				System.out.println("Archivo Concatenando: "+fileTemp);
 				logger.info("Archivo Concatenando: "+fileTemp);
+				concatIncidene=Util.concatFile(fileTemp.getName(),Integer.parseInt(line[2]), pathIncidence, "ERR");
 				concatIncidene=Util.concatFile(fileTemp.getName(),Integer.parseInt(line[2]), pathIncidence, "INC");
 				concatExit=Util.concatFile(fileTemp.getName(),Integer.parseInt(line[2]), pathExit, "XML");
-				concatIncidene=Util.concatFile(fileTemp.getName(),Integer.parseInt(line[2]), pathIncidence, "ERR");
 				if(concatExit&&concatIncidene)
 				{
 					in=new FileInputStream(fileTemp);

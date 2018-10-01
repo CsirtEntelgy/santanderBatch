@@ -49,14 +49,14 @@ public class FormateaECB {
 						continua = false;
 						System.out.println("Error al procesar pampa: " + filenames[i].trim());
 					}
-				}else if(filenames[i].trim().equalsIgnoreCase("CFDPTCARTER")
+						}/*else if(filenames[i].trim().equalsIgnoreCase("CFDPTCARTER")
 						|| filenames[i].trim().equalsIgnoreCase("CFDPTSOFOMC")) {//ajuste para carter
 					carter = true;
 					if(!ecbCarterUtil.processECBTxtFile(filenames[i].trim() + date, timeStamp)){
 						continua = false;
 						System.out.println("Error al procesar carter: " + filenames[i].trim());
 					}
-				}
+						}*/
 				
 				if(continua && !carter && !pampa){//ajuste iva para todas las interfaces - no aplica carter ni pampa
 					if(!ecbIvaUtil.processECBTxtFile(filenames[i].trim() + date, timeStamp)){

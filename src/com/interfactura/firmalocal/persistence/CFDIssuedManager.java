@@ -63,6 +63,11 @@ public class CFDIssuedManager
   {
     return this.cfdiDao.list(nameFile);
   }
+  
+  
+  public List<CFDIssuedOtros> listarOtros(String nameFile) {
+  	return this.cfdiOtrosDao.list(nameFile);
+  }
 
   public ByteArrayOutputStream monthReport(int year, int month, String rfc)
   {
@@ -162,15 +167,16 @@ public class CFDIssuedManager
 		cFDIssued.setIssueDate(Calendar.getInstance().getTime());
 		if (cFDIssued.getFormatType() != 0) {
 			CFDIssuedOtros cfdOtros = cfdIssuedToCfdOtros(cFDIssued);
-			cfdOtros.setFoliosComplPago(getConcatenatedFolioPagosComplementoPago(cFDIssued));
+			//cfdOtros.setFoliosComplPago(getConcatenatedFolioPagosComplementoPago(cFDIssued));
 			Route route = (Route) this.routeDao.update(cfdOtros.getFilePath());
 			cfdOtros.setFilePath(route);
 			cfdOtros = (CFDIssuedOtros) this.cfdiOtrosDao.update(cfdOtros);
 			CFDIssued cFDIssuedNew =cfdOtrosToCfdIssued(cfdOtros);
-			if(cFDIssued.getPagos()!=null && !cFDIssued.getPagos().isEmpty()) {
-				cFDIssuedNew.setPagos(cFDIssued.getPagos());
-			}
-			return cFDIssuedNew;
+			//if(cFDIssued.getPagos()!=null && !cFDIssued.getPagos().isEmpty()) {
+			//	cFDIssuedNew.setPagos(cFDIssued.getPagos());
+			//}
+			//return cFDIssuedNew;
+			return cfdOtrosToCfdIssued(cfdOtros);
 		}
 		return this.cfdiDao.update(cFDIssued);
 	}
@@ -187,7 +193,7 @@ public class CFDIssuedManager
 				Route route = (Route) this.routeDao.update(cfdOtros
 						.getFilePath());
 				cfdOtros.setFilePath(route);
-				cfdOtros.setFoliosComplPago(getConcatenatedFolioPagosComplementoPago(obj));
+				//cfdOtros.setFoliosComplPago(getConcatenatedFolioPagosComplementoPago(obj));
 				cfdOtros = (CFDIssuedOtros) this.cfdiOtrosDao.update(cfdOtros);
 				cfdOtrosToCfdIssued(cfdOtros);
 			} else {
@@ -316,7 +322,7 @@ public class CFDIssuedManager
 	 * 
 	 * @param cfdIssued
 	 * @return
-	 */
+	 *
 	public String getConcatenatedFolioPagosComplementoPago(CFDIssued cfdIssued) {
 		StringBuilder result = new StringBuilder();
 		for (ComplementoPago pago : cfdIssued.getPagos()) {
@@ -332,5 +338,5 @@ public class CFDIssuedManager
 			result.delete(lastIndex, result.length());
 		}
 		return result.toString();
-	}
+	}*/
 }

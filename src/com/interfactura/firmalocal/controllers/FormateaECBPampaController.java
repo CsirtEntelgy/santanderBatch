@@ -74,6 +74,9 @@ public class FormateaECBPampaController {
 			File outputFile;
 
 			File inputFile = new File(PathECBEntrada + fileName + filesExtension);
+			
+			
+			//File inputOriginalFile = new File(PathECBEntrada + fileName + "-ORIGEN" + filesExtension);
 			if (inputFile.exists()) {
 				fileToProcess = new FileInputStream(PathECBEntrada + fileName + filesExtension);
 				in = new DataInputStream(fileToProcess);
@@ -91,7 +94,7 @@ public class FormateaECBPampaController {
 				fileBlockOne = new StringBuilder();
 				fileBlockTwo = new StringBuilder();
 				lineElevenSb = new StringBuilder();
-
+ 
 				ivaOriginal = BigDecimal.ZERO;
 				newIva = BigDecimal.ZERO;
 				
@@ -299,6 +302,14 @@ public class FormateaECBPampaController {
 
 				fileWriter.close();
 				br.close();
+					
+				
+				
+				
+				/*
+				 * Agregar cambio para que tome la interfaz original
+				 * 
+				 * */
 				File movedFile = new File(PathECBSalida + fileName + "ORIGINAL_" + timeStamp + filesExtension);
 				if (moveFile(inputFile, movedFile)) {// mover archivo original
 					// renombrar archivo generado

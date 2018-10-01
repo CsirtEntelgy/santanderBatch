@@ -165,8 +165,10 @@ public class UtilCatalogos
         errorMessage.put("ErrConRetBas002", "Clave=\"CFDI33162\" Nodo=\"Retencion\" Mensaje=\"El Valor Del Campo Base Que Corresponde A Traslado Debetener Hasta La Cantidad De Decimales Que Sporte La Moneda\"");
         errorMessage.put("ErrCFDIRel001", "Clave=\"CFDI33168\" Nodo=\"CfdiRelacionados\" Mensaje=\"El Valor Del Campo Tipo Relación Viene Vacio o no se encuentra en el catálogo c_TipoRelacion\"");
         errorMessage.put("ErrCFDIRel002", "Clave=\"CFDI33169\" Nodo=\"CfdiRelacionado\" Mensaje=\"El Valor Del Campo UUID Viene Vacio o no concuerda con el patrón [a-f0-9A-F]{8}-[a-f0-9A-F]{4}-[a-f0-9A-F]{4}-[a-f0-9A-F]{4}-[a-f0-9A-F]{12}\"");
+        errorMessage.put("ErrConImpIva001 ", "Clave=\"CFDI33187\" Nodo=\"Concepto\" Mensaje=\"La suma del impuesto mas el importe no concuerda con el totalinformado del concepto\"");
 	}
 	// Validacion Tipo de comprobante AMDA
+	
 		public static String findTipoComprobante(Map<String, ArrayList<CatalogosDom>> mapCatalogos, String value){
 			
 			String response = "";
@@ -776,9 +778,7 @@ public class UtilCatalogos
 			Double sumTotalIeps = 0.00;
 			boolean exento = false;
 			boolean noExentoT = false;
-//			System.out.println("findTraslados Inicio TipoComprobante " + tipoComprobante);
-//			System.out.println("findTraslados Inicio " + descCon);
-//			System.out.println("findTraslados Inicio " + mapCatalogos.get("EquivalenciaConceptoImpuesto").size());
+
 			if(mapCatalogos.size() > 0 && descCon.trim().length() > 0){
 				
 				for(int i=0; i<mapCatalogos.get("EquivalenciaConceptoImpuesto").size(); i++){
@@ -873,10 +873,6 @@ public class UtilCatalogos
 										noExentoT = true;
 										// descImp(Iva, IEPS, ISR), Descripcion(Tasa, Cuota O Exento), valor de la tasa, descripcion(Traslado O retencion)
 										//Buscando TasaOcuotaCatalogo findTasaOcuotaVal(mapCatalogos, descImp, mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal2(), valTasa, mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal4())
-//									System.out.println("Antes de Validacion findTasaOCuotaExist AMDA : " + descImp);
-//									System.out.println("Antes de Validacion findTasaOCuotaExist AMDA : " + mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal2());
-//									System.out.println("Antes de Validacion findTasaOCuotaExist AMDA : " + valTasa);
-//									System.out.println("Antes de Validacion findTasaOCuotaExist AMDA : " + mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal4());
 									String findValTasa = findTasaOCuotaExist(mapCatalogos, descImp, mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal2(), valTasa, mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal4());
 										if(!findValTasa.equalsIgnoreCase("vacio")){
 											tasaOCutoaLine = "\" TasaOCuota=\"" + Util.completeZeroDecimals(valTasa, 6);
@@ -904,12 +900,6 @@ public class UtilCatalogos
 									   tasaOCutoaLine +
 									   importeLine + "\" " +
 									   " />" ;
-//							nodocon +=  "\n<cfdi:Traslado Base=\"" + importeCon +
-//									   "\" Impuesto=\"" + mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal1() +
-//									   "\" TipoFactor=\"" + mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal2() +
-//									   "\" TasaOCuota=\"" + Util.completeZeroDecimals(valTasa, 6) +
-//									   "\" Importe=\"" + decimales(importeTrasladoMul.toString(), decimalesMoneda) + "\" " +
-//									   " />" ;
 							sumTotal += importeTrasladoMul;
 //							System.out.println("Val Suma Total Traslado " + sumTotal);
 //							System.out.println("Val NodoCon Traslado " + nodocon);
@@ -917,67 +907,16 @@ public class UtilCatalogos
 							logger.error(e);
 //							System.out.println("No es numero findTraslados: " + valTasa);
 						}
-//						response = response + nodocon;
-//						break;
+
 					}else{
-//						if(mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal5().equalsIgnoreCase(descCon) && !mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal4().equalsIgnoreCase("Retencion")){
-//							nodocon += "\n<cfdi:Traslado Base=\"" + "0.00" +
-//							   "\" Impuesto=\"" + "000" +
-//							   "\" TipoFactor=\"" + "Tasa" +
-//							   "\" ElValorDelCampoTasaOCuotaQueCorrespondeATrasladoNoContieneUnValorDelCatalogoc_TasaOCuota=\"" + "0.000" +
-//							   "\" Importe=\"" + "0.00" + "\" " +
-//							   " />" ;
-//						}else if(!mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal5().equalsIgnoreCase(descCon) && mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal4().equalsIgnoreCase("Retencion")){
-//							nodocon += "\n<cfdi:Traslado Base=\"" + "0.00" +
-//									   "\" ErrTraImp001=\"" + "000" +
-//									   "\" TipoFactor=\"" + "Tasa" +
-//									   "\" TasaOCuota=\"" + "0.000" +
-//									   "\" Importe=\"" + "0.00" + "\" " +
-//									   " />" ;
-//						}else{
+
 							response = "";
-//						}
-						
-						// La tasaOCuota no se encontro en el catalogo
-//						nodocon = "\n<cfdi:Traslado Base=\"" + "0.00" +
-//								   "\" ErrTraImp001=\"" + "000" +
-//								   "\" TipoFactor=\"" + "Tasa" +
-//								   "\" ErrImpTratConTasaOCuota001=\"" + "0.000" +
-//								   "\" Importe=\"" + "0.00" + "\" " +
-//								   " />" ;
-//						response = "";
+
 					}
 					response = nodocon;
 				}
 				
-//				for(int i=0; i<mapCatalogos.get(descCon).size(); i++){
-//					System.out.println("findTraslados Dentro For " + mapCatalogos.get(descCon).get(i).getVal5());
-//					if(mapCatalogos.get(descCon).get(i).getVal5().equalsIgnoreCase(descCon) && mapCatalogos.get(descCon).get(i).getVal4().equalsIgnoreCase("Traslado")){
-//						valTasa = mapCatalogos.get(descCon).get(i).getVal3();
-//						try{
-//							valTasaNum = Double.parseDouble(valTasa);
-//							System.out.println("Val Tasa " + valTasaNum);
-//							importeConNum = Double.parseDouble(importeCon);
-//							System.out.println("Val Impor Conce " + valTasaNum);
-//							importeTrasladoMul = (valTasaNum*importeConNum) + importeConNum;
-//							System.out.println("Val Impor Traslado " + importeTrasladoMul);
-//							
-//							nodocon = "\n<cfdi:Traslado Base=\"" + importeCon +
-//									   "\" Impuesto=\"" + mapCatalogos.get(descCon).get(i).getVal1() +
-//									   "\" TipoFactor=\"" + mapCatalogos.get(descCon).get(i).getVal2() +
-//									   "\" TasaOcuota=\"" + valTasa +
-//									   "\" Importe=\"" + importeTrasladoMul.toString() + "\" " +
-//									   " />" ;
-//							System.out.println("Val NodoCon Traslado " + nodocon);
-//						}catch(NumberFormatException e){
-//							System.out.println("No es numero findTraslados: " + valTasa);
-//						}
-//						response = response + nodocon;
-//						break;
-//					}else{
-//						response = "";
-//					}
-//				}
+
 			}else{
 				response = "";
 			}
@@ -989,11 +928,6 @@ public class UtilCatalogos
 			responseMap.put("sumTotalIeps", decimales(sumTotalIeps.toString(), decimalesMoneda));
 			responseMap.put("exento", exento);
 			responseMap.put("noExentoT", noExentoT);
-//			System.out.println("Response Get Traslado valNodoStr: " + responseMap.get("valNodoStr"));
-//			System.out.println("Response Get Traslado: " + responseMap.get("sumaTotal"));
-//			System.out.println("Response Get Traslado sumTotalIsr: " + responseMap.get("sumTotalIsr"));
-//			System.out.println("Response Get Traslado sumTotalIva: " + responseMap.get("sumTotalIva"));
-//			System.out.println("Response Get Traslado sumTotalIeps: " + responseMap.get("sumTotalIeps"));
 			return responseMap;
 		}
 		
@@ -1157,63 +1091,14 @@ public class UtilCatalogos
 //						response = response + nodocon;
 //						break;
 					}else{
-//						if(mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal5().equalsIgnoreCase(descCon) && !mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal4().equalsIgnoreCase("Retencion")){
-//							nodocon += "\n<cfdi:Retencion Base=\"" + "0.00" +
-//							   "\" Impuesto=\"" + "000" +
-//							   "\" TipoFactor=\"" + "Tasa" +
-//							   "\" ElValorDelCampoTasaOCuotaQueCorrespondeARetencionNoContieneUnValorDelCatalogoc_TasaOCuota=\"" + "0.000" +
-//							   "\" Importe=\"" + "0.00" + "\" " +
-//							   " />" ;
-//						}else if(!mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal5().equalsIgnoreCase(descCon) && mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal4().equalsIgnoreCase("Retencion")){
-//							nodocon += "\n<cfdi:Retencion Base=\"" + "0.00" +
-//									   "\" ErrRetImp002=\"" + "000" +
-//									   "\" TipoFactor=\"" + "Tasa" +
-//									   "\" TasaOCuota=\"" + "0.000" +
-//									   "\" Importe=\"" + "0.00" + "\" " +
-//									   " />" ;
-//						}else{
+
 							response = "";
-//						}
-						
-//						nodocon = "\n<cfdi:Retencion Base=\"" + "0.00" +
-//								   "\" ErrRetImp002=\"" + "000" +
-//								   "\" TipoFactor=\"" + "Tasa" +
-//								   "\" ElValorDelCampoTasaOCuotaQueCorrespondeARetencionNoContieneUnValorDelCatalogoc_TasaOCuota=\"" + "0.000" +
-//								   "\" Importe=\"" + "0.00" + "\" " +
-//								   " />" ;
-//						response = "";
+
 					}
 					response = nodocon;
 				}
 				
-//				for(int i=0; i<mapCatalogos.get(descCon).size(); i++){
-//					System.out.println("findTraslados Dentro For " + mapCatalogos.get(descCon).get(i).getVal5());
-//					if(mapCatalogos.get(descCon).get(i).getVal5().equalsIgnoreCase(descCon) && mapCatalogos.get(descCon).get(i).getVal4().equalsIgnoreCase("Traslado")){
-//						valTasa = mapCatalogos.get(descCon).get(i).getVal3();
-//						try{
-//							valTasaNum = Double.parseDouble(valTasa);
-//							System.out.println("Val Tasa " + valTasaNum);
-//							importeConNum = Double.parseDouble(importeCon);
-//							System.out.println("Val Impor Conce " + valTasaNum);
-//							importeTrasladoMul = (valTasaNum*importeConNum) + importeConNum;
-//							System.out.println("Val Impor Traslado " + importeTrasladoMul);
-//							
-//							nodocon = "\n<cfdi:Traslado Base=\"" + importeCon +
-//									   "\" Impuesto=\"" + mapCatalogos.get(descCon).get(i).getVal1() +
-//									   "\" TipoFactor=\"" + mapCatalogos.get(descCon).get(i).getVal2() +
-//									   "\" TasaOcuota=\"" + valTasa +
-//									   "\" Importe=\"" + importeTrasladoMul.toString() + "\" " +
-//									   " />" ;
-//							System.out.println("Val NodoCon Traslado " + nodocon);
-//						}catch(NumberFormatException e){
-//							System.out.println("No es numero findTraslados: " + valTasa);
-//						}
-//						response = response + nodocon;
-//						break;
-//					}else{
-//						response = "";
-//					}
-//				}
+
 			}else{
 				response = "";
 			}
@@ -1222,10 +1107,7 @@ public class UtilCatalogos
 			responseMap.put("sumTotalIsr", decimales(sumTotalIsr.toString(), decimalesMoneda));
 			responseMap.put("sumTotalIva", decimales(sumTotalIva.toString(), decimalesMoneda));
 			responseMap.put("sumTotalIeps", decimales(sumTotalIeps.toString(), decimalesMoneda));
-//			System.out.println("Response Get Retencion sumaTotal: " + responseMap.get("sumaTotal"));
-//			System.out.println("Response Get Retencion sumTotalIsr: " + responseMap.get("sumTotalIsr"));
-//			System.out.println("Response Get Retencion sumTotalIva: " + responseMap.get("sumTotalIva"));
-//			System.out.println("Response Get Retencion sumTotalIeps: " + responseMap.get("sumTotalIeps"));
+
 			return responseMap;
 		}
 		

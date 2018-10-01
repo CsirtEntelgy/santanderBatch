@@ -423,7 +423,9 @@ public class GeneraXMLProceso_Masivo {
 								    		/*Fin Cambio*/
 								    		
 								    		//doc = UtilCatalogos.convertPathFileToDocument(nameFile);
-								            String errors = UtilCatalogos.validateCfdiDocument(document, comp.getDecimalesMoneda());            
+								            String errors = UtilCatalogos.validateCfdiDocument(document, comp.getDecimalesMoneda());
+
+								            
 								            if(!Util.isNullEmpty(errors)){
 								            	throw new Exception(errors);
 								            }else{
@@ -435,6 +437,8 @@ public class GeneraXMLProceso_Masivo {
 												System.out.println("---XML despues de validar decimales---");
 												System.out.println(baosXml.toString("UTF-8"));
 												System.out.println("---Fin XML despues de validar decimales---");
+												
+												
 												
 												//agregar certificado y sello
 												baosXml = xmlGenerator.reemplazaCadenaOriginal(baosXml, fiscalEntity);

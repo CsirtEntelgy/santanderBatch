@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
 import java.security.GeneralSecurityException;
 import java.util.Calendar;
 import java.util.Date;
@@ -71,7 +72,7 @@ public class GeneraXmlFacturaCfdiV3_3 {
 	private HashMap<String, HashMap> campos22;
 	private HashMap<String, HashMap> tipoCambio;
 	
-	//private WebServiceCliente servicePort = null;
+	//private WebServiceCliente servicePort = null ;
 	private DocumentBuilderFactory dbf = null;
 	private DocumentBuilder db = null;
 	private Transformer tx = null;
@@ -160,10 +161,43 @@ public ByteArrayOutputStream convierte(CfdiComprobanteFiscal comp) throws Unsupp
 		UtilCatalogos.setValueOnDocumentElement(doc, "//Comprobante/@NoCertificado", certificado.getCertificado().getSerialNumber());
     	if (UtilCatalogos.getStringValByExpression(doc, "//Comprobante//@Moneda").equalsIgnoreCase("MXN")) {
     		UtilCatalogos.setValueOnDocumentElement(doc, "//Comprobante/@TipoCambio", "1");
+    		System.out.println("xmlDentroIFXD: " + UtilCatalogos.convertDocumentXmlToString(doc));
+    	}
+    	System.out.println("xmlFueraIFXD: " + UtilCatalogos.convertDocumentXmlToString(doc));
+    	
+    	String sal  = UtilCatalogos.convertDocumentXmlToString(doc);
+    	
+    	if (!UtilCatalogos.getStringValByExpression(doc, "//Comprobante/Impuestos/@TotalImpuestosRetenidos").equalsIgnoreCase("")) {
+	    	BigDecimal totalImpRet = new BigDecimal(UtilCatalogos.getStringValByExpression(doc, "//Comprobante/Impuestos/@TotalImpuestosRetenidos"));
+	    	
+	    	if (totalImpRet.compareTo(new BigDecimal("0")) == 0) {
+	    		
+	    		UtilCatalogos.setValueOnDocumentElement(doc, "//Comprobante/Impuestos/@TotalImpuestosRetenidos", "0.00");
+	    		String ret =UtilCatalogos.getStringValByExpression(doc, "//Comprobante/Impuestos/@TotalImpuestosRetenidos");
+	    		
+	    		sal = UtilCatalogos.convertDocumentXmlToString(doc);
+	        	//sal.replaceAll("TotalImpuestosRetenidos=\"0.00\"", " ");
+	        	sal = sal.replace("TotalImpuestosRetenidos=\"0.00\"", "");
+	        	
+	        	doc = UtilCatalogos.convertStringToDocument(sal);
+	    	} else {
+	    		sal = UtilCatalogos.convertDocumentXmlToString(doc);
+	    	}
     	}
     	
-  
-		out = UtilCatalogos.convertStringToOutpuStream(UtilCatalogos.convertDocumentXmlToString(doc));
+    	/*if (!UtilCatalogos.getStringValByExpression(doc, "//Comprobante/Impuestos/@TotalImpuestosRetenidos").equalsIgnoreCase("")) {
+	    	BigDecimal totalImpTra = new BigDecimal(UtilCatalogos.getStringValByExpression(doc, "//Comprobante/Impuestos/@TotalImpuestosTrasladados"));
+	    	if (totalImpTra.compareTo(new BigDecimal("0")) == 0) {
+	    		UtilCatalogos.setValueOnDocumentElement(doc, "//Comprobante/Impuestos/@TotalImpuestosTrasladados", "0.00");
+	    		sal = UtilCatalogos.convertDocumentXmlToString(doc);
+	        	//sal.replaceAll("TotalImpuestosTrasladados=\"0.00\"", " ");
+	        	sal = sal.replace("TotalImpuestosRetenidos=\"0.00\"", "");
+	    	} else
+	    		sal = UtilCatalogos.convertDocumentXmlToString(doc);
+	    	
+    	}*/
+		out = UtilCatalogos.convertStringToOutpuStream(sal);
+		
 		out = xmlProcessGeneral.replacesOriginalString(out, xmlProcessGeneral.generatesOriginalString(out, "3.3"), certificado);
 		
 		return out;

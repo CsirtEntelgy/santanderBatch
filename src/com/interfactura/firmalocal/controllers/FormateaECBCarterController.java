@@ -118,6 +118,7 @@ public class FormateaECBCarterController {
                 }
 
                 File inputFile = new File(PathECBEntrada + fileName + filesExtension);
+                //File inputOriginalFile = new File(PathECBEntrada + fileName + "-ORIGEN" + filesExtension);
                 if (inputFile.exists()) {
                     fileToProcess = new FileInputStream(PathECBEntrada + fileName + filesExtension);
                     in = new DataInputStream(fileToProcess);

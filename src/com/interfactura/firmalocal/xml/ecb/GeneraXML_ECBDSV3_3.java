@@ -3,16 +3,19 @@ package com.interfactura.firmalocal.xml.ecb;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.RandomAccessFile;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -161,6 +164,9 @@ public class GeneraXML_ECBDSV3_3 {
     //Nombres de los Aplicativos ECB
     private HashMap<String, String> nombresApps = new HashMap<String, String>();
     
+    //Addenda  recompensas 
+    private FileInputStream fileRecompensa;
+    
    	public GeneraXML_ECBDSV3_3() {
 
 	}
@@ -186,6 +192,7 @@ public class GeneraXML_ECBDSV3_3 {
 			// Se crea el archivo de salida
 			File fileExit = new File(this.getNameFile(properties.getPathSalida(), -1, "XML", idProceso));
 			File fileExitBD = new File(this.getNameFile(properties.getPathSalida(), -1, "BD", idProceso));
+			
 			this.salida = new FileOutputStream(fileExit);
 			this.salidaBD = new FileOutputStream(fileExitBD);
 			File fileExitODM = new File(properties.getPathDirGenr() + File.separator + fecha + "ODM-" + idProceso);
@@ -256,6 +263,14 @@ public class GeneraXML_ECBDSV3_3 {
 		return flagProcesado;
 	}
 
+	
+	
+	
+	/*Utilizado
+	 * 
+	 * 
+	 * 
+	 */
 	/**
 	 * Procesa una parte de un archivo en especifico
 	 * 
@@ -299,6 +314,9 @@ public class GeneraXML_ECBDSV3_3 {
 			// Se crea el archivo de salida
 			System.out.println("Creando archivos de salida " );
 			//logger.debug("Paso 3.- Creando archivo de salida byte de final: " + byteEnd);
+			File fileInputREC = new File(this.getName(properties.getPathSalida(), "REC"));
+			if (fileInputREC.exists())
+				this.fileRecompensa = new FileInputStream(fileInputREC);
 			File fileExit=new File(this.getNameFile(properties.getPathSalida(), cont,"XML", idProceso));
 			this.salida = new FileOutputStream(fileExit);
 			File fileExitBD=new File(this.getNameFile(properties.getPathSalida(), cont,"BD", idProceso));
@@ -822,6 +840,11 @@ public class GeneraXML_ECBDSV3_3 {
 			{	return path+prefix+nameProcess[0].substring(3,nameProcess[0].length())+ "_" + cont + "_" + idProceso +  "." + nameProcess[1];	}
 		}
 	}
+	
+	private String getName(String path, String prefix) {
+		String nameProcess[] = this.nameFile.split("\\.");
+		return path+prefix+nameProcess[0].substring(3,nameProcess[0].length())+ "." + nameProcess[1];
+	}
 
 	/**
 	 * Copia desde un byte de inicio hasta uno final y el nombre del archivo
@@ -905,6 +928,9 @@ public class GeneraXML_ECBDSV3_3 {
 			{	salidaBD.close();	}
 			if (salidaODM != null)
 			{	salidaODM.close();	}
+			if (fileRecompensa != null)
+			{	fileRecompensa.close();	}
+			
 						
 			if (flagProcesado) 
 			{
@@ -961,6 +987,9 @@ public class GeneraXML_ECBDSV3_3 {
 			if (incidenciaCifras != null) 
 			{	incidenciaCifras.close();	}
 			
+			if (fileRecompensa != null) 
+			{	fileRecompensa.close();	}
+			
 			//this.file=new File(this.nameFile);
 //			boolean flag1=Util.concatFile(file.getName(), properties.getPathIncidencia(), properties.getConfiguration(), "INC");
 //			boolean flag2=Util.concatFile(file.getName(), properties.getPathSalida(), properties.getConfiguration(), "XML");
@@ -1012,10 +1041,7 @@ public class GeneraXML_ECBDSV3_3 {
 				this.endIMPUESTOS();
 				this.endMOVIMIENTOS();
 				this.addenda();
-				
-				System.out.println("filenamesContabilizar:" + fileNames);				
-				
-				
+				System.out.println("filenamesContabilizar:" + fileNames);
 				this.end(1, idProceso, fecha, fileNames, numeroMalla);
 				long t2 = generaXmlTime - System.currentTimeMillis();
 				System.out.println("TIME: Genera XMLTime " + t2 + " ms");
@@ -1042,7 +1068,10 @@ public class GeneraXML_ECBDSV3_3 {
 			this.beginCONCEPTOS();
 			break;
 		case 6:
-			out.write(conver.concepto(linea, contCFD, lstFiscal, campos22));// , fileNames)); Correccion para funcion concepto que recibe 4 parametro
+			if (this.nameFile.contains("CARTER") || this.nameFile.contains("SOFOM")) 
+				out.write(conver.conceptoCarter(linea, contCFD, lstFiscal, campos22));// , fileNames)); Correccion para funcion concepto que recibe 4 parametro
+			else
+				out.write(conver.concepto(linea, contCFD, lstFiscal, campos22));// , fileNames)); Correccion para funcion concepto que recibe 4 parametro
 			break;
 		case 7:
 			if(!conver.getTags().tipoComprobante.equalsIgnoreCase("T") && !conver.getTags().tipoComprobante.equalsIgnoreCase("P")){
@@ -1301,13 +1330,15 @@ public class GeneraXML_ECBDSV3_3 {
 	{
 		if (conver.getTags().isAddenda) 
 		{
+			
 			out.write("\n</Santander:EstadoDeCuentaBancario>".getBytes());
 			out.write("\n</Santander:addendaECB>".getBytes());
 			out.write("\n</cfdi:Addenda>".getBytes());
 			conver.getTags().isAddenda = false;
-			this.addendaDomicilios();
+//			this.addendaDomicilios();
 		}
 	}
+	
 	
 	/**
 	 * Metodo para generar addenda de domicilios
@@ -1946,6 +1977,75 @@ public class GeneraXML_ECBDSV3_3 {
 				e.printStackTrace();
 			}
 		}
+		
+		try {
+			String folio = UtilCatalogos.getStringValByExpression(domResultado, "//Comprobante/@Folio");
+			if (this.nameFile.contains("LMPAMPAA") || this.nameFile.contains("LMPAMPAS")) {
+				File file = new File(this.getName(properties.getPathSalida(), "REC"));
+				if (file.exists()) {
+					if (file.canRead()) {
+						DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+						Date dateInicio = new Date();
+						System.out.println("TIMEINICIOADDRECXD:" + dateFormat.format(dateInicio) + "M" + System.currentTimeMillis());
+						
+						try {
+							Runtime rt = Runtime.getRuntime();
+							String[] cmd = {"/bin/sh", "-c", "grep -a '"+folio+"' " + this.getName(properties.getPathSalida(), "REC") };
+							Process proc = rt.exec(cmd);
+							BufferedReader is = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+							String linea = "";
+							if ((linea = is.readLine()) != null) {
+								System.out.println(linea);
+								String addendaRec = "";
+								String datos[] = linea.trim().split("\\|");
+								if (!linea.equalsIgnoreCase("") && linea.length() >= 10) {
+									
+									addendaRec = "<Santander:AddendaRecompensa>" + 
+											"<Santander:AddendaRec "
+											+ "Mensaje=\"Se le informa que el valor de las redenciones de puntos realizadas durante el periodo:"
+											+ " fecha inicio "+datos[2]+" fecha fin "+datos[3]+" es por la cantidad de "+datos[1]+ "\" />"
+											+ "</Santander:AddendaRecompensa></Santander:addendaECB>";
+								}
+								
+								System.out.println("ADDENDA: " + addendaRec);
+								
+								String rec = "<Santander:AddendaRecompensa>" + 
+										"<Santander:AddendaRec "
+										+ "Mensaje=\"Se le informa que el valor de las redenciones de puntos realizadas durante el periodo:"
+										+ " fecha inicio "+datos[2]+" fecha fin "+datos[3]+" es por la cantidad de "+datos[1]+ "\" />"
+										+ "</Santander:AddendaRecompensa></Santander:addendaECB>";
+								
+								String xmlString2 = "", xmlFinal = "";
+								xmlString2 = UtilCatalogos.convertDocumentXmlToString(domResultado);
+								
+								String strXmlString = "";
+								strXmlString = xmlString2.replace("</Santander:addendaECB>", rec);
+								
+								
+								xmlFinal = strXmlString.replaceAll("[\n\r]", "");
+								
+								domResultado = UtilCatalogos.convertStringToDocument(xmlFinal);
+								
+								
+								if ((linea = is.readLine()) != null)
+									System.out.println(linea);
+							}
+							
+						} catch (Exception e) {
+							// TODO: handle exception
+							e.printStackTrace();
+							System.out.println(e.getMessage());
+						}
+						System.out.println("TIMEFINADDRECXD:" + dateFormat.format(dateInicio) + "M" + System.currentTimeMillis());
+					}
+				}
+			}
+		} catch (XPathExpressionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
 		return domResultado;
 	}
 			
@@ -2135,9 +2235,15 @@ public class GeneraXML_ECBDSV3_3 {
 										
 										t2 = System.currentTimeMillis()- t1;
 										System.out.println("TIME: xmlProcess:" + t2 + " ms");
-
-										/*Se asigna el NoCertificado ya que antes se hacia despues de generar la cadena original*/
+										
 										Document doc = UtilCatalogos.convertStringToDocument(xmlFinal.toString("UTF-8"));
+										
+								    	if (UtilCatalogos.getStringValByExpression(doc, "//Comprobante//@Moneda").equalsIgnoreCase("MXN")) {
+								    		UtilCatalogos.setValueOnDocumentElement(doc, "//Comprobante/@TipoCambio", "1");
+								    	}
+								    	System.out.println("XMLtipoxd: " + xmlFinal.toString("UTF-8"));
+										/*Se asigna el NoCertificado ya que antes se hacia despues de generar la cadena original*/
+										doc = UtilCatalogos.convertStringToDocument(xmlFinal.toString("UTF-8"));
 										UtilCatalogos.setValueOnDocumentElement(doc, "//Comprobante/@NoCertificado", certificate.getSerialNumber());
 										xmlFinal = UtilCatalogos.convertStringToOutpuStream(UtilCatalogos.convertDocumentXmlToString(doc));
 										/*Fin asignaciones*/

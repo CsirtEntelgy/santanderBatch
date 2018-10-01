@@ -29,6 +29,7 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.interfactura.firmalocal.domain.entities.OpenJpa;
 import com.interfactura.firmalocal.domain.entities.SealCertificate;
 import com.interfactura.firmalocal.utils.Base64;
 import com.interfactura.firmalocal.xml.Properties;
@@ -89,6 +90,85 @@ public class XMLProcess
 		*/
 		return cadena;
 	}
+	
+	
+	
+	/**
+	 * Sustituye la cadena original
+	 * */
+	public ByteArrayOutputStream replacesOriginalStringPagos(ByteArrayOutputStream out, SealCertificate certificate, 
+			String sello, String lugarExpedicion) 
+		throws IOException 
+	{
+		
+		/*
+		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+		Date dateInicio = new Date();
+		System.out.println("TIMEINICIOCadena original reemplazada:" + dateFormat.format(dateInicio) + " M" + System.currentTimeMillis());
+		*/
+		logger.debug("Reemplazando Cadena Original");
+		
+		long t1 = System.currentTimeMillis();
+		ByteArrayOutputStream outBW = new ByteArrayOutputStream();
+		InputStreamReader in = new InputStreamReader(new ByteArrayInputStream(out.toByteArray()), "UTF-8");
+		OutputStreamWriter outW = new OutputStreamWriter(outBW, "UTF-8");
+		BufferedReader bF = new BufferedReader(in);
+		BufferedWriter bW = new BufferedWriter(outW);
+		String line=null;
+		boolean f1 = false;
+		boolean f2 = false;
+		boolean f3 = false;
+		boolean f4 = false;
+		boolean f5 = false;
+		boolean f6 = false;
+		while (bF.ready()) 
+		{
+			line = bF.readLine();
+			if (!f1) 
+			{
+				if (line.lastIndexOf(properties.getLblNO_CERTIFICADO()) > 0) 
+				{
+					line = line.replaceAll(properties.getLblNO_CERTIFICADO(),
+							certificate.getSerialNumber());
+					f1 = true;
+				}
+			}
+
+			if (!f2) 
+			{
+				if (line.lastIndexOf(properties.getLblCERTIFICADO()) > 0) 
+				{
+					line = line.replaceAll(properties.getLblCERTIFICADO(),
+							Util.replaceSR(Base64.encodeToString(certificate.getCertificate(),false)));
+					f2 = true;
+				}
+			}
+
+			if (!f3) 
+			{
+				if (line.lastIndexOf(properties.getLabelSELLO()) > 0) 
+				{
+					line = line.replaceAll(properties.getLabelSELLO(), sello);
+					f3 = true;
+				}
+			}
+			
+			
+
+			
+			bW.write(line);
+		}
+		bF.close();
+		bW.close();
+		long t2 = t1- System.currentTimeMillis();
+		System.out.println("TIME: Cadena Original Reemplazada " + t2 + " ms");
+		/*		
+		Date dateInicio2 = new Date();
+		System.out.println("TIMEFINALCadena original reemplazada:" + dateFormat.format(dateInicio2) + " M" + System.currentTimeMillis());
+		*/
+		return outBW;
+	}
+
 
 	/**
 	 * Sustituye la cadena original El numero de Certificado Y el certificado
