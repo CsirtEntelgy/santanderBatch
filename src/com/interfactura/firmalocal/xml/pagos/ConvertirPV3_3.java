@@ -484,9 +484,8 @@ public class ConvertirPV3_3 {
 			String cadPago = "";
 			String selloPago = "";
 			
-			String regExUUID = "[a-f0-9A-F]{8}-[a-f0-9A-F]{4}-[a-f0-9A-F]{4}-[a-f0-9A-F]{4}-[a-f0-9A-F]{12}";
-			String uuid = "";
-			if (datos[1] != null && !datos[1].trim().equals("") && datos[1].matches(regExUUID)) {
+			
+			if (datos[1] != null && !datos[1].trim().equals("")) {
 				
 				pattern = Pattern.compile(UUID_PATTERN);
 				matcher = pattern.matcher(datos[1].trim().toUpperCase());
@@ -535,28 +534,17 @@ public class ConvertirPV3_3 {
 				pago.setMonto("vacioErr");
 			
 			String tipoCambio = "";
-			if (datos[6] != null && !datos[6].trim().equals("")) {
-				if (tipoMoneda.equalsIgnoreCase("MXN")) {
-					if (UtilCatalogos.decimalesValidationMsj(datos[6].trim(), decimalesMoneda)) {
-						pago.setTipoCambioP(datos[6].trim());
-					} else
-						pago.setTipoCambioP("");
-					
-					tipoCambio = " TipoCambioP=\""+ pago.getTipoCambioP() +"\"";
-				} else {
+			if (datos[6] != null && !datos[6].trim().equals("") && !tipoMoneda.equalsIgnoreCase("MXN")) {
 					String tipocambioVal = UtilCatalogos.findTipoCambioByMoneda(tags.mapCatalogos,tipoMoneda);
 					if (!tipocambioVal.equalsIgnoreCase("vacio")) {
-						pago.setTipoCambioP(datos[6].trim());
+						pago.setTipoCambioP(tipocambioVal);
 					} else
-						pago.setTipoCambioP("");
+						pago.setTipoCambioP("vacioErr");
 					
 					tipoCambio = " TipoCambioP=\""+ pago.getTipoCambioP() +"\"";
-				}
-				
+			} else {
+				pago.setTipoCambioP("");
 			}
-			
-			// de acuerdo a 
-			tipoCambio = "";
 			
 			
 			if (datos[7] != null && !datos[7].trim().equals("")) {
@@ -675,11 +663,19 @@ public class ConvertirPV3_3 {
 			String impPagado = "";
 			String impInsoluto = "";
 			
-			if (datos[1] != null && !datos[1].trim().equals("") && datos[1].matches(regExUUID)) {
-				doc.setIdDocumento(datos[1]);
+			if (datos[1] != null && !datos[1].trim().equals("")) {
+				
+				pattern = Pattern.compile(UUID_PATTERN);
+				matcher = pattern.matcher(datos[1].trim().toUpperCase());
+			
+				if (!matcher.matches()) {
+					doc.setIdDocumento("patronErr");
+				} else
+					doc.setIdDocumento(datos[1].trim().toUpperCase());
 			} else {
-				doc.setIdDocumento((datos[8] != null || !datos[8].trim().equals(""))  ? "vacioErr" : "patronErr");
+				doc.setIdDocumento("vacioErr");
 			}
+			
 			
 			if (datos[2] != null && !datos[2].trim().equals("")) {
 				doc.setFolio(datos[2]);
@@ -701,15 +697,21 @@ public class ConvertirPV3_3 {
 				doc.setMonedaDR("vacioErr");
 			}
 			
-			if (datos[5] != null && !datos[5].trim().equals("")) {
-				doc.setTipoCambioDR(datos[5]);
-				tipoCambio = " TipoCambioDR=\""+datos[5]+"\"";
+			String monedaP = pagosTags.pagos.get(pagosTags.pagos.size()-1).getMonedaP();
+			
+			logger.info(monedaP);
+			
+			if ( !monedaP.trim().equalsIgnoreCase(datos[5].trim()) ) {
+				if (datos[5] != null && !datos[5].trim().equals("")) {
+					doc.setTipoCambioDR(datos[5]);
+					tipoCambio = " TipoCambioDR=\""+datos[5]+"\"";
+				} else {
+					doc.setTipoCambioDR("");
+				}
 			} else {
 				doc.setTipoCambioDR("");
+				tipoCambio = "";
 			}
-			
-			//DE acuerdo a interfactura este atributo se omite
-			tipoCambio = "";
 			
 			if (datos[6] != null && !datos[6].trim().equals("")) {
 				doc.setMetodoDePagoDR(datos[6]);
@@ -758,9 +760,7 @@ public class ConvertirPV3_3 {
 					+ impSaldoAnt
 					+ impPagado
 					+ impInsoluto
-					+ " />").toString().getBytes("UTF-8");
-			
-			
+					+ " />\n</pago10:Pago>").toString().getBytes("UTF-8");
 		}else {
 			return errFormat(linea);
 		}

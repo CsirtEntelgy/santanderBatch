@@ -946,7 +946,7 @@ public class GeneraXML_PAGOSV3_3 {
 			
 	
 	public byte[] endComplemento() throws UnsupportedEncodingException {
-		return "\n</pago10:Pago>\n</pago10:Pagos>\n</cfdi:Complemento>".getBytes("UTF-8");
+		return "\n</pago10:Pagos>\n</cfdi:Complemento>".getBytes("UTF-8");
 	}
 	
 	private void endPago(int decremento, String idProceso, String fechaCtlM, String fileNames, String numeroMalla) throws IOException {
@@ -1267,95 +1267,102 @@ public class GeneraXML_PAGOSV3_3 {
 			for(Pago pago : conver.getPagosTags().pagos) {
 				Documento doc = conver.getPagosTags().documentos.get(i);
 				
-				if (pago.getIdDocumento().equalsIgnoreCase(doc.getIdDocumento())) { 
-					
-						
-						if (pago.getIdDocumento().indexOf("Err")  != -1) {
-							errores.append("\n" + getTypeError(pago.getIdDocumento(), i + " Pago IdDocumento", UUID_PATTERN ));
-						}
-						
-						
-						String monto ="";
-						if (pago.getMonto().indexOf("Err")  != -1) {
-							errores.append("\n" + getTypeError(pago.getMonto(), i + " Pago Monto", "" ));
-						} else
-							monto = pago.getMonto();
-						
-						if (pago.getMonedaP().indexOf("Err")  != -1) {
-							errores.append("\n" + getTypeError(pago.getMonedaP(), i + " Pago MonedaP", "" ));
-						}
-						
-						if (pago.getTipoCambioP().indexOf("Err")  != -1) {
-							errores.append("\n" + getTypeError(pago.getTipoCambioP(), i + " Pago TipoCambioP", "" ));
-						}
-						
-						if (pago.getFechaPago().indexOf("Err")  != -1) {
-							errores.append("\n" + getTypeError(pago.getFechaPago(), i + " Pago FechaDePago", DATE_PATTERN ));
-						}
-						
-						if (pago.getFormaDePagoP().indexOf("Err")  != -1) {
-							errores.append("\n" + getTypeError(pago.getFormaDePagoP(), i + " Pago FormaDePago", "" ));
-						}
-						
-						if (pago.getRfcEmisorCtaOrd().indexOf("Err")  != -1) {
-							errores.append("\n" + getTypeError(pago.getRfcEmisorCtaOrd(), i + " Pago rfcEmisorOrd",RFC_PATTERN ));
-						}
-						
-						if (pago.getNomBancoOrdExt().indexOf("Err")  != -1) {
-							errores.append("\n" + getTypeError(pago.getNomBancoOrdExt(), i + " Pago NombBancoOrdExt", "" ));
-						}
-						
-						if (pago.getCtaOrdenante().indexOf("Err")  != -1) {
-							errores.append("\n" + getTypeError(pago.getCtaOrdenante(), i + " Pago CtaOrdenante", "" ));
-						}
-						
-						if (pago.getRfcEmisorCtaBen().indexOf("Err")  != -1) {
-							errores.append("\n" + getTypeError(pago.getRfcEmisorCtaBen(), i + " Pago RfcEmisorCtaBen", RFC_PATTERN ));
-						}
-						
-						if (pago.getCtaBeneficiario().indexOf("Err")  != -1) {
-							errores.append("\n" + getTypeError(pago.getCtaBeneficiario(), i + " Pago CtaBeneficiario", "" ));
-						}
-						
-						
-						
-						
-						
-//						DocRelacionado
-						
-						if (doc.getIdDocumento().indexOf("Err")  != -1) {
-							errores.append("\n" + getTypeError(doc.getIdDocumento(), i + " DocRel IdDocumento", UUID_PATTERN ));
-						}
-						
-						if (doc.getMonedaDR().indexOf("Err")  != -1) {
-							errores.append("\n" + getTypeError(doc.getMonedaDR(), i + " DocRel MonedaDR", "" ));
-						}
-						
-						if (doc.getMetodoDePagoDR().indexOf("Err")  != -1) {
-							errores.append("\n" + getTypeError(doc.getMetodoDePagoDR(), i + " DocRel MetodoDePagoDR", "" ));
-						}
-						
-						if (!monto.equals("") && !doc.getImpPagado().equals("")) {
-							if (!monto.equalsIgnoreCase(doc.getImpPagado()))
-								errores.append("\nEl monto del pago No. "+ i +" no es igual al importe pagado del documento" );
-						}
-						
-						if (!doc.getImpPagado().equals("") && !doc.getImpSaldoAnt().equals("") && !doc.getImpSaldoInsoluto().equals("") ) {
-						
-							Double pagado = new Double(doc.getImpPagado().trim());
-							Double saldoAnt = new Double(doc.getImpSaldoAnt().trim());
-							Double insoluto = new Double(doc.getImpSaldoInsoluto().trim());
-							
-							Double res = saldoAnt -pagado;
-							res = Math.rint(res*100)/100;
-							if (!insoluto.equals(res)) {
-								errores.append("\nEl impInsoluto="+ insoluto +" del pago No. "+ i +" no concuerda con la operacion: " 
-										+ saldoAnt + "-" + pagado + "=" +res  );
-							}
-						}
-				} else {
-					errores.append("\n El idDocumento del pago y documento " + i + " no concuerdan" );
+				
+				boolean error = false;
+				
+				if (pago.getIdDocumento().indexOf("Err")  != -1) {
+					errores.append("\n" + getTypeError(pago.getIdDocumento(), (i + 1) + " Pago IdDocumento", UUID_PATTERN ));
+					error = true;
 				}
+				
+				
+				String monto ="";
+				if (pago.getMonto().indexOf("Err")  != -1) {
+					errores.append("\n" + getTypeError(pago.getMonto(), (i + 1) + " Pago Monto", "" ));
+				} else
+					monto = pago.getMonto();
+				
+				if (pago.getMonedaP().indexOf("Err")  != -1) {
+					errores.append("\n" + getTypeError(pago.getMonedaP(), (i + 1) + " Pago MonedaP", "" ));
+				}
+				
+				if (pago.getTipoCambioP().indexOf("Err")  != -1) {
+					errores.append("\n" + getTypeError(pago.getTipoCambioP(), (i + 1) + " Pago TipoCambioP", "" ));
+				}
+				
+				if (pago.getFechaPago().indexOf("Err")  != -1) {
+					errores.append("\n" + getTypeError(pago.getFechaPago(), (i + 1) + " Pago FechaDePago", DATE_PATTERN ));
+				}
+				
+				if (pago.getFormaDePagoP().indexOf("Err")  != -1) {
+					errores.append("\n" + getTypeError(pago.getFormaDePagoP(), (i + 1) + " Pago FormaDePago", "" ));
+				}
+				
+				if (pago.getRfcEmisorCtaOrd().indexOf("Err")  != -1) {
+					errores.append("\n" + getTypeError(pago.getRfcEmisorCtaOrd(), (i + 1) + " Pago rfcEmisorOrd",RFC_PATTERN ));
+				}
+				
+				if (pago.getNomBancoOrdExt().indexOf("Err")  != -1) {
+					errores.append("\n" + getTypeError(pago.getNomBancoOrdExt(), (i + 1) + " Pago NombBancoOrdExt", "" ));
+				}
+				
+				if (pago.getCtaOrdenante().indexOf("Err")  != -1) {
+					errores.append("\n" + getTypeError(pago.getCtaOrdenante(), (i + 1) + " Pago CtaOrdenante", "" ));
+				}
+				
+				if (pago.getRfcEmisorCtaBen().indexOf("Err")  != -1) {
+					errores.append("\n" + getTypeError(pago.getRfcEmisorCtaBen(), (i + 1) + " Pago RfcEmisorCtaBen", RFC_PATTERN ));
+				}
+				
+				if (pago.getCtaBeneficiario().indexOf("Err")  != -1) {
+					errores.append("\n" + getTypeError(pago.getCtaBeneficiario(), (i + 1) + " Pago CtaBeneficiario", "" ));
+				}
+				
+				
+				
+				
+				
+//				DocRelacionado
+				
+				if (doc.getIdDocumento().indexOf("Err")  != -1) {
+					errores.append("\n" + getTypeError(doc.getIdDocumento(), (i + 1) + " DocRel IdDocumento", UUID_PATTERN ));
+					error = true;
+				}
+				
+				if (doc.getMonedaDR().indexOf("Err")  != -1) {
+					errores.append("\n" + getTypeError(doc.getMonedaDR(), (i + 1) + " DocRel MonedaDR", "" ));
+				}
+				
+				if (doc.getMetodoDePagoDR().indexOf("Err")  != -1) {
+					errores.append("\n" + getTypeError(doc.getMetodoDePagoDR(), (i + 1) + " DocRel MetodoDePagoDR", "" ));
+				}
+				
+				if (!monto.equals("") && !doc.getImpPagado().equals("")) {
+					if (!monto.equalsIgnoreCase(doc.getImpPagado()))
+						errores.append("\nEl monto del pago No. "+ (i + 1) +" no es igual al importe pagado del documento" );
+				}
+				
+				if (!doc.getImpPagado().equals("") && !doc.getImpSaldoAnt().equals("") && !doc.getImpSaldoInsoluto().equals("") ) {
+				
+					Double pagado = new Double(doc.getImpPagado().trim());
+					Double saldoAnt = new Double(doc.getImpSaldoAnt().trim());
+					Double insoluto = new Double(doc.getImpSaldoInsoluto().trim());
+					
+					Double res = saldoAnt -pagado;
+					res = Math.rint(res*100)/100;
+					if (!insoluto.equals(res)) {
+						errores.append("\nEl impInsoluto="+ insoluto +" del pago No. "+ (i + 1) +" no concuerda con la operacion: " 
+								+ saldoAnt + "-" + pagado + "=" +res  );
+					}
+				}
+				
+				if ( !error ) {
+					if (!pago.getIdDocumento().equalsIgnoreCase(doc.getIdDocumento())) { 
+						errores.append("\n El idDocumento del pago y documento " + (i + 1) + " no concuerdan" );
+					}
+					
+				}
+				
 				i++;
 			}
 			
