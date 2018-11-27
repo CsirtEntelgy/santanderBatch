@@ -167,35 +167,44 @@ public ByteArrayOutputStream convierte(CfdiComprobanteFiscal comp) throws Unsupp
     	
     	String sal  = UtilCatalogos.convertDocumentXmlToString(doc);
     	
+    	boolean reteImp = true;
+    	boolean traImp = true;
     	if (!UtilCatalogos.getStringValByExpression(doc, "//Comprobante/Impuestos/@TotalImpuestosRetenidos").equalsIgnoreCase("")) {
-	    	BigDecimal totalImpRet = new BigDecimal(UtilCatalogos.getStringValByExpression(doc, "//Comprobante/Impuestos/@TotalImpuestosRetenidos"));
-	    	
+    			
+	        BigDecimal totalImpRet = new BigDecimal(UtilCatalogos.getStringValByExpression(doc, "//Comprobante/Impuestos/@TotalImpuestosRetenidos"));
+	                
 	    	if (totalImpRet.compareTo(new BigDecimal("0")) == 0) {
-	    		
 	    		UtilCatalogos.setValueOnDocumentElement(doc, "//Comprobante/Impuestos/@TotalImpuestosRetenidos", "0.00");
-	    		String ret =UtilCatalogos.getStringValByExpression(doc, "//Comprobante/Impuestos/@TotalImpuestosRetenidos");
-	    		
 	    		sal = UtilCatalogos.convertDocumentXmlToString(doc);
-	        	//sal.replaceAll("TotalImpuestosRetenidos=\"0.00\"", " ");
 	        	sal = sal.replace("TotalImpuestosRetenidos=\"0.00\"", "");
-	        	
 	        	doc = UtilCatalogos.convertStringToDocument(sal);
-	    	} else {
+	        	reteImp = false;
+	    	} else
 	    		sal = UtilCatalogos.convertDocumentXmlToString(doc);
-	    	}
     	}
     	
-    	/*if (!UtilCatalogos.getStringValByExpression(doc, "//Comprobante/Impuestos/@TotalImpuestosRetenidos").equalsIgnoreCase("")) {
+    	if (!UtilCatalogos.getStringValByExpression(doc, "//Comprobante/Impuestos/@TotalImpuestosTrasladados").equalsIgnoreCase("")) {
 	    	BigDecimal totalImpTra = new BigDecimal(UtilCatalogos.getStringValByExpression(doc, "//Comprobante/Impuestos/@TotalImpuestosTrasladados"));
 	    	if (totalImpTra.compareTo(new BigDecimal("0")) == 0) {
 	    		UtilCatalogos.setValueOnDocumentElement(doc, "//Comprobante/Impuestos/@TotalImpuestosTrasladados", "0.00");
 	    		sal = UtilCatalogos.convertDocumentXmlToString(doc);
-	        	//sal.replaceAll("TotalImpuestosTrasladados=\"0.00\"", " ");
-	        	sal = sal.replace("TotalImpuestosRetenidos=\"0.00\"", "");
+	        	sal = sal.replace("TotalImpuestosTrasladados=\"0.00\"", "");
+	        	doc = UtilCatalogos.convertStringToDocument(sal);
+	        	traImp = false;
 	    	} else
 	    		sal = UtilCatalogos.convertDocumentXmlToString(doc);
-	    	
-    	}*/
+    	}
+    	
+//    	cfdi:ImpuestosXD
+    	sal = UtilCatalogos.convertDocumentXmlToString(doc);
+    	
+    	System.out.println( "XMLXD: " + sal );
+    	
+    	if ( !reteImp && !traImp) {
+    		sal = sal.replace("<cfdi:Impuestos />", "");
+    	}
+    	
+    	
 		out = UtilCatalogos.convertStringToOutpuStream(sal);
 		
 		out = xmlProcessGeneral.replacesOriginalString(out, xmlProcessGeneral.generatesOriginalString(out, "3.3"), certificado);

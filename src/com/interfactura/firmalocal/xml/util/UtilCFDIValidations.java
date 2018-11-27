@@ -2385,14 +2385,17 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 			if (comp.getMoneda() != null) {
 				if (!comp.getMoneda().trim().equalsIgnoreCase("XXX")) {
 
-					if (comp.getMoneda().equalsIgnoreCase("MXN")) {
-						comp.setTipoCambio("1");
-					}
 
 					Map<String, Object> tipoCam = UtilValidationsXML.validTipoCambio(tags.mapCatalogos,
 							comp.getTipoCambio(), comp.getMoneda());
 					if (!tipoCam.get("value").toString().equalsIgnoreCase("vacio")) {
-						comp.setTipoCambio(tipoCam.get("value").toString());
+						
+//						comp.setTipoCambio(tipoCam.get("value").toString());
+						
+						if (comp.getMoneda().equalsIgnoreCase("MXN")) {
+							comp.setTipoCambio("1");
+						}
+						
 						//campo adicional tipo de cambio
 						DecimalFormat df = new DecimalFormat("0.0000");
 						if(comp.getAddenda().getCampoAdicional() != null){
@@ -3378,7 +3381,7 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 					String baseVal = "";
 					if (tasaOCuotaVal != null && !tasaOCuotaVal.equals("") && concepto.getValorUnitario() != null) {
 						
-						String baseString  = String.format("%f", concepto.getValorUnitario());
+						String baseString  = String.format("%f", concepto.getImporte());
 						baseVal = UtilCatalogos.decimales(baseString, tags.decimalesMoneda);
 						
 						if (trasladoBol) {
@@ -3409,8 +3412,7 @@ public String validateComprobante(CfdiComprobanteFiscal comp, int factura) {
 						if (!tipoFactorValRow.equalsIgnoreCase("Exento")
 								&& !tipoFactorValRow.equalsIgnoreCase("Excento")) {
 
-							Double importeVal = (Double.valueOf(baseVal) * concepto.getCantidad().doubleValue())
-									* Double.valueOf(tasaOCuotaVal);
+							Double importeVal = (Double.valueOf(baseVal) * Double.valueOf(tasaOCuotaVal));
 
 							// redondear importe retencion/traslado
 							importeValStr = UtilCatalogos.decimales(String.format("%f", importeVal),
