@@ -15,7 +15,7 @@ import com.interfactura.firmalocal.dao.RegimenFiscalDao;
 import com.interfactura.firmalocal.domain.entities.RegimenFiscal;
 
 /**
- * Implementación de {@link RegimenFiscalDao}
+ * ImplementaciÃ³n de {@link RegimenFiscalDao}
  * 
  * @author hlara
  * 
