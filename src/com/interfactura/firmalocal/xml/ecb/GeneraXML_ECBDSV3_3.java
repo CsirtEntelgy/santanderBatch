@@ -1064,11 +1064,11 @@ public class GeneraXML_ECBDSV3_3 {
 			break;
 		case 5:
 			out.write(conver.receptor(conver.getTags().lineaAnterior, conver.getTags().contCFDAnterior));
-			out.write(conver.domicilio(linea, contCFD));
+			out.write(conver.domicilio(linea, contCFD)); 
 			this.beginCONCEPTOS();
 			break;
 		case 6:
-			if (this.nameFile.contains("CARTER") || this.nameFile.contains("SOFOM")) 
+			if (this.nameFile.contains("PTCARTERR") || this.nameFile.contains("PTSOFOMR") || this.nameFile.contains("INGEDCR")) 
 				out.write(conver.conceptoCarter(linea, contCFD, lstFiscal, campos22));// , fileNames)); Correccion para funcion concepto que recibe 4 parametro
 			else
 				out.write(conver.concepto(linea, contCFD, lstFiscal, campos22));// , fileNames)); Correccion para funcion concepto que recibe 4 parametro
