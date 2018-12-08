@@ -209,4 +209,28 @@ public class TagsXML {
 	public Double sumTotalImpuestosTrasDou = 0.00;
 	public boolean isECBEnCeros = false;
 	
+//	AddendaBet
+	public String CURP = "";
+	//Operaciones
+	public String codBar  = "";
+	public String fechaPagoRecibo  = "";
+	public String numeroContrato  = "";
+	public String nombreDeudorOpe  = "";
+	public String rfcDeudorOpe  = "";
+	public String noDeudor  = "";
+	public String fechaVencimiento  = "";
+	public String tasaDescInt  = "";
+	public String plazo  = "";
+	public String valorNominalOpe  = "";
+	public String descRend  = "";
+	public String precioFactoraje  = "";
+	//Cobranza
+	public String fechaCobro  = "";
+	public String nombreDeudorCob  = "";
+	public String rfcDeudorCob  = "";
+	public String fechaCesion  = "";
+	public String noDocumento  = "";
+	public String valorNominalCon  = "";
+	public String totalCobrado  = "";
+	
 }

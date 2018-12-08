@@ -54,6 +54,10 @@ public class ECB {
 	
 	private String tagNOMBRE_APP_REPECB = "";
 	
+	private List<Operacion> lstOperacionesECB = new ArrayList<Operacion>();
+	private List<Cobranza> lstCobranzaECB = new ArrayList<Cobranza>();
+	private boolean addendaNew = false;
+	
 	private Document domResultado;
 		
 	public ECB(){
@@ -293,6 +297,25 @@ public class ECB {
 	public void setAddendaReference(String addendaReference) {
 		this.addendaReference = addendaReference;
 	}
+	public List<Operacion> getLstOperacionesECB() {
+		return lstOperacionesECB;
+	}
+	public void setLstOperacionesECB(List<Operacion> lstOperacionesECB) {
+		this.lstOperacionesECB = lstOperacionesECB;
+	}
+	public List<Cobranza> getLstCobranzaECB() {
+		return lstCobranzaECB;
+	}
+	public void setLstCobranzaECB(List<Cobranza> lstCobranzaECB) {
+		this.lstCobranzaECB = lstCobranzaECB;
+	}
+	public boolean isAddendaNew() {
+		return addendaNew;
+	}
+	public void setAddendaNew(boolean addendaNew) {
+		this.addendaNew = addendaNew;
+	}
+	
 	
 	//
 	
