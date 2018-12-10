@@ -1693,6 +1693,9 @@ public class UtilCFDIFormatoUnico {
 									impuestos.setTraslados(traslados);
 									cfdi.setImpuestos(impuestos);
 								}
+								System.out.println("tasaCero2XD: " + cfdi.getAplicaIva().trim().equals("1"));
+								if (cfdi.getAplicaIva().trim().equals("1"))
+									comp.setTasaCero(true);
 								conceptos.add(cfdi);
 							}
 						}
@@ -1797,6 +1800,9 @@ public class UtilCFDIFormatoUnico {
 									impuestos.setRetenciones(traslados);
 									cfdi.setImpuestos(impuestos);
 								}
+								System.out.println("tasaCero2XD: " + cfdi.getAplicaIva().trim().equals("1"));
+								if (cfdi.getAplicaIva().trim().equals("1"))
+									comp.setTasaCero(true);
 								conceptos.add(cfdi);
 							}
 						}
@@ -2499,6 +2505,9 @@ public class UtilCFDIFormatoUnico {
 									impuestos.setTraslados(traslados);
 									cfdi.setImpuestos(impuestos);
 								}
+								System.out.println("tasaCEroXD1: " + cfdi.getAplicaIva().trim().equals("1"));
+								if (cfdi.getAplicaIva().trim().equals("1"))
+									comp.setTasaCero(true);
 								conceptos.add(cfdi);
 							}
 						}
@@ -2603,6 +2612,9 @@ public class UtilCFDIFormatoUnico {
 									impuestos.setRetenciones(traslados);
 									cfdi.setImpuestos(impuestos);
 								}
+								System.out.println("tasaCero2XD: " + cfdi.getAplicaIva().trim().equals("1"));
+								if (cfdi.getAplicaIva().trim().equals("1"))
+									comp.setTasaCero(true);
 								conceptos.add(cfdi);
 							}
 						}

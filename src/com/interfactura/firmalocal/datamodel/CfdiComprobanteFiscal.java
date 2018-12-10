@@ -53,8 +53,19 @@ public class CfdiComprobanteFiscal {
     private String numeroCuentaPago;
     private String referenciaFactura;
     private String costCenter;
+    
+    private boolean tasaCero;
+    
 
-    public BigDecimal getDescuento() {
+    public boolean isTasaCero() {
+		return tasaCero;
+	}
+
+	public void setTasaCero(boolean tasaCero) {
+		this.tasaCero = tasaCero;
+	}
+
+	public BigDecimal getDescuento() {
         return descuento;
     }
 

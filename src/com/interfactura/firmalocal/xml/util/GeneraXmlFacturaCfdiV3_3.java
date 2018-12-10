@@ -212,4 +212,70 @@ public ByteArrayOutputStream convierte(CfdiComprobanteFiscal comp) throws Unsupp
 		return out;
 	}
 	
+	public ByteArrayOutputStream reemplazaCadenaOriginalNew(ByteArrayOutputStream in, FiscalEntity fe, boolean tasaCero) 
+			throws UnsupportedEncodingException, ParserConfigurationException, SAXException, IOException
+			, XPathExpressionException, TransformerConfigurationException, TransformerException
+			, GeneralSecurityException, ValidationException{
+	
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		certificado.find(fe.getId());
+		
+		Document doc = UtilCatalogos.convertStringToDocument(in.toString("UTF-8"));
+		UtilCatalogos.setValueOnDocumentElement(doc, "//Comprobante/@NoCertificado", certificado.getCertificado().getSerialNumber());
+    	if (UtilCatalogos.getStringValByExpression(doc, "//Comprobante//@Moneda").equalsIgnoreCase("MXN")) {
+    		UtilCatalogos.setValueOnDocumentElement(doc, "//Comprobante/@TipoCambio", "1");
+    		System.out.println("xmlDentroIFXD: " + UtilCatalogos.convertDocumentXmlToString(doc));
+    	}
+    	System.out.println("xmlFueraIFXD: " + UtilCatalogos.convertDocumentXmlToString(doc));
+    	
+    	String sal  = UtilCatalogos.convertDocumentXmlToString(doc);
+    	
+    	boolean reteImp = true;
+    	boolean traImp = true;
+    	if (!UtilCatalogos.getStringValByExpression(doc, "//Comprobante/Impuestos/@TotalImpuestosRetenidos").equalsIgnoreCase("")) {
+    			
+	        BigDecimal totalImpRet = new BigDecimal(UtilCatalogos.getStringValByExpression(doc, "//Comprobante/Impuestos/@TotalImpuestosRetenidos"));
+	                
+	    	if (totalImpRet.compareTo(new BigDecimal("0")) == 0) {
+	    		UtilCatalogos.setValueOnDocumentElement(doc, "//Comprobante/Impuestos/@TotalImpuestosRetenidos", "0.00");
+	    		sal = UtilCatalogos.convertDocumentXmlToString(doc);
+	        	sal = sal.replace("TotalImpuestosRetenidos=\"0.00\"", "");
+	        	doc = UtilCatalogos.convertStringToDocument(sal);
+	        	reteImp = false;
+	    	} else
+	    		sal = UtilCatalogos.convertDocumentXmlToString(doc);
+    	}
+    	
+    	System.out.println(" tasaCerXD: " + tasaCero);
+    	 
+    	if (!UtilCatalogos.getStringValByExpression(doc, "//Comprobante/Impuestos/@TotalImpuestosTrasladados").equalsIgnoreCase("") && !tasaCero) {
+	    	BigDecimal totalImpTra = new BigDecimal(UtilCatalogos.getStringValByExpression(doc, "//Comprobante/Impuestos/@TotalImpuestosTrasladados"));
+	    	if (totalImpTra.compareTo(new BigDecimal("0")) == 0) {
+	    		UtilCatalogos.setValueOnDocumentElement(doc, "//Comprobante/Impuestos/@TotalImpuestosTrasladados", "0.00");
+	    		sal = UtilCatalogos.convertDocumentXmlToString(doc);
+	        	sal = sal.replace("TotalImpuestosTrasladados=\"0.00\"", "");
+	        	doc = UtilCatalogos.convertStringToDocument(sal);
+	        	traImp = false;
+	    	} else
+	    		sal = UtilCatalogos.convertDocumentXmlToString(doc);
+    	}
+    	
+//    	cfdi:ImpuestosXD
+    	sal = UtilCatalogos.convertDocumentXmlToString(doc);
+    	
+    	System.out.println( "XMLXD: " + sal );
+    	
+    	if ( !reteImp && !traImp) {
+    		sal = sal.replace("<cfdi:Impuestos />", "");
+    	}
+    	
+    	
+		out = UtilCatalogos.convertStringToOutpuStream(sal);
+		
+		out = xmlProcessGeneral.replacesOriginalString(out, xmlProcessGeneral.generatesOriginalString(out, "3.3"), certificado);
+		
+		return out;
+	}
+	
+	
 }

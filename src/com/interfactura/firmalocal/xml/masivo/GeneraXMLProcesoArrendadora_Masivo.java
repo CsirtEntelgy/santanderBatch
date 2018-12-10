@@ -407,7 +407,7 @@ public class GeneraXMLProcesoArrendadora_Masivo {
 												System.out.println("---Fin XML despues de validar decimales---");
 												
 												//agregar certificado y sello
-												baosXml = xmlGenerator.reemplazaCadenaOriginal(baosXml, fiscalEntity);
+												baosXml = xmlGenerator.reemplazaCadenaOriginalNew(baosXml, fiscalEntity, comp.isTasaCero());
 												
 												System.out.println("---XML despues de reemplazar cadena original---");
 												System.out.println(baosXml.toString("UTF-8"));

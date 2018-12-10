@@ -441,7 +441,8 @@ public class GeneraXMLProceso_Masivo {
 												
 												
 												//agregar certificado y sello
-												baosXml = xmlGenerator.reemplazaCadenaOriginal(baosXml, fiscalEntity);
+												System.out.println(" isTasaCero: " + comp.isTasaCero());
+												baosXml = xmlGenerator.reemplazaCadenaOriginalNew(baosXml, fiscalEntity, comp.isTasaCero());
 												
 												System.out.println("---XML despues de reemplazar cadena original---");
 												System.out.println(baosXml.toString("UTF-8"));
