@@ -1089,6 +1089,7 @@ public class ConvertirV3_3 {
 		}
 	}
 
+	
 	public String getNameEntityFiscal() {
 		if (tags.fis == null) {
 			tags.isEntidadFiscal = false;
@@ -1270,6 +1271,14 @@ public class ConvertirV3_3 {
 
 				// System.out.println("Valor NumRegIdTrib: " + valRegIdTrib);
 			}
+			
+			String curp = "";
+			
+			if ( lineas.length > 3 ) {
+				if ( !lineas[3].trim().equals("") ) {
+					tags.CURP = lineas[3].trim();
+				}
+			}
 
 			//System.out.println("Saliendo de Receptor: ");
 			tags("Receptor", pila); // Validando la forma
@@ -1287,6 +1296,169 @@ public class ConvertirV3_3 {
 		} else {
 			return formatECB(numberLine);
 		}
+	}
+	
+	/**
+	 * @param linea
+	 * @param numberLine
+	 * @return
+	 * @throws UnsupportedEncodingException
+	 */
+	public byte[] barCode( String linea, long numberLine ) throws UnsupportedEncodingException {
+		
+		lineas = linea.split("\\|");
+		
+		if ( lineas.length >= 2 ) {
+			
+			if ( lineas[1].trim() == null || lineas[1].trim().equalsIgnoreCase("") ) {
+				tags.codBar = "ErrBarCode001";
+			} else {
+				tags.codBar = lineas[1].trim();
+			}
+			
+			return "".getBytes("UTF-8");
+		} else {
+			return formatECB(numberLine);
+		}
+	}
+	
+	/**
+	 * @param linea
+	 * @param numberLine
+	 * @return
+	 * @throws UnsupportedEncodingException
+	 */
+	public byte[] operaciones( String linea, long numberLine ) throws UnsupportedEncodingException {
+		
+		lineas = linea.split("\\|");
+		
+		if ( lineas.length >= 13 ) {
+			
+			String codBar  = "";
+			codBar = "CodBar=\"" + tags.codBar + "\" ";
+			
+			String curp = "";
+			if ( !tags.CURP.trim().equals("") ) {
+				curp = " CURP=\""+ tags.CURP +"\" ";
+			}
+			
+			
+			
+			String fechaPagoRecibo  = "";
+			if ( !lineas[1].trim().equals("") )
+				fechaPagoRecibo = "FechaPagoRecibo=\""+ lineas[1].trim() +"\" ";
+			
+			String numeroContrato  = "";
+			if ( !lineas[2].trim().equals("") ) 
+				numeroContrato = "NumeroContrato=\""+lineas[2].trim()+"\" ";
+			
+			String nombreDeudorOpe  = "";
+			if ( !lineas[3].trim().equals("") ) 
+				nombreDeudorOpe = "NombreDeudor=\""+lineas[3].trim()+"\" ";
+			
+			String rfcDeudorOpe  = "";
+			if ( !lineas[4].trim().equals("") )
+				rfcDeudorOpe = "RFCDeudor=\""+lineas[4].trim()+"\" ";
+			
+			String noDeudor  = "";
+			if ( !lineas[5].trim().equals("") )
+				noDeudor = "NoDocumento=\""+lineas[5].trim()+"\" ";
+			
+			String fechaVencimiento  = "";
+			if ( !lineas[6].trim().equals("") ) 
+				fechaVencimiento = "FechaVencimiento=\""+lineas[6].trim()+"\" ";
+			
+			String tasaDescInt  = "";
+			if ( !lineas[7].trim().equals("") )
+				tasaDescInt = "TasaDescInt=\""+lineas[7].trim()+"\" ";
+			
+			String plazo  = "";
+			if ( !lineas[8].trim().equals("") )
+				plazo = "Plazo=\""+lineas[8].trim()+"\" ";
+			
+			String valorNominalOpe  = "";
+			if ( !lineas[9].trim().equals("") )
+				valorNominalOpe = "ValorNominal=\""+lineas[9].trim()+"\" ";
+			
+			String descRend  = "";
+			if ( !lineas[10].trim().equals("") )
+				descRend = "DescRend=\""+lineas[10].trim()+"\" ";
+			
+			String precioFactoraje  = "";
+			if ( !lineas[11].trim().equals("") ) 
+				precioFactoraje = "PrecioFactoraje=\""+lineas[11].trim()+"\" ";
+			
+			
+			return Util.conctatArguments("\n<Santander:Operacion ", 
+					codBar, 
+					curp,
+					fechaPagoRecibo,
+					numeroContrato,
+					nombreDeudorOpe,
+					rfcDeudorOpe,
+					noDeudor,
+					fechaVencimiento,
+					tasaDescInt,
+					plazo,
+					valorNominalOpe,
+					descRend,
+					precioFactoraje, "/>")
+					.toString().getBytes("UTF-8");
+			
+		} else {
+			return formatECB(numberLine);
+		}
+	}
+	
+	
+	public byte[] cobranza( String linea, long numberLine ) throws UnsupportedEncodingException {
+		
+		lineas = linea.split("\\|");
+		
+		if ( lineas.length >= 9 ) {
+			
+			String fechaCobro  = "";
+			if ( !lineas[1].trim().equals("") )
+				fechaCobro = "FechaCobro=\""+lineas[1].trim()+"\" ";
+			
+			String nombreDeudorCob  = "";
+			if ( !lineas[2].trim().equals("") )
+				nombreDeudorCob = "NombreDeudor=\""+lineas[2].trim()+"\" ";
+			
+			String rfcDeudorCob  = "";
+			if ( !lineas[3].trim().equals("") )
+				rfcDeudorCob = "RFCDeudor=\""+lineas[3].trim()+"\" ";
+			
+			String fechaCesion  = "";
+			if ( !lineas[4].trim().equals("") )
+				fechaCesion = "FechaCesion=\""+lineas[4].trim()+"\" ";
+			
+			String noDocumento  = "";
+			if ( !lineas[5].trim().equals("") )
+				noDocumento = "NoDocumento=\""+lineas[5].trim()+"\" ";
+			
+			String valorNominalCon  = "";
+			if (!lineas[6].trim().equals("") )
+				valorNominalCon = "ValorNominal=\""+lineas[6].trim()+"\" ";
+			
+			String totalCobrado  = "";
+			if ( !lineas[7].trim().equals("") )
+				totalCobrado = "TotalCobrado=\""+lineas[7].trim()+"\" ";
+			
+			return Util.conctatArguments("\n<Santander:Cobranza ", 
+					fechaCobro, 
+					nombreDeudorCob,
+					rfcDeudorCob,
+					fechaCesion,
+					noDocumento,
+					valorNominalCon,
+					totalCobrado, "/>")
+					.toString().getBytes("UTF-8");
+			
+		} else {
+			return formatECB(numberLine);
+		}
+		
 	}
 	
 	

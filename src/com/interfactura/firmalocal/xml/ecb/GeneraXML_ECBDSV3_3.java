@@ -167,6 +167,13 @@ public class GeneraXML_ECBDSV3_3 {
     //Addenda  recompensas 
     private FileInputStream fileRecompensa;
     
+//    NewAddenda bet
+    private boolean dobleAddenda = false;
+	private boolean starnewAddenda;
+	private List<Operacion> lstOperaciones = new ArrayList<Operacion>();
+	private List<Cobranza> lstCobranzas = new ArrayList<Cobranza>();
+	private boolean attDobleAddIncorrect = false;
+    
    	public GeneraXML_ECBDSV3_3() {
 
 	}
@@ -433,8 +440,12 @@ public class GeneraXML_ECBDSV3_3 {
 				this.linea = linea.toString();
 				this.formatLinea(idProceso, fecha, fileNames, numeroMalla);	
 			}
-			this.endMOVIMIENTOS();
-			this.endADDENDA();
+			if ( !this.dobleAddenda ) {
+				this.endMOVIMIENTOS();
+				this.endADDENDA();
+			}
+			else
+				this.endAddendaECB();
 			//System.out.println("filenamesContabilizar:" + fileNames);
 			System.out.println("Inicia cerrado y verificacion de XML");
 			this.end(0, idProceso, fecha, fileNames, numeroMalla);
@@ -722,8 +733,7 @@ public class GeneraXML_ECBDSV3_3 {
 			            //System.out.println("AntesdeAgregarMovimientosECB: " + lstObjECBs.get(index).getDomResultado().toString());
 			            
 						//domResultado = this.putMovimientoECB(docEleComprobante, domResultado);
-			            lstObjECBs.get(index).setDomResultado(this.putMovimientoECB(docEleComprobante, lstObjECBs.get(index).getDomResultado(), lstObjECBs.get(index).getEstadoDeCuentaBancario(), lstObjECBs.get(index).getLstMovimientosECB()));
-			            
+			            lstObjECBs.get(index).setDomResultado(this.putMovimientoECB(docEleComprobante, lstObjECBs.get(index).getDomResultado(), lstObjECBs.get(index).getEstadoDeCuentaBancario(), lstObjECBs.get(index).getLstMovimientosECB(), lstObjECBs.get(index).getLstOperacionesECB(), lstObjECBs.get(index).getLstCobranzaECB(), lstObjECBs.get(index).isAddendaNew() ));
 						//Concatenar foliosSAT
 						sbFoliosSAT.append(this.strUUID + "||");
 						
@@ -1038,9 +1048,13 @@ public class GeneraXML_ECBDSV3_3 {
 		case 1:
 			if (conver.getTags().isComprobante) 
 			{	
-				this.endIMPUESTOS();
-				this.endMOVIMIENTOS();
-				this.addenda();
+				if ( !this.dobleAddenda ) {
+					this.endIMPUESTOS();
+					this.endMOVIMIENTOS();
+					this.addenda();
+				}
+				else
+					this.endAddendaECB();
 				System.out.println("filenamesContabilizar:" + fileNames);
 				this.end(1, idProceso, fecha, fileNames, numeroMalla);
 				long t2 = generaXmlTime - System.currentTimeMillis();
@@ -1052,7 +1066,8 @@ public class GeneraXML_ECBDSV3_3 {
 			endLine = null;
 			conver.getTags().isComprobante = true;
 			conver.set(linea, contCFD, fileNames, getNombresApps(), numeroMalla);
-			
+			this.dobleAddenda = false;
+			this.starnewAddenda = false;
 			break;
 		case 2:
 				out.write(conver.fComprobante(linea, contCFD, tipoCambio, lstFiscal, campos22, fileNames));
@@ -1067,7 +1082,7 @@ public class GeneraXML_ECBDSV3_3 {
 			out.write(conver.domicilio(linea, contCFD)); 
 			this.beginCONCEPTOS();
 			break;
-		case 6:
+		case 6: 
 			if (this.nameFile.contains("PTCARTERR") || this.nameFile.contains("PTSOFOMR") || this.nameFile.contains("INGEDCR")) 
 				out.write(conver.conceptoCarter(linea, contCFD, lstFiscal, campos22));// , fileNames)); Correccion para funcion concepto que recibe 4 parametro
 			else
@@ -1103,6 +1118,21 @@ public class GeneraXML_ECBDSV3_3 {
 		case 13:
 			System.out.println("Case 13:Entra cfdi ");
 			conver.getInfoCfdiRelacionado(linea);
+			break;
+		case 14:
+			this.endIMPUESTOS();
+			this.endMOVIMIENTOS();
+			this.dobleAddenda = true;
+			out.write( conver.barCode(linea, contCFD));
+			this.startAddendaECB();
+			break;
+		case 15:
+			
+			out.write( conver.operaciones(linea, contCFD) );
+			break;
+		case 16:
+			this.endOperaciones();
+			out.write( conver.cobranza(linea, contCFD) );
 			break;
 		default:
 			System.out.println("caseBreak");
@@ -1339,14 +1369,41 @@ public class GeneraXML_ECBDSV3_3 {
 		}
 	}
 	
+	public void endAddendaECB() throws IOException {
+		if (conver.getTags().isAddenda) 
+		{
+			out.write("\n</Santander:Cobranzas>".getBytes());
+			out.write("\n</Santander:addendaConfirming>".getBytes());
+			out.write("\n</cfdi:Addenda>".getBytes());
+			this.addendaDomicilios();
+			conver.getTags().isAddenda = false;
+		}
+		
+	}
+	
+	public void endOperaciones() throws IOException {
+		out.write("\n</Santander:Operaciones>".getBytes());
+		out.write("\n<Santander:Cobranzas>".getBytes());
+	}
+	
+	/**
+	 * @throws IOException
+	 */
+	public void startAddendaECB() throws IOException {
+		out.write("\n</Santander:EstadoDeCuentaBancario>".getBytes());
+		out.write("\n</Santander:addendaECB>".getBytes());
+		out.write("\n<Santander:addendaConfirming>".getBytes());
+		out.write("\n<Santander:Operaciones>".getBytes());
+	}
+	
 	
 	/**
 	 * Metodo para generar addenda de domicilios
 	 */
 	public void addendaDomicilios() throws IOException {
 		this.beginAddendaDomicilios();
-		out.write(conver.domicilioEmisor());		
-		//out.write(conver.domicilioReceptor());		
+//		out.write(conver.domicilioEmisor());		
+		out.write(conver.domicilioReceptor());		
 		this.endAddendaDomicilios();
 	}
 	private void beginAddendaDomicilios() throws IOException {
@@ -1774,6 +1831,13 @@ public class GeneraXML_ECBDSV3_3 {
 				}
 			}
 		
+		System.out.println("nodeADDXD: " + this.dobleAddenda);
+		String domStr="";
+		domStr=UtilCatalogos.convertDocumentXmlToString(dom);
+		System.out.println("xml1ADDXD: " + domStr); 
+		if ( this.dobleAddenda )
+			nodeAddenda = null;
+		
 		if(nodeAddenda != null){
 			//Recorrer los nodos hijos de cfdi:Comprobante
 			int i=0;
@@ -1799,6 +1863,8 @@ public class GeneraXML_ECBDSV3_3 {
 				fechaMov.substring(indexT + 1));
 	}
 	
+	
+	
 	private String getFolioSAT(Element docEleComprobante, Document domResultado){
 		String strFolioSAT = "";
 		NodeList hijosComprobante = docEleComprobante.getChildNodes();
@@ -1818,7 +1884,141 @@ public class GeneraXML_ECBDSV3_3 {
 		return strFolioSAT;
 	}
 
-	private Document putMovimientoECB(Element docEleComprobante, Document domResultado, EstadoDeCuentaBancario estadoDeCuentaBancariox, List<MovimientoECB> lstMovimientosECBx){
+	private Document putNewAddendaECB(Element docEleComprobante, Document domResultado, List<Operacion> lstopEcb, List<Cobranza> lstcobEcb) {
+
+		Element doc = domResultado.getDocumentElement();
+		NodeList hijosComprobante = doc.getChildNodes();
+		for(int i=0; i<hijosComprobante.getLength(); i++){
+			Node nodo = hijosComprobante.item(i);								
+			if(nodo instanceof Element && nodo.getNodeName().equals("cfdi:Addenda")){
+				Element addenda = domResultado.createElement("Santander:addendaConfirming"); 
+				domResultado.getDocumentElement().getChildNodes().item(0).getChildNodes().item(i).appendChild(addenda).appendChild(domResultado.createElement("Santander:Operaciones"));
+				Element addenda2 = domResultado.createElement("Santander:Cobranzas"); 
+				domResultado.getDocumentElement().getChildNodes().item(0).getChildNodes().item(i).appendChild(addenda2).appendChild(domResultado.createElement("Santander:Cobranzas"));
+			}
+		}
+		
+		doc = domResultado.getDocumentElement();
+		hijosComprobante = doc.getChildNodes();
+		for(int i=0; i<hijosComprobante.getLength(); i++){
+			Node nodo = hijosComprobante.item(i);								
+			if(nodo instanceof Element && nodo.getNodeName().equals("cfdi:Addenda")){
+				NodeList hijosAddendaRoot = nodo.getChildNodes();
+				
+				for(int j=0; j<hijosAddendaRoot.getLength(); j++){
+					
+					Node nodoj = hijosAddendaRoot.item(j);
+					
+					if(nodoj instanceof Element && nodoj.getNodeName().equals("Santander:addendaConfirming")){
+						
+						NodeList hijosAddendaConfirming = nodoj.getChildNodes();
+						
+						for ( int k = 0; k < hijosAddendaConfirming.getLength(); k++ ) {
+							
+							Node nodok = hijosAddendaConfirming.item(k);
+							
+							if ( nodok instanceof Element && nodok.getNodeName().equals("Santander:Operaciones") ) {
+								
+								for( Operacion operacion : this.lstOperaciones ) {
+									Element operacioneECB = domResultado.createElement("Santander:Operacion");
+									if ( operacion.getCodBar() != null && !operacion.getCodBar().equals("") )
+										operacioneECB.setAttribute("CodBar", operacion.getCodBar());
+									
+									if ( operacion.getFechaPagoRecibo() != null && !operacion.getFechaPagoRecibo().equals("") )
+										operacioneECB.setAttribute("FechaPagoRecibo", operacion.getFechaPagoRecibo());
+									
+									if ( operacion.getNumeroContrato() != null && !operacion.getNumeroContrato().equals("") )
+										operacioneECB.setAttribute("NumeroContrato", operacion.getNumeroContrato());
+									
+									if ( operacion.getNombreDeudorOpe() != null && !operacion.getNombreDeudorOpe().equals("") )
+										operacioneECB.setAttribute("NombreDeudor", operacion.getNombreDeudorOpe());
+									
+									if ( operacion.getRfcDeudorOpe() != null && !operacion.getRfcDeudorOpe().equals("") )
+										operacioneECB.setAttribute("RFCDeudor", operacion.getRfcDeudorOpe());
+									
+									if ( operacion.getNoDeudor() != null && !operacion.getNoDeudor().equals("") )
+										operacioneECB.setAttribute("NoDocumento", operacion.getNoDeudor());
+									
+									if ( operacion.getFechaVencimiento() != null && !operacion.getFechaVencimiento().equals("") )
+										operacioneECB.setAttribute("FechaVencimiento", operacion.getFechaVencimiento());
+									
+									if ( operacion.getTasaDescInt() != null && !operacion.getTasaDescInt().equals("") )
+										operacioneECB.setAttribute("TasaDescInt", operacion.getTasaDescInt());
+									
+									if ( operacion.getPlazo() != null && !operacion.getPlazo().equals("") )
+										operacioneECB.setAttribute("Plazo", operacion.getPlazo());
+									
+									if ( operacion.getValorNominalOpe() != null && !operacion.getValorNominalOpe().equals("") )
+										operacioneECB.setAttribute("ValorNominal", operacion.getValorNominalOpe());
+									
+									if ( operacion.getDescRend() != null && !operacion.getDescRend().equals("") )
+										operacioneECB.setAttribute("DescRend", operacion.getDescRend());
+									
+									if ( operacion.getPrecioFactoraje() != null && !operacion.getPrecioFactoraje().equals("") )
+										operacioneECB.setAttribute("PrecioFactoraje", operacion.getPrecioFactoraje());
+									
+									domResultado.getDocumentElement().getChildNodes().item(0).getChildNodes().item(i).getChildNodes().item(j).getChildNodes().item(k).appendChild(operacioneECB);
+								}
+								
+							} else if ( nodok instanceof Element && nodok.getNodeName().equals("Santander:Cobranzas") ) {
+								
+								for ( Cobranza cobranza: lstCobranzas ) {
+									Element cobECB = domResultado.createElement("Santander:Cobranza");
+									
+									if ( cobranza.getFechaCobro() != null && !cobranza.getFechaCobro().equals("") )
+										cobECB.setAttribute("", cobranza.getFechaCobro());
+									
+									if ( cobranza.getNombreDeudorCob() != null && !cobranza.getNombreDeudorCob().equals("") )
+										cobECB.setAttribute("", cobranza.getNombreDeudorCob());
+									
+									if ( cobranza.getRfcDeudorCob() != null && !cobranza.getRfcDeudorCob().equals("") )
+										cobECB.setAttribute("", cobranza.getRfcDeudorCob());
+									
+									if ( cobranza.getFechaCesion() != null && !cobranza.getFechaCesion().equals("") )
+										cobECB.setAttribute("", cobranza.getFechaCesion());
+									
+									if ( cobranza.getNoDocumento() != null && !cobranza.getNoDocumento().equals("") )
+										cobECB.setAttribute("", cobranza.getNoDocumento());
+									
+									if ( cobranza.getValorNominalCon() != null && !cobranza.getValorNominalCon().equals("") )
+										cobECB.setAttribute("", cobranza.getValorNominalCon());
+									
+									if ( cobranza.getTotalCobrado() != null && !cobranza.getTotalCobrado().equals("") )
+										cobECB.setAttribute("", cobranza.getTotalCobrado());
+									
+									domResultado.getDocumentElement().getChildNodes().item(0).getChildNodes().item(i).getChildNodes().item(j).getChildNodes().item(k).appendChild(cobECB);
+									
+								}
+								
+							}
+							
+						}
+						
+					}
+				}
+				
+			}
+		}
+		
+		String xmlString2 ="";
+		try {
+			xmlString2 = UtilCatalogos.convertDocumentXmlToString(domResultado);
+		} catch (TransformerConfigurationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TransformerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		System.out.println("xmlADDXD: " + xmlString2 );
+		
+		return domResultado;
+	}
+	
+	private Document putMovimientoECB( Element docEleComprobante, Document domResultado, 
+			EstadoDeCuentaBancario estadoDeCuentaBancariox, List<MovimientoECB> lstMovimientosECBx , 
+			List<Operacion> lstopEcb, List<Cobranza> lstcobEcb, boolean addendaNew ) {
 		
 		
 		Element rootAddenda = domResultado.createElement("cfdi:Addenda");
@@ -2046,6 +2246,173 @@ public class GeneraXML_ECBDSV3_3 {
 		}
 		
 		
+		if ( addendaNew ) {
+			String addendaNe = "";
+			String addendaOperaciones = "";
+			String addendaCobranzas = "";
+			
+			if ( lstopEcb != null && lstopEcb.size() != 0 ) { 
+				System.out.println("Santander:Operaciones");
+				for( Operacion operacion : lstopEcb ) {
+					String codBar  = "";
+					if ( operacion.getCodBar() != null && !operacion.getCodBar().equals("") )
+						codBar = "CodBar=\"" + operacion.getCodBar() + "\" ";
+					
+					String fechaPagoRecibo  = "";
+					if ( operacion.getFechaPagoRecibo() != null && !operacion.getFechaPagoRecibo().equals("") )
+						fechaPagoRecibo = "FechaPagoRecibo=\""+ operacion.getFechaPagoRecibo().trim() +"\" ";
+					
+					String numeroContrato  = "";
+					if (  operacion.getNumeroContrato() != null && !operacion.getNumeroContrato().equals("")) 
+						numeroContrato = "NumeroContrato=\""+operacion.getNumeroContrato().trim()+"\" ";
+					
+					String nombreDeudorOpe  = "";
+					if (  operacion.getNombreDeudorOpe() != null && !operacion.getNombreDeudorOpe().equals("") ) 
+						nombreDeudorOpe = "NombreDeudor=\""+operacion.getNombreDeudorOpe().trim()+"\" ";
+					
+					String rfcDeudorOpe  = "";
+					if (  operacion.getRfcDeudorOpe() != null && !operacion.getRfcDeudorOpe().equals("") )
+						rfcDeudorOpe = "RFCDeudor=\""+operacion.getRfcDeudorOpe().trim()+"\" ";
+					
+					String noDeudor  = "";
+					if (  operacion.getNoDeudor() != null && !operacion.getNoDeudor().equals("") )
+						noDeudor = "NoDocumento=\""+operacion.getNoDeudor().trim()+"\" ";
+					
+					String fechaVencimiento  = "";
+					if (  operacion.getFechaVencimiento() != null && !operacion.getFechaVencimiento().equals("") ) 
+						fechaVencimiento = "FechaVencimiento=\""+operacion.getFechaVencimiento().trim()+"\" ";
+					
+					String tasaDescInt  = "";
+					if (  operacion.getTasaDescInt() != null && !operacion.getTasaDescInt().equals("") )
+						tasaDescInt = "TasaDescInt=\""+operacion.getTasaDescInt().trim()+"\" ";
+					
+					String plazo  = "";
+					if (  operacion.getPlazo() != null && !operacion.getPlazo().equals("") )
+						plazo = "Plazo=\""+operacion.getPlazo().trim()+"\" ";
+					
+					String valorNominalOpe  = "";
+					if (  operacion.getValorNominalOpe() != null && !operacion.getValorNominalOpe().equals("") )
+						valorNominalOpe = "ValorNominal=\""+operacion.getValorNominalOpe()+"\" ";
+					
+					String descRend  = "";
+					if (  operacion.getDescRend() != null && !operacion.getDescRend().equals("") )
+						descRend = "DescRend=\""+operacion.getDescRend()+"\" ";
+					
+					String precioFactoraje  = "";
+					if (  operacion.getPrecioFactoraje() != null && !operacion.getPrecioFactoraje().equals("") ) 
+						precioFactoraje = "PrecioFactoraje=\""+operacion.getPrecioFactoraje()+"\" ";
+					
+					
+					addendaOperaciones += Util.conctatArguments("\n<Santander:Operacion ", 
+							codBar, 
+							fechaPagoRecibo,
+							numeroContrato,
+							nombreDeudorOpe,
+							rfcDeudorOpe,
+							noDeudor,
+							fechaVencimiento,
+							tasaDescInt,
+							plazo,
+							valorNominalOpe,
+							descRend,
+							precioFactoraje, "/>")
+							.toString();
+					
+				}
+				
+				addendaNe += "\n<Santander:Operaciones > "
+						+ addendaOperaciones 
+						+ "\n</Santander:Operaciones > ";
+			}
+			
+			if ( lstcobEcb != null && lstcobEcb.size() != 0 ) { 
+				System.out.println("Santander:Cobranzas");
+				for ( Cobranza cobranza: lstcobEcb ) {
+					
+					String fechaCobro  = "";
+					if ( cobranza.getFechaCobro() != null && !cobranza.getFechaCobro().equals("") )
+						fechaCobro = "FechaCobro=\""+cobranza.getFechaCobro()+"\" ";
+					
+					String nombreDeudorCob  = "";
+					if ( cobranza.getNombreDeudorCob() != null && !cobranza.getNombreDeudorCob().equals("") )
+						nombreDeudorCob = "NombreDeudor=\""+cobranza.getNombreDeudorCob()+"\" ";
+					
+					String rfcDeudorCob  = "";
+					if ( cobranza.getRfcDeudorCob() != null && !cobranza.getRfcDeudorCob().equals("") )
+						rfcDeudorCob = "RFCDeudor=\""+cobranza.getRfcDeudorCob()+"\" ";
+					
+					String fechaCesion  = "";
+					if ( cobranza.getFechaCesion() != null && !cobranza.getFechaCesion().equals("") )
+						fechaCesion = "FechaCesion=\""+cobranza.getFechaCesion()+"\" ";
+					
+					String noDocumento  = "";
+					if ( cobranza.getNoDocumento() != null && !cobranza.getNoDocumento().equals("") )
+						noDocumento = "NoDocumento=\""+cobranza.getNoDocumento()+"\" ";
+					
+					String valorNominalCon  = "";
+					if (cobranza.getValorNominalCon() != null && !cobranza.getValorNominalCon().equals("") )
+						valorNominalCon = "ValorNominal=\""+cobranza.getValorNominalCon()+"\" ";
+					
+					String totalCobrado  = "";
+					if ( cobranza.getTotalCobrado() != null && !cobranza.getTotalCobrado().equals("") )
+						totalCobrado = "TotalCobrado=\""+cobranza.getTotalCobrado()+"\" ";
+					
+					addendaCobranzas += Util.conctatArguments("\n<Santander:Cobranza ", 
+							fechaCobro, 
+							nombreDeudorCob,
+							rfcDeudorCob,
+							fechaCesion,
+							noDocumento,
+							valorNominalCon,
+							totalCobrado, "/>")
+							.toString();
+					
+				}
+				
+				addendaNe += "\n<Santander:Cobranzas > "
+						+ addendaCobranzas
+						+ "\n</Santander:Cobranzas > ";
+				
+			}
+			
+			if ( !addendaOperaciones.trim().equals("") || !addendaCobranzas.trim().equals("") ) {
+				
+				String newAddenda = "\n<Santander:addendaConfirming xmlns:Santander=\"http://www.santander.com.mx/schemas/xsd/addendaConfirming\">"
+						+ addendaNe
+						+ "\n</Santander:addendaConfirming >"
+						+ "\n</cfdi:Addenda>";
+				
+				
+				String xmlString2 = "", xmlFinal = "";
+				try {
+					xmlString2 = UtilCatalogos.convertDocumentXmlToString(domResultado);
+					String strXmlString = "";
+					strXmlString = xmlString2.replace("</cfdi:Addenda>", newAddenda);
+					
+					
+					xmlFinal = strXmlString.replaceAll("[\n\r]", "");
+					
+					domResultado = UtilCatalogos.convertStringToDocument(xmlFinal);
+					
+				} catch (TransformerConfigurationException e) {
+					e.printStackTrace();
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				
+				
+				
+			}
+			
+			
+			
+			
+			
+		}
+		
+		
 		return domResultado;
 	}
 			
@@ -2172,6 +2539,8 @@ public class GeneraXML_ECBDSV3_3 {
 								ECB objEcbActual = new ECB();
 								this.lstMovimientosECB = new ArrayList<MovimientoECB>();						
 								this.estadoDeCuentaBancario = new EstadoDeCuentaBancario();
+								this.lstCobranzas = new ArrayList<Cobranza>();
+								this.lstOperaciones = new ArrayList<Operacion>();
 								
 								//System.out.println("XML formado a partir de la interface: " + out.toString("UTF-8"));
 								
@@ -2181,11 +2550,22 @@ public class GeneraXML_ECBDSV3_3 {
 								//Manipular con Document el xml obtenido de la variable out					
 //								dom = this.removeAddendaDomicilio(byteArrayOutputStreamToDocument(out));
 								dom = this.removeMovimientoECB(byteArrayOutputStreamToDocument(out));
+								dom = this.removeAddendaNew(byteArrayOutputStreamToDocument(out));
 								//Fin - Quitar todos los movimientos no fiscales del XML almacenado en la variable out
 								//System.out.println("flags: fAttMovIncorrect:" + this.fAttMovIncorrect + " fnombreCliente:" + this.fnombreCliente + " fnumeroCuenta:" + this.fnumeroCuenta + " fperiodo:" + this.fperiodo + " fsucursal:" + this.fsucursal);
 								if(!this.fAttMovIncorrect && !this.fnombreCliente && !this.fnumeroCuenta && !this.fperiodo && !this.fsucursal){
 									objEcbActual.setLstMovimientosECB(this.lstMovimientosECB);
 									objEcbActual.setEstadoDeCuentaBancario(this.estadoDeCuentaBancario);
+									objEcbActual.setLstCobranzaECB(this.lstCobranzas);
+									objEcbActual.setLstOperacionesECB(this.lstOperaciones);
+									
+									if ( this.lstCobranzas.size() != 0 || this.lstOperaciones.size() != 0 ) {
+										objEcbActual.setAddendaNew(true);
+									} else {
+										objEcbActual.setAddendaNew(false);
+									}
+									
+									
 									//Convertir de Document a StringWriter
 									StringWriter sw2 = documentToStringWriter(dom);									
 												
@@ -2394,6 +2774,161 @@ public class GeneraXML_ECBDSV3_3 {
 			finally 
 			{	cont += 1;	}
 		}
+	}
+	
+	private Document removeAddendaNew(Document dom) throws Exception {
+		
+		this.attDobleAddIncorrect = false;
+		
+		Node nodeAddenda = null;
+
+		Element root = dom.getDocumentElement();
+		
+		String domStr="";
+		domStr=UtilCatalogos.convertDocumentXmlToString(dom);
+		System.out.println("xml2ADDXD: " + domStr);
+		
+		//Recorrer los nodos hijos de cfdi:Addenda														
+		for(int i=0; i<root.getChildNodes().getLength(); i++){
+			
+			//Verificar si el hijo actual corresponde a una instancia de Element y se llama cfdi:Addenda
+			
+			if(root.getChildNodes().item(i) instanceof Element && 
+					root.getChildNodes().item(i).getNodeName().equals("cfdi:Addenda")){
+				
+					nodeAddenda = root.getChildNodes().item(i).cloneNode(true);										
+					System.out.println("addendaXD");
+					for(int x=0; x<root.getChildNodes().item(i).getChildNodes().getLength(); x++){
+						if(root.getChildNodes().item(i).getChildNodes().item(x) instanceof Element && 
+								root.getChildNodes().item(i).getChildNodes().item(x).getNodeName().equals("Santander:addendaConfirming")){
+							System.out.println("Santander:addendaConfirming");
+							for(int j=0; j<root.getChildNodes().item(i).getChildNodes().item(x).getChildNodes().getLength(); j++){
+								
+								//Verificar si el hijo actual corresponde a una instancia de Element y se llama Santander:Operaciones
+								if(root.getChildNodes().item(i).getChildNodes().item(x).getChildNodes().item(j) instanceof Element && 
+										root.getChildNodes().item(i).getChildNodes().item(x).getChildNodes().item(j).getNodeName().equals("Santander:Operaciones")){
+									System.out.println("Santander:Operaciones");									
+									//Recorrer los hijos de Santander:Operaciones
+									for(int k=0; k<root.getChildNodes().item(i).getChildNodes().item(x).getChildNodes().item(j).getChildNodes().getLength(); k++){
+										
+										//Verificar si el hijo actual corresponde a una instancia de Element y se llama Santander:Operacion
+										if(root.getChildNodes().item(i).getChildNodes().item(x).getChildNodes().item(j).getChildNodes().item(k) instanceof Element && 
+										root.getChildNodes().item(i).getChildNodes().item(x).getChildNodes().item(j).getChildNodes().item(k).getNodeName().equals("Santander:Operacion")){
+											System.out.println("Santander:Operacion");
+											Operacion operEcb = new Operacion();
+												
+											NamedNodeMap atributos = root.getChildNodes().item(i).getChildNodes().item(x).getChildNodes().item(j).getChildNodes().item(k).getAttributes();
+																							
+											for(int iAtt=0; iAtt< atributos.getLength(); iAtt++){
+												Attr atributo = (Attr) atributos.item(iAtt);
+												if(atributo.getName().equals("CodBar")){	
+													this.existFecha = true;
+													if (this.valorVacio(atributo.getValue())){
+														this.attDobleAddIncorrect = true;	
+														break;
+													}else{
+														operEcb.setCodBar(atributo.getValue());
+													}																
+												}else if(atributo.getName().equals("FechaPagoRecibo")){	
+													operEcb.setFechaPagoRecibo(atributo.getValue());																
+												}else if(atributo.getName().equals("NumeroContrato")){																
+													operEcb.setNumeroContrato(atributo.getValue());																	
+												}else if(atributo.getName().equals("NombreDeudor")){																
+													operEcb.setNombreDeudorOpe(atributo.getValue());															
+												}else if(atributo.getName().equals("RFCDeudor")){																
+													operEcb.setRfcDeudorOpe(atributo.getValue());																	
+												}else if(atributo.getName().equals("NoDocumento")){																
+													operEcb.setNoDeudor(atributo.getValue());																
+												}else if(atributo.getName().equals("FechaVencimiento")){																
+													operEcb.setFechaVencimiento(atributo.getValue());															
+												}else if(atributo.getName().equals("TasaDescInt")){																
+													operEcb.setTasaDescInt(atributo.getValue());
+												}else if(atributo.getName().equals("Plazo")){																
+													operEcb.setPlazo(atributo.getValue());
+												}else if(atributo.getName().equals("ValorNominal")){																
+													operEcb.setValorNominalOpe(atributo.getValue());
+												}else if(atributo.getName().equals("DescRend")){																
+													operEcb.setDescRend(atributo.getValue());
+												}else if(atributo.getName().equals("PrecioFactoraje")){																
+													operEcb.setPrecioFactoraje(atributo.getValue());
+												}
+											}
+																								
+											lstOperaciones.add(operEcb);																											
+										}
+										
+										
+										
+									} 
+									
+								} else 	if(root.getChildNodes().item(i).getChildNodes().item(x).getChildNodes().item(j) instanceof Element && 
+										root.getChildNodes().item(i).getChildNodes().item(x).getChildNodes().item(j).getNodeName().equals("Santander:Cobranzas")){
+									//Recorrer los hijos de Santander:Operaciones
+									System.out.println("Santander:Cobranzas");
+									for(int k=0; k<root.getChildNodes().item(i).getChildNodes().item(x).getChildNodes().item(j).getChildNodes().getLength(); k++){
+										
+										//Verificar si el hijo actual corresponde a una instancia de Element y se llama Santander:Operacion
+										if(root.getChildNodes().item(i).getChildNodes().item(x).getChildNodes().item(j).getChildNodes().item(k) instanceof Element && 
+										root.getChildNodes().item(i).getChildNodes().item(x).getChildNodes().item(j).getChildNodes().item(k).getNodeName().equals("Santander:Cobranza")){
+											System.out.println("Santander:Cobranza");
+											Cobranza cobECB = new Cobranza();
+											
+											NamedNodeMap atributos = root.getChildNodes().item(i).getChildNodes().item(x).getChildNodes().item(j).getChildNodes().item(k).getAttributes();
+																							
+											for(int iAtt=0; iAtt< atributos.getLength(); iAtt++){
+												Attr atributo = (Attr) atributos.item(iAtt);
+												if(atributo.getName().equals("FechaCobro")){	
+													cobECB.setFechaCobro(atributo.getValue());															
+												}else if(atributo.getName().equals("NombreDeudor")){	
+													cobECB.setNombreDeudorCob(atributo.getValue());																
+												}else if(atributo.getName().equals("RFCDeudor")){																
+													cobECB.setRfcDeudorCob(atributo.getValue());																	
+												}else if(atributo.getName().equals("FechaCesion")){																
+													cobECB.setFechaCesion(atributo.getValue());															
+												}else if(atributo.getName().equals("NoDocument")){																
+													cobECB.setNoDocumento(atributo.getValue());																	
+												}else if(atributo.getName().equals("ValorNominal")){																
+													cobECB.setValorNominalCon(atributo.getValue());																
+												}else if(atributo.getName().equals("TotalCobrado")){																
+													cobECB.setTotalCobrado(atributo.getValue());															
+												}
+																																							
+											}
+											lstCobranzas.add(cobECB);
+										
+										} 
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		
+		
+			if(nodeAddenda != null){
+				//Recorrer los nodos hijos de cfdi:Comprobante
+				int i=0;
+				boolean fDelAddenda=false;
+				System.out.println("removeAddXD:");
+				do{			
+					//Verificar si el hijo actual corresponde a una instancia de Element y se llama cfdi:Complemento
+					if(root.getChildNodes().item(i) instanceof Element && 
+							root.getChildNodes().item(i).getNodeName().equals("cfdi:Addenda")){						
+							root.removeChild(dom.getDocumentElement().getChildNodes().item(i));											
+							fDelAddenda = true;
+					}
+					i++;
+				}while(i<root.getChildNodes().getLength() && !fDelAddenda);
+				
+			}
+			
+			
+			domStr=UtilCatalogos.convertDocumentXmlToString(dom);
+			
+			System.out.println("xmlSINADDXD: " + domStr);
+			return dom;
+		
 	}
 	
 	public void fileSALIDA(List<String> sello, String cadena, String fileNames, String strUUID, String strFechaTimbrado, String strNoCertificadoSAT, String strSelloCFD,
