@@ -87,7 +87,7 @@ public class GeneraXmlFacturaCfdiV3_3 {
 	@Autowired
 	private XMLProcessGeneral xmlProcessGeneral;
 	
-public ByteArrayOutputStream convierte(CfdiComprobanteFiscal comp) throws UnsupportedEncodingException{
+	public ByteArrayOutputStream convierte(CfdiComprobanteFiscal comp) throws UnsupportedEncodingException{
 		
 		StringBuilder sbXml = new StringBuilder("");
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -117,9 +117,45 @@ public ByteArrayOutputStream convierte(CfdiComprobanteFiscal comp) throws Unsupp
 		if(sbXml.toString().length() > 0){
 			out = UtilCatalogos.convertStringToOutpuStream(sbXml.toString());
 		}
-		
 		return out;
 	}
+	
+	public ByteArrayOutputStream convierteFU(CfdiComprobanteFiscal comp) throws UnsupportedEncodingException{
+		
+		StringBuilder sbXml = new StringBuilder("");
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		Date date = Calendar.getInstance().getTime();
+		
+		
+		
+		//iniciar xml
+		sbXml.append(conver.startXml());
+		
+		//comprobante
+		sbXml.append(conver.fComprobante(comp, date));
+		//emisor
+		sbXml.append(conver.emisor(comp));
+		//receptor
+		sbXml.append(conver.receptor(comp));
+		//concepto
+		sbXml.append(conver.startConceptoFU(comp));
+		//impuestos
+		if ( comp.isTasaCero() )
+			sbXml.append(conver.impuestos(comp));
+		//complemento
+		sbXml.append(conver.complemento(comp));
+		//addenda
+		//sbXml.append(conver.addenda(comp));
+		
+		//cerrar comprobante
+		sbXml.append(conver.closeFComprobante());
+		
+		if(sbXml.toString().length() > 0){
+			out = UtilCatalogos.convertStringToOutpuStream(sbXml.toString());
+		}
+		return out;
+	}
+	
 	
 	public Document agregaAddenda(Document doc, CfdiComprobanteFiscal comp) throws SAXException
 	, IOException, ParserConfigurationException, FactoryConfigurationError, XPathExpressionException, TransformerConfigurationException, TransformerException{
@@ -132,7 +168,7 @@ public ByteArrayOutputStream convierte(CfdiComprobanteFiscal comp) throws Unsupp
 					entry.setValue("1");
 			}
 		addenda = conver.addenda(comp);
-		System.out.println("AddendaXD: " + addenda);
+		
 		if (addenda.trim().length() > 0){
 			
 			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
@@ -161,9 +197,9 @@ public ByteArrayOutputStream convierte(CfdiComprobanteFiscal comp) throws Unsupp
 		UtilCatalogos.setValueOnDocumentElement(doc, "//Comprobante/@NoCertificado", certificado.getCertificado().getSerialNumber());
     	if (UtilCatalogos.getStringValByExpression(doc, "//Comprobante//@Moneda").equalsIgnoreCase("MXN")) {
     		UtilCatalogos.setValueOnDocumentElement(doc, "//Comprobante/@TipoCambio", "1");
-    		System.out.println("xmlDentroIFXD: " + UtilCatalogos.convertDocumentXmlToString(doc));
+    		
     	}
-    	System.out.println("xmlFueraIFXD: " + UtilCatalogos.convertDocumentXmlToString(doc));
+    	
     	
     	String sal  = UtilCatalogos.convertDocumentXmlToString(doc);
     	
@@ -198,7 +234,7 @@ public ByteArrayOutputStream convierte(CfdiComprobanteFiscal comp) throws Unsupp
 //    	cfdi:ImpuestosXD
     	sal = UtilCatalogos.convertDocumentXmlToString(doc);
     	
-    	System.out.println( "XMLXD: " + sal );
+    	
     	
     	if ( !reteImp && !traImp) {
     		sal = sal.replace("<cfdi:Impuestos />", "");
@@ -224,9 +260,9 @@ public ByteArrayOutputStream convierte(CfdiComprobanteFiscal comp) throws Unsupp
 		UtilCatalogos.setValueOnDocumentElement(doc, "//Comprobante/@NoCertificado", certificado.getCertificado().getSerialNumber());
     	if (UtilCatalogos.getStringValByExpression(doc, "//Comprobante//@Moneda").equalsIgnoreCase("MXN")) {
     		UtilCatalogos.setValueOnDocumentElement(doc, "//Comprobante/@TipoCambio", "1");
-    		System.out.println("xmlDentroIFXD: " + UtilCatalogos.convertDocumentXmlToString(doc));
+    		
     	}
-    	System.out.println("xmlFueraIFXD: " + UtilCatalogos.convertDocumentXmlToString(doc));
+    	
     	
     	String sal  = UtilCatalogos.convertDocumentXmlToString(doc);
     	
@@ -246,7 +282,7 @@ public ByteArrayOutputStream convierte(CfdiComprobanteFiscal comp) throws Unsupp
 	    		sal = UtilCatalogos.convertDocumentXmlToString(doc);
     	}
     	
-    	System.out.println(" tasaCerXD: " + tasaCero);
+    	
     	 
     	if (!UtilCatalogos.getStringValByExpression(doc, "//Comprobante/Impuestos/@TotalImpuestosTrasladados").equalsIgnoreCase("") && !tasaCero) {
 	    	BigDecimal totalImpTra = new BigDecimal(UtilCatalogos.getStringValByExpression(doc, "//Comprobante/Impuestos/@TotalImpuestosTrasladados"));
@@ -263,7 +299,7 @@ public ByteArrayOutputStream convierte(CfdiComprobanteFiscal comp) throws Unsupp
 //    	cfdi:ImpuestosXD
     	sal = UtilCatalogos.convertDocumentXmlToString(doc);
     	
-    	System.out.println( "XMLXD: " + sal );
+    	
     	
     	if ( !reteImp && !traImp) {
     		sal = sal.replace("<cfdi:Impuestos />", "");

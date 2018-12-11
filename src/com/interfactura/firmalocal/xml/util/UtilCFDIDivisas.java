@@ -1705,6 +1705,8 @@ public class UtilCFDIDivisas {
 							impuestos.setTraslados(traslados);
 							cfdi.setImpuestos(impuestos);
 						}
+						if (cfdi.getAplicaIva().trim().equals("1"))
+							comp.setTasaCero(true);
 						conceptos.add(cfdi);
 					}
 				}
@@ -1809,6 +1811,8 @@ public class UtilCFDIDivisas {
 							impuestos.setRetenciones(traslados);
 							cfdi.setImpuestos(impuestos);
 						}
+						if (cfdi.getAplicaIva().trim().equals("1"))
+							comp.setTasaCero(true);
 						conceptos.add(cfdi);
 					}
 				}

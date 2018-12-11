@@ -34,6 +34,8 @@ import com.interfactura.firmalocal.persistence.CustomerManager;
 import com.interfactura.firmalocal.persistence.FiscalEntityManager;
 import com.interfactura.firmalocal.xml.util.ValidationConstants.TipoEmision;
 
+import oracle.jrockit.jfr.events.DynamicValueDescriptor;
+
 @Service
 public class UtilCFDIFormatoUnico {
 	@Autowired(required = true)
@@ -1562,10 +1564,6 @@ public class UtilCFDIFormatoUnico {
 						numeroCelda = numeroCelda + 7;
 						if (numeroCelda == 8) {
 							posicion = posicion + 7;
-							System.out.println("tamanoLinea: "+linea.length);
-							System.out.println("tamano: "+posicion);
-							System.out.println("lineadat: " + linea[posicion]);
-							
 							
 							if (linea[posicion].toString().equalsIgnoreCase("Traslado")) {
 								trasladoBol = true;
@@ -1693,7 +1691,7 @@ public class UtilCFDIFormatoUnico {
 									impuestos.setTraslados(traslados);
 									cfdi.setImpuestos(impuestos);
 								}
-								System.out.println("tasaCero2XD: " + cfdi.getAplicaIva().trim().equals("1"));
+					
 								if (cfdi.getAplicaIva().trim().equals("1"))
 									comp.setTasaCero(true);
 								conceptos.add(cfdi);
@@ -1800,7 +1798,7 @@ public class UtilCFDIFormatoUnico {
 									impuestos.setRetenciones(traslados);
 									cfdi.setImpuestos(impuestos);
 								}
-								System.out.println("tasaCero2XD: " + cfdi.getAplicaIva().trim().equals("1"));
+							
 								if (cfdi.getAplicaIva().trim().equals("1"))
 									comp.setTasaCero(true);
 								conceptos.add(cfdi);
@@ -2487,8 +2485,10 @@ public class UtilCFDIFormatoUnico {
 
 						if (numeroCelda == 11) {
 							if (linea[posicion] == null || linea[posicion].toString().trim().equals("")) {
+								System.out.println("tasaVaciaXD:");
 								cImpuestoTipo.setTasaOCuota("");
 							} else {
+								System.out.println("tasaVaciaXD: " + linea[posicion].toString());
 								if (!tipoFactorValRow.equalsIgnoreCase("Exento")
 										&& !tipoFactorValRow.equalsIgnoreCase("Excento")) {
 									cImpuestoTipo.setTasaOCuota(linea[posicion].toString());
@@ -2505,7 +2505,7 @@ public class UtilCFDIFormatoUnico {
 									impuestos.setTraslados(traslados);
 									cfdi.setImpuestos(impuestos);
 								}
-								System.out.println("tasaCEroXD1: " + cfdi.getAplicaIva().trim().equals("1"));
+								
 								if (cfdi.getAplicaIva().trim().equals("1"))
 									comp.setTasaCero(true);
 								conceptos.add(cfdi);
@@ -2612,7 +2612,7 @@ public class UtilCFDIFormatoUnico {
 									impuestos.setRetenciones(traslados);
 									cfdi.setImpuestos(impuestos);
 								}
-								System.out.println("tasaCero2XD: " + cfdi.getAplicaIva().trim().equals("1"));
+								
 								if (cfdi.getAplicaIva().trim().equals("1"))
 									comp.setTasaCero(true);
 								conceptos.add(cfdi);

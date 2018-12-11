@@ -487,7 +487,7 @@ this.listComprobantes = new ArrayList<CfdiComprobanteFiscal>();
 											fiscalEntity = fiscalEntityManager.findByRFCA(fiscalEntity);
 											invoice.setFe_Id(String.valueOf(fiscalEntity.getId()));
 											invoice.setFe_taxid(String.valueOf(fiscalEntity.getTaxID()));
-											ByteArrayOutputStream baosXml = xmlGenerator.convierte(comp);
+											ByteArrayOutputStream baosXml = xmlGenerator.convierteFU(comp);
 											invoice.setByteArrXMLSinAddenda(baosXml);
 											
 											/* Se obtiene el totalIvaretenido y se asigna al IVA*/
@@ -512,7 +512,7 @@ this.listComprobantes = new ArrayList<CfdiComprobanteFiscal>();
 												System.out.println("---Fin XML despues de validar decimales---");
 												
 												//agregar certificado y sello
-												baosXml = xmlGenerator.reemplazaCadenaOriginal(baosXml, fiscalEntity);
+												baosXml = xmlGenerator.reemplazaCadenaOriginalNew(baosXml, fiscalEntity, comp.isTasaCero());
 												
 												System.out.println("---XML despues de reemplazar cadena original---");
 												System.out.println(baosXml.toString("UTF-8"));

@@ -157,6 +157,18 @@ public class ConvertirCfdiImplV3_3 {
 				.toString();
 	}
 	
+	public String startConceptoFU(CfdiComprobanteFiscal comp){
+		StringBuilder concatConceptos =  new StringBuilder();		
+		concatConceptos.append(conceptosFU(comp));		
+		return Util
+				.conctatArguments(
+						"\n<cfdi:Conceptos>",
+						concatConceptos.toString(),
+						"\n</cfdi:Conceptos>")
+				.toString();
+	}
+	
+	
 	public String conceptos(CfdiComprobanteFiscal comp){
 		StringBuilder sbConceptos = new StringBuilder();
 		
@@ -194,6 +206,51 @@ public class ConvertirCfdiImplV3_3 {
 		}
 		return sbConceptos.toString();
 	}
+	
+	public String conceptosFU(CfdiComprobanteFiscal comp){
+		StringBuilder sbConceptos = new StringBuilder();
+		
+		if(comp.getConceptos() != null && comp.getConceptos().size() > 0){
+			for(CfdiConcepto concepto : comp.getConceptos()){
+				
+				sbConceptos.append("\n<cfdi:Concepto ");
+				sbConceptos.append("Cantidad=\"" + concepto.getCantidad() + "\" ");
+				sbConceptos.append("ClaveProdServ=\"" + concepto.getClaveProdServ() + "\" ");
+				sbConceptos.append("ClaveUnidad=\"" + concepto.getClaveUnidad() + "\" ");
+				sbConceptos.append("Descripcion=\"" + concepto.getDescripcion() + "\" ");
+				if(comp.getDescuento() != null && comp.getDescuento().doubleValue() > 0){
+					sbConceptos.append(" Descuento=\"" + comp.getDescuento()+ "\" ");
+				}
+				String importe = "0";
+				if(!comp.getMoneda().equalsIgnoreCase("XXX")){
+					importe = UtilCatalogos.decimales(concepto.getImporte().toString(), comp.getDecimalesMoneda());
+				}
+				sbConceptos.append("Importe=\"" + importe + "\" ");
+				if(concepto.getUnidad() != null){
+					sbConceptos.append("Unidad=\"" + concepto.getUnidad().toUpperCase() + "\" ");
+				}
+				
+				importe = "0";
+				if(!comp.getMoneda().equalsIgnoreCase("XXX")){
+					DecimalFormat df = new DecimalFormat("0.00000000");
+					String valUnitario = df.format(concepto.getValorUnitario());
+					importe = UtilCatalogos.decimales(valUnitario, comp.getDecimalesMoneda());
+				}
+				sbConceptos.append("ValorUnitario=\"" + importe + "\"");
+				
+				if ( concepto.getAplicaIva().trim() != null && !concepto.getAplicaIva().trim().equals("") && !concepto.getAplicaIva().trim().equals("0") ) {
+					sbConceptos.append(">");
+					sbConceptos.append(conceptoImpuesto(concepto));
+					sbConceptos.append("\n</cfdi:Concepto>");
+				} else {
+					sbConceptos.append("/>");
+				}
+				
+			}
+		}
+		return sbConceptos.toString();
+	}
+	
 	public String conceptoImpuesto(CfdiConcepto concepto){
 		StringBuilder sbConceptoImpuesto = new StringBuilder();
 		if(concepto.getImpuestos() != null){
