@@ -126,8 +126,6 @@ public class GeneraXmlFacturaCfdiV3_3 {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Date date = Calendar.getInstance().getTime();
 		
-		
-		
 		//iniciar xml
 		sbXml.append(conver.startXml());
 		
@@ -140,8 +138,7 @@ public class GeneraXmlFacturaCfdiV3_3 {
 		//concepto
 		sbXml.append(conver.startConceptoFU(comp));
 		//impuestos
-		if ( comp.isTasaCero() )
-			sbXml.append(conver.impuestos(comp));
+		sbXml.append(conver.impuestosFU(comp));
 		//complemento
 		sbXml.append(conver.complemento(comp));
 		//addenda

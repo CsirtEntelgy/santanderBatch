@@ -1028,6 +1028,8 @@ public class UtilCFDIDivisas {
 	public CfdiComprobanteFiscal fillComprobanteDivisasTxt(String[] linea) {
 		CfdiComprobanteFiscal comp = new CfdiComprobanteFiscal();
 		comp.setTipoEmision(TipoEmision.DIVISAS);
+		comp.setTasaCero(false);
+		comp.setTotalExcento(true);
 		FiscalEntity fiscalEntity = null;
 		Customer customer = null;
 		/* Emisor Posicion 0--row 0 */
@@ -1705,9 +1707,12 @@ public class UtilCFDIDivisas {
 							impuestos.setTraslados(traslados);
 							cfdi.setImpuestos(impuestos);
 						}
-						if (cfdi.getAplicaIva().trim().equals("1"))
+						if (cfdi.getAplicaIva() != null && cfdi.getAplicaIva().trim().equals("1"))
 							comp.setTasaCero(true);
+						if ( cImpuestoTipo != null  &&  !cImpuestoTipo.getTipoFactor().equalsIgnoreCase("Exento"))
+							comp.setTotalExcento(false);
 						conceptos.add(cfdi);
+						fPermisoVector = true;
 					}
 				}
 
@@ -1811,11 +1816,11 @@ public class UtilCFDIDivisas {
 							impuestos.setRetenciones(traslados);
 							cfdi.setImpuestos(impuestos);
 						}
-						if (cfdi.getAplicaIva().trim().equals("1"))
+						if ( cfdi.getAplicaIva() != null && cfdi.getAplicaIva().trim().equals("1"))
 							comp.setTasaCero(true);
 						conceptos.add(cfdi);
 					}
-				}
+				} 
 			}
 			posicion = posicion + 1;
 		}

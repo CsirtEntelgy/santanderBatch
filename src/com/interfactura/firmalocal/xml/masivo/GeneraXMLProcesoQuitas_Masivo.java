@@ -357,9 +357,10 @@ public class GeneraXMLProcesoQuitas_Masivo {
 									
 									//llenar comprobante desde archivo
 									comp = fillFU.fillComprobanteFUQuitasTxt(arrayValues);
-									
+									System.out.println("pasaFillXD:");
 									//validar comprobante
-									sbErrorFile.append(validations.validateComprobante(comp, factura+1));
+									sbErrorFile.append(validations.validateComprobanteFU(comp, factura+1));
+									System.out.println("pasaValidXD:");
 									
 									//convertir comprobante a invoice
 									invoice = new Invoice_Masivo();
@@ -388,11 +389,11 @@ public class GeneraXMLProcesoQuitas_Masivo {
 											invoice.setFe_taxid(String.valueOf(fiscalEntity.getTaxID()));
 											ByteArrayOutputStream baosXml = xmlGenerator.convierteFU(comp);
 											invoice.setByteArrXMLSinAddenda(baosXml);
-											
+											System.out.println("pasaConvXD:");
 											/* Se obtiene el totalIvaretenido y se asigna al IVA*/
 								    		Document document = UtilCatalogos.convertStringToDocument(invoice.getByteArrXMLSinAddenda().toString("UTF-8"));
-								    		if (comp.isTasaCero()) {
-									    		String totalIvaRet = UtilCatalogos.getStringValByExpression(document, "//Comprobante/Impuestos/@TotalImpuestosTrasladados");
+								    		String totalIvaRet = UtilCatalogos.getStringValByExpression(document, "//Comprobante/Impuestos/@TotalImpuestosTrasladados");
+								    		if (!totalIvaRet.equals("")) {
 									    		BigDecimal bdIva = new BigDecimal(totalIvaRet);
 									    		invoice.setIva(bdIva.doubleValue());
 											} else {

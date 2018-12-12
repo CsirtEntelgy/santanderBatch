@@ -238,7 +238,7 @@ public class ConvertirCfdiImplV3_3 {
 				}
 				sbConceptos.append("ValorUnitario=\"" + importe + "\"");
 				
-				if ( concepto.getAplicaIva().trim() != null && !concepto.getAplicaIva().trim().equals("") && !concepto.getAplicaIva().trim().equals("0") ) {
+				if ( concepto.getAplicaIva() != null && !concepto.getAplicaIva().trim().equals("") && !concepto.getAplicaIva().trim().equals("0") ) {
 					sbConceptos.append(">");
 					sbConceptos.append(conceptoImpuesto(concepto));
 					sbConceptos.append("\n</cfdi:Concepto>");
@@ -334,6 +334,50 @@ public class ConvertirCfdiImplV3_3 {
 		}
 		return concat.toString();
 	}
+	
+	public String impuestosFU(CfdiComprobanteFiscal comp){
+		StringBuilder concat = new StringBuilder();
+		StringBuilder attributes = new StringBuilder();
+		if(!comp.getTipoEmision().equalsIgnoreCase(TipoEmision.DONATARIAS)){
+			if(comp.getImpuestos() != null){
+				if(comp.getImpuestos().getTotalImpuestosRetenidos() != null){
+					BigDecimal totalImpTra = comp.getImpuestos().getTotalImpuestosRetenidos();
+			    	if (totalImpTra.compareTo(new BigDecimal("0")) != 0) {
+			    		String valueRet ="0.00";
+						if(comp.getImpuestos().getTotalImpuestosRetenidos().doubleValue() > 0){
+							valueRet = comp.getImpuestos().getTotalImpuestosRetenidos().toString();
+						}
+						attributes.append( "TotalImpuestosRetenidos=\"" 
+								+ UtilCatalogos.decimales(valueRet, comp.getDecimalesMoneda()) 
+								+ "\" ");
+			    	} 
+					
+				}
+				if(comp.getImpuestos().getTotalImpuestosTrasladados() != null && !comp.isTotalExcento()){
+					
+					BigDecimal totalImpRet = comp.getImpuestos().getTotalImpuestosTrasladados();
+					
+			    	if (totalImpRet.compareTo(new BigDecimal("0")) != 0 || comp.isTasaCero() ) {
+			    		String valueTra ="0.00";
+						if(comp.getImpuestos().getTotalImpuestosTrasladados().doubleValue() > 0){
+							valueTra = comp.getImpuestos().getTotalImpuestosTrasladados().toString();
+						}
+						attributes.append( "TotalImpuestosTrasladados=\"" 
+								+ UtilCatalogos.decimales(valueTra, comp.getDecimalesMoneda()) 
+								+ "\" ");
+			    	}
+					
+				}
+			}
+		}
+		if(attributes.toString().trim().length() > 0){
+			concat.append("\n<cfdi:Impuestos ");
+			concat.append(attributes);
+			concat.append("/>");
+		}
+		return concat.toString();
+	}
+	
 	
 	public String complemento(CfdiComprobanteFiscal comp){
 		StringBuilder concat = new StringBuilder();

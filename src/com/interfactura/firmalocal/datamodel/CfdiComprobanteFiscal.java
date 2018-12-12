@@ -56,8 +56,20 @@ public class CfdiComprobanteFiscal {
     
     private boolean tasaCero;
     
+    private boolean totalExcento;
+    
+    
+    
 
-    public boolean isTasaCero() {
+    public boolean isTotalExcento() {
+		return totalExcento;
+	}
+
+	public void setTotalExcento(boolean totalExcento) {
+		this.totalExcento = totalExcento;
+	}
+
+	public boolean isTasaCero() {
 		return tasaCero;
 	}
 

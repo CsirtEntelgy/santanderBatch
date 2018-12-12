@@ -1083,7 +1083,8 @@ public class UtilCFDIFormatoUnico {
 	public CfdiComprobanteFiscal fillComprobanteFUQuitasTxt (String[] linea) {
 		CfdiComprobanteFiscal comp =  new CfdiComprobanteFiscal();
 		comp.setTipoEmision(TipoEmision.QUITAS);
-		
+		comp.setTasaCero(false);
+		comp.setTotalExcento(true);
 		// Pos 0 Emisor
 		FiscalEntity fiscalEntity = null;
 		comp.setEmisor(new CfdiEmisor());
@@ -1691,16 +1692,17 @@ public class UtilCFDIFormatoUnico {
 									impuestos.setTraslados(traslados);
 									cfdi.setImpuestos(impuestos);
 								}
-					
-								if (cfdi.getAplicaIva().trim().equals("1"))
+								if ( cfdi.getAplicaIva() != null && cfdi.getAplicaIva().trim().equals("1"))
 									comp.setTasaCero(true);
+								if ( cImpuestoTipo != null  &&  !cImpuestoTipo.getTipoFactor().equalsIgnoreCase("Exento"))
+									comp.setTotalExcento(false);
 								conceptos.add(cfdi);
 							}
 						}
 
 					} else if (retencionBol) {
 						System.out.println("retencionBo");
-						if (numeroCelda == 1) {
+						if (numeroCelda == 1) { 
 							if (linea[posicion] == null || linea[posicion].toString().trim().equals("")) {
 								fPermisoVector = false;
 								cfdi.setClaveProdServ("");
@@ -1799,7 +1801,7 @@ public class UtilCFDIFormatoUnico {
 									cfdi.setImpuestos(impuestos);
 								}
 							
-								if (cfdi.getAplicaIva().trim().equals("1"))
+								if ( cfdi.getAplicaIva() != null && cfdi.getAplicaIva().trim().equals("1"))
 									comp.setTasaCero(true);
 								conceptos.add(cfdi);
 							}
@@ -1821,7 +1823,8 @@ public class UtilCFDIFormatoUnico {
 	public CfdiComprobanteFiscal fillComprobanteFUTxt(String[] linea){
 		CfdiComprobanteFiscal comp =  new CfdiComprobanteFiscal();
 		comp.setTipoEmision(TipoEmision.FORMATO_UNICO);
-		
+		comp.setTasaCero(false);
+		comp.setTotalExcento(true);
 		// Pos 0 Emisor
 		FiscalEntity fiscalEntity = null;
 		comp.setEmisor(new CfdiEmisor());
@@ -2506,8 +2509,11 @@ public class UtilCFDIFormatoUnico {
 									cfdi.setImpuestos(impuestos);
 								}
 								
-								if (cfdi.getAplicaIva().trim().equals("1"))
+								if ( cfdi.getAplicaIva() != null && cfdi.getAplicaIva().trim().equals("1"))
 									comp.setTasaCero(true);
+
+								if ( cImpuestoTipo != null  &&  !cImpuestoTipo.getTipoFactor().equalsIgnoreCase("Exento"))
+									comp.setTotalExcento(false);
 								conceptos.add(cfdi);
 							}
 						}
@@ -2613,7 +2619,7 @@ public class UtilCFDIFormatoUnico {
 									cfdi.setImpuestos(impuestos);
 								}
 								
-								if (cfdi.getAplicaIva().trim().equals("1"))
+								if ( cfdi.getAplicaIva() != null && cfdi.getAplicaIva().trim().equals("1"))
 									comp.setTasaCero(true);
 								conceptos.add(cfdi);
 							}
@@ -2631,4 +2637,5 @@ public class UtilCFDIFormatoUnico {
 				comp.setFinFactura(fFinFactura);
 		return comp;
 	}
+
 }

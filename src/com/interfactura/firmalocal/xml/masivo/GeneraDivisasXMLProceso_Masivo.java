@@ -449,7 +449,7 @@ public class GeneraDivisasXMLProceso_Masivo {
 								}else{
 									this.listIn = new ArrayList<Invoice_Masivo>();
 									
-this.listComprobantes = new ArrayList<CfdiComprobanteFiscal>();
+									this.listComprobantes = new ArrayList<CfdiComprobanteFiscal>();
 									
 									CfdiComprobanteFiscal comp = new CfdiComprobanteFiscal();
 									//antiguo metodo fill y validate
@@ -460,7 +460,7 @@ this.listComprobantes = new ArrayList<CfdiComprobanteFiscal>();
 									comp = fillDivisas.fillComprobanteDivisasTxt(arrayValues);
 									
 									//validar comprobante
-									sbErrorFile.append(validations.validateComprobante(comp, factura+1));
+									sbErrorFile.append(validations.validateComprobanteFU(comp, factura+1));
 									
 									//convertir comprobante a invoice
 									invoice = new Invoice_Masivo();
@@ -493,8 +493,13 @@ this.listComprobantes = new ArrayList<CfdiComprobanteFiscal>();
 											/* Se obtiene el totalIvaretenido y se asigna al IVA*/
 								    		Document document = UtilCatalogos.convertStringToDocument(invoice.getByteArrXMLSinAddenda().toString("UTF-8"));
 								    		String totalIvaRet = UtilCatalogos.getStringValByExpression(document, "//Comprobante/Impuestos/@TotalImpuestosTrasladados");
-								    		BigDecimal bdIva = new BigDecimal(totalIvaRet);
-								    		invoice.setIva(bdIva.doubleValue());
+								    		if (!totalIvaRet.equals("")) {
+									    		BigDecimal bdIva = new BigDecimal(totalIvaRet);
+									    		invoice.setIva(bdIva.doubleValue());
+											} else {
+												BigDecimal bdIva = new BigDecimal(0);
+									    		invoice.setIva(bdIva.doubleValue());
+											}
 								    		/*Fin Cambio*/
 								    		
 								    		//doc = UtilCatalogos.convertPathFileToDocument(nameFile);
