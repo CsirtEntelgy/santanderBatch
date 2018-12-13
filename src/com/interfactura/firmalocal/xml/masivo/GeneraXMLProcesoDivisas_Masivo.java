@@ -39,7 +39,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
 
-
 import com.interfactura.firmalocal.datamodel.CfdiComprobanteFiscal;
 import com.interfactura.firmalocal.datamodel.ElementsInvoice;
 import com.interfactura.firmalocal.datamodel.Invoice_Masivo;
@@ -65,8 +64,8 @@ import com.interfactura.firmalocal.xml.WebServiceCliente;
 import com.interfactura.firmalocal.xml.file.GeneraArchivo_Masivo;
 import com.interfactura.firmalocal.xml.util.GeneraXmlFacturaCfdiV3_3;
 import com.interfactura.firmalocal.xml.util.Util;
-import com.interfactura.firmalocal.xml.util.UtilCFDIFormatoUnico;
-import com.interfactura.firmalocal.xml.util.UtilCFDIValidations;
+import com.interfactura.firmalocal.xml.util.UtilCFDIFormatoUnicoDivisas;
+import com.interfactura.firmalocal.xml.util.UtilCFDIValidationsDivisas;
 import com.interfactura.firmalocal.xml.util.UtilCatalogos;
 import com.interfactura.firmalocal.xml.util.XMLProcessGeneral;
 
@@ -105,7 +104,7 @@ private Logger logger = Logger.getLogger(GeneraXMLProcesoDivisas_Masivo.class);
 	private IvaManager ivaManager;
 	
 	@Autowired(required = true)
-	private UtilCFDIValidations validations;
+	private UtilCFDIValidationsDivisas validations;
 	
 	@Autowired(required = true)
 	private GeneraXmlFacturaCfdiV3_3 xmlGenerator;
@@ -164,8 +163,13 @@ private Logger logger = Logger.getLogger(GeneraXMLProcesoDivisas_Masivo.class);
 	String PathDivisasSalida	=	"/salidas/masivo/divisas/facturacion/salida/";
 	String PathDivisasOndemand	=	"/salidas/masivo/divisas/facturacion/ondemand/";
 	
+//	@Autowired(required = true)
+//	private UtilCFDIFormatoUnico fillFU;
+	
 	@Autowired(required = true)
-	private UtilCFDIFormatoUnico fillFU;
+	private UtilCFDIFormatoUnicoDivisas fillFU;
+	
+	
 	
 	@Autowired
 	private TagsXML tags;
@@ -351,11 +355,11 @@ private Logger logger = Logger.getLogger(GeneraXMLProcesoDivisas_Masivo.class);
 									
 									//llenar comprobante desde archivo
 									System.out.println("tamañolinea 	" + arrayValues.length);
-									comp = fillFU.fillComprobanteFUTxt(arrayValues);
+									comp = fillFU.fillComprobanteFUDivisas(arrayValues);
 									
 									//validar comprobante
 									System.out.println("Entrandodalidate");
-									sbErrorFile.append(validations.validateComprobante(comp, factura+1));
+									sbErrorFile.append(validations.validateComprobanteDivisas(comp, factura+1));
 									
 									//convertir comprobante a invoice
 									invoice = new Invoice_Masivo();
@@ -2519,7 +2523,7 @@ private Logger logger = Logger.getLogger(GeneraXMLProcesoDivisas_Masivo.class);
 			
 			cFDIssued.setStatus(Integer.parseInt(statusActive));
 			
-			cFDIssued.setFormatType(1);
+			cFDIssued.setFormatType(4);
 			
 			cFDIssued.setTaxIdReceiver(invoice.getRfc());
 			cFDIssued.setSubTotal(invoice.getSubTotal()	* invoice.getExchange());
