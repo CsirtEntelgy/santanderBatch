@@ -3113,7 +3113,7 @@ public class UtilCFDIValidationsDivisas {
 					Map<String, Object> tipoPrecioUnit = UtilValidationsXML.validValorUnitario(tags.mapCatalogos,
 							concepto.getValorUnitario().toString(), tags.decimalesMoneda,
 							comp.getTipoDeComprobante());
-
+					System.out.println( "valorUnitarioValidXD: " + concepto.getValorUnitario().toString() );
 					if (!tipoPrecioUnit.get("value").toString().equalsIgnoreCase("vacio")) {
 						// vectorPrecioUnitario.set(contadorConceptos,
 						// vectorPrecioUnitario.get(contadorConceptos));
@@ -3315,6 +3315,10 @@ public class UtilCFDIValidationsDivisas {
 							importeTrasRet = new BigDecimal(importeValStr);
 						}
 					}
+					
+					if ( concepto.getAplicaIva() == null || concepto.getAplicaIva().trim().equals("") || concepto.getAplicaIva().trim().equals("0") )
+						importeTrasRet = new BigDecimal(0.00);
+					
 					if (trasladoBol) {
 						totalTraslado = totalTraslado.add(importeTrasRet);
 						concepto.getImpuestos().getTraslados().get(0).setImporte(importeValStr);

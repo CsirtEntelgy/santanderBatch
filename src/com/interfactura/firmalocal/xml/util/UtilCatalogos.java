@@ -2044,6 +2044,39 @@ public class UtilCatalogos
 	    	return sbError.toString();
 	    }
 		
+		public static String validateCfdiDocumentDivisasNew(Document doc, int maxDecimals) throws XPathExpressionException, TransformerConfigurationException, TransformerException{
+	    	//logger.info("validateCfdiDocument:"+convertDocumentXmlToString(doc));
+	    	//System.out.println("******************************************************");
+	    	StringBuilder sbError = new StringBuilder();
+	    	//System.out.println("******************************************************");
+	    	sbError.append(validateDecimalsDivisasNew(doc, maxDecimals));
+	    	//logger.info("validateCfdiDocument:"+convertDocumentXmlToString(doc));
+	    	//System.out.println("******************************************************");
+	    	/*En esta seccion se agregaran todas las validciones que se les necesite hacer al comprobante*/
+        	//System.out.println("******************************************************");
+	    	
+	    	//System.out.println("mexderValidar: " + convertDocumentXmlToString(doc));
+	    	sbError.append(evaluateCalulationMasiva(doc, maxDecimals));
+	    	//logger.info("validateCfdiDocument:"+convertDocumentXmlToString(doc));
+	    	//System.out.println("******************************************************");
+	    	
+	    	if (sbError.length() == 0) {
+	            //ogger.info("Complementando los impuestos:");
+	            complementTaxes(doc);
+	            //logger.info(":" + convertDocumentXmlToString(doc));
+	            //System.out.println("******************************************************");
+	            //logger.info("Limpiando nodo impuestos de Conceptos vacios");
+	            clearTaxes(doc);
+	        }else{
+	        	System.out.println("******************************************************");
+	        	logger.info("validateCfdiDocument:" + convertDocumentXmlToString(doc));
+	        	System.out.println("******************************************************");
+	        }
+	    	return sbError.toString();
+	    }
+		
+		
+		
 	    public static void clearTaxes(Document doc) throws XPathExpressionException {
 	        String taxes = "//Comprobante/Conceptos/Concepto/Impuestos";
 	        NodeList nlTraslados = getNodesByExpression(doc, taxes);
@@ -2201,6 +2234,59 @@ public class UtilCatalogos
 	        System.out.println(sbError);
 	        return sbError.toString();
 	    }
+		
+		public static String validateDecimalsDivisasNew(Document doc, int maxDecimals) throws XPathExpressionException {
+	        StringBuilder sbError = new StringBuilder();
+	        evaluateDecimals(doc, "//Comprobante/@SubTotal", maxDecimals, "Subtotal", sbError);
+	        evaluateDecimals(doc, "//Comprobante/@Total", maxDecimals, "Total", sbError);
+	        
+	        if (!Util.isNullEmpty(getStringValByExpression(doc, "//Comprobante/@TipoCambio"))) 
+	        	if (!getStringValByExpression(doc, "//Comprobante//@Moneda").equalsIgnoreCase("MXN"))
+	        		evaluateDecimals(doc, "//Comprobante/@TipoCambio", maxDecimals, "Tipo de Cambio", sbError);
+	            
+		        
+	        if (!Util.isNullEmpty(getStringValByExpression(doc, "//Comprobante/@Descuento"))) {
+	            evaluateDecimals(doc, "//Comprobante/@Descuento", maxDecimals, "Descuento", sbError);
+	        }
+	        String concepts = "//Comprobante/Conceptos/Concepto";
+	        BigDecimal totalConcept = BigDecimal.valueOf(getDoubleByExpression(doc, "count(".concat(concepts.intern()).concat(")")));
+	        if (totalConcept.intValue() > 0) {
+	            for (int idxConcept = 0; idxConcept < totalConcept.intValue(); idxConcept++) {
+	                String currentConcept = concepts.intern().concat("[" + (idxConcept + 1) + "]");
+	                String currDescConcept = "Concepto[" + (idxConcept + 1) + "]";
+	                evaluateDecimals(doc, currentConcept.intern().concat("/@Importe"), maxDecimals, currDescConcept.concat("-Importe"), sbError);
+	                
+	                String traslados = currentConcept.intern().concat("/Impuestos/Traslados/Traslado");
+	                String retenciones = currentConcept.intern().concat("/Impuestos/Retenciones/Retencion");
+	                BigDecimal totalTraslados = BigDecimal.valueOf(getDoubleByExpression(doc, "count(".concat(traslados.intern()).concat(")")));
+	                BigDecimal totalRetenciones = BigDecimal.valueOf(getDoubleByExpression(doc, "count(".concat(retenciones.intern()).concat(")")));
+	                for (int idxTras = 0; idxTras < totalTraslados.intValue(); idxTras++) {
+	                    String currentTras = traslados.concat("[" + (idxTras + 1) + "]");
+	                    String currDescTras = currDescConcept.intern().concat("-Traslado[").concat(String.valueOf(idxTras + 1)).concat("]");
+	                    evaluateDecimals(doc, currentTras.intern().concat("/@Base"), maxDecimals, currDescTras.concat("-Base"), sbError);
+	                    evaluateDecimals(doc, currentTras.intern().concat("/@Importe"), maxDecimals, currDescTras.concat("-Importe"), sbError);
+	                    //evaluateDecimals(doc, currentTras.intern().concat("/@TasaOCuota"), maxDecimals, currDescTras.concat("-Tasa o Cuota"), sbError);
+	                }
+	                for (int idxRet = 0; idxRet < totalRetenciones.intValue(); idxRet++) {
+	                    String currentRet = retenciones.concat("[" + (idxRet + 1) + "]");
+	                    String currDescRet = currDescConcept.intern().concat("-Retencion[").concat(String.valueOf(idxRet + 1)).concat("]");
+	                    evaluateDecimals(doc, currentRet.intern().concat("/@Base"), maxDecimals, currDescRet.concat("-Base"), sbError);
+	                    evaluateDecimals(doc, currentRet.intern().concat("/@Importe"), maxDecimals, currDescRet.concat("-Importe"), sbError);
+	                    //evaluateDecimals(doc, currentRet.intern().concat("/@TasaOCuota"), maxDecimals, currDescRet.concat("-Tasa o Cuota"), sbError);
+	                }
+	            }
+	        }
+	        evaluateDecimals(doc, "//Comprobante/Impuestos/@TotalImpuestosRetenidos", maxDecimals, "Total Imp Retenidos", sbError);
+	        evaluateDecimals(doc, "//Comprobante/Impuestos/@TotalImpuestosTrasladados", maxDecimals, "Total Imp Traslados", sbError);
+	        if (sbError.length() > 0) {
+	            sbError = new StringBuilder("Los siguientes valores no tienen la cantidad de decimales para la moneda (Permitidos=")
+	                    .append(maxDecimals).append("):\n").append(sbError);
+	        }
+	        System.out.println(sbError);
+	        return sbError.toString();
+	    }
+		
+		
 		private static void evaluateDecimals(Document doc, String expression, int maxDecimals, String messageError, StringBuilder sbError) throws XPathExpressionException {
 	        NodeList nl = getNodesByExpression(doc, expression);
 	        if (nl != null && nl.getLength() > 0) {

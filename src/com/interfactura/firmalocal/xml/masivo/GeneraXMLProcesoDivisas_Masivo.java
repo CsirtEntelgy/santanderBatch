@@ -62,6 +62,7 @@ import com.interfactura.firmalocal.xml.Properties;
 import com.interfactura.firmalocal.xml.TagsXML;
 import com.interfactura.firmalocal.xml.WebServiceCliente;
 import com.interfactura.firmalocal.xml.file.GeneraArchivo_Masivo;
+import com.interfactura.firmalocal.xml.util.GeneraXmlDivisasCfdiV3_3;
 import com.interfactura.firmalocal.xml.util.GeneraXmlFacturaCfdiV3_3;
 import com.interfactura.firmalocal.xml.util.Util;
 import com.interfactura.firmalocal.xml.util.UtilCFDIFormatoUnicoDivisas;
@@ -106,8 +107,11 @@ private Logger logger = Logger.getLogger(GeneraXMLProcesoDivisas_Masivo.class);
 	@Autowired(required = true)
 	private UtilCFDIValidationsDivisas validations;
 	
-	@Autowired(required = true)
-	private GeneraXmlFacturaCfdiV3_3 xmlGenerator;
+//	@Autowired(required = true)
+//	private GeneraXmlFacturaCfdiV3_3 xmlGenerator;
+	
+	@Autowired
+	private GeneraXmlDivisasCfdiV3_3 xmlGenerator;
 	
 	@Autowired
 	private XMLProcessGeneral xmlProcessGeneral;
@@ -386,18 +390,23 @@ private Logger logger = Logger.getLogger(GeneraXMLProcesoDivisas_Masivo.class);
 											fiscalEntity = fiscalEntityManager.findByRFCA(fiscalEntity);
 											invoice.setFe_Id(String.valueOf(fiscalEntity.getId()));
 											invoice.setFe_taxid(String.valueOf(fiscalEntity.getTaxID()));
-											ByteArrayOutputStream baosXml = xmlGenerator.convierte(comp);
+											ByteArrayOutputStream baosXml = xmlGenerator.convierteFU(comp);
 											invoice.setByteArrXMLSinAddenda(baosXml);
 											
 											/* Se obtiene el totalIvaretenido y se asigna al IVA*/
 								    		Document document = UtilCatalogos.convertStringToDocument(invoice.getByteArrXMLSinAddenda().toString("UTF-8"));
 								    		String totalIvaRet = UtilCatalogos.getStringValByExpression(document, "//Comprobante/Impuestos/@TotalImpuestosTrasladados");
-								    		BigDecimal bdIva = new BigDecimal(totalIvaRet);
-								    		invoice.setIva(bdIva.doubleValue());
+								    		if (!totalIvaRet.equals("")) {
+									    		BigDecimal bdIva = new BigDecimal(totalIvaRet);
+									    		invoice.setIva(bdIva.doubleValue());
+											} else {
+												BigDecimal bdIva = new BigDecimal(0);
+									    		invoice.setIva(bdIva.doubleValue());
+											}
 								    		/*Fin Cambio*/
 								    		
 								    		//doc = UtilCatalogos.convertPathFileToDocument(nameFile);
-								            String errors = UtilCatalogos.validateCfdiDocument(document, comp.getDecimalesMoneda());            
+								            String errors = UtilCatalogos.validateCfdiDocumentDivisasNew(document, comp.getDecimalesMoneda());            
 								            if(!Util.isNullEmpty(errors)){
 								            	throw new Exception(errors);
 								            }else{
@@ -411,7 +420,7 @@ private Logger logger = Logger.getLogger(GeneraXMLProcesoDivisas_Masivo.class);
 												System.out.println("---Fin XML despues de validar decimales---");
 												
 												//agregar certificado y sello
-												baosXml = xmlGenerator.reemplazaCadenaOriginal(baosXml, fiscalEntity);
+												baosXml = xmlGenerator.reemplazaCadenaOriginalNew(baosXml, fiscalEntity, comp.isTasaCero());
 												
 												System.out.println("---XML despues de reemplazar cadena original---");
 												System.out.println(baosXml.toString("UTF-8"));
@@ -643,7 +652,7 @@ private Logger logger = Logger.getLogger(GeneraXMLProcesoDivisas_Masivo.class);
 		temp.append(invoiceM.getXmlRoute() + "<#EMasfUD,>");
 		temp.append(strSourceFileName + "<#EMasfUD,>");
 		temp.append(Integer.parseInt(this.statusActive) + "<#EMasfUD,>");
-		temp.append(1 + "<#EMasfUD,>");
+		temp.append(4 + "<#EMasfUD,>");
 		temp.append(invoiceM.getRfc() + "<#EMasfUD,>");
 		temp.append(invoiceM.getSubTotal()*invoiceM.getExchange() + "<#EMasfUD,>");
 		temp.append(invoiceM.getIva()*invoiceM.getExchange() + "<#EMasfUD,>");

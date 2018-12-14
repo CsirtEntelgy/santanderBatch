@@ -503,9 +503,6 @@ public class UtilCFDIFormatoUnicoDivisas {
 						break;
 					}
 					
-					System.out.println("lineaXD: " + linea[posicion].toString());
-					System.out.println("numeroXD: " + numeroCelda);
-					System.out.println("posicionXD: " + posicion);
 					
 					if (numeroCelda == 1) {
 						numeroCelda = numeroCelda + 7;
@@ -519,10 +516,7 @@ public class UtilCFDIFormatoUnicoDivisas {
 								trasladoBol = false;
 							} else {
 								fPermisoVector = false;
-							}
-							System.out.println("numerounoXD: " + numeroCelda);
-							System.out.println("posicionunoXD: " + posicion);
-							System.out.println("lineaunoXD: " + linea[posicion].toString());
+							}							
 							posicion = posicion - 7;
 							numeroCelda = numeroCelda - 7;
 						}
@@ -630,6 +624,11 @@ public class UtilCFDIFormatoUnicoDivisas {
 									impuestos.setTraslados(traslados);
 									cfdi.setImpuestos(impuestos);
 								}
+								if (cfdi.getAplicaIva() != null && cfdi.getAplicaIva().trim().equals("1"))
+									comp.setTasaCero(true);
+								if ( cImpuestoTipo != null  &&  !cImpuestoTipo.getTipoFactor().equalsIgnoreCase("Exento"))
+									comp.setTotalExcento(false);
+								System.out.println("valorUnitarioFillXD: " + cfdi.getValorUnitario());
 								conceptos.add(cfdi);
 							}
 						}
