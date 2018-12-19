@@ -14,6 +14,16 @@ public class Operacion {
 	public String valorNominalOpe;
 	public String descRend;
 	public String precioFactoraje;
+	public String curp;
+	
+	
+	
+	public String getCurp() {
+		return curp;
+	}
+	public void setCurp(String curp) {
+		this.curp = curp;
+	}
 	public String getCodBar() {
 		return codBar;
 	}

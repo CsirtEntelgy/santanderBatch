@@ -171,6 +171,7 @@ public class GeneraXML_ECBDSV3_3 {
     private boolean dobleAddenda = false;
 	private boolean starnewAddenda;
 	private List<Operacion> lstOperaciones = new ArrayList<Operacion>();
+	private Operacion complementarios;
 	private List<Cobranza> lstCobranzas = new ArrayList<Cobranza>();
 	private boolean attDobleAddIncorrect = false;
     
@@ -733,7 +734,7 @@ public class GeneraXML_ECBDSV3_3 {
 			            //System.out.println("AntesdeAgregarMovimientosECB: " + lstObjECBs.get(index).getDomResultado().toString());
 			            
 						//domResultado = this.putMovimientoECB(docEleComprobante, domResultado);
-			            lstObjECBs.get(index).setDomResultado(this.putMovimientoECB(docEleComprobante, lstObjECBs.get(index).getDomResultado(), lstObjECBs.get(index).getEstadoDeCuentaBancario(), lstObjECBs.get(index).getLstMovimientosECB(), lstObjECBs.get(index).getLstOperacionesECB(), lstObjECBs.get(index).getLstCobranzaECB(), lstObjECBs.get(index).isAddendaNew() ));
+			            lstObjECBs.get(index).setDomResultado(this.putMovimientoECB(docEleComprobante, lstObjECBs.get(index).getDomResultado(), lstObjECBs.get(index).getEstadoDeCuentaBancario(), lstObjECBs.get(index).getLstMovimientosECB(), lstObjECBs.get(index).getLstOperacionesECB(), lstObjECBs.get(index).getLstCobranzaECB(), lstObjECBs.get(index).isAddendaNew(), lstObjECBs.get(index).getOperacion()));
 						//Concatenar foliosSAT
 						sbFoliosSAT.append(this.strUUID + "||");
 						
@@ -1123,8 +1124,9 @@ public class GeneraXML_ECBDSV3_3 {
 			this.endIMPUESTOS();
 			this.endMOVIMIENTOS();
 			this.dobleAddenda = true;
+			this.startAddendaECB(); 
 			out.write( conver.barCode(linea, contCFD));
-			this.startAddendaECB();
+			this.startOperaciones();
 			break;
 		case 15:
 			
@@ -1393,6 +1395,9 @@ public class GeneraXML_ECBDSV3_3 {
 		out.write("\n</Santander:EstadoDeCuentaBancario>".getBytes());
 		out.write("\n</Santander:addendaECB>".getBytes());
 		out.write("\n<Santander:addendaConfirming>".getBytes());
+	}
+	
+	public void startOperaciones() throws IOException {
 		out.write("\n<Santander:Operaciones>".getBytes());
 	}
 	
@@ -2018,7 +2023,7 @@ public class GeneraXML_ECBDSV3_3 {
 	
 	private Document putMovimientoECB( Element docEleComprobante, Document domResultado, 
 			EstadoDeCuentaBancario estadoDeCuentaBancariox, List<MovimientoECB> lstMovimientosECBx , 
-			List<Operacion> lstopEcb, List<Cobranza> lstcobEcb, boolean addendaNew ) {
+			List<Operacion> lstopEcb, List<Cobranza> lstcobEcb, boolean addendaNew , Operacion oper) {
 		
 		
 		Element rootAddenda = domResultado.createElement("cfdi:Addenda");
@@ -2152,104 +2157,18 @@ public class GeneraXML_ECBDSV3_3 {
 				}
 			}
 		}
-		// Agrega la addenda domicilios
-		if (addendaDomiciliosNodeStr.peek() != null && !addendaDomiciliosNodeStr.peek().trim().isEmpty() ) {
-			String xmlString2 = "", xmlFinal = "";
-			try {
-				xmlString2 = UtilCatalogos.convertDocumentXmlToString(domResultado);
-			} catch (TransformerConfigurationException e) {
-				e.printStackTrace();
-			} catch (TransformerException e) {
-				e.printStackTrace();
-			}
-			String strAddendaComp = "";
-			strAddendaComp = "<cfdi:Addenda>"+addendaDomiciliosNodeStr.poll() + "</cfdi:Addenda></cfdi:Comprobante>";
-			String strXmlString = "";
-			strXmlString = xmlString2.replace("</cfdi:Comprobante>", strAddendaComp);
-			xmlFinal = strXmlString.replaceAll("[\n\r]", "");
-			try {
-				domResultado = UtilCatalogos.convertStringToDocument(xmlFinal);
-			} catch (ParserConfigurationException e) {
-				e.printStackTrace();
-			} catch (SAXException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		
-		try {
-			String folio = UtilCatalogos.getStringValByExpression(domResultado, "//Comprobante/@Folio");
-			if (this.nameFile.contains("LMPAMPAA") || this.nameFile.contains("LMPAMPAS")) {
-				File file = new File(this.getName(properties.getPathSalida(), "REC"));
-				if (file.exists()) {
-					if (file.canRead()) {
-						DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-						Date dateInicio = new Date();
-						System.out.println("TIMEINICIOADDRECXD:" + dateFormat.format(dateInicio) + "M" + System.currentTimeMillis());
-						
-						try {
-							Runtime rt = Runtime.getRuntime();
-							String[] cmd = {"/bin/sh", "-c", "grep -a '"+folio+"' " + this.getName(properties.getPathSalida(), "REC") };
-							Process proc = rt.exec(cmd);
-							BufferedReader is = new BufferedReader(new InputStreamReader(proc.getInputStream()));
-							String linea = "";
-							if ((linea = is.readLine()) != null) {
-								System.out.println(linea);
-								String addendaRec = "";
-								String datos[] = linea.trim().split("\\|");
-								if (!linea.equalsIgnoreCase("") && linea.length() >= 10) {
-									
-									addendaRec = "<Santander:AddendaRecompensa>" + 
-											"<Santander:AddendaRec "
-											+ "Mensaje=\"Se le informa que el valor de las redenciones de puntos realizadas durante el periodo:"
-											+ " fecha inicio "+datos[2]+" fecha fin "+datos[3]+" es por la cantidad de "+datos[1]+ "\" />"
-											+ "</Santander:AddendaRecompensa></Santander:addendaECB>";
-								}
-								
-								System.out.println("ADDENDA: " + addendaRec);
-								
-								String rec = "<Santander:AddendaRecompensa>" + 
-										"<Santander:AddendaRec "
-										+ "Mensaje=\"Se le informa que el valor de las redenciones de puntos realizadas durante el periodo:"
-										+ " fecha inicio "+datos[2]+" fecha fin "+datos[3]+" es por la cantidad de "+datos[1]+ "\" />"
-										+ "</Santander:AddendaRecompensa></Santander:addendaECB>";
-								
-								String xmlString2 = "", xmlFinal = "";
-								xmlString2 = UtilCatalogos.convertDocumentXmlToString(domResultado);
-								
-								String strXmlString = "";
-								strXmlString = xmlString2.replace("</Santander:addendaECB>", rec);
-								
-								
-								xmlFinal = strXmlString.replaceAll("[\n\r]", "");
-								
-								domResultado = UtilCatalogos.convertStringToDocument(xmlFinal);
-								
-								
-								if ((linea = is.readLine()) != null)
-									System.out.println(linea);
-							}
-							
-						} catch (Exception e) {
-							// TODO: handle exception
-							e.printStackTrace();
-							System.out.println(e.getMessage());
-						}
-						System.out.println("TIMEFINADDRECXD:" + dateFormat.format(dateInicio) + "M" + System.currentTimeMillis());
-					}
-				}
-			}
-		} catch (XPathExpressionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		
 		
 		if ( addendaNew ) {
 			String addendaNe = "";
 			String addendaOperaciones = "";
 			String addendaCobranzas = "";
+			
+			String complementos = "\n<Santander:Complemento ";
+			
+			complementos += "CURP=\""+oper.getCurp()+"\" ";
+			complementos += "CodBar=\""+oper.getCodBar()+"\" />";
+			
 			
 			if ( lstopEcb != null && lstopEcb.size() != 0 ) { 
 				System.out.println("Santander:Operaciones");
@@ -2378,6 +2297,7 @@ public class GeneraXML_ECBDSV3_3 {
 			if ( !addendaOperaciones.trim().equals("") || !addendaCobranzas.trim().equals("") ) {
 				
 				String newAddenda = "\n<Santander:addendaConfirming xmlns:Santander=\"http://www.santander.com.mx/schemas/xsd/addendaConfirming\">"
+						+ complementos
 						+ addendaNe
 						+ "\n</Santander:addendaConfirming >"
 						+ "\n</cfdi:Addenda>";
@@ -2411,6 +2331,102 @@ public class GeneraXML_ECBDSV3_3 {
 			
 			
 		}
+		
+		// Agrega la addenda domicilios
+		if (addendaDomiciliosNodeStr.peek() != null && !addendaDomiciliosNodeStr.peek().trim().isEmpty() ) {
+			String xmlString2 = "", xmlFinal = "";
+			try {
+				xmlString2 = UtilCatalogos.convertDocumentXmlToString(domResultado);
+			} catch (TransformerConfigurationException e) {
+				e.printStackTrace();
+			} catch (TransformerException e) {
+				e.printStackTrace();
+			}
+			String strAddendaComp = "";
+			strAddendaComp = "<cfdi:Addenda>"+addendaDomiciliosNodeStr.poll() + "</cfdi:Addenda></cfdi:Comprobante>";
+			String strXmlString = "";
+			strXmlString = xmlString2.replace("</cfdi:Comprobante>", strAddendaComp);
+			xmlFinal = strXmlString.replaceAll("[\n\r]", "");
+			try {
+				domResultado = UtilCatalogos.convertStringToDocument(xmlFinal);
+			} catch (ParserConfigurationException e) {
+				e.printStackTrace();
+			} catch (SAXException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		try {
+			String folio = UtilCatalogos.getStringValByExpression(domResultado, "//Comprobante/@Folio");
+			if (this.nameFile.contains("LMPAMPAA") || this.nameFile.contains("LMPAMPAS")) {
+				File file = new File(this.getName(properties.getPathSalida(), "REC"));
+				if (file.exists()) {
+					if (file.canRead()) {
+						DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+						Date dateInicio = new Date();
+						System.out.println("TIMEINICIOADDRECXD:" + dateFormat.format(dateInicio) + "M" + System.currentTimeMillis());
+						
+						try {
+							Runtime rt = Runtime.getRuntime();
+							String[] cmd = {"/bin/sh", "-c", "grep -a '"+folio+"' " + this.getName(properties.getPathSalida(), "REC") };
+							Process proc = rt.exec(cmd);
+							BufferedReader is = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+							String linea = "";
+							if ((linea = is.readLine()) != null) {
+								System.out.println(linea);
+								String addendaRec = "";
+								String datos[] = linea.trim().split("\\|");
+								if (!linea.equalsIgnoreCase("") && linea.length() >= 10) {
+									
+									addendaRec = "<Santander:AddendaRecompensa>" + 
+											"<Santander:AddendaRec "
+											+ "Mensaje=\"Se le informa que el valor de las redenciones de puntos realizadas durante el periodo:"
+											+ " fecha inicio "+datos[2]+" fecha fin "+datos[3]+" es por la cantidad de "+datos[1]+ "\" />"
+											+ "</Santander:AddendaRecompensa></Santander:addendaECB>";
+								}
+								
+								System.out.println("ADDENDA: " + addendaRec);
+								
+								String rec = "<Santander:AddendaRecompensa>" + 
+										"<Santander:AddendaRec "
+										+ "Mensaje=\"Se le informa que el valor de las redenciones de puntos realizadas durante el periodo:"
+										+ " fecha inicio "+datos[2]+" fecha fin "+datos[3]+" es por la cantidad de "+datos[1]+ "\" />"
+										+ "</Santander:AddendaRecompensa></Santander:addendaECB>";
+								
+								String xmlString2 = "", xmlFinal = "";
+								xmlString2 = UtilCatalogos.convertDocumentXmlToString(domResultado);
+								
+								String strXmlString = "";
+								strXmlString = xmlString2.replace("</Santander:addendaECB>", rec);
+								
+								
+								xmlFinal = strXmlString.replaceAll("[\n\r]", "");
+								
+								domResultado = UtilCatalogos.convertStringToDocument(xmlFinal);
+								
+								
+								if ((linea = is.readLine()) != null)
+									System.out.println(linea);
+							}
+							
+						} catch (Exception e) {
+							// TODO: handle exception
+							e.printStackTrace();
+							System.out.println(e.getMessage());
+						}
+						System.out.println("TIMEFINADDRECXD:" + dateFormat.format(dateInicio) + "M" + System.currentTimeMillis());
+					}
+				}
+			}
+		} catch (XPathExpressionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		
 		
 		
 		return domResultado;
@@ -2541,6 +2557,7 @@ public class GeneraXML_ECBDSV3_3 {
 								this.estadoDeCuentaBancario = new EstadoDeCuentaBancario();
 								this.lstCobranzas = new ArrayList<Cobranza>();
 								this.lstOperaciones = new ArrayList<Operacion>();
+								this.complementarios = new Operacion();
 								
 								//System.out.println("XML formado a partir de la interface: " + out.toString("UTF-8"));
 								
@@ -2550,6 +2567,7 @@ public class GeneraXML_ECBDSV3_3 {
 								//Manipular con Document el xml obtenido de la variable out					
 //								dom = this.removeAddendaDomicilio(byteArrayOutputStreamToDocument(out));
 								dom = this.removeMovimientoECB(byteArrayOutputStreamToDocument(out));
+								out = UtilCatalogos.convertStringToOutpuStream(UtilCatalogos.convertDocumentXmlToString(dom));
 								dom = this.removeAddendaNew(byteArrayOutputStreamToDocument(out));
 								//Fin - Quitar todos los movimientos no fiscales del XML almacenado en la variable out
 								//System.out.println("flags: fAttMovIncorrect:" + this.fAttMovIncorrect + " fnombreCliente:" + this.fnombreCliente + " fnumeroCuenta:" + this.fnumeroCuenta + " fperiodo:" + this.fperiodo + " fsucursal:" + this.fsucursal);
@@ -2558,6 +2576,7 @@ public class GeneraXML_ECBDSV3_3 {
 									objEcbActual.setEstadoDeCuentaBancario(this.estadoDeCuentaBancario);
 									objEcbActual.setLstCobranzaECB(this.lstCobranzas);
 									objEcbActual.setLstOperacionesECB(this.lstOperaciones);
+									objEcbActual.setOperacion(complementarios);
 									
 									if ( this.lstCobranzas.size() != 0 || this.lstOperaciones.size() != 0 ) {
 										objEcbActual.setAddendaNew(true);
@@ -2897,6 +2916,18 @@ public class GeneraXML_ECBDSV3_3 {
 											lstCobranzas.add(cobECB);
 										
 										} 
+									}
+								} else if(root.getChildNodes().item(i).getChildNodes().item(x).getChildNodes().item(j) instanceof Element && 
+											root.getChildNodes().item(i).getChildNodes().item(x).getChildNodes().item(j).getNodeName().equals("Santander:Complemento")){
+									
+									NamedNodeMap atributos = root.getChildNodes().item(i).getChildNodes().item(x).getChildNodes().item(j).getAttributes();
+									for(int iAtt=0; iAtt< atributos.getLength(); iAtt++){
+										Attr atributo = (Attr) atributos.item(iAtt);
+										if(atributo.getName().equals("CURP")){	
+											complementarios.setCurp(atributo.getValue());															
+										}else if(atributo.getName().equals("CodBar")){	
+											complementarios.setCodBar(atributo.getValue());																
+										}
 									}
 								}
 							}

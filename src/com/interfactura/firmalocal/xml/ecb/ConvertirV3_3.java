@@ -1279,6 +1279,7 @@ public class ConvertirV3_3 {
 					tags.CURP = lineas[3].trim();
 				}
 			}
+			System.out.println("CURPXD: " + tags.CURP);
 
 			//System.out.println("Saliendo de Receptor: ");
 			tags("Receptor", pila); // Validando la forma
@@ -1310,13 +1311,26 @@ public class ConvertirV3_3 {
 		
 		if ( lineas.length >= 2 ) {
 			
+			String codBar  = "";
 			if ( lineas[1].trim() == null || lineas[1].trim().equalsIgnoreCase("") ) {
 				tags.codBar = "ErrBarCode001";
+				
 			} else {
 				tags.codBar = lineas[1].trim();
 			}
 			
-			return "".getBytes("UTF-8");
+			codBar = "CodBar=\"" + tags.codBar + "\" ";
+			
+			
+			String curp = "";
+			if ( !tags.CURP.trim().equals("") ) {
+				curp = " CURP=\""+ tags.CURP +"\" ";
+			}
+			
+			return Util.conctatArguments("\n<Santander:Complemento ", 
+					codBar,
+					curp, "/>")
+					.toString().getBytes("UTF-8");
 		} else {
 			return formatECB(numberLine);
 		}
@@ -1333,15 +1347,6 @@ public class ConvertirV3_3 {
 		lineas = linea.split("\\|");
 		
 		if ( lineas.length >= 13 ) {
-			
-			String codBar  = "";
-			codBar = "CodBar=\"" + tags.codBar + "\" ";
-			
-			String curp = "";
-			if ( !tags.CURP.trim().equals("") ) {
-				curp = " CURP=\""+ tags.CURP +"\" ";
-			}
-			
 			
 			
 			String fechaPagoRecibo  = "";
@@ -1390,8 +1395,6 @@ public class ConvertirV3_3 {
 			
 			
 			return Util.conctatArguments("\n<Santander:Operacion ", 
-					codBar, 
-					curp,
 					fechaPagoRecibo,
 					numeroContrato,
 					nombreDeudorOpe,

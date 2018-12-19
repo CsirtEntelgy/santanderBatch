@@ -57,6 +57,7 @@ public class ECB {
 	private List<Operacion> lstOperacionesECB = new ArrayList<Operacion>();
 	private List<Cobranza> lstCobranzaECB = new ArrayList<Cobranza>();
 	private boolean addendaNew = false;
+	private Operacion operacion = new Operacion();
 	
 	private Document domResultado;
 		
@@ -315,6 +316,14 @@ public class ECB {
 	public void setAddendaNew(boolean addendaNew) {
 		this.addendaNew = addendaNew;
 	}
+	public Operacion getOperacion() {
+		return operacion;
+	}
+	public void setOperacion(Operacion operacion) {
+		this.operacion = operacion;
+	}
+	
+	
 	
 	
 	//
