@@ -327,7 +327,7 @@ public class GeneraXMLProcesoArrendadora_Masivo {
 							
 							String [] arrayValues = strLineTXT.split("\\|");
 							
-							if(!strLineTXT.equals("")){
+							if(!strLineTXT.equals("")  && arrayValues.length != 0 && !arrayValues[2].equalsIgnoreCase("FINARCHIVO") ){
 								if(arrayValues.length<49){							
 									
 									sbStatusNoOK.append("ErrorArchivo|" + "Factura " + (factura+1) + ", incompleta!" + "\n");

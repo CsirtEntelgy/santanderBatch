@@ -68,7 +68,7 @@ public class UtilCFDIFormatoUnicoDivisas {
 
 	public CfdiComprobanteFiscal fillComprobanteFUDivisas(String[] linea){
 		CfdiComprobanteFiscal comp =  new CfdiComprobanteFiscal();
-		comp.setTipoEmision(TipoEmision.FORMATO_UNICO);
+		comp.setTipoEmision(TipoEmision.DIVISAS);
 		
 		// Pos 0 Emisor
 		FiscalEntity fiscalEntity = null;
@@ -456,6 +456,10 @@ public class UtilCFDIFormatoUnicoDivisas {
 			}// final de evaluacion de RE_DECIMAL
 		}// fin de la evaluacion lina 22
 		
+		
+		
+		
+		
 		// pos 37
 		if(linea[37] ==  null){
 			comp.setNoAutorizacion("");
@@ -463,7 +467,20 @@ public class UtilCFDIFormatoUnicoDivisas {
 			comp.setNoAutorizacion(linea[37].toString().trim());
 		}
 		// pos 38 y 39
+		
+		/* Tipo de operacion */
 		comp.setComplemento(new CfdiComplemento());
+		if (!linea[36].toString().trim().equals("")) {
+			if (linea[36].toString().trim().toLowerCase().equals("compra")
+					|| linea[36].toString().trim().toLowerCase().equals("venta")) {
+				comp.getComplemento().setDivisaTipoOperacion(linea[36].toString().toLowerCase().trim());
+			} else {
+				comp.getComplemento().setDivisaTipoOperacion("");
+			}
+		} else {
+			comp.getComplemento().setDivisaTipoOperacion("");
+		}
+		
 		comp.getComplemento().setTimbreFiscalDigital(new CfdiTimbreFiscalDigital());
 		if (linea[38] == null) {
 			comp.getComplemento().getTimbreFiscalDigital().setUuid("");
