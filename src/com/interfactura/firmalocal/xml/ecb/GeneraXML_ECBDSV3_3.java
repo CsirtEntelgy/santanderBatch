@@ -174,6 +174,10 @@ public class GeneraXML_ECBDSV3_3 {
 	private Operacion complementarios;
 	private List<Cobranza> lstCobranzas = new ArrayList<Cobranza>();
 	private boolean attDobleAddIncorrect = false;
+	private boolean endOper = false;
+	private boolean contOper = false;
+	private boolean contCobr = false;
+	
     
    	public GeneraXML_ECBDSV3_3() {
 
@@ -1131,10 +1135,13 @@ public class GeneraXML_ECBDSV3_3 {
 		case 15:
 			
 			out.write( conver.operaciones(linea, contCFD) );
+			this.contOper = true;
 			break;
 		case 16:
+			this.contCobr = true;
 			this.endOperaciones();
 			out.write( conver.cobranza(linea, contCFD) );
+			
 			break;
 		default:
 			System.out.println("caseBreak");
@@ -1372,20 +1379,35 @@ public class GeneraXML_ECBDSV3_3 {
 	}
 	
 	public void endAddendaECB() throws IOException {
-		if (conver.getTags().isAddenda) 
+		if (conver.getTags().isAddenda && this.contCobr ) 
 		{
 			out.write("\n</Santander:Cobranzas>".getBytes());
 			out.write("\n</Santander:addendaConfirming>".getBytes());
 			out.write("\n</cfdi:Addenda>".getBytes());
 			this.addendaDomicilios();
 			conver.getTags().isAddenda = false;
+			this.endOper = false;
+			this.contOper = false;
+			this.contCobr = false;
+		} else {
+			out.write("\n</Santander:Operaciones>".getBytes());
+			out.write("\n</Santander:addendaConfirming>".getBytes());
+			out.write("\n</cfdi:Addenda>".getBytes());
+			this.addendaDomicilios();
+			conver.getTags().isAddenda = false;
+			this.endOper = false;
+			this.contOper = false;
+			this.contCobr = false;
 		}
 		
 	}
 	
 	public void endOperaciones() throws IOException {
-		out.write("\n</Santander:Operaciones>".getBytes());
-		out.write("\n<Santander:Cobranzas>".getBytes());
+		if ( !this.endOper ) {
+			out.write("\n</Santander:Operaciones>".getBytes());
+			out.write("\n<Santander:Cobranzas>".getBytes());
+			this.endOper = true;
+		} 
 	}
 	
 	/**
