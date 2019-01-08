@@ -1022,6 +1022,106 @@ public class ConvertirV3_3 {
 
 	}
 
+	public byte[] cfdiRelacionado(String linea, long numberLine, HashMap<String, HashMap> tipoCambio,
+			HashMap fiscalEntities, HashMap campos22, String fileNames, boolean startRel) throws UnsupportedEncodingException {
+		
+		lineas = linea.split("\\|");
+		
+		if ( lineas.length >= 3 ) {
+			
+			String tipoRel = "";
+			if ( startRel ) {
+				
+				
+				
+				
+				
+				if ( lineas[1].trim() == null || lineas[1].trim().equalsIgnoreCase("") ) {
+					tipoRel= "ErrCFDIRel001=\"vacio\"";
+					
+				} else {
+					
+					if ( !UtilCatalogos.existClaveInTipoRelacion(tags.mapCatalogos, tipoRel) ) {
+						tipoRel = "TipoRelacion=\""
+								+ lineas[1].trim() + "\" "; 
+						tags.tipoRel = lineas[1].trim();
+
+					} else {
+						tipoRel = "ErrCFDIRel001=\"" + "vacio\""; 
+						tags.tipoRel = "vacio";
+					}
+					
+					tipoRel = lineas[1].trim();
+				}
+				String uuid = "";
+				if ( lineas[2].trim() == null || lineas[2].trim().equalsIgnoreCase("") ) {
+					uuid= "ErrCFDIRel002";
+					
+				} else {
+					uuid = lineas[2].trim();
+				}
+				
+				
+				return Util.conctatArguments("\n<cfdi:CfdiRelacionados ", 
+						tipoRel +" >",
+						"\n<cfdi:CfdiRelacionado ",
+						"UUID=\""+ uuid +"\" />")
+						.toString().getBytes("UTF-8");
+			} else {
+				String uuid = "";
+				if ( lineas[1].trim() != null && !tags.tipoRel.equals("vacio") && !tags.tipoRel.equalsIgnoreCase(lineas[1].trim()) ) {
+					
+					if ( !UtilCatalogos.existClaveInTipoRelacion(tags.mapCatalogos, tipoRel) ) {
+						tipoRel = "TipoRelacion=\""
+								+ lineas[1].trim() + "\" "; 
+						tags.tipoRel = lineas[1].trim();
+
+					} else {
+						tipoRel = "ErrCFDIRel001=\"" + "vacio\""; 
+						tags.tipoRel = "vacio";
+					}
+					
+					
+					
+					return Util.conctatArguments(
+							"\n</cfdi:CfdiRelacionados> ", 
+							"\n<cfdi:CfdiRelacionados ", 
+							tipoRel +" >",
+							"\n<cfdi:CfdiRelacionado ",
+							"UUID=\""+ uuid +"\" />")
+							.toString().getBytes("UTF-8");
+					
+				} else {
+					
+					
+					if ( lineas[2].trim() == null || lineas[2].trim().equalsIgnoreCase("") ) {
+						uuid= "ErrCFDIRel002";
+						
+					} else {
+						uuid = lineas[2].trim();
+					}
+					
+					
+					return Util.conctatArguments("\n<cfdi:CfdiRelacionado ",
+							"UUID=\""+ uuid +"\" />")
+							.toString().getBytes("UTF-8");
+					
+				}
+				
+				
+				
+				
+			}
+			
+			
+			
+
+		} else {
+			return formatECB(numberLine);
+		}
+		
+	}
+	
 	/**
 	 * 
 	 * @param linea
@@ -1089,6 +1189,8 @@ public class ConvertirV3_3 {
 		}
 	}
 
+	
+	
 	
 	public String getNameEntityFiscal() {
 		if (tags.fis == null) {

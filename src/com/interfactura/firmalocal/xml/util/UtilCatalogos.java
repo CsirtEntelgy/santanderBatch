@@ -2044,6 +2044,38 @@ public class UtilCatalogos
 	    	return sbError.toString();
 	    }
 		
+		public static String validateCfdiDocumentRP(Document doc, int maxDecimals) throws XPathExpressionException, TransformerConfigurationException, TransformerException{
+	    	//logger.info("validateCfdiDocument:"+convertDocumentXmlToString(doc));
+	    	//System.out.println("******************************************************");
+	    	StringBuilder sbError = new StringBuilder();
+	    	//System.out.println("******************************************************");
+	    	sbError.append(validateDecimals(doc, maxDecimals));
+	    	//logger.info("validateCfdiDocument:"+convertDocumentXmlToString(doc));
+	    	//System.out.println("******************************************************");
+	    	/*En esta seccion se agregaran todas las validciones que se les necesite hacer al comprobante*/
+        	//System.out.println("******************************************************");
+	    	
+	    	//System.out.println("mexderValidar: " + convertDocumentXmlToString(doc));
+	    	sbError.append(evaluateCalulationMasivaRP(doc, maxDecimals));
+	    	//logger.info("validateCfdiDocument:"+convertDocumentXmlToString(doc));
+	    	//System.out.println("******************************************************");
+	    	
+	    	if (sbError.length() == 0) {
+	            //ogger.info("Complementando los impuestos:");
+	            complementTaxes(doc);
+	            //logger.info(":" + convertDocumentXmlToString(doc));
+	            //System.out.println("******************************************************");
+	            //logger.info("Limpiando nodo impuestos de Conceptos vacios");
+	            clearTaxes(doc);
+	        }else{
+	        	System.out.println("******************************************************");
+	        	logger.info("validateCfdiDocument:" + convertDocumentXmlToString(doc));
+	        	System.out.println("******************************************************");
+	        }
+	    	return sbError.toString();
+	    }
+		
+		
 		public static String validateCfdiDocumentDivisasNew(Document doc, int maxDecimals) throws XPathExpressionException, TransformerConfigurationException, TransformerException{
 	    	//logger.info("validateCfdiDocument:"+convertDocumentXmlToString(doc));
 	    	//System.out.println("******************************************************");
@@ -2453,6 +2485,96 @@ public class UtilCatalogos
 	    	}
 	    	return "";
 	    }
+		
+		public static String evaluateCalulationMasivaRP(Document doc, int maxDecimals){
+	    	try{    	
+		        logger.info("Iniciando Validaciones de Calculos");
+		        BigDecimal compTotal = BigDecimal.valueOf(getDoubleByExpression(doc, "//Comprobante/@Total"));
+		        StringBuilder sb = new StringBuilder("(//Comprobante/Conceptos/Concepto/@Importe)");
+		        BigDecimal conceptTotal = getBigDecimalByNodeExpression(doc, sb.toString());
+		        sb = new StringBuilder("(//Comprobante/Conceptos/Concepto/Impuestos/Traslados/Traslado/@Importe)");
+		        BigDecimal traslTotal = getBigDecimalByNodeExpression(doc, sb.toString());
+		        BigDecimal traslados = conceptTotal.add(traslTotal);
+		        sb = new StringBuilder("(//Comprobante/Conceptos/Concepto/Impuestos/Retenciones/Retencion/@Importe)");
+		        BigDecimal retenciones = getBigDecimalByNodeExpression(doc, sb.toString());
+		        BigDecimal discount = getBigDecimalByNodeExpression(doc, "//Comprobante/@Descuento");
+		        retenciones = retenciones.add(discount);	        
+		
+		        BigDecimal totalOper = retenciones.equals(BigDecimal.valueOf(0)) ? traslados : traslados.add(retenciones.multiply(BigDecimal.valueOf(-1)));
+		        if (compTotal.doubleValue() == totalOper.doubleValue()) {
+		
+		        } else {
+//		            System.out.println("totalOper=" + totalOper);
+//		            System.out.println("compTotal=" + compTotal);
+//		            System.out.println("retenciones=" + retenciones);
+//		            System.out.println("traslados=" + traslados);
+//		            System.out.println("Comptaracion=" + (compTotal.doubleValue() == totalOper.doubleValue()));
+		            throw new Exception(
+		                    "El campo Total no corresponde con la suma del subtotal, menos los descuentos aplicables, más las contribuciones recibidas (impuestos trasladados - federales o locales, derechos, productos, aprovechamientos, aportaciones de seguridad social, contribuciones de mejoras) menos los impuestos retenidos");
+		        }
+		
+		        //logger.info("Validando descuentos");
+		        /*Asignacion y validacion de Descuento*/
+		        String voucherType = getStringValByExpression(doc, "//Comprobante/@TipoDeComprobante");
+		        //System.out.println("discount:" + discount);
+		        boolean validateDiscount = false;
+		        if (discount.doubleValue() > 0) {//Si no viene con valor omitimos este paso
+		            validateDiscount = true;
+		        }
+		        if (voucherType.equalsIgnoreCase("I")
+		                || voucherType.equalsIgnoreCase("E")
+		                || voucherType.equalsIgnoreCase("N")) {
+		            if (validateDiscount) {
+		                //El subtotal debe ser mayor o igual al descuento
+		                BigDecimal subTotal = BigDecimal.valueOf(getDoubleByExpression(doc, "//Comprobante/@SubTotal"));
+		                if (discount.doubleValue() > subTotal.doubleValue()) {
+		                    throw new Exception(errorMessage.get("ErrCompSubTotal005"));
+		                }
+		            }
+		            String concepts = "//Comprobante/Conceptos/Concepto";
+		            BigDecimal totalConcept = BigDecimal.valueOf(getDoubleByExpression(doc, "count(".concat(concepts.intern()).concat(")")));
+		            //System.out.println("Conceptos:" + totalConcept);
+		            if (totalConcept.doubleValue() > 0) {//Verificamos que vengan conceptos
+		                //Obtenemos el decuento por concepto
+		                BigDecimal discPerConcept = discount.divide(totalConcept, maxDecimals, RoundingMode.HALF_UP);
+		                BigDecimal last = discount.subtract(discPerConcept.multiply(totalConcept));
+		                NodeList nl = getNodesByExpression(doc, concepts.intern());
+		                if (nl != null) {
+		                    String disc = discPerConcept.toString();
+		                    for (int i = 0; i < nl.getLength(); i++) {
+		                        Element el = ((Element) nl.item(i));
+		                        BigDecimal importe = new BigDecimal(el.getAttribute("Importe"));
+		                        BigDecimal valorUnitario = new BigDecimal(el.getAttribute("ValorUnitario"));
+		                        if (valorUnitario.doubleValue() <= 0) {
+		                            throw new Exception(errorMessage.get("ErrCompValUni003"));
+		                        }
+		                        if (validateDiscount) {
+		                            if ((i + 1) == nl.getLength() && last.doubleValue() > 0) {
+		                                //Se suma el descuento por concepto mas
+		                                discPerConcept = discPerConcept.add(last);
+		                                disc = discPerConcept.toString();
+		                            }
+		                            if (discPerConcept.doubleValue() > importe.doubleValue()) {
+		                                throw new Exception(MessageFormat.format(errorMessage.get("ErrConcImport002"), (i + 1), discPerConcept, importe));
+		                            }
+		                            el.setAttribute("Descuento", disc.intern());
+		                        }
+		                    }
+		                }
+		            }
+		        } else {
+		            if (validateDiscount) {
+		                throw new Exception(errorMessage.get("ErrCompTipoComprobante002"));
+		            }
+		        }
+	    	}catch(Exception ex){
+	    		logger.error(ex);
+	    		return ex.getMessage();
+	    	}
+	    	return "";
+	    }
+		
+		
 		public static String completeWithCharacter(String val, String character, int length) {
 	        StringBuilder outputBuffer = new StringBuilder(val);
 	        for (int i = 0; i < length; i++) {

@@ -233,4 +233,9 @@ public class TagsXML {
 	public String valorNominalCon  = "";
 	public String totalCobrado  = "";
 	
+	
+	
+//	reprocesoCarter
+	public String tipoRel= "";
+	
 }
