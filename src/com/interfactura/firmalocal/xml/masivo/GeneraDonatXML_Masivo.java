@@ -72,10 +72,12 @@ import com.interfactura.firmalocal.xml.WebServiceClienteDonat;
 
 import com.interfactura.firmalocal.xml.file.GeneraArchivoDonat_Masivo;
 import com.interfactura.firmalocal.xml.file.XMLProcess;
+import com.interfactura.firmalocal.xml.util.GeneraXmlDonatCfdiV3_3;
 import com.interfactura.firmalocal.xml.util.GeneraXmlFacturaCfdiV3_3;
 import com.interfactura.firmalocal.xml.util.Util;
 import com.interfactura.firmalocal.xml.util.UtilCFDIDonatarias;
 import com.interfactura.firmalocal.xml.util.UtilCFDIValidations;
+import com.interfactura.firmalocal.xml.util.UtilCFDIValidationsDonat;
 import com.interfactura.firmalocal.xml.util.UtilCatalogos;
 import com.interfactura.firmalocal.xml.util.XMLProcessGeneral;
 
@@ -131,10 +133,10 @@ public class GeneraDonatXML_Masivo {
 	private IvaManager ivaManager;
 	
 	@Autowired(required = true)
-	private UtilCFDIValidations validations;
+	private UtilCFDIValidationsDonat validations;
 	
 	@Autowired(required = true)
-	private GeneraXmlFacturaCfdiV3_3 xmlGenerator;
+	private GeneraXmlDonatCfdiV3_3 xmlGenerator;
 	
 	@Autowired
 	private XMLProcessGeneral xmlProcessGeneral;
@@ -400,7 +402,7 @@ public class GeneraDonatXML_Masivo {
 								}else{
 									this.listIn = new ArrayList<Invoice_Masivo>();
 									
-this.listComprobantes = new ArrayList<CfdiComprobanteFiscal>();
+									this.listComprobantes = new ArrayList<CfdiComprobanteFiscal>();
 									
 									CfdiComprobanteFiscal comp = new CfdiComprobanteFiscal();
 									//antiguo metodo fill y validate
