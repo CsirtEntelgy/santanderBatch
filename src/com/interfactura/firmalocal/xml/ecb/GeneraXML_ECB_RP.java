@@ -41,6 +41,7 @@ import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.util.FileCopyUtils;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
@@ -62,6 +63,7 @@ import com.interfactura.firmalocal.xml.util.NombreAplicativo;
 import com.interfactura.firmalocal.xml.util.Util;
 import com.interfactura.firmalocal.xml.util.UtilCatalogos;
 
+@Component
 public class GeneraXML_ECB_RP {
 	
 	
@@ -1044,7 +1046,7 @@ public class GeneraXML_ECB_RP {
 		catch (NumberFormatException numberEx) 
 		{	logger.error("No empieza con un numero " + linea);	} 
 		// Metodo Prueba AMDA Version 3.3
-		conver.loadInfoV33(numElement, linea, campos22, lstFiscal);
+		conver.loadInfoV33RP(numElement, linea, campos22, lstFiscal);
 		switch (numElement) 
 		{
 		case 1:
@@ -1209,7 +1211,7 @@ public class GeneraXML_ECB_RP {
 	public void endRelacionados() 
 		throws IOException 
 	{
-		out.write("\n<cfdi:CfdiRelacionados>".getBytes());
+		out.write("\n</cfdi:CfdiRelacionados>".getBytes());
 		this.startRelacionados = true;
 	}
 

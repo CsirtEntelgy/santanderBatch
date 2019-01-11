@@ -19,6 +19,8 @@ import javax.xml.validation.ValidatorHandler;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
 import org.xml.sax.SAXException;
 
 import com.interfactura.firmalocal.domain.entities.CFDFieldsV22;
@@ -45,6 +47,7 @@ import com.interfactura.firmalocal.xml.util.NombreAplicativo;
 import altec.infra.StringEncrypter;
 import altec.infra.StringEncrypter.EncryptionException;
 
+@Controller
 public class InvoiceController_RP {
 	
 	@Autowired
