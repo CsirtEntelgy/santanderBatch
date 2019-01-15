@@ -70,7 +70,7 @@ public class GeneraXML_ECB_RP {
 	private String linea;
 	private String token;
 	@Autowired
-	private ConvertirV3_3 conver; 
+	private ConvertirV3_3_RP conver; 
 	private int cont;
 	@Autowired
 	private Properties properties;
