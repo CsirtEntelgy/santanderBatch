@@ -41,6 +41,7 @@ import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.util.FileCopyUtils;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
@@ -60,12 +61,13 @@ import com.interfactura.firmalocal.xml.WebServiceCliente;
 import com.interfactura.firmalocal.xml.file.XMLProcess;
 import com.interfactura.firmalocal.xml.util.NombreAplicativo;
 import com.interfactura.firmalocal.xml.util.Util;
-import com.interfactura.firmalocal.xml.util.UtilCatalogos;
+import com.interfactura.firmalocal.xml.util.UtilCatalogos_RP;
 
+@Component
 public class GeneraXML_ECB_RP {
 	
 	
-	private Logger logger = Logger.getLogger(GeneraXML_ECBDSV3_3.class);
+	private Logger logger = Logger.getLogger(GeneraXML_ECB_RP.class);
 	private BufferedReader br;
 	private String linea;
 	private String token;
@@ -1044,7 +1046,7 @@ public class GeneraXML_ECB_RP {
 		catch (NumberFormatException numberEx) 
 		{	logger.error("No empieza con un numero " + linea);	} 
 		// Metodo Prueba AMDA Version 3.3
-		conver.loadInfoV33(numElement, linea, campos22, lstFiscal);
+		conver.loadInfoV33RP(numElement, linea, campos22, lstFiscal);
 		switch (numElement) 
 		{
 		case 1:
@@ -1209,7 +1211,7 @@ public class GeneraXML_ECB_RP {
 	public void endRelacionados() 
 		throws IOException 
 	{
-		out.write("\n<cfdi:CfdiRelacionados>".getBytes());
+		out.write("\n</cfdi:CfdiRelacionados>".getBytes());
 		this.startRelacionados = true;
 	}
 
@@ -1866,7 +1868,7 @@ public class GeneraXML_ECB_RP {
 								.item(i).getChildNodes().item(x).getNodeName().equals("as:AddendaSantanderV1")) {
 							//System.out.println("Elimina addenda domicilios");
 							String domStr="";
-							domStr=UtilCatalogos.convertDocumentXmlToString(dom);
+							domStr=UtilCatalogos_RP.convertDocumentXmlToString(dom);
 							if (domStr.indexOf("<as:AddendaSantanderV1") != -1){
 								int iStart = domStr.indexOf("<as:AddendaSantanderV1");
 								int iEnd = domStr.indexOf("</as:AddendaSantanderV1>");
@@ -1881,7 +1883,7 @@ public class GeneraXML_ECB_RP {
 		
 		System.out.println("nodeADDXD: " + this.dobleAddenda);
 		String domStr="";
-		domStr=UtilCatalogos.convertDocumentXmlToString(dom);
+		domStr=UtilCatalogos_RP.convertDocumentXmlToString(dom);
 		System.out.println("xml1ADDXD: " + domStr); 
 		if ( this.dobleAddenda )
 			nodeAddenda = null;
@@ -2050,7 +2052,7 @@ public class GeneraXML_ECB_RP {
 		
 		String xmlString2 ="";
 		try {
-			xmlString2 = UtilCatalogos.convertDocumentXmlToString(domResultado);
+			xmlString2 = UtilCatalogos_RP.convertDocumentXmlToString(domResultado);
 		} catch (TransformerConfigurationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -2348,14 +2350,14 @@ public class GeneraXML_ECB_RP {
 				
 				String xmlString2 = "", xmlFinal = "";
 				try {
-					xmlString2 = UtilCatalogos.convertDocumentXmlToString(domResultado);
+					xmlString2 = UtilCatalogos_RP.convertDocumentXmlToString(domResultado);
 					String strXmlString = "";
 					strXmlString = xmlString2.replace("</cfdi:Addenda>", newAddenda);
 					
 					
 					xmlFinal = strXmlString.replaceAll("[\n\r]", "");
 					
-					domResultado = UtilCatalogos.convertStringToDocument(xmlFinal);
+					domResultado = UtilCatalogos_RP.convertStringToDocument(xmlFinal);
 					
 				} catch (TransformerConfigurationException e) {
 					e.printStackTrace();
@@ -2379,7 +2381,7 @@ public class GeneraXML_ECB_RP {
 		if (addendaDomiciliosNodeStr.peek() != null && !addendaDomiciliosNodeStr.peek().trim().isEmpty() ) {
 			String xmlString2 = "", xmlFinal = "";
 			try {
-				xmlString2 = UtilCatalogos.convertDocumentXmlToString(domResultado);
+				xmlString2 = UtilCatalogos_RP.convertDocumentXmlToString(domResultado);
 			} catch (TransformerConfigurationException e) {
 				e.printStackTrace();
 			} catch (TransformerException e) {
@@ -2391,7 +2393,7 @@ public class GeneraXML_ECB_RP {
 			strXmlString = xmlString2.replace("</cfdi:Comprobante>", strAddendaComp);
 			xmlFinal = strXmlString.replaceAll("[\n\r]", "");
 			try {
-				domResultado = UtilCatalogos.convertStringToDocument(xmlFinal);
+				domResultado = UtilCatalogos_RP.convertStringToDocument(xmlFinal);
 			} catch (ParserConfigurationException e) {
 				e.printStackTrace();
 			} catch (SAXException e) {
@@ -2402,7 +2404,7 @@ public class GeneraXML_ECB_RP {
 		}
 		
 		try {
-			String folio = UtilCatalogos.getStringValByExpression(domResultado, "//Comprobante/@Folio");
+			String folio = UtilCatalogos_RP.getStringValByExpression(domResultado, "//Comprobante/@Folio");
 			if (this.nameFile.contains("LMPAMPAA") || this.nameFile.contains("LMPAMPAS")) {
 				File file = new File(this.getName(properties.getPathSalida(), "REC"));
 				if (file.exists()) {
@@ -2439,7 +2441,7 @@ public class GeneraXML_ECB_RP {
 										+ "</Santander:AddendaRecompensa></Santander:addendaECB>";
 								
 								String xmlString2 = "", xmlFinal = "";
-								xmlString2 = UtilCatalogos.convertDocumentXmlToString(domResultado);
+								xmlString2 = UtilCatalogos_RP.convertDocumentXmlToString(domResultado);
 								
 								String strXmlString = "";
 								strXmlString = xmlString2.replace("</Santander:addendaECB>", rec);
@@ -2447,7 +2449,7 @@ public class GeneraXML_ECB_RP {
 								
 								xmlFinal = strXmlString.replaceAll("[\n\r]", "");
 								
-								domResultado = UtilCatalogos.convertStringToDocument(xmlFinal);
+								domResultado = UtilCatalogos_RP.convertStringToDocument(xmlFinal);
 								
 								
 								if ((linea = is.readLine()) != null)
@@ -2561,26 +2563,26 @@ public class GeneraXML_ECB_RP {
 						if(conver.getTags().isECBEnCeros) {
 							String xml = out.toString("UTF-8");
 							xml = xml.replace("Fecha=", "Descuento=\"0.01\" Fecha=");
-							out = UtilCatalogos.convertStringToOutpuStream(xml);
+							out = UtilCatalogos_RP.convertStringToOutpuStream(xml);
 							Document docChangeSubTotal = byteArrayOutputStreamToDocument(out);
-							UtilCatalogos.setValueOnDocumentElement(docChangeSubTotal, "//Comprobante/@SubTotal", "0.01");
-							out = UtilCatalogos.convertStringToOutpuStream(UtilCatalogos.convertDocumentXmlToString(docChangeSubTotal));
+							UtilCatalogos_RP.setValueOnDocumentElement(docChangeSubTotal, "//Comprobante/@SubTotal", "0.01");
+							out = UtilCatalogos_RP.convertStringToOutpuStream(UtilCatalogos_RP.convertDocumentXmlToString(docChangeSubTotal));
 							conver.getTags().isECBEnCeros=false;
 						}
 
 						/*Validaciones 3.3*/
-						UtilCatalogos.lstErrors = new StringBuffer();
+						UtilCatalogos_RP.lstErrors = new StringBuffer();
 						Document dom = byteArrayOutputStreamToDocument(out);
 						Element root = dom.getDocumentElement();
-						UtilCatalogos.evaluateNodesError(root);
-						if(!UtilCatalogos.lstErrors.toString().isEmpty()){
-							throw new Exception(UtilCatalogos.lstErrors.toString());
+						UtilCatalogos_RP.evaluateNodesError(root);
+						if(!UtilCatalogos_RP.lstErrors.toString().isEmpty()){
+							throw new Exception(UtilCatalogos_RP.lstErrors.toString());
 						}
-						String errors = UtilCatalogos.validateCfdiDocumentRP(dom,conver.getTags().decimalesMoneda);
+						String errors = UtilCatalogos_RP.validateCfdiDocumentRP(dom,conver.getTags().decimalesMoneda);
 						if (errors != null && !errors.isEmpty()) {
 							throw new Exception(errors);
 						}
-						out = UtilCatalogos.convertStringToOutpuStream(UtilCatalogos.convertDocumentXmlToString(dom));
+						out = UtilCatalogos_RP.convertStringToOutpuStream(UtilCatalogos_RP.convertDocumentXmlToString(dom));
 						/*Fin Validaciones 3.3*/ 
 						try{
 														
@@ -2610,7 +2612,7 @@ public class GeneraXML_ECB_RP {
 								//Manipular con Document el xml obtenido de la variable out					
 //								dom = this.removeAddendaDomicilio(byteArrayOutputStreamToDocument(out));
 								dom = this.removeMovimientoECB(byteArrayOutputStreamToDocument(out));
-								out = UtilCatalogos.convertStringToOutpuStream(UtilCatalogos.convertDocumentXmlToString(dom));
+								out = UtilCatalogos_RP.convertStringToOutpuStream(UtilCatalogos_RP.convertDocumentXmlToString(dom));
 								dom = this.removeAddendaNew(byteArrayOutputStreamToDocument(out));
 								//Fin - Quitar todos los movimientos no fiscales del XML almacenado en la variable out
 								//System.out.println("flags: fAttMovIncorrect:" + this.fAttMovIncorrect + " fnombreCliente:" + this.fnombreCliente + " fnumeroCuenta:" + this.fnumeroCuenta + " fperiodo:" + this.fperiodo + " fsucursal:" + this.fsucursal);
@@ -2678,16 +2680,16 @@ public class GeneraXML_ECB_RP {
 										t2 = System.currentTimeMillis()- t1;
 										System.out.println("TIME: xmlProcess:" + t2 + " ms");
 										
-										Document doc = UtilCatalogos.convertStringToDocument(xmlFinal.toString("UTF-8"));
+										Document doc = UtilCatalogos_RP.convertStringToDocument(xmlFinal.toString("UTF-8"));
 										
-								    	if (UtilCatalogos.getStringValByExpression(doc, "//Comprobante//@Moneda").equalsIgnoreCase("MXN")) {
-								    		UtilCatalogos.setValueOnDocumentElement(doc, "//Comprobante/@TipoCambio", "1");
+								    	if (UtilCatalogos_RP.getStringValByExpression(doc, "//Comprobante//@Moneda").equalsIgnoreCase("MXN")) {
+								    		UtilCatalogos_RP.setValueOnDocumentElement(doc, "//Comprobante/@TipoCambio", "1");
 								    	}
 								    	System.out.println("XMLtipoxd: " + xmlFinal.toString("UTF-8"));
 										/*Se asigna el NoCertificado ya que antes se hacia despues de generar la cadena original*/
-										doc = UtilCatalogos.convertStringToDocument(xmlFinal.toString("UTF-8"));
-										UtilCatalogos.setValueOnDocumentElement(doc, "//Comprobante/@NoCertificado", certificate.getSerialNumber());
-										xmlFinal = UtilCatalogos.convertStringToOutpuStream(UtilCatalogos.convertDocumentXmlToString(doc));
+										doc = UtilCatalogos_RP.convertStringToDocument(xmlFinal.toString("UTF-8"));
+										UtilCatalogos_RP.setValueOnDocumentElement(doc, "//Comprobante/@NoCertificado", certificate.getSerialNumber());
+										xmlFinal = UtilCatalogos_RP.convertStringToOutpuStream(UtilCatalogos_RP.convertDocumentXmlToString(doc));
 										/*Fin asignaciones*/
 										
 										ByteArrayOutputStream originalString = xmlProcess.generatesOriginalString(xmlFinal);
@@ -2847,7 +2849,7 @@ public class GeneraXML_ECB_RP {
 		Element root = dom.getDocumentElement();
 		
 		String domStr="";
-		domStr=UtilCatalogos.convertDocumentXmlToString(dom);
+		domStr=UtilCatalogos_RP.convertDocumentXmlToString(dom);
 		System.out.println("xml2ADDXD: " + domStr);
 		
 		//Recorrer los nodos hijos de cfdi:Addenda														
@@ -2998,7 +3000,7 @@ public class GeneraXML_ECB_RP {
 			}
 			
 			
-			domStr=UtilCatalogos.convertDocumentXmlToString(dom);
+			domStr=UtilCatalogos_RP.convertDocumentXmlToString(dom);
 			
 			System.out.println("xmlSINADDXD: " + domStr);
 			return dom;
