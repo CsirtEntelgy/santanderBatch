@@ -1064,12 +1064,11 @@ public class GeneraXML_CFDV3_3
 			FileOutputStream salida, String nameFile, CfdBean cfdBean,
 			CFDIssued cfdIssued,
 			String strFechaTimbrado, String strNoCertificadoSAT, String strSelloCFD, String strSelloSAT, String strVersion, 
-			String strEmisorRFC, String strReceptorRFC, String strTotalZeros, OpenJpa openJpa) throws IOException 
+			String strEmisorRFC, String strReceptorRFC, String strTotalZeros, Long newFolio) throws IOException 
 	{
-		this.setBD(nameFile, cfdBean, cfdIssued, openJpa);
+		this.setBD(nameFile, cfdBean, cfdIssued, newFolio);
 		//int newFolio = cfdBean.getFolioRange().getActualFolio().intValue();
-		long newFolio = openJpa.getSequence_value();
-		newFolio = newFolio - 1;
+		
 		/*
 		String tempLinea = "CFD|" + cfdBean.getBroadcastRFC() + "|"
 				+ cfdBean.getContract() + "|" + cfdBean.getCustomerCode() + "|"
@@ -1134,7 +1133,7 @@ public class GeneraXML_CFDV3_3
 	 * @param cfdBean
 	 * @param cfdIssued
 	 */
-	public void setBD(String nameFile, CfdBean cfdBean, CFDIssued cfdIssued, OpenJpa openJpa) 
+	public void setBD(String nameFile, CfdBean cfdBean, CFDIssued cfdIssued, Long newFolio) 
 	{
 		if (!Util.isNullEmpty(cfdBean.getContract())) 
 		{	cfdIssued.setContractNumber(cfdBean.getContract());	}
@@ -1153,8 +1152,6 @@ public class GeneraXML_CFDV3_3
 		//cfdIssued.setFolioRange(cfdBean.getFolioRange());
 		
 		//int newFolio = cfdBean.getFolioRange().getActualFolio().intValue();
-		long newFolio = openJpa.getSequence_value();
-		newFolio = newFolio - 1;
 		
 		cfdIssued.setFolioInterno(newFolio);
 		
@@ -1454,6 +1451,75 @@ public class GeneraXML_CFDV3_3
 	}
 
 	
+	public void replacesOriginalString(CfdBean cfdBean, String folio)
+		    throws Exception
+		  {
+		    ByteArrayOutputStream outBW = new ByteArrayOutputStream();
+		    InputStreamReader in = new InputStreamReader(new ByteArrayInputStream(
+		      cfdBean.getBaosXml().toByteArray()), "UTF-8");
+		    OutputStreamWriter outW = new OutputStreamWriter(outBW, "UTF-8");
+		    BufferedReader bF = new BufferedReader(in);
+		    BufferedWriter bW = new BufferedWriter(outW);
+		    String line = null;
+		    boolean f1 = false;
+		    
+		    boolean f4 = false;
+		    boolean f5 = false;
+		    boolean f6 = false;
+		    while (bF.ready())
+		    {
+		      line = bF.readLine();
+		      logger.info(line);
+		      if (!f1)
+		      {
+		        if (line.lastIndexOf(properties.getLblFOLIOCFD()) > 0)
+		        {
+
+
+
+
+		          line = line.replaceAll(properties.getLblFOLIOCFD(), folio);
+		          f1 = true;
+		        }
+		      }
+		      
+
+		      if (!f4)
+		      {
+		        if (line.lastIndexOf(properties.getLabelLugarExpedicion()) > 0)
+		        {
+		          line = line.replaceAll(properties
+		            .getLabelLugarExpedicion(), conver.getTags().LUGAR_EXPEDICION);
+		          f4 = true;
+		        }
+		      }
+		      
+		      if (!f5)
+		      {
+		        if (line.lastIndexOf(properties.getLabelMetodoPago()) > 0)
+		        {
+		          line = line.replaceAll(properties
+		            .getLabelMetodoPago(), conver.getTags().METODO_PAGO);
+		          f5 = true;
+		        }
+		      }
+		      if (!f6)
+		      {
+		        if (line.lastIndexOf(properties.getlabelFormaPago()) > 0)
+		        {
+		          line = line.replaceAll(properties
+		            .getlabelFormaPago(), conver.getTags().FORMA_PAGO);
+		          f6 = true;
+		        }
+		      }
+		      bW.write(line);
+		    }
+		    bF.close();
+		    bW.close();
+		    cfdBean.setBaosXml(outBW);
+		  }
+	
+	
 	public String putZeros(String str){
 		String [] total = str.split("\\.");
 		System.out.println("size: " + total.length);
@@ -1533,6 +1599,8 @@ public class GeneraXML_CFDV3_3
 			FileOutputStream salida, String nameFile) 
 	{
 		ArrayList<CfdBean> pendientes = new ArrayList<CfdBean>();
+		String seconds = "";
+	    int contadorMilli = 1;
 		for (CfdBean cfdBean : cfdBeans) 
 		{
 			CfdBean beanInicial = cfdBean;
@@ -1540,19 +1608,57 @@ public class GeneraXML_CFDV3_3
 			try 
 			{
 				//FolioRange folioRange = conver.folioActivo(cfdBean.getSerieFiscalId(), cfdBean.getFiscalEntityId());				
-				OpenJpa open = openJpaManager.getFolioById(cfdBean.getFiscalEntityId());
-				if(open == null){
-					open = new OpenJpa();
-					open.setId(cfdBean.getFiscalEntityId());
-					open.setSequence_value(0);
-				}
-				open.setSequence_value(open.getSequence_value()+1);
-				openJpaManager.update(open);
+//				OpenJpa open = openJpaManager.getFolioById(cfdBean.getFiscalEntityId());
+//				if(open == null){
+//					open = new OpenJpa();
+//					open.setId(cfdBean.getFiscalEntityId());
+//					open.setSequence_value(0);
+//				}
+//				open.setSequence_value(open.getSequence_value()+1);
+//				openJpaManager.update(open);
 				//System.out.println("sequenceValue: " + open.getSequence_value());
 				//if (folioRange != null) 
 				//{
 					//cfdBean.setFolioRange(folioRange);
-					replacesOriginalString(cfdBean, open);
+				
+				String folio = "";
+				
+				Calendar calendar = Calendar.getInstance();
+				calendar.setTime(new Date());
+			
+				String year = ""+calendar.get(Calendar.YEAR);
+				String month = ""+(calendar.get(Calendar.MONTH)+1);
+				String day = ""+calendar.get(Calendar.DAY_OF_MONTH);
+				String hora = ""+calendar.get(Calendar.HOUR_OF_DAY);
+				String minuto = ""+calendar.get(Calendar.MINUTE);
+				String segundo = ""+calendar.get(Calendar.SECOND);
+				
+				if (!seconds.equalsIgnoreCase(segundo)) {
+					seconds = segundo;
+					contadorMilli = 1;
+				}
+				
+				year = (Integer.parseInt(year) < 10 ? "0" : "") + year;
+				month = (Integer.parseInt(month) < 10 ? "0" : "") + month;
+				day = (Integer.parseInt(day) < 10 ? "0" : "") + day;
+				hora = (Integer.parseInt(hora) < 10 ? "0" : "") + hora;
+				minuto = (Integer.parseInt(minuto) < 10 ? "0" : "") + minuto;
+				segundo = (Integer.parseInt(segundo) < 10 ? "0" : "") + segundo;
+				 
+				String contador = String.format("%03d",contadorMilli);
+				
+				
+				
+				folio += year.substring(year.length() - 2 );
+				folio += month+day+hora+minuto+segundo;
+				folio += contador;
+				
+				
+				contadorMilli++;
+				
+				System.out.println("folioXD: "+folio);
+				
+					replacesOriginalString(cfdBean, folio);
 					ByteArrayOutputStream os = cfdBean.getBaosXml();
 					cfdBean.setBaosXml(Util.enconding(os));
 					xmlProcess.getValidator().valida(cfdBean.getBaosXml(), this.validator);
@@ -1596,8 +1702,7 @@ public class GeneraXML_CFDV3_3
 					cfdBean.setFormaPago(conver.getTags().FORMA_PAGO);
 					String emisor = cfdBean.getBroadcastRFC();
 					//int newFolio = cfdBean.getFolioRange().getActualFolio().intValue();
-					long newFolio = open.getSequence_value();
-					newFolio = newFolio - 1;
+					long newFolio = Long.parseLong(folio);
 					String serieFolio = "" + newFolio;
 					if (cfdBean.getSerieCFD() != null)
 					{
@@ -1788,7 +1893,7 @@ public class GeneraXML_CFDV3_3
 								
 								//CFDI isCFDI y FolioInterno
 								cfdIssued.setIsCFDI(1);
-								cfdIssued.setFolioInterno(open.getSequence_value());
+								cfdIssued.setFolioInterno(newFolio);
 								
 								// aqui debe crearse el objeto CFDIssued, en fileSALIDA se
 								// le pasan los demas valores
@@ -1808,7 +1913,7 @@ public class GeneraXML_CFDV3_3
 								//////////////////////////////////////////////////
 								
 								fileSALIDA(seal, originalString.toString("UTF-8"), salida,nameFile, cfdBean, cfdIssued,
-										strFechaTimbrado, strNoCertificadoSAT, strSelloCFD, strSelloSAT, strVersion, strEmisorRFC, strReceptorRFC, strTotalZeros, open);
+										strFechaTimbrado, strNoCertificadoSAT, strSelloCFD, strSelloSAT, strVersion, strEmisorRFC, strReceptorRFC, strTotalZeros, newFolio);
 
 								// aqui se hace el update a base de datos
 								//conver.getFolioRangeManager().update(folioRange);
