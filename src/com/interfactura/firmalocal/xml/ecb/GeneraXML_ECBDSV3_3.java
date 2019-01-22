@@ -1130,14 +1130,18 @@ public class GeneraXML_ECBDSV3_3 {
 			this.dobleAddenda = true;
 			this.startAddendaECB(); 
 			out.write( conver.barCode(linea, contCFD));
+			
+			break;
+		case 15: 
+			conver.totales(linea, contCFD);
 			this.startOperaciones();
 			break;
-		case 15:
+		case 16:
 			
 			out.write( conver.operaciones(linea, contCFD) );
 			this.contOper = true;
 			break;
-		case 16:
+		case 17:
 			this.contCobr = true;
 			this.endOperaciones();
 			out.write( conver.cobranza(linea, contCFD) );
@@ -1405,7 +1409,11 @@ public class GeneraXML_ECBDSV3_3 {
 	public void endOperaciones() throws IOException {
 		if ( !this.endOper ) {
 			out.write("\n</Santander:Operaciones>".getBytes());
-			out.write("\n<Santander:Cobranzas>".getBytes());
+			out.write(("\n<Santander:Cobranzas"
+					+ conver.getTags().totalNomCob + " "
+					+ conver.getTags().totalCob + " "
+					+ conver.getTags().fecTotalCob + " "
+					+ ">").getBytes());
 			this.endOper = true;
 		} 
 	}
@@ -1420,7 +1428,11 @@ public class GeneraXML_ECBDSV3_3 {
 	}
 	
 	public void startOperaciones() throws IOException {
-		out.write("\n<Santander:Operaciones>".getBytes());
+		out.write(("\n<Santander:Operaciones"
+				+ conver.getTags().totalNomOper + " "
+				+ conver.getTags().totalFacOper + " "
+				+ conver.getTags().fecTotalOper + " "
+				+ ">").getBytes());
 	}
 	
 	
@@ -2180,7 +2192,15 @@ public class GeneraXML_ECBDSV3_3 {
 			}
 		}
 		
-		
+		try {
+			System.out.println("AntesAgregadoXD: " + UtilCatalogos.convertDocumentXmlToString(domResultado));
+		} catch (TransformerConfigurationException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (TransformerException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		if ( addendaNew ) {
 			String addendaNe = "";
 			String addendaOperaciones = "";
@@ -2188,7 +2208,9 @@ public class GeneraXML_ECBDSV3_3 {
 			
 			String complementos = "\n<Santander:Complemento ";
 			
-			complementos += "CURP=\""+oper.getCurp()+"\" ";
+			
+			if ( oper.getCurp() != null && !oper.getCurp().trim().equalsIgnoreCase("") )
+				complementos += "CURP=\""+oper.getCurp()+"\" ";
 			complementos += "CodBar=\""+oper.getCodBar()+"\" />";
 			
 			
@@ -2261,7 +2283,11 @@ public class GeneraXML_ECBDSV3_3 {
 					
 				}
 				
-				addendaNe += "\n<Santander:Operaciones > "
+				addendaNe += "\n<Santander:Operaciones "
+						+ "TotalNominal=\"" + oper.getTotalNomOper() + "\" "
+						+ "TotalFactoraje=\"" + oper.getTotalFacOper() + "\" "
+						+ "FechaTotal=\"" + oper.getFecTotalOper() + "\" "
+						+ "> "
 						+ addendaOperaciones 
 						+ "\n</Santander:Operaciones > ";
 			}
@@ -2310,7 +2336,11 @@ public class GeneraXML_ECBDSV3_3 {
 					
 				}
 				
-				addendaNe += "\n<Santander:Cobranzas > "
+				addendaNe += "\n<Santander:Cobranzas "
+						+ "TotalNominal=\"" + oper.getTotalNomCob() + "\" "
+						+ "TotalCobranza=\"" + oper.getTotalCob() + "\" "
+						+ "FechaTotal=\"" + oper.getFecTotalCob() + "\" "
+						+ "> "
 						+ addendaCobranzas
 						+ "\n</Santander:Cobranzas > ";
 				
@@ -2352,6 +2382,16 @@ public class GeneraXML_ECBDSV3_3 {
 			
 			
 			
+		}
+		
+		try {
+			System.out.println("despuesAgregadoXD: " + UtilCatalogos.convertDocumentXmlToString(domResultado));
+		} catch (TransformerConfigurationException e1) {
+			// TODO Auto-generated catch block 
+			e1.printStackTrace();
+		} catch (TransformerException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
 		}
 		
 		// Agrega la addenda domicilios
@@ -2848,7 +2888,22 @@ public class GeneraXML_ECBDSV3_3 {
 								//Verificar si el hijo actual corresponde a una instancia de Element y se llama Santander:Operaciones
 								if(root.getChildNodes().item(i).getChildNodes().item(x).getChildNodes().item(j) instanceof Element && 
 										root.getChildNodes().item(i).getChildNodes().item(x).getChildNodes().item(j).getNodeName().equals("Santander:Operaciones")){
-									System.out.println("Santander:Operaciones");									
+									System.out.println("Santander:Operaciones");	
+									
+									
+									NamedNodeMap atributosOper = root.getChildNodes().item(i).getChildNodes().item(x).getChildNodes().item(j).getAttributes();
+									
+									for(int iAtt=0; iAtt< atributosOper.getLength(); iAtt++){
+										Attr atributo = (Attr) atributosOper.item(iAtt);
+										if(atributo.getName().equals("TotalNominal")){	
+											complementarios.setTotalNomOper(atributo.getValue());															
+										}else if(atributo.getName().equals("TotalFactoraje")){	
+											complementarios.setTotalFacOper(atributo.getValue());																
+										}else if(atributo.getName().equals("FechaTotal")){																
+											complementarios.setFecTotalOper(atributo.getValue());																
+										}
+									}
+
 									//Recorrer los hijos de Santander:Operaciones
 									for(int k=0; k<root.getChildNodes().item(i).getChildNodes().item(x).getChildNodes().item(j).getChildNodes().getLength(); k++){
 										
@@ -2906,6 +2961,21 @@ public class GeneraXML_ECBDSV3_3 {
 										root.getChildNodes().item(i).getChildNodes().item(x).getChildNodes().item(j).getNodeName().equals("Santander:Cobranzas")){
 									//Recorrer los hijos de Santander:Operaciones
 									System.out.println("Santander:Cobranzas");
+									
+									
+									NamedNodeMap atributosCob = root.getChildNodes().item(i).getChildNodes().item(x).getChildNodes().item(j).getAttributes();
+									
+									for(int iAtt=0; iAtt< atributosCob.getLength(); iAtt++){
+										Attr atributo = (Attr) atributosCob.item(iAtt);
+										if(atributo.getName().equals("TotalNominal")){	
+											complementarios.setTotalNomCob(atributo.getValue());															
+										}else if(atributo.getName().equals("TotalCobranza")){	
+											complementarios.setTotalCob(atributo.getValue());																
+										}else if(atributo.getName().equals("FechaTotal")){																
+											complementarios.setFecTotalCob(atributo.getValue());																
+										}
+									}
+									
 									for(int k=0; k<root.getChildNodes().item(i).getChildNodes().item(x).getChildNodes().item(j).getChildNodes().getLength(); k++){
 										
 										//Verificar si el hijo actual corresponde a una instancia de Element y se llama Santander:Operacion
@@ -2926,7 +2996,7 @@ public class GeneraXML_ECBDSV3_3 {
 													cobECB.setRfcDeudorCob(atributo.getValue());																	
 												}else if(atributo.getName().equals("FechaCesion")){																
 													cobECB.setFechaCesion(atributo.getValue());															
-												}else if(atributo.getName().equals("NoDocument")){																
+												}else if(atributo.getName().equals("NoDocumento")){																
 													cobECB.setNoDocumento(atributo.getValue());																	
 												}else if(atributo.getName().equals("ValorNominal")){																
 													cobECB.setValorNominalCon(atributo.getValue());																

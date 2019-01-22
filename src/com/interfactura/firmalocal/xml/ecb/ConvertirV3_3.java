@@ -1407,6 +1407,86 @@ public class ConvertirV3_3 {
 		}
 	}
 	
+	
+	public void totales( String linea, long numberLine ) throws UnsupportedEncodingException {
+		
+		lineas = linea.split("\\|");
+		
+		if ( lineas.length >= 7 ) {
+			
+			
+			if ( lineas[1].trim() == null || lineas[1].trim().equalsIgnoreCase("") ) {
+				tags.totalNomOper = (" ErrRepPagosBet001=\"" + lineas[1].trim() + "\"");
+				
+			} else {
+				tags.totalNomOper = (" TotalNominal=\"" + lineas[1].trim() + "\"");
+			}
+			
+			if ( lineas[2].trim() == null || lineas[2].trim().equalsIgnoreCase("") ) {
+				tags.totalFacOper = (" ErrRepPagosBet002=\"" + lineas[2].trim() + "\"");
+				
+			} else {
+				tags.totalFacOper = (" TotalFactoraje=\"" + lineas[2].trim() + "\"");
+			}
+			
+			if ( lineas[3].trim() == null || lineas[3].trim().equalsIgnoreCase("") ) {
+				tags.fecTotalOper = (" ErrRepPagosBet003=\"" + lineas[3].trim() + "\"");
+				
+			} else {
+				
+				Pattern p = Pattern.compile(
+						"[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])");
+				Matcher m = p.matcher(lineas[3].trim());
+
+				if (!m.find()) {
+					tags.fecTotalOper = (" ErrRepPagosBet004=\"" + lineas[3].trim() + "\"");
+				} else {
+					tags.fecTotalOper = (" FechaTotal=\"" + lineas[3].trim()  + "\"");
+				}
+				
+
+			}
+			
+			
+			if ( lineas[4].trim() == null || lineas[4].trim().equalsIgnoreCase("") ) {
+				tags.totalNomCob = (" ErrRepPagosBet005=\"" + lineas[4].trim() + "\"");
+				
+			} else {
+				tags.totalNomCob = (" TotalNominal=\"" + lineas[4].trim() + "\"");
+			}
+			
+			if ( lineas[5].trim() == null || lineas[5].trim().equalsIgnoreCase("") ) {
+				tags.totalCob = (" ErrRepPagosBet006=\"" + lineas[5].trim() + "\"");
+				
+			} else {
+				tags.totalCob = (" TotalCobranza=\"" + lineas[5].trim() + "\"");
+			}
+			
+			if ( lineas[6].trim() == null || lineas[6].trim().equalsIgnoreCase("") ) {
+				tags.fecTotalCob = (" ErrRepPagosBet007=\"" + lineas[6].trim() + "\"");
+				
+			} else {
+				
+				Pattern p = Pattern.compile(
+						"[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])");
+				Matcher m = p.matcher(lineas[6].trim());
+
+				if (!m.find()) {
+					tags.fecTotalCob = (" ErrRepPagosBet008=\"" + lineas[6].trim() + "\"");
+				} else {
+					tags.fecTotalCob = (" FechaTotal=\"" + lineas[6].trim() + "\"");
+				}
+				
+
+			}
+			
+			
+		}
+		
+	}
+	
+	
+	
 	/**
 	 * @param linea
 	 * @param numberLine
@@ -1527,7 +1607,8 @@ public class ConvertirV3_3 {
 		lineas = linea.split("\\|");
 		
 		if ( lineas.length >= 9 ) {
-			
+
+			System.out.println("sizeXD: " + lineas.length);
 			String fechaCobro  = "";
 			if ( !lineas[1].trim().equals("") )
 				fechaCobro = "FechaCobro=\""+lineas[1].trim()+"\" ";
@@ -1545,7 +1626,7 @@ public class ConvertirV3_3 {
 				fechaCesion = "FechaCesion=\""+lineas[4].trim()+"\" ";
 			
 			String noDocumento  = "";
-			if ( !lineas[5].trim().equals("") )
+			if (!lineas[5].trim().equals("") )
 				noDocumento = "NoDocumento=\""+lineas[5].trim()+"\" ";
 			
 			String valorNominalCon  = "";
@@ -3122,97 +3203,7 @@ public class ConvertirV3_3 {
 		}
 	}
 
-	public void loadInfoV33RP(int numElement, String linea, HashMap campos22, HashMap<String, FiscalEntity> lstFiscal) {
-		//System.out.println("entra LoadInfoV33: " + linea);
-		//System.out.println("entra LoadInfoV33 numElement: " + numElement);
-		String[] lin = linea.split("\\|");
-		switch (numElement) {
-		case 1:
-			// Set
-			break;
-		case 2:
-			// Comprobante
-			break;
-		case 3:
-//			Relacionado
-			break;
-		case 4:
-			// Emisor
-			//System.out.println("Emisor ? LoadInfoV33 lin.length: " + lin.length);
-			if (lin.length >= 2) {
-				//System.out.println("Emisor ? LoadInfoV33: " + lin[1].trim() + " : " + lin[2].trim());
-				tags.EMISION_RFC = lin[1].trim();
-				if (tags.EMISION_RFC.trim().length() == 0) { // Validacion AMDA Version 3.3
-					tags.EMISION_RFC = "RFCNecesario";
-				}
-				tags.fis = null;
-				tags.fis = lstFiscal.get(tags.EMISION_RFC);
-				domicilioFiscal(campos22);
-			}
-
-			break;
-		case 5:
-			// Receptor
-			//System.out.println("entra LoadInfoV33 Receptor:" + lin[1].trim());
-			break;
-		case 6:
-			// Domicilio
-			//System.out.println("entra LoadInfoV33 Domicilio:" + lin[9].trim());
-			tags.recepPais = lin[9].trim();
-			break;
-		case 7:
-			// Concepto
-			break;
-		case 8:
-			// Impuestos
-			break;
-		case 9:
-			// Retenciones
-			//System.out.println("entra LoadInfoV33 RetencionesBack: " + lin[1].trim() + " : " + lin[2].trim());
-			// tags.retencionImpuestoVal = lineas[1].trim();
-			// tags.retencionImporteVal = lineas[2].trim(); // Se comenta por que al parecer
-			// se recorro uno despues AMDA
-			break;
-		case 10:
-			// Traslados
-			//System.out.println("entra LoadInfoV33 TrasladosBack: " + lin[1].trim() + " : " + lin[2].trim() + " : "
-			//		+ lin[3].trim());
-			// tags.trasladoImpuestoVal = lineas[1].trim();
-			// tags.trasladoTasaVal = lineas[2].trim();
-			// tags.trasladoImporteVal = lineas[3].trim(); // Se comenta por que al parecer
-			// se recorro uno despues AMDA
-			//System.out.println("entra LoadInfoV33 Retenciones: " + lineas[1].trim() + " : " + lineas[2].trim());
-			tags.retencionImpuestoVal = lineas[1].trim();
-
-			if (lineas[3].trim().equalsIgnoreCase("0.00")) {
-				tags.retencionImporteVal = "0.00";
-			} else {
-				tags.retencionImporteVal = lineas[2].trim();
-			}
-
-			valImporteRetencion = lineas[2].trim();
-			//System.out.println("Sale LoadInfoV33 Retencion:" + tags.retencionImporteVal);
-			break;
-		case 11:
-			// -
-			//System.out.println("entra LoadInfoV33 Traslados: " + lineas[1].trim() + " : " + lineas[2].trim() + " : "
-			//		+ lineas[3].trim());
-			tags.trasladoImpuestoVal = lineas[1].trim();
-			tags.trasladoTasaVal = lineas[2].trim();
-			if (lineas[3].trim().equalsIgnoreCase("0.00")) {
-				tags.trasladoImporteVal = "0.00";
-			} else {
-				tags.trasladoImporteVal = lineas[3].trim();
-			}
-			valImporteTraslado = lineas[3].trim();
-			//System.out.println("Sale LoadInfoV33 Traslados:" + tags.trasladoImporteVal);
-			break;
-		case 12:
-			// Movimiento
-			break;
-		}
-	}
-
+	
 	
 	public void loadInfoV33(int numElement, String linea, HashMap campos22, HashMap<String, FiscalEntity> lstFiscal) {
 		//System.out.println("entra LoadInfoV33: " + linea);

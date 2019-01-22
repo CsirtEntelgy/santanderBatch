@@ -205,6 +205,99 @@ public class ConvertirV3_3_RP {
 		}
 		return fNotNumber;
 	}
+	
+	
+	public void loadInfoV33RP(int numElement, String linea, HashMap campos22, HashMap<String, FiscalEntity> lstFiscal) {
+		//System.out.println("entra LoadInfoV33: " + linea);
+		//System.out.println("entra LoadInfoV33 numElement: " + numElement);
+		String[] lin = linea.split("\\|");
+		switch (numElement) {
+		case 1:
+			// Set
+			break;
+		case 2:
+			// Comprobante
+			break;
+		case 3:
+//			Relacionado
+			break;
+		case 4:
+			// Emisor
+			//System.out.println("Emisor ? LoadInfoV33 lin.length: " + lin.length);
+			if (lin.length >= 2) {
+				//System.out.println("Emisor ? LoadInfoV33: " + lin[1].trim() + " : " + lin[2].trim());
+				tags.EMISION_RFC = lin[1].trim();
+				if (tags.EMISION_RFC.trim().length() == 0) { // Validacion AMDA Version 3.3
+					tags.EMISION_RFC = "RFCNecesario";
+				}
+				tags.fis = null;
+				tags.fis = lstFiscal.get(tags.EMISION_RFC);
+				domicilioFiscal(campos22);
+			}
+
+			break;
+		case 5:
+			// Receptor
+			//System.out.println("entra LoadInfoV33 Receptor:" + lin[1].trim());
+			break;
+		case 6:
+			// Domicilio
+			//System.out.println("entra LoadInfoV33 Domicilio:" + lin[9].trim());
+			tags.recepPais = lin[9].trim();
+			break;
+		case 7:
+			// Concepto
+			break;
+		case 8:
+			// Impuestos
+			break;
+		case 9:
+			// Retenciones
+			//System.out.println("entra LoadInfoV33 RetencionesBack: " + lin[1].trim() + " : " + lin[2].trim());
+			// tags.retencionImpuestoVal = lineas[1].trim();
+			// tags.retencionImporteVal = lineas[2].trim(); // Se comenta por que al parecer
+			// se recorro uno despues AMDA
+			break;
+		case 10:
+			// Traslados
+			//System.out.println("entra LoadInfoV33 TrasladosBack: " + lin[1].trim() + " : " + lin[2].trim() + " : "
+			//		+ lin[3].trim());
+			// tags.trasladoImpuestoVal = lineas[1].trim();
+			// tags.trasladoTasaVal = lineas[2].trim();
+			// tags.trasladoImporteVal = lineas[3].trim(); // Se comenta por que al parecer
+			// se recorro uno despues AMDA
+			//System.out.println("entra LoadInfoV33 Retenciones: " + lineas[1].trim() + " : " + lineas[2].trim());
+			tags.retencionImpuestoVal = lineas[1].trim();
+
+			if (lineas[3].trim().equalsIgnoreCase("0.00")) {
+				tags.retencionImporteVal = "0.00";
+			} else {
+				tags.retencionImporteVal = lineas[2].trim();
+			}
+
+			valImporteRetencion = lineas[2].trim();
+			//System.out.println("Sale LoadInfoV33 Retencion:" + tags.retencionImporteVal);
+			break;
+		case 11:
+			// -
+			//System.out.println("entra LoadInfoV33 Traslados: " + lineas[1].trim() + " : " + lineas[2].trim() + " : "
+			//		+ lineas[3].trim());
+			tags.trasladoImpuestoVal = lineas[1].trim();
+			tags.trasladoTasaVal = lineas[2].trim();
+			if (lineas[3].trim().equalsIgnoreCase("0.00")) {
+				tags.trasladoImporteVal = "0.00";
+			} else {
+				tags.trasladoImporteVal = lineas[3].trim();
+			}
+			valImporteTraslado = lineas[3].trim();
+			//System.out.println("Sale LoadInfoV33 Traslados:" + tags.trasladoImporteVal);
+			break;
+		case 12:
+			// Movimiento
+			break;
+		}
+	}
+
 
 	/**
 	 * Genera el TAG 'Comprobante' que tiene la siguiente estructura:
@@ -1418,7 +1511,7 @@ public class ConvertirV3_3_RP {
 			
 			
 			String curp = "";
-			if ( !tags.CURP.trim().equals("") ) {
+			if ( tags.CURP != null && !tags.CURP.trim().equals("") ) {
 				curp = " CURP=\""+ tags.CURP +"\" ";
 			}
 			

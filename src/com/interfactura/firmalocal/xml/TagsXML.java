@@ -211,6 +211,15 @@ public class TagsXML {
 	
 //	AddendaBet
 	public String CURP = "";
+	
+//	Totales
+	public String totalNomOper  = "";
+	public String totalFacOper  = "";
+	public String fecTotalOper  = "";
+	public String totalNomCob  = "";
+	public String totalCob  = "";
+	public String fecTotalCob  = "";
+	
 	//Operaciones
 	public String codBar  = "";
 	public String fechaPagoRecibo  = "";

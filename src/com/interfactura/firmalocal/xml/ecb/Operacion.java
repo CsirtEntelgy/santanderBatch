@@ -16,6 +16,13 @@ public class Operacion {
 	public String precioFactoraje;
 	public String curp;
 	
+	public String totalNomOper;
+	public String totalFacOper;
+	public String fecTotalOper;
+	public String totalNomCob;
+	public String totalCob;
+	public String fecTotalCob;
+	
 	
 	
 	public String getCurp() {
@@ -95,6 +102,42 @@ public class Operacion {
 	}
 	public void setPrecioFactoraje(String precioFactoraje) {
 		this.precioFactoraje = precioFactoraje;
+	}
+	public String getTotalNomOper() {
+		return totalNomOper;
+	}
+	public void setTotalNomOper(String totalNomOper) {
+		this.totalNomOper = totalNomOper;
+	}
+	public String getTotalFacOper() {
+		return totalFacOper;
+	}
+	public void setTotalFacOper(String totalFacOper) {
+		this.totalFacOper = totalFacOper;
+	}
+	public String getFecTotalOper() {
+		return fecTotalOper;
+	}
+	public void setFecTotalOper(String fecTotalOper) {
+		this.fecTotalOper = fecTotalOper;
+	}
+	public String getTotalNomCob() {
+		return totalNomCob;
+	}
+	public void setTotalNomCob(String totalNomCob) {
+		this.totalNomCob = totalNomCob;
+	}
+	public String getTotalCob() {
+		return totalCob;
+	}
+	public void setTotalCob(String totalCob) {
+		this.totalCob = totalCob;
+	}
+	public String getFecTotalCob() {
+		return fecTotalCob;
+	}
+	public void setFecTotalCob(String fecTotalCob) {
+		this.fecTotalCob = fecTotalCob;
 	}
 	
 	

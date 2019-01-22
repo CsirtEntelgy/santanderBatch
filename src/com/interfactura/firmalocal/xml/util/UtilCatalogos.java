@@ -166,6 +166,17 @@ public class UtilCatalogos
         errorMessage.put("ErrCFDIRel001", "Clave=\"CFDI33168\" Nodo=\"CfdiRelacionados\" Mensaje=\"El Valor Del Campo Tipo Relación Viene Vacio o no se encuentra en el catálogo c_TipoRelacion\"");
         errorMessage.put("ErrCFDIRel002", "Clave=\"CFDI33169\" Nodo=\"CfdiRelacionado\" Mensaje=\"El Valor Del Campo UUID Viene Vacio o no concuerda con el patrón [a-f0-9A-F]{8}-[a-f0-9A-F]{4}-[a-f0-9A-F]{4}-[a-f0-9A-F]{4}-[a-f0-9A-F]{12}\"");
         errorMessage.put("ErrConImpIva001 ", "Clave=\"CFDI33187\" Nodo=\"Concepto\" Mensaje=\"La suma del impuesto mas el importe no concuerda con el totalinformado del concepto\"");
+        errorMessage.put("ErrRepPagosBet001", "Clave=\"CFDI33201\" Nodo=\"Operaciones\" Mensaje=\"El atributo TotalNominal es requerido\"");
+        errorMessage.put("ErrRepPagosBet002", "Clave=\"CFDI33202\" Nodo=\"Operaciones\" Mensaje=\"El atributo TotalFactoraje es requerido\"");
+        errorMessage.put("ErrRepPagosBet003", "Clave=\"CFDI33203\" Nodo=\"Operaciones\" Mensaje=\"El atributo FechaTotal es requerido\"");
+        errorMessage.put("ErrRepPagosBet004", "Clave=\"CFDI33203\" Nodo=\"Operaciones\" Mensaje=\"El atributo FechaTotal no cumple con el formato de fecha\"");
+        errorMessage.put("ErrRepPagosBet005", "Clave=\"CFDI33204\" Nodo=\"Cobranzas\" Mensaje=\"El atributo TotalNominal es requerido\"");
+        errorMessage.put("ErrRepPagosBet006", "Clave=\"CFDI33205\" Nodo=\"Cobranzas\" Mensaje=\"El atributo TotalCobranza es requerido\"");
+        errorMessage.put("ErrRepPagosBet007", "Clave=\"CFDI33206\" Nodo=\"Cobranzas\" Mensaje=\"El atributo FechaTotal es requerido\"");
+        errorMessage.put("ErrRepPagosBet008", "Clave=\"CFDI33206\" Nodo=\"Cobranzas\" Mensaje=\"El atributo FechaTotal no cumple con el formato de fecha\"");
+        
+        
+        
 	}
 	// Validacion Tipo de comprobante AMDA
 	
