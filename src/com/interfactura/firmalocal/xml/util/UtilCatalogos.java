@@ -174,6 +174,7 @@ public class UtilCatalogos
         errorMessage.put("ErrRepPagosBet006", "Clave=\"CFDI33205\" Nodo=\"Cobranzas\" Mensaje=\"El atributo TotalCobranza es requerido\"");
         errorMessage.put("ErrRepPagosBet007", "Clave=\"CFDI33206\" Nodo=\"Cobranzas\" Mensaje=\"El atributo FechaTotal es requerido\"");
         errorMessage.put("ErrRepPagosBet008", "Clave=\"CFDI33206\" Nodo=\"Cobranzas\" Mensaje=\"El atributo FechaTotal no cumple con el formato de fecha\"");
+        errorMessage.put("ErrRepPagosBet009", "Clave=\"CFDI33207\" Nodo=\"Cobranzas\" Mensaje=\"El atributo TotalDescRent es requerido\"");
         
         
         

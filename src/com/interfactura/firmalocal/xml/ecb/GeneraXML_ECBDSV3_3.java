@@ -1432,6 +1432,7 @@ public class GeneraXML_ECBDSV3_3 {
 				+ conver.getTags().totalNomOper + " "
 				+ conver.getTags().totalFacOper + " "
 				+ conver.getTags().fecTotalOper + " "
+				+ conver.getTags().totalDescRent + " "
 				+ ">").getBytes());
 	}
 	
@@ -2287,6 +2288,7 @@ public class GeneraXML_ECBDSV3_3 {
 						+ "TotalNominal=\"" + oper.getTotalNomOper() + "\" "
 						+ "TotalFactoraje=\"" + oper.getTotalFacOper() + "\" "
 						+ "FechaTotal=\"" + oper.getFecTotalOper() + "\" "
+						+ "TotalDescRent=\"" + oper.getTotalDescRent() + "\" "
 						+ "> "
 						+ addendaOperaciones 
 						+ "\n</Santander:Operaciones > ";
@@ -2897,10 +2899,12 @@ public class GeneraXML_ECBDSV3_3 {
 										Attr atributo = (Attr) atributosOper.item(iAtt);
 										if(atributo.getName().equals("TotalNominal")){	
 											complementarios.setTotalNomOper(atributo.getValue());															
-										}else if(atributo.getName().equals("TotalFactoraje")){	
+										} else if(atributo.getName().equals("TotalFactoraje")){	
 											complementarios.setTotalFacOper(atributo.getValue());																
-										}else if(atributo.getName().equals("FechaTotal")){																
+										} else if(atributo.getName().equals("FechaTotal")){																
 											complementarios.setFecTotalOper(atributo.getValue());																
+										} else if(atributo.getName().equals("TotalDescRent")){																
+											complementarios.setTotalDescRent(atributo.getValue());																
 										}
 									}
 

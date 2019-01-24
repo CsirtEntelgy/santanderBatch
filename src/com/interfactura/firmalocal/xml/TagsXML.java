@@ -233,6 +233,7 @@ public class TagsXML {
 	public String valorNominalOpe  = "";
 	public String descRend  = "";
 	public String precioFactoraje  = "";
+	public String totalDescRent = "";
 	//Cobranza
 	public String fechaCobro  = "";
 	public String nombreDeudorCob  = "";

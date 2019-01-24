@@ -22,9 +22,19 @@ public class Operacion {
 	public String totalNomCob;
 	public String totalCob;
 	public String fecTotalCob;
+	public String totalDescRent;
 	
 	
 	
+	
+	
+	
+	public String getTotalDescRent() {
+		return totalDescRent;
+	}
+	public void setTotalDescRent(String totalDescRent) {
+		this.totalDescRent = totalDescRent;
+	}
 	public String getCurp() {
 		return curp;
 	}

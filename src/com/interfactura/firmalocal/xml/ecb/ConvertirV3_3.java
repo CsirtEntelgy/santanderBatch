@@ -1480,6 +1480,13 @@ public class ConvertirV3_3 {
 
 			}
 			
+			if ( lineas[7].trim() == null || lineas[7].trim().equalsIgnoreCase("") ) {
+				tags.totalDescRent = (" ErrRepPagosBet009=\"" + lineas[7].trim() + "\"");
+				
+			} else {
+				tags.totalDescRent = (" TotalDescRent=\"" + lineas[7].trim() + "\"");
+			}
+			
 			
 		}
 		
@@ -1608,7 +1615,7 @@ public class ConvertirV3_3 {
 		
 		if ( lineas.length >= 9 ) {
 
-			System.out.println("sizeXD: " + lineas.length);
+			
 			String fechaCobro  = "";
 			if ( !lineas[1].trim().equals("") )
 				fechaCobro = "FechaCobro=\""+lineas[1].trim()+"\" ";
