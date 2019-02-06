@@ -1120,7 +1120,8 @@ public class PDFCreationImpl {
         
         if (fileXML != null) {
         	
-        	CFDIssued cfd = cFDIssuedManager.getByFolioSat(xmlFile.getName());
+        	CFDIssued cfd = null;
+//        	CFDIssued cfd = cFDIssuedManager.getByFolioSat(xmlFile.getName());
         	
         	this.fiscalEntityId = cfd.getFiscalEntity().getId();
         	

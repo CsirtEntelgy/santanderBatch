@@ -58,10 +58,17 @@ public class CfdiComprobanteFiscal {
     
     private boolean totalExcento;
     
-    
-    
+    private String encabezado;
 
-    public boolean isTotalExcento() {
+    public String getEncabezado() {
+		return encabezado;
+	}
+
+	public void setEncabezado(String encabezado) {
+		this.encabezado = encabezado;
+	}
+
+	public boolean isTotalExcento() {
 		return totalExcento;
 	}
 

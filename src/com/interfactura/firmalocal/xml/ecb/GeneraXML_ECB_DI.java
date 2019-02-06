@@ -123,7 +123,9 @@ public class GeneraXML_ECB_DI {
 	private FileOutputStream incidenciaCifras;
 	
 	
-	
+	//Contadorde XML
+    private int contadorMilli;
+    private String seconds;
 	
 	
 	
@@ -201,7 +203,8 @@ public class GeneraXML_ECB_DI {
 					
 			contCFD = byteStart;
 			System.out.println("Comienza el formateo de las lineas");
-			
+			this.seconds = "0";
+			this.contadorMilli = 1;
 			do 
 			{
 				file.seek(byteStart);
@@ -220,6 +223,7 @@ public class GeneraXML_ECB_DI {
 								&& linea.toString().length() > 0) 
 						{
 							//Pregunta si empieza con 01
+							procesa = true;
 							if (linea.toString().startsWith("01")) 
 							{	
 								procesa = true;
@@ -239,7 +243,7 @@ public class GeneraXML_ECB_DI {
 							{								
 								this.linea = linea.toString();
 								this.formatLinea(idProceso, fecha, fileNames, numeroMalla);							
-							}
+							} 
 						}
 						//linea = new StringBuilder();
 						linea = new StringBuffer();
@@ -276,7 +280,11 @@ public class GeneraXML_ECB_DI {
 				{	flagEnd = true;		}
 			} while (!flagEnd);
 			
-			
+			if((linea.toString().trim().length()>0)&&(!activo))
+			{
+				this.linea = linea.toString();
+				this.formatLinea(idProceso, fecha, fileNames, numeroMalla);	
+			}
 			
 			for(int index=0; index<listIn.size(); index++){
 				
@@ -310,7 +318,7 @@ public class GeneraXML_ECB_DI {
 						transformer.transform(source, result);
 						String xmlString = result.getWriter().toString();
 						Document doc = db.parse(new InputSource(new StringReader(xmlString)));
-						doc = xmlGenerator.agregaAddenda(doc, comprobante);
+						doc = xmlGenerator.agregaAddendaNewDivisas(doc, comprobante);
 						
 						//Obtener el UUID 
 						String strUUID = this.generaXML.getUUID(doc).trim();
@@ -338,8 +346,16 @@ public class GeneraXML_ECB_DI {
 						
 						this.offSetComprobante += length;
 						
+					} else {
+						
+						String error = "Error al construir la factura";
+						fileINCIDENCIA( strDescripcion, listComprobantes.get(index).getEncabezado()  );
+						
 					}
 					
+				} else {
+					String error = "Error al construir la factura";
+					fileINCIDENCIA( error, listComprobantes.get(index).getEncabezado() );
 				}
 				
 			}
@@ -489,7 +505,7 @@ public class GeneraXML_ECB_DI {
 			
 		}
 		
-		if(!linea.equals("") && arrayValues.length != 0 && !arrayValues[2].equalsIgnoreCase("FINARCHIVO")) {
+		if(!linea.equals("") && arrayValues.length != 0 && !arrayValues[2].equalsIgnoreCase("FINARCHIVO") && arrayValues[0].equalsIgnoreCase("01")) {
 			
 			if(arrayValues.length<49) {	
 				
@@ -572,11 +588,54 @@ public class GeneraXML_ECB_DI {
 							
 							invoice.setByteArrXMLSinAddenda(baosXml);
 							
-							crearFactura(0);
+							//crearFactura(0);
 							
+							
+							String folio = "";
+							
+							Calendar calendar = Calendar.getInstance();
+							calendar.setTime(new Date());
+						
+							String year = ""+calendar.get(Calendar.YEAR);
+							String month = ""+(calendar.get(Calendar.MONTH)+1);
+							String day = ""+calendar.get(Calendar.DAY_OF_MONTH);
+							String hora = ""+calendar.get(Calendar.HOUR_OF_DAY);
+							String minuto = ""+calendar.get(Calendar.MINUTE);
+							String segundo = ""+calendar.get(Calendar.SECOND);
+							
+							if (!this.seconds.equalsIgnoreCase(segundo)) {
+								this.seconds = segundo;
+								this.contadorMilli = 1;
+							}
+							
+							year = (Integer.parseInt(year) < 10 ? "0" : "") + year;
+							month = (Integer.parseInt(month) < 10 ? "0" : "") + month;
+							day = (Integer.parseInt(day) < 10 ? "0" : "") + day;
+							hora = (Integer.parseInt(hora) < 10 ? "0" : "") + hora;
+							minuto = (Integer.parseInt(minuto) < 10 ? "0" : "") + minuto;
+							segundo = (Integer.parseInt(segundo) < 10 ? "0" : "") + segundo;
+							 
+							
+							String contador = String.format("%03d",this.contadorMilli);
+							
+							
+							
+							folio += year.substring(year.length() - 2 );
+							folio += month+day+hora+minuto+segundo;
+							folio += idProceso;
+							folio += contador;
+							
+							
+							
+							
+							System.out.println("folioXD: "+folio);
+							
+							invoice.setFolio(folio);
 							
 							listIn.add(invoice);
+							comp.setEncabezado(encabezado);
 							listComprobantes.add(comp);
+							this.contadorMilli += 1;
 			            	
 			            }
 						
@@ -590,6 +649,11 @@ public class GeneraXML_ECB_DI {
 				}
 				
 			}
+			
+		} else {
+			
+			error = "Estructura de Archivo incorrecta \n";
+			fileINCIDENCIA( error, encabezado);
 			
 		}
 		
@@ -605,7 +669,7 @@ public class GeneraXML_ECB_DI {
 	public void fileINCIDENCIA( String error, String encabezado ) throws IOException {
 		
 		long t1 = System.currentTimeMillis();
-		incidencia.write(encabezado.getBytes());
+		incidencia.write( (encabezado + "\r\n").getBytes() );
 		incidencia.write("Se presentaron los siguientes errores al validar la estructura del comprobante: \r\n".getBytes());
 		temp = "Error: " + error + "\r\n";	
 		temp += "Inicio de CFD: " + startLine + "\r\n";

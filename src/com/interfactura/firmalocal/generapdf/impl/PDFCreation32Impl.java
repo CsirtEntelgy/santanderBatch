@@ -691,7 +691,8 @@ public class PDFCreation32Impl {
         invoice = new Invoice_PDF();
      
         if (xmlFile != null) {
-        	CFDIssued cfd = this.cFDIssuedManager.getByFolioSat(xmlFile.getName());
+        	CFDIssued cfd = null;
+//        	CFDIssued cfd = cFDIssuedManager.getByFolioSat(xmlFile.getName());
         	
         	this.fiscalEntityId = cfd.getFiscalEntity().getId();
         	 

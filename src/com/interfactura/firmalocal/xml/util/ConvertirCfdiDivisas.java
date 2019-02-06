@@ -556,6 +556,41 @@ public class ConvertirCfdiDivisas {
 		return concat.toString();
 	}
 	
+	public String addendaNewDivisas(CfdiComprobanteFiscal comp){
+		
+		fTipoAddenda = false;
+		if (!Util.isNullEmpty(comp.getTipoAddendaCellValue())) {
+			if (!comp.getTipoAddendaCellValue().equals("0")) {
+				fTipoAddenda = true;
+			}
+		}
+		
+		StringBuilder concat = new StringBuilder();
+		if(comp.getAddenda() != null){
+			concat.append("\n<cfdi:Addenda ");
+			concat.append("xmlns:as=\"http://www.santander.com.mx/schemas/xsd/AddendaSantanderV1\" ");
+			if(fTipoAddenda){
+				concat.append("xmlns:asant=\"http://www.santander.com.mx/schemas/xsd/AddendaSantanderV1\" ");
+			}
+			
+			concat.append(">");
+			if(fTipoAddenda){
+				concat.append(addendaAsant(comp));
+			}
+			concat.append("\n<as:AddendaSantanderV1>");
+			//concat.append("xmlns:as=\"http://www.santander.com.mx/schemas/xsd/AddendaSantanderV1\">");
+			concat.append(informacionPagoDivisas(comp));
+			concat.append(informacionEmision(comp));
+			concat.append(camposAdicionalesDivisas(comp));
+			concat.append(domicilioReceptorDivisas(comp));
+			concat.append(domicilioEmisor(comp));
+			concat.append("\n</as:AddendaSantanderV1>");
+			concat.append("\n</cfdi:Addenda>");
+		}
+		
+		return concat.toString();
+	}
+	
 	public String addenda(CfdiComprobanteFiscal comp){
 		
 		fTipoAddenda = false;
@@ -590,6 +625,7 @@ public class ConvertirCfdiDivisas {
 		
 		return concat.toString();
 	}
+	
 	
 	public String addendaAsant(CfdiComprobanteFiscal comp){
 		StringBuilder concat = new StringBuilder();
@@ -727,6 +763,58 @@ public class ConvertirCfdiDivisas {
 		return concat.toString();
 	}
 	
+	public String informacionPagoDivisas(CfdiComprobanteFiscal comp){
+		StringBuilder concat = new StringBuilder();
+		StringBuilder attributes = new StringBuilder();
+		if(comp.getAddenda().getInformacionPago() != null){
+
+			if(comp.getAddenda().getInformacionPago().getEmail() != null && !comp.getAddenda().getInformacionPago().getEmail().trim().equalsIgnoreCase("") ){
+				attributes.append(Util.isNullEmpity(comp.getAddenda().getInformacionPago().getEmail().toUpperCase()
+						, "Email"));
+			}
+			if(comp.getAddenda().getInformacionPago().getInstitucionReceptora() != null 
+					&& !comp.getAddenda().getInformacionPago().getInstitucionReceptora().trim().equalsIgnoreCase("")){
+				attributes.append("InstitucionReceptora=\"" 
+						+ comp.getAddenda().getInformacionPago().getInstitucionReceptora().toUpperCase() + "\" ");
+			}
+			
+			if(comp.getAddenda().getInformacionPago().getNombreBeneficiario() != null 
+					&& !comp.getAddenda().getInformacionPago().getNombreBeneficiario().trim().equalsIgnoreCase("") ){
+				attributes.append("NombreBeneficiario=\"" 
+						+ comp.getAddenda().getInformacionPago().getNombreBeneficiario().toUpperCase() + "\" ");
+			}
+
+			if(comp.getAddenda().getInformacionPago().getNumeroCuenta() != null
+					&& !comp.getAddenda().getInformacionPago().getNumeroCuenta().trim().equalsIgnoreCase("") ){
+				attributes.append("NumeroCuenta=\"" 
+						+ comp.getAddenda().getInformacionPago().getNumeroCuenta().toUpperCase() + "\" ");
+			}
+			if(comp.getAddenda().getInformacionPago().getNumProveedor() != null 
+					&& !comp.getAddenda().getInformacionPago().getNumProveedor().trim().equalsIgnoreCase("") ){
+				attributes.append("NumProveedor=\"" 
+						+ comp.getAddenda().getInformacionPago().getNumProveedor().toUpperCase() + "\" ");
+			}
+			
+			if(comp.getAddenda().getInformacionPago().getOrdenCompra() != null 
+					&& !comp.getAddenda().getInformacionPago().getOrdenCompra().trim().equalsIgnoreCase("") ){
+				attributes.append(Util.isNullEmpity(comp.getAddenda().getInformacionPago().getOrdenCompra().toUpperCase()
+						, "OrdenCompra"));
+			}
+//			if(comp.getAddenda().getInformacionPago().getPosCompra() != null){
+//				attributes.append(Util.isNullEmpity(comp.getAddenda().getInformacionPago().getPosCompra().toUpperCase(), "posCompra"));
+//			}
+		}
+		
+		if(attributes.toString().trim().length() > 0){
+			concat.append("\n<as:InformacionPago ");
+			concat.append(attributes.toString());
+			concat.append("/>");
+		}
+		
+		return concat.toString();
+	}
+	
+	
 	public String informacionEmision(CfdiComprobanteFiscal comp){
 		StringBuilder concat = new StringBuilder();
 		StringBuilder attributes = new StringBuilder();
@@ -761,6 +849,24 @@ public class ConvertirCfdiDivisas {
 		}
 		return concat.toString();
 	}
+	
+	public String camposAdicionalesDivisas(CfdiComprobanteFiscal comp){
+		StringBuilder concat = new StringBuilder();
+		if(comp.getAddenda().getCampoAdicional() != null 
+				&& comp.getAddenda().getCampoAdicional().size() > 0){
+			for (Entry<String, String> entry : comp.getAddenda().getCampoAdicional().entrySet()) {
+				
+				if ( !entry.getValue().trim().equalsIgnoreCase("") ) {
+					String campo = "\n<as:CampoAdicional Campo=\"" + entry.getKey()
+						+ "\" Valor=\"" + entry.getValue() + "\" />";
+					concat.append(campo);
+				}
+				
+			}
+		}
+		return concat.toString();
+	}
+	
 	
 	public String domicilioEmisor(CfdiComprobanteFiscal comp){
 		StringBuilder concat = new StringBuilder();
@@ -858,5 +964,50 @@ public class ConvertirCfdiDivisas {
 		
 		return concat.toString();
 	}
+	
+	public String domicilioReceptorDivisas(CfdiComprobanteFiscal comp){
+		StringBuilder concat = new StringBuilder();
+		StringBuilder attributes = new StringBuilder();
+		//DomicilioReceptor
+		if(comp.getReceptor().getDomicilio().getCalle() != null){
+			attributes.append("Calle=\"" + comp.getReceptor().getDomicilio().getCalle().toUpperCase() + "\" ");
+		}
+		if(comp.getReceptor().getDomicilio().getCodigoPostal() != null){
+			attributes.append("CodigoPostal=\"" + comp.getReceptor().getDomicilio().getCodigoPostal()  + "\" ");
+		}
+		if(comp.getReceptor().getDomicilio().getColonia() != null){
+			attributes.append("Colonia=\"" + comp.getReceptor().getDomicilio().getColonia().toUpperCase()  + "\" ");
+		}		
+		if(comp.getReceptor().getDomicilio().getEstado() != null){
+			attributes.append("Estado=\"" + comp.getReceptor().getDomicilio().getEstado().toUpperCase()  + "\" ");
+		}
+		if(comp.getReceptor().getDomicilio().getLocalidad() != null){
+			attributes.append("Localidad=\"" + comp.getReceptor().getDomicilio().getLocalidad().toUpperCase()  + "\" ");
+		}
+		if(comp.getReceptor().getDomicilio().getMunicipio() != null){
+			attributes.append("Municipio=\"" + comp.getReceptor().getDomicilio().getMunicipio().toUpperCase()  + "\" ");
+		}
+		if(comp.getReceptor().getDomicilio().getNoExterior() != null){
+			attributes.append("NoExterior=\"" + comp.getReceptor().getDomicilio().getNoExterior().toUpperCase()  + "\" ");
+		}
+		if(comp.getReceptor().getDomicilio().getNoInterior() != null){
+			attributes.append("NoInterior=\"" + comp.getReceptor().getDomicilio().getNoInterior().toUpperCase()  + "\" ");
+		}
+		if(comp.getReceptor().getDomicilio().getPais() != null){
+			attributes.append("Pais=\"" + comp.getReceptor().getDomicilio().getPais().toUpperCase()  + "\" ");
+		}
+		if(comp.getReceptor().getDomicilio().getReferencia() != null){
+			attributes.append("Referencia=\"" + comp.getReceptor().getDomicilio().getReferencia().toUpperCase()  + "\" ");
+		}
+		
+		if(attributes.toString().trim().length() > 0){
+			concat.append("\n<as:DomicilioReceptor ");
+			concat.append(attributes.toString());
+			concat.append("/>");
+		}
+		
+		return concat.toString();
+	}
+	
 	
 }

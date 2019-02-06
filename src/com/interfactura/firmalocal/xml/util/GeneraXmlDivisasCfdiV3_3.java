@@ -185,6 +185,35 @@ public class GeneraXmlDivisasCfdiV3_3 {
 		return doc;
 	}
 	
+	public Document agregaAddendaNewDivisas(Document doc, CfdiComprobanteFiscal comp) throws SAXException
+	, IOException, ParserConfigurationException, FactoryConfigurationError, XPathExpressionException, TransformerConfigurationException, TransformerException{
+	
+		String addenda = "";
+		comp.setTipoCambio("1");
+		if (UtilCatalogos.getStringValByExpression(doc, "//Comprobante//@Moneda").equalsIgnoreCase("MXN")) 
+			for (Entry<String, String> entry : comp.getAddenda().getCampoAdicional().entrySet()) {
+				if (entry.getKey().trim().equalsIgnoreCase("tipocambio") || entry.getKey().equalsIgnoreCase("tipo cambio"))
+					entry.setValue("1");
+			}
+		addenda = conver.addendaNewDivisas(comp);
+		 
+		if (addenda.trim().length() > 0){
+			
+			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+			
+			Element element = doc.getDocumentElement();
+			
+			Document addendaDoc = dBuilder.parse(new ByteArrayInputStream(addenda.getBytes("UTF-8")));
+			
+			Node addendaNode = doc.importNode(addendaDoc.getDocumentElement(), true);
+			element.appendChild(addendaNode);
+		}
+		
+		return doc;
+	}
+	
+	
 	public ByteArrayOutputStream reemplazaCadenaOriginal(ByteArrayOutputStream in, FiscalEntity fe) 
 			throws UnsupportedEncodingException, ParserConfigurationException, SAXException, IOException
 			, XPathExpressionException, TransformerConfigurationException, TransformerException

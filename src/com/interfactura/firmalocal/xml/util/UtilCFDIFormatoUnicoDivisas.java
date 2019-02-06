@@ -34,8 +34,6 @@ import com.interfactura.firmalocal.persistence.CustomerManager;
 import com.interfactura.firmalocal.persistence.FiscalEntityManager;
 import com.interfactura.firmalocal.xml.util.ValidationConstants.TipoEmision;
 
-import oracle.jrockit.jfr.events.DynamicValueDescriptor;
-
 @Service
 public class UtilCFDIFormatoUnicoDivisas {
 	@Autowired(required = true)
@@ -246,7 +244,7 @@ public class UtilCFDIFormatoUnicoDivisas {
 		
 		/* Referencia */
 		if (linea[17] == null || linea[17].trim().equals("")) {
-			comp.getReceptor().getDomicilio().setReferencia("");
+			
 		} else {
 			comp.getReceptor().getDomicilio().setReferencia(linea[17].trim());
 		}
