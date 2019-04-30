@@ -1173,6 +1173,8 @@ public class UtilCatalogos
 					}else{
 						response = importeval;
 					}
+				}else if( decimalesMoneda == 0 ){
+					response = importeValIzq;
 				}else{
 //					response = importeval.substring(0,2);
 					response = importeval;
@@ -2027,10 +2029,10 @@ public class UtilCatalogos
 		
 		public static String validateCfdiDocument(Document doc, int maxDecimals) throws XPathExpressionException, TransformerConfigurationException, TransformerException{
 	    	//logger.info("validateCfdiDocument:"+convertDocumentXmlToString(doc));
-	    	//System.out.println("******************************************************");
+	    	//System.out.println("******************************************************");			
 	    	StringBuilder sbError = new StringBuilder();
 	    	//System.out.println("******************************************************");
-	    	sbError.append(validateDecimals(doc, maxDecimals));
+//	    	sbError.append(validateDecimals(doc, maxDecimals));
 	    	//logger.info("validateCfdiDocument:"+convertDocumentXmlToString(doc));
 	    	//System.out.println("******************************************************");
 	    	/*En esta seccion se agregaran todas las validciones que se les necesite hacer al comprobante*/
@@ -2284,9 +2286,9 @@ public class UtilCatalogos
 	        evaluateDecimals(doc, "//Comprobante/@SubTotal", maxDecimals, "Subtotal", sbError);
 	        evaluateDecimals(doc, "//Comprobante/@Total", maxDecimals, "Total", sbError);
 	        
-	        if (!Util.isNullEmpty(getStringValByExpression(doc, "//Comprobante/@TipoCambio"))) 
-	        	if (!getStringValByExpression(doc, "//Comprobante//@Moneda").equalsIgnoreCase("MXN"))
-	        		evaluateDecimals(doc, "//Comprobante/@TipoCambio", maxDecimals, "Tipo de Cambio", sbError);
+//	        if (!Util.isNullEmpty(getStringValByExpression(doc, "//Comprobante/@TipoCambio"))) 
+//	        	if (!getStringValByExpression(doc, "//Comprobante//@Moneda").equalsIgnoreCase("MXN"))
+//	        		evaluateDecimals(doc, "//Comprobante/@TipoCambio", 6, "Tipo de Cambio", sbError);
 	            
 		        
 	        if (!Util.isNullEmpty(getStringValByExpression(doc, "//Comprobante/@Descuento"))) {
