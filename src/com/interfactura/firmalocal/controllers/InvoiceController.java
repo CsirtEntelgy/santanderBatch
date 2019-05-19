@@ -103,6 +103,8 @@ public class InvoiceController
 		System.setProperty("javax.net.ssl.keyStorePassword", properties.getCertificadoPass());													
 		System.setProperty("javax.net.ssl.trustStore", properties.getCertificadoInterfactura());
 		*/
+		
+		//aqui estuvo charli
 		System.out.println(numeroMalla);
 		String tipo ="";
 		if (numeroMalla.indexOf("|") > -1) {
