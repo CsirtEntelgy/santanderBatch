@@ -5,7 +5,9 @@ import static com.interfactura.firmalocal.xml.util.Util.isNullEmpity;
 import static com.interfactura.firmalocal.xml.util.Util.tags;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.io.RandomAccessFile;
 import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.text.ParseException;
@@ -184,6 +186,7 @@ public class ConvertirV3_3 {
 		tags.isImpuestos = false;
 		tags.isComplemento = false;
 		tags.isMovimiento = false;
+		tags.isFronterizo = false;
 		// tags.isComprobante=false;
 		tags.isAdenda = false;
 		tags.isDescriptionTASA = false;
@@ -1196,7 +1199,10 @@ public class ConvertirV3_3 {
 	}
 
 	
-	
+	public void establecerLugarExpedicion(String lugarE)
+	{
+		tags.LUGAR_EXPEDICION = lugarE;
+	}	
 	
 	public String getNameEntityFiscal() {
 		if (tags.fis == null) {
@@ -1892,7 +1898,7 @@ public class ConvertirV3_3 {
 				String elementTraslado = "";
 				if (lineas[1].trim().length() > 1 && igual) {
 					Map<String, Object> trasladoDoom = UtilCatalogos.findTraslados(tags.mapCatalogos, valImporte,
-							valDescConcep, tags.decimalesMoneda, tags.tipoComprobante);
+							valDescConcep, tags.decimalesMoneda, tags.tipoComprobante, tags.isFronterizo);
 					elementTraslado = "\n<cfdi:Traslados>" + trasladoDoom.get("valNodoStr") + "\n</cfdi:Traslados>";
 					tags.sumTotalImpuestosTras = trasladoDoom.get("sumaTotal").toString();
 					tags.sumTraTotalIsr = trasladoDoom.get("sumTotalIsr").toString();
@@ -2060,11 +2066,124 @@ public class ConvertirV3_3 {
 	 * @param linea
 	 * @param numberLine
 	 * @return
+	 * @throws IOException 
 	 * @throws UnsupportedEncodingException
 	 */
 	@SuppressWarnings("unused")
-	public byte[] concepto(String linea, long numberLine, HashMap fiscalEntities, HashMap campos22)///, String fileNames)
-			throws UnsupportedEncodingException {
+	private  boolean verificarFronterizo(long byteActual , String rutaInterfaz) throws IOException
+	{
+	
+		System.out.println("Charly: Se metio dentro de la funcion de verificarIvaFronterizo");
+		System.out.println("Charly: Valor de la variable dentro de  funcion de byteActual: "+ byteActual);
+		System.out.println("Charly: Valor de la variable dentro de la funcion de rutaInterfaz: "+ rutaInterfaz);
+		RandomAccessFile file = new RandomAccessFile(rutaInterfaz, "r");
+		
+		int sizeArray = 1024 * 8;
+		long byteComienzo = byteActual;
+		boolean isFrontier = false;
+		boolean resultado = false;
+		boolean continua = false;
+		byte[] array = new byte[sizeArray];
+		char c = 0;
+		float ivaFront = 8.00f; 
+		float valorIva = 0f;
+		long byteEndLine = 10;
+		String[] lineas;
+		StringBuffer linea = new StringBuffer();
+		
+			do 
+			{
+				
+				file.seek(byteComienzo);
+				System.out.println("Charly: byte de inicio de busqueda "+ byteComienzo);
+			
+				file.read(array, 0, (sizeArray - 1));
+				int i = 0;
+			while (((c = (char) (array[i] & 0xFF) ) != 0)) 
+			{
+				i++;
+				byteComienzo++;
+				
+				//Pregunta si llego al fin de linea
+				if (c == byteEndLine) 
+				{
+					// Si no empieza con ';' se procesa
+					if (!linea.toString().startsWith(";") && linea.toString().length() > 0) 
+					{
+						//Pregunta si empieza con 01
+						if (linea.toString().startsWith("09")) 
+						{
+							String lineaS = linea.toString();
+							lineas = lineaS.split("\\|");
+							valorIva = Float.parseFloat(lineas[2]);
+							System.out.println("Charly:Encontro la linea nueve en el byte " + byteComienzo);
+							System.out.println("Charly:Valor encontrado del iva: " + valorIva);
+							
+							
+						
+							
+
+							if(valorIva == ivaFront)
+							{
+							
+								System.out.println("Charly:Es iva fronterizo " + valorIva);
+								isFrontier = true;
+								resultado = true;
+								break;
+
+							}
+							else
+							{
+							
+								System.out.println("Charly:No es iva fronterizo" + valorIva);
+							resultado = true;
+							break;
+							}
+								
+							
+							
+							
+						}
+						
+					}
+					
+					linea = new StringBuffer();
+				
+				} 
+				else 
+				{
+					if (c != 13) 
+					{	linea.append(c);	}
+				}
+	
+				
+				
+			}
+			if (array[0] == 0)
+				continua = true;
+			}while (!continua && resultado == false);
+			
+			file.close();
+			return isFrontier;
+
+		 
+	
+	
+	}
+	public byte[] concepto(String linea, long numberLine, HashMap fiscalEntities, HashMap campos22,long byteStart, String urlInterfaz)///, String fileNames)
+			throws IOException,UnsupportedEncodingException {
+		
+		//AQUI VALIDAR SI ES UN ESTADO DE CUENTA FRONTERIZO
+		System.out.println("Charly: a una linea de ejecutar la funcion verificarIvaFronterizo ");
+		System.out.println("Charly: Valor de la variable de funcion byteStart "+ byteStart);
+		System.out.println("Charly: valor de la variable de la funcion urlInterfaz "+ urlInterfaz);
+		if(verificarFronterizo(byteStart,urlInterfaz))
+		{
+			tags.isFronterizo=true;
+		}
+			
+		//AQUI VALIDAR SI ES UN ESTADO DE CUENTA FRONTERIZO
+		
 		lineas = linea.split("\\|");
 		String fileNames = "";
 		if (lineas.length >= 3) {
@@ -2276,8 +2395,9 @@ public class ConvertirV3_3 {
 				// Map<String, Object> trasladoDoom ;
 				String elementTraslado = "";
 				if (lineas[1].trim().length() > 1) {
+					//Charly aqui se declaran los traslados
 					Map<String, Object> trasladoDoom = UtilCatalogos.findTraslados(tags.mapCatalogos, valImporte,
-							valDescConcep, tags.decimalesMoneda, tags.tipoComprobante);
+							valDescConcep, tags.decimalesMoneda, tags.tipoComprobante, tags.isFronterizo);
 					elementTraslado = "\n<cfdi:Traslados>" + trasladoDoom.get("valNodoStr") + "\n</cfdi:Traslados>";
 					tags.sumTotalImpuestosTras = trasladoDoom.get("sumaTotal").toString();
 					tags.sumTraTotalIsr = trasladoDoom.get("sumTotalIsr").toString();

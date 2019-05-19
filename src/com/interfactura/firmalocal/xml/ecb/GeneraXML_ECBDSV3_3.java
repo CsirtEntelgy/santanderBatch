@@ -242,7 +242,7 @@ public class GeneraXML_ECBDSV3_3 {
 			{
 				contCFD += 1;
 				if (!linea.startsWith(";")&&linea.length()>0) 
-				{	this.formatLinea(idProceso, fecha, fileNames, numeroMalla);	}
+				{	this.formatLinea(idProceso, fecha, fileNames, numeroMalla,0);	}
 				//logger.debug("Numero de linea: "+contCFD+" "+this.nameFile + " . . . " + linea);
 			}
 			logger.info("Fin de lectura del archivo");
@@ -400,7 +400,8 @@ public class GeneraXML_ECBDSV3_3 {
 							if (procesa) 
 							{								
 								this.linea = new String(linea.toString().getBytes("UTF-8"), "UTF-8");
-								this.formatLinea(idProceso, fecha, fileNames, numeroMalla);							
+								//pasaria variable byteStart
+								this.formatLinea(idProceso, fecha, fileNames, numeroMalla,byteStart);							
 							}
 						}
 						//linea = new StringBuilder();
@@ -443,7 +444,7 @@ public class GeneraXML_ECBDSV3_3 {
 			if((linea.toString().length()>0)&&(!activo))
 			{
 				this.linea = linea.toString();
-				this.formatLinea(idProceso, fecha, fileNames, numeroMalla);	
+				this.formatLinea(idProceso, fecha, fileNames, numeroMalla,byteStart);	
 			}
 			if ( !this.dobleAddenda ) {
 				this.endMOVIMIENTOS();
@@ -1035,7 +1036,7 @@ public class GeneraXML_ECBDSV3_3 {
 	
 	private static long generaXmlTime = 0;
 	
-	private void formatLinea(String idProceso, String fecha, String fileNames, String numeroMalla) 
+	private void formatLinea(String idProceso, String fecha, String fileNames, String numeroMalla, long byteStart) 
 		throws IOException 
 	{	//System.out.println("formatLinea");
 		linea = Util.convierte(linea).concat("|temp");
@@ -1091,7 +1092,12 @@ public class GeneraXML_ECBDSV3_3 {
 			if (this.nameFile.contains("PTCARTERR") || this.nameFile.contains("PTSOFOMR") || this.nameFile.contains("INGEDCR")) 
 				out.write(conver.conceptoCarter(linea, contCFD, lstFiscal, campos22));// , fileNames)); Correccion para funcion concepto que recibe 4 parametro
 			else
-				out.write(conver.concepto(linea, contCFD, lstFiscal, campos22));// , fileNames)); Correccion para funcion concepto que recibe 4 parametro
+				System.out.println("Charly: llego en la linea 6 con una interfaz que no es PTCARTERR ni PTSOFOMR ni INGEDCR ");
+				System.out.println("Charly: valor de byteStart: "+byteStart);
+				System.out.println("Charly: valor de ruta de la interfaz: "+this.file.getAbsolutePath());
+				out.write(conver.concepto(linea, contCFD, lstFiscal, campos22,byteStart,this.file.getAbsolutePath()));// , fileNames)); Correccion para funcion concepto que recibe 4 parametro
+				//aqui pasaria "byteStart" que es el byte actual del archivo has que donde a leido
+				//aqui pasria  "la url absoluta donde esta la interfaz que se esta leyendo"
 			break;
 		case 7:
 			if(!conver.getTags().tipoComprobante.equalsIgnoreCase("T") && !conver.getTags().tipoComprobante.equalsIgnoreCase("P")){
@@ -1115,6 +1121,7 @@ public class GeneraXML_ECBDSV3_3 {
 			{	out.write("\n<cfdi:Impuestos/>".getBytes());		}
 			this.endMOVIMIENTOS();
 			this.addenda();
+			this.remplazarExpedicion();
 			break;
 		case 11:
 			this.beginMOVIMIENTOS(); 
@@ -1162,6 +1169,44 @@ public class GeneraXML_ECBDSV3_3 {
 	public void beginIMPUESTOS() 
 	{
 
+	}
+	private void remplazarExpedicion() throws UnsupportedEncodingException, IOException
+	{
+		String[] lineas = linea.split("\\|");
+		System.out.println("Charly:nombre de metodo = remplazarExpedicion");
+		System.out.println("Charly:numero de segmentos de la linea:" + lineas.length);
+		System.out.println("Charly:Valor del penultimo elemento de la linea:" +lineas[lineas.length - 2] );
+		System.out.println("Charly:inicial la impresion de valores de la linea");
+		
+		for (int i = 0; i < lineas.length; i++) 
+		{
+			System.out.println("Charly:Iteracion:"+i+":Valor:"+lineas[i]);
+		}
+		System.out.println("Charly:final la impresion de valores de la linea");
+		String lExpedicion = null;
+		String xmlActual = null;
+		ByteArrayOutputStream byteArray = null;
+		
+		
+		if(lineas.length >= 5)
+		{
+			System.out.println("Charly:entro al lienas mayor que 5");
+			lExpedicion = lineas[4].toString();
+			System.out.println("Charly:Valor de la variable lExpedicion:" + lExpedicion);			
+			if( ! (lExpedicion.equals(null) || lExpedicion.equals("")) )
+			{
+				System.out.println("Charly:Entro a la condicion de que la variable lExpedicion es diferente de nulo y de vacio");
+				
+				xmlActual = out.toString();
+				xmlActual = xmlActual.replace("01219",lExpedicion);
+				byteArray = new ByteArrayOutputStream();
+				byteArray.write(xmlActual.getBytes("UTF-8"));
+				out = byteArray;
+				conver.establecerLugarExpedicion(lExpedicion);
+				
+			}
+		}
+		
 	}
 
 	/**
