@@ -1178,13 +1178,14 @@ public class GeneraXML_ECBDSV3_3 {
 		System.out.println("Charly:Valor del penultimo elemento de la linea:" +lineas[lineas.length - 2] );
 		System.out.println("Charly:inicial la impresion de valores de la linea");
 		
+		
 		for (int i = 0; i < lineas.length; i++) 
 		{
 			System.out.println("Charly:Iteracion:"+i+":Valor:"+lineas[i]);
 		}
 		System.out.println("Charly:final la impresion de valores de la linea");
 		String lExpedicion = null;
-		String xmlActual = null;
+		String xmlActual = out.toString();;
 		ByteArrayOutputStream byteArray = null;
 		
 		
@@ -1193,18 +1194,25 @@ public class GeneraXML_ECBDSV3_3 {
 			System.out.println("Charly:entro al lienas mayor que 5");
 			lExpedicion = lineas[4].toString();
 			System.out.println("Charly:Valor de la variable lExpedicion:" + lExpedicion);			
-			if( ! (lExpedicion.equals(null) || lExpedicion.equals("")) )
+			if( !(lExpedicion.equals(null) || lExpedicion.equals("")) )
 			{
-				System.out.println("Charly:Entro a la condicion de que la variable lExpedicion es diferente de nulo y de vacio");
-				
-				xmlActual = out.toString();
+				System.out.println("Charly:Entro a la condicion de que la variable lExpedicion es diferente de nulo y de vacio y el valor de lExpediciones:" + lExpedicion);
 				xmlActual = xmlActual.replace("01219",lExpedicion);
-				byteArray = new ByteArrayOutputStream();
-				byteArray.write(xmlActual.getBytes("UTF-8"));
-				out = byteArray;
 				conver.establecerLugarExpedicion(lExpedicion);
-				
 			}
+			//System.out.println("Charly: a una liena de meterse en la condicion de si es fronterizo");
+			//if(this.conver.getTags().isFronterizo)
+			//{
+				//System.out.println("Charly: entro en la validacion si es fronterizo, el valor de this.conver.getTags().isFronterizo es: " + this.conver.getTags().isFronterizo);
+				
+			//}
+			
+			byteArray = new ByteArrayOutputStream();
+			byteArray.write(xmlActual.getBytes("UTF-8"));
+			out = byteArray;
+			
+			
+			
 		}
 		
 	}

@@ -362,7 +362,7 @@ public class InvoiceController
 					{
 											
 						System.out.println("Procesando Estados de Cuenta por Tareas: "+idProceso);
-						
+						//Charly aqui entra a procesar los estados de cuenta
 						/*
 						Thread hilo1 = new Thread(new Thread1(path, byteStart,  byteEnd,  cont,
 			        			 setF,  lstTipoCambio, lstCampos22, 
