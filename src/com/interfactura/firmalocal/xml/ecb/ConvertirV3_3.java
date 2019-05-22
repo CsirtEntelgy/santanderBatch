@@ -2787,6 +2787,7 @@ public class ConvertirV3_3 {
 				String elementTraslado = "";
 				if (lineas[1].trim().length() > 1) {
 					//Charly aqui se declaran los traslados
+					
 					Map<String, Object> trasladoDoom = UtilCatalogos.findTraslados(tags.mapCatalogos, valImporte,
 							valDescConcep, tags.decimalesMoneda, tags.tipoComprobante, tags.isFronterizo);
 					elementTraslado = "\n<cfdi:Traslados>" + trasladoDoom.get("valNodoStr") + "\n</cfdi:Traslados>";
