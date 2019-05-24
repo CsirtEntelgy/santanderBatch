@@ -1,6 +1,7 @@
 package com.interfactura.firmalocal.controllers;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -54,6 +55,7 @@ import altec.infra.StringEncrypter.EncryptionException;
 @Controller
 public class InvoiceController 
 {	
+	public BufferedWriter writer = null;
 	@Autowired
 	private GeneraXML_ECBDS xmlECB;
 	@Autowired
@@ -104,8 +106,10 @@ public class InvoiceController
 		System.setProperty("javax.net.ssl.trustStore", properties.getCertificadoInterfactura());
 		*/
 		
-		//aqui estuvo charli
-		System.out.println(numeroMalla);
+		
+		System.out.println("Charly: numero de malla " + numeroMalla);
+		System.out.println("Charly:Numero de proceso es " + idProceso);
+		System.out.println("Charly:Url del webservice es " + urlWebService);
 		String tipo ="";
 		if (numeroMalla.indexOf("|") > -1) {
 			String[] contenido = numeroMalla.split("|");
@@ -130,12 +134,13 @@ public class InvoiceController
 			{	zeros+="0";	}
 			path+=zeros+idProceso+".txt";
 		}
+		System.out.println("Charly: Despues de formar el nombre del archivo apartir de el idProceso " + idProceso + "la variable path es igual a " + path);
 		//logger.info("Nombre del Archivo de tareas: " + path);
 		String args[]=null;
 		LineNumberReader reader=null;
 		File fileout=null;
 		String line =null;
-		File file=new File(path);
+		File file = new File(path);
 		contFiles = 0;
 		long byteStart=-1;
 		long byteEnd=-1;
@@ -382,7 +387,8 @@ public class InvoiceController
 					            //int counter = 0;
 					            //System.out.println("LineNumber: " + reader.getLineNumber());
 					            while ((line = reader.readLine()) != null) 
-								{			
+								{	
+					            	//Charly: comienza a leer los bloques de un archivo de proceso
 					            	//System.out.println("processingLines: " + line.length());
 									//System.out.println("counter: " + counter);
 									//System.out.println("LINEA PROCESO: Inicia - " + line);
@@ -413,7 +419,12 @@ public class InvoiceController
 									//System.out.println("LINEA DE PROCESO Terminada:  " + line);
 									//counter+=1;
 								}
-					            					
+					            
+					            System.out.println("Charly: A una linea de escribir el archivo antesTimbrarXml.txt");
+					            writer =  new BufferedWriter(new FileWriter("/PlanCFD/antesTimbrarXml.txt"));
+					            writer.write(xmlECBV3.xmlSinAddenda);
+					            writer.flush();
+								writer.close();					
 					            reader.close();
 					            
 					            //Copia el archivo en el directoria de procesados
@@ -681,6 +692,7 @@ public class InvoiceController
 					xmlECBV3.setValidator(val);
 					xmlECBV3.setUrlWebService(urlWebService);
 					xmlECBV3.convierte(byteStart, byteEnd, path, cont, idProceso, fecha, fileNames, numeroMalla);
+					
 				
 				}
 				

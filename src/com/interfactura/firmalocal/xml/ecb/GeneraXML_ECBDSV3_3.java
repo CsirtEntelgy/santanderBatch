@@ -1,5 +1,4 @@
 package com.interfactura.firmalocal.xml.ecb;
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
@@ -73,8 +72,12 @@ import com.interfactura.firmalocal.xml.util.UtilCatalogos;
 @Component
 public class GeneraXML_ECBDSV3_3  {
 	
+
+	 // this is charly
+
+	public String xmlSinAddenda=null;
 	private BufferedWriter writer = null;
-	
+	// new BufferedWriter(new FileWriter("/PlanCFD/antesTimbrarXml.txt"));
 	private Logger logger = Logger.getLogger(GeneraXML_ECBDSV3_3.class);
 	private BufferedReader br;
 	private String linea;
@@ -672,14 +675,9 @@ public class GeneraXML_ECBDSV3_3  {
 				t1 = System.currentTimeMillis();
 				timbrados = "";
 				System.out.println("EnvioWebService" + sbXmlATimbrar.toString());
-				//Charly a una linea de mandar a timbrar
-				System.out.println("Charly:A una liena de declarar la variable que representa el archivo para la escritura de xml antes de timprar");
-				writer =  new BufferedWriter(new FileWriter("/PlanCFD/antesTimbrarXml.txt"));
-				System.out.println("Charly:Despues de  la variable que representa el archivo para la escritura de xml antes de timprar");
-				writer.write(sbXmlATimbrar.toString());
-				writer.flush();
-				writer.close();
-				System.out.println("Charly: Se ejecuto la escritura de archivo antesTimbrarXml.txt");
+	
+				xmlSinAddenda+=sbXmlATimbrar.toString();
+				System.out.println("Charly: Tamano de xml sin addenda " + xmlSinAddenda);
 				timbrados = this.servicePort.generaTimbre(sbXmlATimbrar.toString(), false, this.urlWebService, properties, this.nameFile, Integer.parseInt(idProceso), 0, sbPeriodos.toString(), sbNombresAplicativo.toString());
 //				System.out.println("Respuesta Timbrado:" + timbrados);
 				t2 =  System.currentTimeMillis() - t1;
