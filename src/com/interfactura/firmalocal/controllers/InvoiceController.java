@@ -106,10 +106,11 @@ public class InvoiceController
 		System.setProperty("javax.net.ssl.trustStore", properties.getCertificadoInterfactura());
 		*/
 		
-		
+		System.out.println("Charly:Entro en la funcion processingInvoices");
 		System.out.println("Charly: numero de malla " + numeroMalla);
 		System.out.println("Charly:Numero de proceso es " + idProceso);
 		System.out.println("Charly:Url del webservice es " + urlWebService);
+		System.out.println("Charly:El valor de la variable de funcion fileNames es " + fileNames);
 		String tipo ="";
 		if (numeroMalla.indexOf("|") > -1) {
 			String[] contenido = numeroMalla.split("|");
@@ -125,7 +126,7 @@ public class InvoiceController
 			tipo = "ecb";
 		}
 		System.out.println("tipoXD: " + tipo + " numero: " + numeroMalla);
-		String path=properties.getConfigurationPath();
+		String path = properties.getConfigurationPath();
 		String zeros="";
 		if(!idProceso.equals("-1"))
 		{

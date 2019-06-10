@@ -679,7 +679,7 @@ public class GeneraXML_ECBDSV3_3  {
 				xmlSinAddenda+=sbXmlATimbrar.toString();
 				System.out.println("Charly: Tamano de xml sin addenda " + xmlSinAddenda);
 				timbrados = this.servicePort.generaTimbre(sbXmlATimbrar.toString(), false, this.urlWebService, properties, this.nameFile, Integer.parseInt(idProceso), 0, sbPeriodos.toString(), sbNombresAplicativo.toString());
-//				System.out.println("Respuesta Timbrado:" + timbrados);
+//				System.out.println("Respuesta Timbrado: " + timbrados);
 				t2 =  System.currentTimeMillis() - t1;
 				System.out.println("TIME: Timbrado:" + t2 + " ms - contador: " + lstObjECBs.size());
 				System.out.println("Timbrado del bloque " + cont + " terminado.");

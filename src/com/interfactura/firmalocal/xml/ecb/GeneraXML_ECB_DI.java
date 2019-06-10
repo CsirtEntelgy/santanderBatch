@@ -127,6 +127,10 @@ public class GeneraXML_ECB_DI {
     private int contadorMilli;
     private String seconds;
 	
+    
+   // public void inicializarCatalogos(){
+   // 	this.tags.mapCatalogos = Util.readXLSFile(properties.getUrlArchivoCatalogs());
+    //}
 	
 	
 	
@@ -146,7 +150,7 @@ public class GeneraXML_ECB_DI {
 		String fileNameTxt = this.nameFile.split("\\.")[0];
 		String interfaces = fileNameTxt + ".TXT";
 		System.out.println("Inicia proceso de Divisas");
-		RandomAccessFile file=null;
+		RandomAccessFile file = null;
 		flagProcesado = true;;
 		StringBuffer linea = new StringBuffer();
 		//Bandera que indica si se termino de leer divisas completas
@@ -168,12 +172,15 @@ public class GeneraXML_ECB_DI {
 
 
 		try {
+			
+			
 			tags.mapCatalogos = Util.readXLSFile(properties.getUrlArchivoCatalogs());
 			System.out.println("Creando archivos de salida " );
 			File fileExit=new File(this.getNameFile(properties.getPathSalida(), cont,"XML", idProceso));
 			this.salida = new FileOutputStream(fileExit);
 			File fileExitBD=new File(this.getNameFile(properties.getPathSalida(), cont,"BD", idProceso));
 			this.salidaBD = new FileOutputStream(fileExitBD);
+			
 			File fileExitODM = new File(properties.getPathDirGenr() + File.separator + fecha + "ODM-" + idProceso);
 			
 			String idUsuario = "";
@@ -448,6 +455,7 @@ public class GeneraXML_ECB_DI {
 		long t1 = System.currentTimeMillis();
 		RandomAccessFile file = new RandomAccessFile(path, "r");
 		FileWriter fileW = new FileWriter(this.getNameFile(properties.getPathDirBackup(), cont,null, idProceso));
+		
 		int sizeArray = 1024 * 8;
 		int i = 0;
 		char c=0;
@@ -491,8 +499,8 @@ public class GeneraXML_ECB_DI {
 		
 	
 		
-		System.out.println("lineaXD: " + linea);
-		System.out.println( "lineaUTF8: " + new String( linea.getBytes(), "UTF-8" ) );
+		System.out.println("Charly:lineaXD: " + linea);
+		System.out.println( "Charly:lineaUTF8: " + new String( linea.getBytes(), "UTF-8" ) );
 		
 		
 		startLine = "" + contCFD;
@@ -575,7 +583,7 @@ public class GeneraXML_ECB_DI {
 							baosXml = new ByteArrayOutputStream(xmlBytes.length);
 							baosXml.write(xmlBytes, 0, xmlBytes.length);
 							
-							System.out.println("---XML despues de validar decimales---");
+							System.out.println("	");
 							System.out.println(baosXml.toString("UTF-8"));
 							System.out.println("---Fin XML despues de validar decimales---");
 							
@@ -673,6 +681,7 @@ public class GeneraXML_ECB_DI {
 		incidencia.write("Se presentaron los siguientes errores al validar la estructura del comprobante: \r\n".getBytes());
 		temp = "Error: " + error + "\r\n";	
 		temp += "Inicio de CFD: " + startLine + "\r\n";
+		System.out.println("Charly:Inicio del CFD: "+ startLine);
 		incidencia.write(temp.getBytes("UTF-8"));
 		
 		

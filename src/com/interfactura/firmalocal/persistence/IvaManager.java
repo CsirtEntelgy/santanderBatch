@@ -28,7 +28,6 @@ public class IvaManager {
 		Iva p = ivaDao.findById(id);
 		return p;
 	}
-
 	@Transactional(propagation=Propagation.REQUIRES_NEW, rollbackFor=Exception.class)
 	public void update(Iva iva) {
 		ivaDao.update(iva);

@@ -50,12 +50,44 @@ public class RoundRobin_D
 	    throws FileNotFoundException, IOException
 	  {
 	    RoundRobin a = new RoundRobin(Integer.parseInt(args[7]), Integer.parseInt(args[3]));
-	    a.leerFichero(args[0], Integer.parseInt(args[1]), 
-	      Integer.parseInt(args[2]), Integer.parseInt(args[3]), 
-	      args[4], args[5], args[6], args[8], args[9]);
+	    a.leerFichero(
+	    						args[0],
+	    		Integer.parseInt(args[1]), 
+	      Integer.parseInt(args[2]),
+	      Integer.parseInt(args[3]), 
+						      args[4],
+						      args[5],
+						      args[6],
+						      args[8],
+						      args[9]);
+	    
+	    /*GENERA TAREAS
+	     * args[0] ruta hacia las interfaces
+	     * args[1] tamano en MG a leer de los archivos
+	     * args[2] numero de lineas por tarea 
+	     * args[3] numero de procesos 
+	     * args[4] ruta en donde se va a guardar el archivo de bloques
+	     * args[5] extencion del archivo de bloques
+	     * args[6] un archivo para concatenar archibos ??  /salidas/concatenar${5}.txt donde 5 es el numero de malla 
+	     * args[8] fecha que se le paso al shell generaTareasDivisas como parametro
+	     * args[9] nombre de la interfaz que se le pasa al shell ejm "CFDDIVISAS" 
+	     * 
+	     * */
 	  }
 	
-	  public void leerFichero(String inputPath, int tam, int lineasPorArchivo, int numeroProcesos, String nombreBase, String ext, String pathConfiguration, String fecha, String fileNames)
+	  public void leerFichero(
+			  String inputPath,
+			  int tam, 
+			  int lineasPorArchivo, 
+			  int numeroProcesos, 
+			  String nombreBase, 
+			  String ext,
+			  String pathConfiguration, 
+			  String fecha, 
+			  String fileNames)
+			  
+			  
+			  
 	    throws FileNotFoundException, IOException
 	  {
 	    File iPath = new File(inputPath);
@@ -95,7 +127,7 @@ public class RoundRobin_D
 	          if (isOk)
 	          {
 	            this.logger.info("Iniciando proceso de archivo: " + filesInPath[i]);
-	            if (File.separatorChar == '/')
+	            if (File.separatorChar == '/') 
 	              fichero = inputPath + filesInPath[i];
 	            else
 	              fichero = inputPath.replace("\\", "\\\\") + filesInPath[i];

@@ -58,6 +58,7 @@ public class InvoiceController_D {
 	private IvaManager ivaManager;
 	@Autowired
 	private GeneraXML_ECB_DI xmlDivisasV3;
+	
 	@Autowired
 	private Properties properties;
 	private int contFiles;
@@ -67,7 +68,10 @@ public class InvoiceController_D {
 	public synchronized void processingInvoices(String idProceso, String fileNames, String fecha, String urlWebService, String numeroMalla)	{
 		
 		
+		
+		
 		String path=properties.getConfigurationPath();
+		
 		String zeros="";
 		if(!idProceso.equals("-1"))
 		{
@@ -81,7 +85,7 @@ public class InvoiceController_D {
 		LineNumberReader reader=null;
 		File fileout=null;
 		String line =null;
-		File file=new File(path);
+		File file = new File(path);
 		contFiles = 0;
 		long byteStart=-1;
 		long byteEnd=-1;
@@ -107,8 +111,6 @@ public class InvoiceController_D {
 		HashMap<String,FiscalEntity> hashEmisores = new HashMap<String,FiscalEntity>(); 
 		for(FiscalEntity fE:fiscalEntityManager.listar()){
 			FiscalEntity fENew = fE;
-			
-			
 			hashEmisores.put(fENew.getTaxID(), fENew);
 		}
 		
@@ -231,12 +233,11 @@ public class InvoiceController_D {
 			String urlWebService, 
 			String numeroMalla) throws Exception {
 		
-		File file=new File(path);
+		File file = new File(path);
 		boolean versionTypo = true; // Tipo version AMDA
 		if(file.length()>0) {
 			
 			logger.debug("El archivo a procesar es: " + path);
-
 			xmlDivisasV3.setHashCfdFieldsV2(hashCfdFieldsV22);
 			xmlDivisasV3.setHashClientes(hashClientes);
 			xmlDivisasV3.setHashcodigoISO(hashcodigoISO);
@@ -246,7 +247,6 @@ public class InvoiceController_D {
 			xmlDivisasV3.setNameFile(file.getName());
 			xmlDivisasV3.setNombresApps(NombreAplicativo.cargaNombresApps());
 			xmlDivisasV3.convierte(byteStart, byteEnd, path, cont, idProceso, fecha, fileNames, numeroMalla);
-			
 	
 		}
 	}
