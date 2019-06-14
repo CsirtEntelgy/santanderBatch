@@ -2073,9 +2073,6 @@ public class ConvertirV3_3 {
 	private  boolean verificarFronterizo(long byteActual , String rutaInterfaz) throws IOException
 	{
 	
-		System.out.println("Charly: Se metio dentro de la funcion de verificarIvaFronterizo");
-		System.out.println("Charly: Valor de la variable dentro de  funcion de byteActual: "+ byteActual);
-		System.out.println("Charly: Valor de la variable dentro de la funcion de rutaInterfaz: "+ rutaInterfaz);
 		RandomAccessFile file = new RandomAccessFile(rutaInterfaz, "r");
 		
 		int sizeArray = 1024 * 8;
@@ -2095,7 +2092,6 @@ public class ConvertirV3_3 {
 			{
 				
 				file.seek(byteComienzo);
-				System.out.println("Charly: byte de inicio de busqueda "+ byteComienzo);
 			
 				file.read(array, 0, (sizeArray - 1));
 				int i = 0;
@@ -2116,8 +2112,6 @@ public class ConvertirV3_3 {
 							String lineaS = linea.toString();
 							lineas = lineaS.split("\\|");
 							valorIva = Float.parseFloat(lineas[2]);
-							System.out.println("Charly:Encontro la linea nueve en el byte " + byteComienzo);
-							System.out.println("Charly:Valor encontrado del iva: " + valorIva);
 							
 							
 						
@@ -2126,7 +2120,6 @@ public class ConvertirV3_3 {
 							if(valorIva == ivaFront)
 							{
 							
-								System.out.println("Charly:Es iva fronterizo " + valorIva);
 								isFrontier = true;
 								resultado = true;
 								break;
@@ -2135,7 +2128,6 @@ public class ConvertirV3_3 {
 							else
 							{
 							
-								System.out.println("Charly:No es iva fronterizo" + valorIva);
 							resultado = true;
 							break;
 							}
@@ -2395,7 +2387,6 @@ public class ConvertirV3_3 {
 				// Map<String, Object> trasladoDoom ;
 				String elementTraslado = "";
 				if (lineas[1].trim().length() > 1) {
-					//Charly aqui se declaran los traslados
 					Map<String, Object> trasladoDoom = UtilCatalogos.findTraslados(tags.mapCatalogos, valImporte,
 							valDescConcep, tags.decimalesMoneda, tags.tipoComprobante);
 					elementTraslado = "\n<cfdi:Traslados>" + trasladoDoom.get("valNodoStr") + "\n</cfdi:Traslados>";
@@ -2559,14 +2550,10 @@ public class ConvertirV3_3 {
 	
 	
 	
-	//metodo de Charly inicia
 	public byte[] concepto(String linea, long numberLine, HashMap fiscalEntities, HashMap campos22,long byteStart, String urlInterfaz)///, String fileNames)
 			throws IOException,UnsupportedEncodingException {
 		
 		//AQUI VALIDAR SI ES UN ESTADO DE CUENTA FRONTERIZO
-		System.out.println("Charly: a una linea de ejecutar la funcion verificarIvaFronterizo ");
-		System.out.println("Charly: Valor de la variable de funcion byteStart "+ byteStart);
-		System.out.println("Charly: valor de la variable de la funcion urlInterfaz "+ urlInterfaz);
 		
 		if(!tags.isFronterizo)
 		if(verificarFronterizo(byteStart,urlInterfaz))
@@ -2786,7 +2773,6 @@ public class ConvertirV3_3 {
 				// Map<String, Object> trasladoDoom ;
 				String elementTraslado = "";
 				if (lineas[1].trim().length() > 1) {
-					//Charly aqui se declaran los traslados
 					
 					Map<String, Object> trasladoDoom = UtilCatalogos.findTraslados(tags.mapCatalogos, valImporte,
 							valDescConcep, tags.decimalesMoneda, tags.tipoComprobante, tags.isFronterizo);

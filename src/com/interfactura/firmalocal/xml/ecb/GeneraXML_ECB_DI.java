@@ -13,6 +13,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -455,7 +456,6 @@ public class GeneraXML_ECB_DI {
 		long t1 = System.currentTimeMillis();
 		RandomAccessFile file = new RandomAccessFile(path, "r");
 		FileWriter fileW = new FileWriter(this.getNameFile(properties.getPathDirBackup(), cont,null, idProceso));
-		
 		int sizeArray = 1024 * 8;
 		int i = 0;
 		char c=0;
@@ -497,11 +497,12 @@ public class GeneraXML_ECB_DI {
 			
 		String [] arrayValues = linea.split("\\|");
 		
+		 if(arrayValues[arrayValues.length-1].trim().toUpperCase().equals(""))
+	            arrayValues  = Arrays.copyOf(arrayValues, arrayValues.length-2);
+		
 	
 		
-		System.out.println("Charly:lineaXD: " + linea);
-		System.out.println( "Charly:lineaUTF8: " + new String( linea.getBytes(), "UTF-8" ) );
-		
+	
 		
 		startLine = "" + contCFD;
 		
@@ -513,6 +514,8 @@ public class GeneraXML_ECB_DI {
 			
 		}
 		
+	
+		
 		if(!linea.equals("") && arrayValues.length != 0 && !arrayValues[2].equalsIgnoreCase("FINARCHIVO") && arrayValues[0].equalsIgnoreCase("01")) {
 			
 			if(arrayValues.length<49) {	
@@ -521,6 +524,7 @@ public class GeneraXML_ECB_DI {
 				fileINCIDENCIA( error, encabezado);
 				
 			} else if ( !arrayValues[arrayValues.length-1].trim().toUpperCase().equals("FINFACTURA") ) {
+				
 				
 				error = "Estructura de Archivo incorrecta, no fue encontrada la etiqueta de control ||FINFACTURA|| en la factura \n";
 				fileINCIDENCIA( error, encabezado);
@@ -681,7 +685,7 @@ public class GeneraXML_ECB_DI {
 		incidencia.write("Se presentaron los siguientes errores al validar la estructura del comprobante: \r\n".getBytes());
 		temp = "Error: " + error + "\r\n";	
 		temp += "Inicio de CFD: " + startLine + "\r\n";
-		System.out.println("Charly:Inicio del CFD: "+ startLine);
+		
 		incidencia.write(temp.getBytes("UTF-8"));
 		
 		

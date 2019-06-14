@@ -1781,6 +1781,9 @@ public class GeneraXML_CFDV3_3
 							xmlTimbradoConPipe = this.servicePort.generaTimbre(strSinAddenda, false, this.urlWebService, properties, nameFile, 0, 2, conver.getTags().EMISION_PERIODO, nombreAplicativo);
 							// Al parecer aqui se hace el timbrado, AMDA v 3.3 verificar las mayusculas tambien 
 							String xmlTimbrado = xmlTimbradoConPipe.substring(0, xmlTimbradoConPipe.length()-1);
+							System.out.println("Charly1306: xml timbrado");
+							
+							System.out.println("Respuesta Web Service: XML \n  " + xmlTimbrado);
 							
 							//logger.info("XML Timbrado: " + xmlTimbrado);
 							

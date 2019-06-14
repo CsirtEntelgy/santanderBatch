@@ -776,9 +776,7 @@ public class UtilCatalogos
 		}
 		
 		//Encuentra los traslados en los catalogos de equivalencia AMDA
-		//Metodo de charly translados
 		public static Map<String, Object> findTraslados(Map<String, ArrayList<CatalogosDom>> mapCatalogos, String importeCon, String descCon, Integer decimalesMoneda, String tipoComprobante, boolean isFronterizo){
-			System.out.println("Charly: se metio dentro de la funcion findTraslados con la variable isFronterizo= "+ isFronterizo);
 			Map<String, Object> responseMap = new LinkedHashMap<String, Object>();
 			String response = "";
 			String valTasa = "";
@@ -827,18 +825,14 @@ public class UtilCatalogos
 							importeConNum = Double.parseDouble(importeCon);
 //							System.out.println("Val Impor Conce " + valTasaNum);
 //							importeTrasladoMul = (valTasaNum*importeConNum) + importeConNum;
-							//Charly: Aqui se determina si el iva va a ser de tipo fronterizo (0.08) o si es normal (0.16)
 							if(isFronterizo)
 							{
 								importeTrasladoMul = (0.08 * importeConNum);
-								System.out.println("Charly: se aplico el iva de 0.08");
 							}
 							else
 							{
 								importeTrasladoMul = (valTasaNum * importeConNum);
-								System.out.println("Charly:Se aplico el iva del 0.16");
 							}
-							//Charly: Aqui se determina si el iva va a ser de tipo fronterizo (0.08) o si es normal (0.16)
 //							System.out.println("Val Impor Traslado " + importeTrasladoMul);
 							String tipoFactorValueMontos = findValTipoFactorByDesc(mapCatalogos, mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal2());
 //							System.out.println("Val Impor tipoFactorValueMontos Tra O:  " + tipoFactorValueMontos);
@@ -901,7 +895,6 @@ public class UtilCatalogos
 										//Buscando TasaOcuotaCatalogo findTasaOcuotaVal(mapCatalogos, descImp, mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal2(), valTasa, mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal4())
 									String findValTasa = findTasaOCuotaExist(mapCatalogos, descImp, mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal2(), valTasa, mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal4());
 										if(!findValTasa.equalsIgnoreCase("vacio")){
-											//Charly cambiar tasaocuota siempre y cuando exista iva fronterizo 
 											if(isFronterizo){
 											tasaOCutoaLine = "\" TasaOCuota=\"" + Util.completeZeroDecimals("0.08", 6);
 											System.out.println("Aplico el ivaFronterizo Variable tasaOCuota= "+ tasaOCutoaLine);
@@ -969,7 +962,6 @@ public class UtilCatalogos
 		
 		//Metodo translados normal
 		public static Map<String, Object> findTraslados(Map<String, ArrayList<CatalogosDom>> mapCatalogos, String importeCon, String descCon, Integer decimalesMoneda, String tipoComprobante){
-			System.out.println("Charly: se metio dentro de la funcion findTraslados normal");
 			Map<String, Object> responseMap = new LinkedHashMap<String, Object>();
 			String response = "";
 			String valTasa = "";
@@ -1017,12 +1009,9 @@ public class UtilCatalogos
 							importeConNum = Double.parseDouble(importeCon);
 //							System.out.println("Val Impor Conce " + valTasaNum);
 //							importeTrasladoMul = (valTasaNum*importeConNum) + importeConNum;
-							//Charly: Aqui se determina si el iva va a ser de tipo fronterizo (0.08) o si es normal (0.16)
 						
 								importeTrasladoMul = (valTasaNum * importeConNum);
-								System.out.println("Charly:Se aplico el iva del 0.16 en el metodo translados normal");
 							
-							//Charly: Aqui se determina si el iva va a ser de tipo fronterizo (0.08) o si es normal (0.16)
 //							System.out.println("Val Impor Traslado " + importeTrasladoMul);
 							String tipoFactorValueMontos = findValTipoFactorByDesc(mapCatalogos, mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal2());
 //							System.out.println("Val Impor tipoFactorValueMontos Tra O:  " + tipoFactorValueMontos);

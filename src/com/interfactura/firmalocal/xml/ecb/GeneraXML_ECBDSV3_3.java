@@ -73,7 +73,6 @@ import com.interfactura.firmalocal.xml.util.UtilCatalogos;
 public class GeneraXML_ECBDSV3_3  {
 	
 
-	 // this is charly
 
 	public String xmlSinAddenda=null;
 	private BufferedWriter writer = null;
@@ -677,7 +676,6 @@ public class GeneraXML_ECBDSV3_3  {
 				System.out.println("EnvioWebService" + sbXmlATimbrar.toString());
 	
 				xmlSinAddenda+=sbXmlATimbrar.toString();
-				System.out.println("Charly: Tamano de xml sin addenda " + xmlSinAddenda);
 				timbrados = this.servicePort.generaTimbre(sbXmlATimbrar.toString(), false, this.urlWebService, properties, this.nameFile, Integer.parseInt(idProceso), 0, sbPeriodos.toString(), sbNombresAplicativo.toString());
 //				System.out.println("Respuesta Timbrado: " + timbrados);
 				t2 =  System.currentTimeMillis() - t1;
@@ -1102,9 +1100,6 @@ public class GeneraXML_ECBDSV3_3  {
 			if (this.nameFile.contains("PTCARTERR") || this.nameFile.contains("PTSOFOMR") || this.nameFile.contains("INGEDCR")) 
 				out.write(conver.conceptoCarter(linea, contCFD, lstFiscal, campos22));// , fileNames)); Correccion para funcion concepto que recibe 4 parametro
 			else
-				System.out.println("Charly: llego en la linea 6 con una interfaz que no es PTCARTERR ni PTSOFOMR ni INGEDCR ");
-				System.out.println("Charly: valor de byteStart: "+byteStart);
-				System.out.println("Charly: valor de ruta de la interfaz: "+this.file.getAbsolutePath());
 				out.write(conver.concepto(linea, contCFD, lstFiscal, campos22,byteStart,this.file.getAbsolutePath()));// , fileNames)); Correccion para funcion concepto que recibe 4 parametro
 				//aqui pasaria "byteStart" que es el byte actual del archivo has que donde a leido
 				//aqui pasria  "la url absoluta donde esta la interfaz que se esta leyendo"
@@ -1183,17 +1178,9 @@ public class GeneraXML_ECBDSV3_3  {
 	private void remplazarExpedicion() throws UnsupportedEncodingException, IOException
 	{
 		String[] lineas = linea.split("\\|");
-		System.out.println("Charly:nombre de metodo = remplazarExpedicion");
-		System.out.println("Charly:numero de segmentos de la linea:" + lineas.length);
-		System.out.println("Charly:Valor del penultimo elemento de la linea:" +lineas[lineas.length - 2] );
-		System.out.println("Charly:inicial la impresion de valores de la linea");
 		
 		
-		for (int i = 0; i < lineas.length; i++) 
-		{
-			System.out.println("Charly:Iteracion:"+i+":Valor:"+lineas[i]);
-		}
-		System.out.println("Charly:final la impresion de valores de la linea");
+		
 		String lExpedicion = null;
 		String xmlActual = out.toString();;
 		ByteArrayOutputStream byteArray = null;
@@ -1201,21 +1188,12 @@ public class GeneraXML_ECBDSV3_3  {
 		
 		if(lineas.length >= 5)
 		{
-			System.out.println("Charly:entro al lienas mayor que 5");
 			lExpedicion = lineas[4].toString();
-			System.out.println("Charly:Valor de la variable lExpedicion:" + lExpedicion);			
 			if( !(lExpedicion.equals(null) || lExpedicion.equals("")) )
 			{
-				System.out.println("Charly:Entro a la condicion de que la variable lExpedicion es diferente de nulo y de vacio y el valor de lExpediciones:" + lExpedicion);
 				xmlActual = xmlActual.replace("01219",lExpedicion);
 				conver.establecerLugarExpedicion(lExpedicion);
 			}
-			//System.out.println("Charly: a una liena de meterse en la condicion de si es fronterizo");
-			//if(this.conver.getTags().isFronterizo)
-			//{
-				//System.out.println("Charly: entro en la validacion si es fronterizo, el valor de this.conver.getTags().isFronterizo es: " + this.conver.getTags().isFronterizo);
-				
-			//}
 			
 			byteArray = new ByteArrayOutputStream();
 			byteArray.write(xmlActual.getBytes("UTF-8"));

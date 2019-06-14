@@ -106,11 +106,7 @@ public class InvoiceController
 		System.setProperty("javax.net.ssl.trustStore", properties.getCertificadoInterfactura());
 		*/
 		
-		System.out.println("Charly:Entro en la funcion processingInvoices");
-		System.out.println("Charly: numero de malla " + numeroMalla);
-		System.out.println("Charly:Numero de proceso es " + idProceso);
-		System.out.println("Charly:Url del webservice es " + urlWebService);
-		System.out.println("Charly:El valor de la variable de funcion fileNames es " + fileNames);
+		
 		String tipo ="";
 		if (numeroMalla.indexOf("|") > -1) {
 			String[] contenido = numeroMalla.split("|");
@@ -135,7 +131,6 @@ public class InvoiceController
 			{	zeros+="0";	}
 			path+=zeros+idProceso+".txt";
 		}
-		System.out.println("Charly: Despues de formar el nombre del archivo apartir de el idProceso " + idProceso + "la variable path es igual a " + path);
 		//logger.info("Nombre del Archivo de tareas: " + path);
 		String args[]=null;
 		LineNumberReader reader=null;
@@ -368,7 +363,6 @@ public class InvoiceController
 					{
 											
 						System.out.println("Procesando Estados de Cuenta por Tareas: "+idProceso);
-						//Charly aqui entra a procesar los estados de cuenta
 						/*
 						Thread hilo1 = new Thread(new Thread1(path, byteStart,  byteEnd,  cont,
 			        			 setF,  lstTipoCambio, lstCampos22, 
@@ -389,11 +383,6 @@ public class InvoiceController
 					            //System.out.println("LineNumber: " + reader.getLineNumber());
 					            while ((line = reader.readLine()) != null) 
 								{	
-					            	//Charly: comienza a leer los bloques de un archivo de proceso
-					            	//System.out.println("processingLines: " + line.length());
-									//System.out.println("counter: " + counter);
-									//System.out.println("LINEA PROCESO: Inicia - " + line);
-									//System.out.println("transf: " + transf);
 									args=line.split("\\|");
 									if(args!=null&&args.length>=5)
 									{	
@@ -421,7 +410,6 @@ public class InvoiceController
 									//counter+=1;
 								}
 					            
-					            System.out.println("Charly: A una linea de escribir el archivo antesTimbrarXml.txt");
 					            writer =  new BufferedWriter(new FileWriter("/PlanCFD/antesTimbrarXml.txt"));
 					            writer.write(xmlECBV3.xmlSinAddenda);
 					            writer.flush();

@@ -514,6 +514,7 @@ public class UtilCFDIFormatoUnicoDivisas {
 					numeroCelda += 1;
 					contadorConceptos = contadorConceptos + 1;
 					if ( linea[posicion+1].toString().equals("FINFACTURA")) {
+						
 						fFinFactura = true;
 						break;
 					}
