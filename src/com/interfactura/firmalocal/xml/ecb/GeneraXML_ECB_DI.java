@@ -213,8 +213,11 @@ public class GeneraXML_ECB_DI {
 			System.out.println("Comienza el formateo de las lineas");
 			this.seconds = "0";
 			this.contadorMilli = 1;
+			
+			System.out.println("2506:A una linea de entrar en el DoWhile");
 			do 
 			{
+				
 				file.seek(byteStart);
 				array = new byte[sizeArray];
 				file.read(array, 0, (sizeArray - 1));
@@ -294,25 +297,114 @@ public class GeneraXML_ECB_DI {
 				this.formatLinea(idProceso, fecha, fileNames, numeroMalla);	
 			}
 			
-			for(int index=0; index<listIn.size(); index++){
+			System.out.println("Charly2606:Extraccion de bloques");
+			
+			StringBuffer bloqueTimbre = new StringBuffer();
+			int conteoBloque = 1;
+			int numeroBloque = 1;
+			int topeBloque = 500;
+			String bloqueTimbrado = null;
+			String xmlTimbrados = null;
+			String[] arrayXmlTimbrados = null;
+			String xmlTimbrado ="";
+			int aux=-1;
+			boolean bandera = false;
+			System.out.println("Charly2606:Numero de elementos en el arreglo:"+listIn.size());
+			for(int index = 0; index < listIn.size(); index++){
+				
 				
 				if(listIn.get(index).getByteArrXMLSinAddenda() != null){
 					
-					String strXmlATimbrar = listIn.get(index).getByteArrXMLSinAddenda().toString("UTF-8");
+					
+					
+						if(index < listIn.size()-1){
+							bloqueTimbre.append(listIn.get(index).getByteArrXMLSinAddenda().toString("UTF-8") + "|");											
+						}else{
+							bloqueTimbre.append(listIn.get(index).getByteArrXMLSinAddenda().toString("UTF-8"));
+						}
+						
+						if(conteoBloque == topeBloque){
+							
+							System.out.println("Charly2606:Bloque:" +numeroBloque +",Cantidad:" +bloqueTimbre.toString().split("\\|").length);
+							
+							
+							if(!bloqueTimbre.toString().trim().equals("")){
+								
+								bloqueTimbrado = this.servicePort.generaTimbre(bloqueTimbre.toString(), false, urlWSTimbrado, properties, interfaces.substring(0, interfaces.indexOf(".")), 0, 1, "", "");
+								System.out.println("Charly2606:Imprimiendo bloque timbrado" + bloqueTimbrado);
+								xmlTimbrados += bloqueTimbrado;
+								System.out.println("Charly2606:Timbrados" + bloqueTimbrado.split("\\|").length);
+							}
+							
+							
+							
+							conteoBloque = 1;
+							numeroBloque++;
+							bloqueTimbrado = null;
+							bloqueTimbre = new StringBuffer();
+							
+							
+						}else
+						conteoBloque++;
+				} else {
+					String error = "Error al construir la factura";
+					fileINCIDENCIA( error, listComprobantes.get(index).getEncabezado() );
+				}
+				
+				
+				
+			
+			}
+			System.out.println("Charly2506:Ultimo bloque a timbrar");
+			System.out.println("Charly2406:Numero de  elementos en el bloque antes de timbrar restantes:" + bloqueTimbre.toString().split("\\|").length);
+			
+			
+			if(!bloqueTimbre.toString().trim().equals("")){
+				
+				bloqueTimbrado = this.servicePort.generaTimbre(bloqueTimbre.toString(), false, urlWSTimbrado, properties, interfaces.substring(0, interfaces.indexOf(".")), 0, 1, "", "");
+			
+				xmlTimbrados += bloqueTimbrado;
+				System.out.println("Charly2406:Timbrados" + bloqueTimbrado.split("\\|").length);
+			}
+			
+			
+			
+			
+			System.out.println("Charly2606: Xmls timbrados totales " + xmlTimbrados.split("\\|").length);
+			System.out.println("Charly2606: Xmls sobrados  " + bloqueTimbre.toString().split("\\|").length );
+			arrayXmlTimbrados = xmlTimbrados.split("\\|");
+		
+			xmlTimbrado = arrayXmlTimbrados[0];	
+			xmlTimbrado = xmlTimbrado.replace("null","");
+			arrayXmlTimbrados[0] = xmlTimbrado;
+			System.out.println(" Charly2606:largo del array " + listIn.size() );
+			for(int index=0; index<listIn.size(); index++){
+				
+				
+					
+					//String strXmlATimbrar = listIn.get(index).getByteArrXMLSinAddenda().toString("UTF-8");
 					CfdiComprobanteFiscal comprobante = listComprobantes.get(index);
+					xmlTimbrado  = arrayXmlTimbrados[index];
+					
+					
+					
+					
+			        
 					
 					/////////////Inicio Bloque de Timbrado//////////////////
 
-					String xmlTimbradoConPipe = ""; 
-					xmlTimbradoConPipe = this.servicePort.generaTimbre(strXmlATimbrar, false, urlWSTimbrado, properties, interfaces.substring(0, interfaces.indexOf(".")), 0, 1, listIn.get(index).getPeriod(), "");
+					//String xmlTimbradoConPipe = ""; 
+					//xmlTimbradoConPipe = this.servicePort.generaTimbre(strXmlATimbrar, false, urlWSTimbrado, properties, interfaces.substring(0, interfaces.indexOf(".")), 0, 1, listIn.get(index).getPeriod(), "");
 					
-					String xmlTimbrado = xmlTimbradoConPipe.substring(0, xmlTimbradoConPipe.length()-1);
+					//String xmlTimbrado = xmlTimbradoConPipe.substring(0, xmlTimbradoConPipe.length()-1);
 					
-					System.out.println("XML Timbrado: \n" + xmlTimbrado);
+					//System.out.println("XML Timbrado: \n" + xmlTimbrado);
 					
 					/////////////Fin Bloque de Timbrado//////////////////
 					
 					Document dom = stringToDocument(xmlTimbrado);
+					
+				
 					//Se verifica si la respuesta del web service es correcta, sino se lanza excepci�n
 					Element docEle = dom.getDocumentElement();
 					String strDescripcion = docEle.getAttribute("Descripcion");
@@ -349,6 +441,7 @@ public class GeneraXML_ECB_DI {
 						String routeName = properties.getPathDirGenr() + File.separator + fecha + "ODM-" + idProceso;
 						
 						listIn.get(index).setXmlRoute(routeName + "|" + this.offSetComprobante + "|" + (this.offSetComprobante + length));									
+						//routeName = /salidas/CFDOndemad
 						salida.write(("folioSAT:" + strUUID + ": Correcto!!\r\n").getBytes("UTF-8"));
 						salidaBD.write(this.buildRowBDFile(listIn.get(index), strUUID, interfaces, idUsuario, idArea, nombreUsuario).getBytes("UTF-8"));
 						
@@ -361,10 +454,7 @@ public class GeneraXML_ECB_DI {
 						
 					}
 					
-				} else {
-					String error = "Error al construir la factura";
-					fileINCIDENCIA( error, listComprobantes.get(index).getEncabezado() );
-				}
+				
 				
 			}
 			

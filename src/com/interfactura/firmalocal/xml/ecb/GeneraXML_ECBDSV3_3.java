@@ -1126,7 +1126,7 @@ public class GeneraXML_ECBDSV3_3  {
 			{	out.write("\n<cfdi:Impuestos/>".getBytes());		}
 			this.endMOVIMIENTOS();
 			this.addenda();
-			this.remplazarExpedicion();
+			//this.remplazarExpedicion();
 			break;
 		case 11:
 			this.beginMOVIMIENTOS(); 

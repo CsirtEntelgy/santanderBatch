@@ -87,7 +87,7 @@ public class IndicesDivisasController {
 		
 		List<CFDIssuedOtros> listOtros = null;
 		
-		List<String> processing=new ArrayList<String>();
+		List<String> processing = new ArrayList<String>();
 		// Consultar los documentos que se van a buscar en la base de datos
 		File fileLst = null; 
 		
