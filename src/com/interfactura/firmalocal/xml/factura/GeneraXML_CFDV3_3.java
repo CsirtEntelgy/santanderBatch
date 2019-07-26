@@ -1669,7 +1669,7 @@ public class GeneraXML_CFDV3_3
 					String fileVerify = nameFile.split("\\.")[0];
 					Document doc = UtilCatalogos.convertStringToDocument(cfdBean.getBaosXml().toString("UTF-8"));
 					if (fileVerify.contains("CFDFACTORAJEFACTURAS") || fileVerify.contains("CONFIRMING") || fileVerify.contains("NEWCONFIRMING")) {
-						UtilCatalogos.setValueOnDocumentElement(doc, "//Comprobante/@FormaPago", "17");
+						//UtilCatalogos.setValueOnDocumentElement(doc, "//Comprobante/@FormaPago", "17");
 						//UtilCatalogos.setValueOnDocumentElement(doc, "//Comprobante/@MetodoPago", "PPD");
 						//cfdBean.setBaosXml(UtilCatalogos.convertStringToOutpuStream(MetodoPago.convertDocumentXmlToString(doc)));
 					}

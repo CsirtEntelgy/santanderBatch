@@ -136,7 +136,7 @@ public class UtilCatalogos
         errorMessage.put("ErrCompTipMon004", "Clave=\"ErrCompTipMon004\" Nodo=\"Comprobante\" Mensaje=\"Tipo Cambio Incorrecto\"");
         errorMessage.put("ErrCompMon001", "Clave=\"CFDI33112\" Nodo=\"Comprobante\" Mensaje=\"El Campo Moneda No Tiene Un Valor En El Catalogo\"");
         errorMessage.put("ErrCompTipCom001", "Clave=\"ErrCompTipCom001\" Nodo=\"Comprobante\" Mensaje=\"El Campo tipo De Comprobante No Contiene Un Valor En El Cataloco c_Tipo De Comprobante\"");
-        errorMessage.put("ErrCompForPag001", "Clave=\"CFDI33103\" Nodo=\"Comprobante\" Mensaje=\"El Campo Forma Pago No Contiene Un Valor Del Catalogo C_FormaPago\"");
+        errorMessage.put("ErrCompForPag001", "Clave=\"CFDI33103\" Nodo=\"Comprobante\" Mensaje=\"El campo forma de pago es obligatorio\"");
         errorMessage.put("ErrCompMetPag001", "Clave=\"CFDI33121\" Nodo=\"Comprobante\" Mensaje=\"El Campo Metodo Pago No Contiene Un Valor Del Catalogo C_FormaPago\"");
         errorMessage.put("ErrCompSubTot001", "Clave=\"ErrCompSubTot001\" Nodo=\"Comprobante\" Mensaje=\"No Se Permiten Valores Negativos En Sub Total\"");
         errorMessage.put("ErrCompSubTot002", "Clave=\"CFDI33106\" Nodo=\"Comprobante\" Mensaje=\"El Valor Del Campo Sub Total Excede La Cantidad De Decimales Que Soporta La Moneda\"");
@@ -1425,6 +1425,30 @@ public class UtilCatalogos
 				response = "vacio";
 			}
 			
+			return response;
+		}
+		
+
+
+		//Validacion para buscar el valor ingresado desde la interfaz (forma de pago) para la verificacion en el catalogo
+			public static boolean validarFormaPago(Map<String, ArrayList<CatalogosDom>> mapCatalogos, String value){
+			boolean response = false;
+
+			if(mapCatalogos.size() > 0 && value.trim() != ""){
+				for(int i=0; i<mapCatalogos.get("FormaPago").size(); i++){
+
+					System.out.println("Charly2307:Comparando: " + mapCatalogos.get("FormaPago").get(i).getVal1() + " y " + value );
+					if(mapCatalogos.get("FormaPago").get(i).getVal1().equalsIgnoreCase(value)){
+						response = true;	
+						break;
+					}else{
+						response = false;
+					}
+				}
+			}else{
+				response = false;
+			}
+
 			return response;
 		}
 		
