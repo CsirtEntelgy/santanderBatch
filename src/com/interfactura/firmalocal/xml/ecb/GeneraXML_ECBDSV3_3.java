@@ -1,6 +1,7 @@
 package com.interfactura.firmalocal.xml.ecb;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -15,6 +16,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
+import java.nio.charset.Charset;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -74,6 +76,7 @@ public class GeneraXML_ECBDSV3_3  {
 	
 
 
+	private String addendaR = null;
 	public String xmlSinAddenda=null;
 	private BufferedWriter writer = null;
 	// new BufferedWriter(new FileWriter("/PlanCFD/antesTimbrarXml.txt"));
@@ -1132,6 +1135,13 @@ public class GeneraXML_ECBDSV3_3  {
 			this.beginMOVIMIENTOS(); 
 			out.write(conver.movimeinto(linea, contCFD));
 			break;
+			
+		case 12 :
+			
+			 System.out.println((new StringBuilder("Charly3007:antes de operaciones:")).append(addendaR).toString());
+	            addendaR = linea;
+	         System.out.println((new StringBuilder("Charly3007: valor de liena: ")).append(addendaR).toString());
+			break;
 		case 13:
 			System.out.println("Case 13:Entra cfdi ");
 			conver.getInfoCfdiRelacionado(linea);
@@ -2099,7 +2109,7 @@ public class GeneraXML_ECBDSV3_3  {
 	
 	private Document putMovimientoECB( Element docEleComprobante, Document domResultado, 
 			EstadoDeCuentaBancario estadoDeCuentaBancariox, List<MovimientoECB> lstMovimientosECBx , 
-			List<Operacion> lstopEcb, List<Cobranza> lstcobEcb, boolean addendaNew , Operacion oper) {
+			List<Operacion> lstopEcb, List<Cobranza> lstcobEcb, boolean addendaNew , Operacion oper) throws IOException {
 		
 		
 		Element rootAddenda = domResultado.createElement("cfdi:Addenda");
@@ -2230,6 +2240,32 @@ public class GeneraXML_ECBDSV3_3  {
 							}
 						}
 					}
+					
+					addendaR =   traducirEncode(addendaR);
+					
+				     if(!addendaR.isEmpty())
+	                    {
+	                        String lineas[] = addendaR.split("\\|");
+	                        if(!lineas[1].isEmpty() && !lineas[2].isEmpty() && !lineas[3].isEmpty() && !lineas[4].isEmpty())
+	                        {
+	                            System.out.println("Charly2907:Iterando lineas");
+	                            String as[];
+	                            int i1 = (as = lineas).length;
+	                            for(int l = 0; l < i1; l++)
+	                            {
+	                                String parte = as[l];
+	                                System.out.println((new StringBuilder("Parte:")).append(parte).toString());
+	                            }
+
+	                            Element recompensa = domResultado.createElement("Santander:AddendaRecompensa");
+	                            Element recompensaHijo = domResultado.createElement("Santander:AddendaRec");
+	                            recompensaHijo.setAttribute("Mensaje", (new StringBuilder(String.valueOf(decodeText(lineas[1], "UTF-8")))).append(" fecha inicio ").append(decodeText(lineas[2], "UTF-8")).append(" fecha fin ").append(decodeText(lineas[3], "UTF-8")).append(" es por la cantidad de ").append(decodeText(lineas[4], "UTF-8")).toString());
+	                            recompensa.appendChild(recompensaHijo);
+	                            domResultado.getDocumentElement().getChildNodes().item(0).getChildNodes().item(i).getChildNodes().item(x).appendChild(recompensa);
+	                            System.out.println((new StringBuilder("Charly3007: Valor de addendaR despues de operaciones:")).append(addendaR).toString());
+	                        }
+	                    }
+	                    addendaR = "";
 				}
 			}
 		}
@@ -2536,6 +2572,35 @@ public class GeneraXML_ECBDSV3_3  {
 		
 		return domResultado;
 	}
+	
+    private String decodeText(String input, String encoding)
+            throws IOException
+        {
+            return (new BufferedReader(new InputStreamReader(new ByteArrayInputStream(input.getBytes()), Charset.forName(encoding)))).readLine();
+        }
+    
+    private String traducirEncode(String cadena){
+    		String linea = cadena;
+    		StringBuilder nuevaLinea = new StringBuilder();
+    		char c = 0;
+    		for(int i = 0; i < linea.length(); i++){
+    			
+    			
+    			c = linea.charAt(i);
+    			System.out.println("Char:" + c );
+    			System.out.println("Valor:" + (int)c );
+    			System.out.println();
+    		}
+    		
+    		
+    		
+    		
+    		
+    		
+    		
+    		
+    		return cadena;
+    }
 			
 	/**
 	 * Finaliza la creacion del ECB
