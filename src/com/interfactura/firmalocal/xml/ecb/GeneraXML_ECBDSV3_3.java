@@ -3265,11 +3265,22 @@ public class GeneraXML_ECBDSV3_3  {
 		this.salida.write(temp.getBytes("UTF-8"));
 		temp = null;
 		//System.out.println("LONGITUD: " + Integer.parseInt(objECB.getTagLONGITUD()));
-		this.salida.write(Util.selloCadena(objECB.getSeal(), "SELLO", Integer.parseInt(objECB.getTagLONGITUD())));
-		logger.info("strSelloSAT:" + strSelloSAT);
+		//this.salida.write(Util.selloCadena(objECB.getSeal(), "SELLO", Integer.parseInt(objECB.getTagLONGITUD())));
+		String cadenaSello = "";
+		byte [] sello = Util.selloCadena(objECB.getSeal(), "SELLO", Integer.parseInt(objECB.getTagLONGITUD()));
+		this.salida.write(sello);
+		StringBuilder selloBuilder = new StringBuilder();
+		              for(byte value: sello){
+		
+		                       selloBuilder.append((char)value);
+		
+		               }
+          cadenaSello = selloBuilder.toString();
+          cadenaSello = cadenaSello.substring(0,cadenaSello.length() - 2);
+		logger.info("strSello:" + cadenaSello);
 		String fe = "SIN_SELLO";
-		if (strSelloSAT.length() > 0) {
-			fe = strSelloSAT.substring((strSelloSAT.length() - 8));
+		if (cadenaSello.length() > 0) {
+			fe = cadenaSello.substring((cadenaSello.length() - 8));
 		}
 		
 		this.salida.write(Util.selloCadena(strSelloSAT, "SELLO_SAT", Integer.parseInt(objECB.getTagLONGITUD())));
