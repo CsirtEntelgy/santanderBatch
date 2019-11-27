@@ -1006,6 +1006,21 @@ public class ConvertirV3_3 {
 				tags.TIPO_MONEDA = "";
 				tags.TIPO_CAMBIO = "";
 			}
+
+			System.out.println("Charly15nov19:" + Util.conctatArguments("\n<cfdi:Comprobante Version=\"3.3\" ", concat.toString(),
+			// "xmlns:Santander=\"http://www.santander.com.mx/addendaECB\" ",
+			"xmlns:cfdi=\"http://www.sat.gob.mx/cfd/3\"  ", "xsi:schemaLocation=\"http://www.sat.gob.mx/cfd/3 ",
+			"http://www.sat.gob.mx/sitio_internet/cfd/3/cfdv33.xsd\" ",
+			// "http://www.santander.com.mx/addendaECB
+			// http://www.santander.com.mx/cfdi/addendaECB.xsd\" ",
+			"Sello=\"", properties.getLabelSELLO().trim(), "\" ", "NoCertificado=\"",
+			properties.getLblNO_CERTIFICADO().trim(), "\" ", "Certificado=\"", properties.getLblCERTIFICADO().trim(), "\" ",
+			// "formaDePago=\"" + "PAGO EN UNA SOLA EXHIBICION" + "\" ",
+			// "metodoDePago=\"" + properties.getLabelMetodoPago() + "\" ",
+			"LugarExpedicion=\"" + "01219" + "\" ", // antes properties.getLabelLugarExpedicion() AMDA
+			// "NumCtaPago=\"" + properties.getlabelFormaPago() + "\" ",
+			"xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">").toString());
+
 			return Util.conctatArguments("\n<cfdi:Comprobante Version=\"3.3\" ", concat.toString(),
 					// "xmlns:Santander=\"http://www.santander.com.mx/addendaECB\" ",
 					"xmlns:cfdi=\"http://www.sat.gob.mx/cfd/3\"  ", "xsi:schemaLocation=\"http://www.sat.gob.mx/cfd/3 ",
@@ -3627,46 +3642,73 @@ public class ConvertirV3_3 {
 	 */
 	public byte[] movimeinto(String linea, long numberLine) throws UnsupportedEncodingException {
 
-		//System.out.println("length: " + lineas.length);
+		String datoFiscal = "";
 		lineas = linea.split("\\|");
 		if (lineas.length >= 7) {
 			Calendar c = Calendar.getInstance();
+			if(lineas.length >= 9){
+				// Viene informado el dato fiscal
+				System.out.println("charly20nov19   mayor o igual a ocho, valor de linea[7]:" + lineas[7] );
 
+				if( !Util.isNullEmpty(lineas[7])){
+
+					System.out.println("charly20nov19: no es vacio: " + lineas[7] );
+					if(!lineas[7].contains("temp")){
+						System.out.println("charly20nov19: no contiene temp:" + lineas[7]);
+
+							datoFiscal = " IdMovto=\"" + lineas[7] +"\"" ;
+						}
+
+
+				}
+			}
+			System.out.println("charly20nov19datoFiscal:" + datoFiscal);
 			String[] date = lineas[1].trim().split("-");
 			String fechaCal = "";
 			try {
 				c.set(Integer.parseInt(date[0]), Integer.parseInt(date[1]) - 1, Integer.parseInt(date[2]), 0, 0, 0);
-				fechaCal = "fecha=\"" + Util.convertirFecha(c.getTime()) + "\"";
+				fechaCal = " fecha=\"" + Util.convertirFecha(c.getTime()) + "\"";
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 
 			String rfcEnajenante = lineas[4];
 
-			// Validar el RFC
+			// Validar   el RFC
 			boolean flgRfcOk;
 			flgRfcOk = validarRFC(rfcEnajenante);
 
 			if ((rfcEnajenante != null) && (rfcEnajenante.trim().length() > 0) && flgRfcOk) {
-
+				 
+			System.out.println("charly20nov19datoFiscal1:" + datoFiscal);
+				System.out.println("return:" + Util
+				.conctatArguments("\n<Santander:MovimientoECBFiscal ", datoFiscal, " descripcion=\"",
+						Util.convierte(lineas[3].trim()), "\"", " RFCenajenante=\"",
+						Util.convierte(lineas[4].trim()), "\"","Importe=\"", lineas[5].trim(), "\"",fechaCal  ,"/>")
+				.toString());
 				return Util
-						.conctatArguments("\n<Santander:MovimientoECBFiscal ", fechaCal, " descripcion=\"",
+						.conctatArguments("\n<Santander:MovimientoECBFiscal ", datoFiscal, " descripcion=\"",
 								Util.convierte(lineas[3].trim()), "\"", " RFCenajenante=\"",
-								Util.convierte(lineas[4].trim()), "\"", " Importe=\"", lineas[5].trim(), "\"/>")
+								Util.convierte(lineas[4].trim()), "\"","Importe=\"", lineas[5].trim(), "\"",fechaCal  ,"/>")
 						.toString().getBytes("UTF-8");
 			} else {
 				/*
 				 * StringBuffer sb = new StringBuffer(); sb =
 				 * Util.conctatArguments("\n<ecb:MovimientoECB ", fechaCal, " descripcion=\"",
 				 * Util.convierte(lineas[3].trim()), "\"", " importe=\"", lineas[5].trim(),
-				 * "\"/>"); this.lstMovimientosECB.add(sb);
+				 * "\"/>") ; this.lstMovimientosECB.add(sb);
 				 * 
 				 * return "".getBytes("UTF-8");
 				 */
+				System.out.println("charly20nov19datoFiscal2:" + datoFiscal);
+				System.out.println("return:" + Util
+				.conctatArguments("\n<Santander:MovimientoECB ",datoFiscal , " descripcion=\"",
+						Util.convierte(lineas[3].trim()), "\""," importe=\"", lineas[5].trim(), "\"" , fechaCal,"/>")
+				.toString());
 
 				return Util
-						.conctatArguments("\n<Santander:MovimientoECB ", fechaCal, " descripcion=\"",
-								Util.convierte(lineas[3].trim()), "\"", " importe=\"", lineas[5].trim(), "\"/>")
+						.conctatArguments("\n<Santander:MovimientoECB ",  datoFiscal, " descripcion=\"",
+								Util.convierte(lineas[3].trim()), "\""," importe=\"", lineas[5].trim(), "\"" , fechaCal,"/>")
 						.toString().getBytes("UTF-8");
 
 			}
@@ -3678,7 +3720,7 @@ public class ConvertirV3_3 {
 
 	/**
 	 * 
-	 * @param linea
+	 * @param  linea
 	 * @return
 	 * @throws UnsupportedEncodingException
 	 */

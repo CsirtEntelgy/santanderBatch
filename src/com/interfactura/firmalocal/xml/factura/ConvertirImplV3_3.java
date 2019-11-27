@@ -36,7 +36,7 @@ import com.interfactura.firmalocal.xml.util.Util;
 import com.interfactura.firmalocal.xml.util.UtilCatalogos;
 
 /**
- * 
+ *  
  * @author jose luis
  * 
  */
@@ -443,40 +443,21 @@ public class ConvertirImplV3_3
 			// Validacion para el campo Forma de Pago y Metodo de Pago AMDA
 			String formaPagoVal = "";
 			String metodoPagoVal = "";
-			boolean validarFormaPagoVal = false;
 			if(!tipoComprobanteVal.trim().equalsIgnoreCase("T") && !tipoComprobanteVal.trim().equalsIgnoreCase("P")){
-				//formaPagoVal = UtilCatalogos.findFormaPago(tags.mapCatalogos, "Transferencia electrónica de fondos");
-				//System.out.println("Forma Pago consulta Catalogos: " + formaPagoVal);
+				formaPagoVal = UtilCatalogos.findFormaPago(tags.mapCatalogos, "Transferencia electrónica de fondos");
+				System.out.println("Forma Pago consulta Catalogos: " + formaPagoVal);
 				
-				formaPagoVal = tokens[4];
-				
-				if(formaPagoVal.isEmpty())
-				{
-					formaPagoVal = "vacio";
+			
+					if(!formaPagoVal.equalsIgnoreCase("vacio")){
+						concat.append(" FormaPago=\""
+								+ formaPagoVal + "\" "); // Antes PAGO EN UNA SOLA EXHIBICION AMDA V 3.3
+					}else{
 					concat.append(" ErrCompForPag001=\""
 							+ formaPagoVal + "\" "); // Antes PAGO EN UNA SOLA EXHIBICION AMDA V 3.3
-				}else
-				{
-					validarFormaPagoVal  = UtilCatalogos.validarFormaPago(tags.mapCatalogos, formaPagoVal);
-					System.out.println("Charly2307:Valor de formaPagoVal:"+ validarFormaPagoVal);
+				}
 
 
-					if(validarFormaPagoVal)
-					{
-					 System.out.println("Charly2307:enntro");
-					 System.out.println("Charly2307:Si esta el valor es:"+ formaPagoVal);
-							concat.append(" FormaPago=\""
-						+ formaPagoVal + "\" ");
-					}
-					 else{
-
-					 System.out.println("Charly2307:No esta el valor es:"+ formaPagoVal);
-					 UtilCatalogos.errorMessage.put("ErrCompForPag001","Clave=\"CFDI33103\" Nodo=\"Comprobante\" Mensaje=\"El Campo Forma Pago No Contiene Un Valor Del Catalogo C_FormaPago\"");
-					 concat.append(" ErrCompForPag001=\""
-								+ formaPagoVal + "\" ");
-					 }
-
-			}
+			
 				
 				metodoPagoVal = UtilCatalogos.findMetodoPago(tags.mapCatalogos, "PUE");
 //				System.out.println("Metodo Pago consulta Catalogos: " + metodoPagoVal);
@@ -1515,8 +1496,20 @@ public class ConvertirImplV3_3
 			String totalImpTraLine = "";
 			if(!Util.isNullEmpty(tokens[2].trim())){
 				if(UtilCatalogos.decimalesValidationMsj(tags.TOTAL_IMP_TRA, tags.decimalesMoneda)){
-					totalImpTraLine = " TotalImpuestosTrasladados=\"" + tags.TOTAL_IMP_TRA + "\" ";
-					tags.atributoTotalImpuestosTras = true;
+					
+					BigDecimal retImp = new BigDecimal(tags.TOTAL_IMP_TRA);
+					if (retImp.compareTo(new BigDecimal("0")) !=  0) {
+						
+
+						totalImpTraLine = " TotalImpuestosTrasladados=\"" + tags.TOTAL_IMP_TRA + "\" ";
+
+						tags.atributoTotalImpuestosTras = true;
+					} else {
+						totalImpTraLine = " TotalImpuestosTrasladados=\"" + tags.TOTAL_IMP_TRA + "\" ";
+						
+						tags.atributoTotalImpuestosTras = false;
+						
+					}
 					
 				}else{
 					//totalImpTraLine = " ErrImpTotImpTra002=\"" + tags.TOTAL_IMP_TRA + "\" ";
@@ -1525,6 +1518,7 @@ public class ConvertirImplV3_3
 			}else{
 				tags.atributoTotalImpuestosTras = false;
 			}
+
 			
 			return Util
 					.conctatArguments(tmp, "\n<cfdi:Impuestos ",

@@ -165,11 +165,11 @@ public class GeneraXML_ECBDSV3_3  {
     private boolean existNombreCliente = false;
     private boolean existPeriodo = false;
        
-  //Banderas para comprobar que existan algunos atributos de Santander:Movimientos
+  //Banderas  para comprobar que existan algunos atributos de Santander:Movimientos
     private boolean existFecha = false;
     private boolean existDescripcion = false;
     private boolean existImporte = false;
-
+	private boolean existDatoFiscal = false;
     //Nombres de los Aplicativos ECB
     private HashMap<String, String> nombresApps = new HashMap<String, String>();
     
@@ -1136,12 +1136,6 @@ public class GeneraXML_ECBDSV3_3  {
 			out.write(conver.movimeinto(linea, contCFD));
 			break;
 			
-		case 12 :
-			
-			 System.out.println((new StringBuilder("Charly3007:antes de operaciones:")).append(addendaR).toString());
-	            addendaR = linea;
-	         System.out.println((new StringBuilder("Charly3007: valor de liena: ")).append(addendaR).toString());
-			break;
 		case 13:
 			System.out.println("Case 13:Entra cfdi ");
 			conver.getInfoCfdiRelacionado(linea);
@@ -1806,6 +1800,16 @@ public class GeneraXML_ECBDSV3_3  {
 																    	 movEcb.setFecha(atributo.getValue());		
 																    	 movEcb.setFechaOrden(convertDateMov(atributo.getValue()));
 																	}																
+																}else if(atributo.getName().equals("IdMovto")){	
+																	this.existDatoFiscal = true;
+																	if (this.valorVacio(atributo.getValue())){
+																		System.out.println("charly211119:valor de el atributo datoFiscal:" + atributo.getValue());
+																		this.fAttMovIncorrect = true;	
+																		break;
+																	}else{																		
+																    	 
+																    	 movEcb.setDatoFiscal(atributo.getValue());		
+																	}																
 																}else if(atributo.getName().equals("referencia")){																
 																	movEcb.setReferencia(atributo.getValue());																	
 																}else if(atributo.getName().equals("descripcion")){
@@ -2231,6 +2235,9 @@ public class GeneraXML_ECBDSV3_3  {
 											if(!arrayMov[iMov].getSaldoAlCorte().equals("")){
 												movEcb.setAttribute("saldoAlCorte", arrayMov[iMov].getSaldoAlCorte());
 											}
+											if(!arrayMov[iMov].getDatoFiscal().equals("")){
+												movEcb.setAttribute("IdMovto", arrayMov[iMov].getDatoFiscal());
+											}
 											
 											//domComprobante.getDocumentElement().getChildNodes().item(i).getChildNodes().item(j).getChildNodes().item(k).appendChild(movEcb);
 											domResultado.getDocumentElement().getChildNodes().item(0).getChildNodes().item(i).getChildNodes().item(x).getChildNodes().item(j).getChildNodes().item(k).appendChild(movEcb);
@@ -2241,31 +2248,8 @@ public class GeneraXML_ECBDSV3_3  {
 						}
 					}
 					
-					addendaR =   traducirEncode(addendaR);
 					
-				     if(!addendaR.isEmpty())
-	                    {
-	                        String lineas[] = addendaR.split("\\|");
-	                        if(!lineas[1].isEmpty() && !lineas[2].isEmpty() && !lineas[3].isEmpty() && !lineas[4].isEmpty())
-	                        {
-	                            System.out.println("Charly2907:Iterando lineas");
-	                            String as[];
-	                            int i1 = (as = lineas).length;
-	                            for(int l = 0; l < i1; l++)
-	                            {
-	                                String parte = as[l];
-	                                System.out.println((new StringBuilder("Parte:")).append(parte).toString());
-	                            }
-
-	                            Element recompensa = domResultado.createElement("Santander:AddendaRecompensa");
-	                            Element recompensaHijo = domResultado.createElement("Santander:AddendaRec");
-	                            recompensaHijo.setAttribute("Mensaje", (new StringBuilder(String.valueOf(decodeText(lineas[1], "UTF-8")))).append(" fecha inicio ").append(decodeText(lineas[2], "UTF-8")).append(" fecha fin ").append(decodeText(lineas[3], "UTF-8")).append(" es por la cantidad de ").append(decodeText(lineas[4], "UTF-8")).toString());
-	                            recompensa.appendChild(recompensaHijo);
-	                            domResultado.getDocumentElement().getChildNodes().item(0).getChildNodes().item(i).getChildNodes().item(x).appendChild(recompensa);
-	                            System.out.println((new StringBuilder("Charly3007: Valor de addendaR despues de operaciones:")).append(addendaR).toString());
-	                        }
-	                    }
-	                    addendaR = "";
+			
 				}
 			}
 		}
@@ -2767,6 +2751,14 @@ public class GeneraXML_ECBDSV3_3  {
 									//MAnipular el stringbuffer (sin MovimientosECB no fiscales) y convertirlo a ByteArrayOutputStream
 									ByteArrayOutputStream xmlFinal =  new ByteArrayOutputStream();
 									byte [] xmlFinalBytes = sb.toString().getBytes("UTF-8");
+
+									System.out.println("charly211119:xml sin movimientos");
+									for(byte value: xmlFinalBytes){
+
+										System.out.print((char)value);
+
+									}
+
 									xmlFinal.write(xmlFinalBytes);		
 									
 									//Validar estructura del comprobante sin addenda

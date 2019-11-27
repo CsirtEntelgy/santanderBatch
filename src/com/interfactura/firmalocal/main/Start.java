@@ -39,6 +39,10 @@ public class Start
 			System.out.println("TIMEINICIO:" + dateFormat.format(dateInicio) + "M" + System.currentTimeMillis());
 			
 			invoice.processingInvoices(args[0], args[2], args[1], args[3], args[4]);
+			// args[0] que es el id del proceso
+			// args[1] es la fecha
+			// args[2] nombre de iterfaz(s)
+			// args[4] es el numero de malla
 			
 			context.close();
 			dateInicio = new Date();

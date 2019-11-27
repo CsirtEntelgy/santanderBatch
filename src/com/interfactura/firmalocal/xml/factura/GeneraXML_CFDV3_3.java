@@ -31,7 +31,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.validation.ValidatorHandler;
 
-//import oracle.net.ano.Service;
+//import  oracle.net.ano.Service;
 
 
 
@@ -409,7 +409,9 @@ public class GeneraXML_CFDV3_3
 				}
 				
 				if(!conver.getTags().tipoComprobante.equalsIgnoreCase("T") || !conver.getTags().tipoComprobante.equalsIgnoreCase("P")){
+
 					out.write(conver.impuestos(conver.getTags().lineaAnteriorImpuestoTokens, conver.getTags().contCFDAnteriorImpuesto));
+
 					/*SMS-Comentado por agregar nodos a impuestos
 					this.beginRETENCIONES(out);
 					out.write(conver.retenciones(conver.getTags().lineaAnteriorRetencionTokens, conver.getTags().contCFDAnteriorRetencion));
@@ -840,6 +842,7 @@ public class GeneraXML_CFDV3_3
 			System.out.println("antesValidarTotal: " + UtilCatalogos.convertDocumentXmlToString(doc));
 			Boolean ivaOk = true;
 			BigDecimal compIva =BigDecimal.valueOf(UtilCatalogos.getDoubleByExpression(doc, "//Comprobante/Impuestos/@TotalImpuestosTrasladados"));
+			
 			BigDecimal opIva = UtilCatalogos.getDocTotalIVA(doc);
 			if (opIva.compareTo(compIva) > 0) 
 				diferencia = opIva.subtract(compIva);
@@ -1669,7 +1672,7 @@ public class GeneraXML_CFDV3_3
 					String fileVerify = nameFile.split("\\.")[0];
 					Document doc = UtilCatalogos.convertStringToDocument(cfdBean.getBaosXml().toString("UTF-8"));
 					if (fileVerify.contains("CFDFACTORAJEFACTURAS") || fileVerify.contains("CONFIRMING") || fileVerify.contains("NEWCONFIRMING")) {
-						//UtilCatalogos.setValueOnDocumentElement(doc, "//Comprobante/@FormaPago", "17");
+						UtilCatalogos.setValueOnDocumentElement(doc, "//Comprobante/@FormaPago", "17");
 						//UtilCatalogos.setValueOnDocumentElement(doc, "//Comprobante/@MetodoPago", "PPD");
 						//cfdBean.setBaosXml(UtilCatalogos.convertStringToOutpuStream(MetodoPago.convertDocumentXmlToString(doc)));
 					}
