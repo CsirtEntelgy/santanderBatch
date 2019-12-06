@@ -159,7 +159,8 @@ public class GeneraXML_ECBDSV3_3 {
   //Banderas para comprobar que existan algunos atributos de Santander:Movimientos
     private boolean existFecha = false;
     private boolean existDescripcion = false;
-    private boolean existImporte = false;
+	private boolean existImporte = false;
+	private boolean existDatoFiscal = false;
 
     //Nombres de los Aplicativos ECB
     private HashMap<String, String> nombresApps = new HashMap<String, String>();
@@ -2179,6 +2180,9 @@ public class GeneraXML_ECBDSV3_3 {
 											}
 											if(!arrayMov[iMov].getSaldoAlCorte().equals("")){
 												movEcb.setAttribute("saldoAlCorte", arrayMov[iMov].getSaldoAlCorte());
+											}
+											if(!arrayMov[iMov].getDatoFiscal().equals("")){
+												movEcb.setAttribute("IdMovto", arrayMov[iMov].getDatoFiscal());
 											}
 											
 											//domComprobante.getDocumentElement().getChildNodes().item(i).getChildNodes().item(j).getChildNodes().item(k).appendChild(movEcb);

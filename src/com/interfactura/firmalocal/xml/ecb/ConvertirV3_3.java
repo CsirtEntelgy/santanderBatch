@@ -3130,15 +3130,28 @@ public class ConvertirV3_3 {
 	public byte[] movimeinto(String linea, long numberLine) throws UnsupportedEncodingException {
 
 		//System.out.println("length: " + lineas.length);
+		String datoFiscal = "";
 		lineas = linea.split("\\|");
 		if (lineas.length >= 7) {
 			Calendar c = Calendar.getInstance();
+			if(lineas.length >= 9){
+				// Viene informado el dato fiscal
 
+				if( !Util.isNullEmpty(lineas[7])){
+
+					if(!lineas[7].contains("temp")){
+
+							datoFiscal = " IdMovto=\"" + lineas[7] +"\"" ;
+						}
+
+
+				}
+			}
 			String[] date = lineas[1].trim().split("-");
 			String fechaCal = "";
 			try {
 				c.set(Integer.parseInt(date[0]), Integer.parseInt(date[1]) - 1, Integer.parseInt(date[2]), 0, 0, 0);
-				fechaCal = "fecha=\"" + Util.convertirFecha(c.getTime()) + "\"";
+				fechaCal = " fecha=\"" + Util.convertirFecha(c.getTime()) + "\"";
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -3152,9 +3165,9 @@ public class ConvertirV3_3 {
 			if ((rfcEnajenante != null) && (rfcEnajenante.trim().length() > 0) && flgRfcOk) {
 
 				return Util
-						.conctatArguments("\n<Santander:MovimientoECBFiscal ", fechaCal, " descripcion=\"",
+				.conctatArguments("\n<Santander:MovimientoECBFiscal ", datoFiscal, " descripcion=\"",
 								Util.convierte(lineas[3].trim()), "\"", " RFCenajenante=\"",
-								Util.convierte(lineas[4].trim()), "\"", " Importe=\"", lineas[5].trim(), "\"/>")
+								Util.convierte(lineas[4].trim()), "\""," Importe=\"", lineas[5].trim(), "\"",fechaCal  ,"/>")
 						.toString().getBytes("UTF-8");
 			} else {
 				/*
@@ -3167,8 +3180,8 @@ public class ConvertirV3_3 {
 				 */
 
 				return Util
-						.conctatArguments("\n<Santander:MovimientoECB ", fechaCal, " descripcion=\"",
-								Util.convierte(lineas[3].trim()), "\"", " importe=\"", lineas[5].trim(), "\"/>")
+				.conctatArguments("\n<Santander:MovimientoECB ",  datoFiscal, " descripcion=\"",
+				Util.convierte(lineas[3].trim()), "\""," importe=\"", lineas[5].trim(), "\"" , fechaCal,"/>")
 						.toString().getBytes("UTF-8");
 
 			}
