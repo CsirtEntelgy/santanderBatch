@@ -143,7 +143,7 @@ public class GeneraXML_ECBDSV3_3  {
     private String strEmisorRFC = "";
     private String strReceptorRFC = "";
     
-    //Total del xml timbrado
+    //Total  del xml timbrado
     private String strTotal = "";
 	/**
 	 * 
@@ -1799,6 +1799,7 @@ public class GeneraXML_ECBDSV3_3  {
 																    	 //Fecha valida
 																    	 movEcb.setFecha(atributo.getValue());		
 																    	 movEcb.setFechaOrden(convertDateMov(atributo.getValue()));
+<<<<<<< HEAD
 																	}																
 																}else if(atributo.getName().equals("IdMovto")){	
 																	this.existDatoFiscal = true;
@@ -1810,6 +1811,19 @@ public class GeneraXML_ECBDSV3_3  {
 																    	 
 																    	 movEcb.setDatoFiscal(atributo.getValue());		
 																	}																
+=======
+																	}
+																	
+																}else if(atributo.getName().equals("IdMovto")){	
+																	this.existDatoFiscal = true;
+																	if (this.valorVacio(atributo.getValue())){
+																		this.fAttMovIncorrect = true;	
+																		break;
+																	}else{																		
+
+																    	 movEcb.setDatoFiscal(atributo.getValue());		
+																	}	
+>>>>>>> branchtest1
 																}else if(atributo.getName().equals("referencia")){																
 																	movEcb.setReferencia(atributo.getValue());																	
 																}else if(atributo.getName().equals("descripcion")){
@@ -2235,6 +2249,10 @@ public class GeneraXML_ECBDSV3_3  {
 											if(!arrayMov[iMov].getSaldoAlCorte().equals("")){
 												movEcb.setAttribute("saldoAlCorte", arrayMov[iMov].getSaldoAlCorte());
 											}
+<<<<<<< HEAD
+=======
+
+>>>>>>> branchtest1
 											if(!arrayMov[iMov].getDatoFiscal().equals("")){
 												movEcb.setAttribute("IdMovto", arrayMov[iMov].getDatoFiscal());
 											}

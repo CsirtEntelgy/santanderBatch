@@ -27,6 +27,13 @@ public class MovimientoECB implements Comparable<MovimientoECB> {
 		this.datoFiscal = "";
 		this.fiscal = false;
 	}
+	public String getDatoFiscal() {
+		return datoFiscal;
+	}
+
+	public void setDatoFiscal(String datoFiscal) {
+		this.datoFiscal = datoFiscal;
+	}
 
 	public String getDatoFiscal() {
 		return datoFiscal;
