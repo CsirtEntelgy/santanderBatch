@@ -134,7 +134,7 @@ public class GeneraXML_ECBDSV3_3 {
     private String strEmisorRFC = "";
     private String strReceptorRFC = "";
     
-    //Total del xml timbrado
+    //Total  del xml timbrado
     private String strTotal = "";
 	/**
 	 * 
@@ -160,7 +160,7 @@ public class GeneraXML_ECBDSV3_3 {
     private boolean existFecha = false;
     private boolean existDescripcion = false;
     private boolean existImporte = false;
-
+	private boolean existDatoFiscal = false;
     //Nombres de los Aplicativos ECB
     private HashMap<String, String> nombresApps = new HashMap<String, String>();
     
@@ -1754,7 +1754,17 @@ public class GeneraXML_ECBDSV3_3 {
 																    	 //Fecha valida
 																    	 movEcb.setFecha(atributo.getValue());		
 																    	 movEcb.setFechaOrden(convertDateMov(atributo.getValue()));
-																	}																
+																	}
+																	
+																}else if(atributo.getName().equals("IdMovto")){	
+																	this.existDatoFiscal = true;
+																	if (this.valorVacio(atributo.getValue())){
+																		this.fAttMovIncorrect = true;	
+																		break;
+																	}else{																		
+
+																    	 movEcb.setDatoFiscal(atributo.getValue());		
+																	}	
 																}else if(atributo.getName().equals("referencia")){																
 																	movEcb.setReferencia(atributo.getValue());																	
 																}else if(atributo.getName().equals("descripcion")){
@@ -2179,6 +2189,10 @@ public class GeneraXML_ECBDSV3_3 {
 											}
 											if(!arrayMov[iMov].getSaldoAlCorte().equals("")){
 												movEcb.setAttribute("saldoAlCorte", arrayMov[iMov].getSaldoAlCorte());
+											}
+
+											if(!arrayMov[iMov].getDatoFiscal().equals("")){
+												movEcb.setAttribute("IdMovto", arrayMov[iMov].getDatoFiscal());
 											}
 											
 											//domComprobante.getDocumentElement().getChildNodes().item(i).getChildNodes().item(j).getChildNodes().item(k).appendChild(movEcb);

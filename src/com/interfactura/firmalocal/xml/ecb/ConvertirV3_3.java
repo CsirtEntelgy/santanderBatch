@@ -32,7 +32,7 @@ import com.interfactura.firmalocal.xml.util.NombreAplicativo;
 import com.interfactura.firmalocal.xml.util.UtilCatalogos;
 
 /**
- * Clase que se encargara de convertir las lineas a XML
+ * Clase  que se encargara de convertir las lineas a XML
  * 
  * @author jose luis
  * 
@@ -3130,15 +3130,31 @@ public class ConvertirV3_3 {
 	public byte[] movimeinto(String linea, long numberLine) throws UnsupportedEncodingException {
 
 		//System.out.println("length: " + lineas.length);
+		linea = linea.trim();
 		lineas = linea.split("\\|");
+		String datoFiscal = "";
 		if (lineas.length >= 7) {
 			Calendar c = Calendar.getInstance();
+			if( lineas.length >= 9 ){
+
+				// Viene informado el dato fiscal
+				lineas[7] = lineas[7].trim();
+				if( !Util.isNullEmpty(lineas[7])){
+
+					if(!lineas[7].contains("temp")){
+
+							datoFiscal = " IdMovto=\"" + lineas[7] +"\"" ;
+						}
+
+
+				}
+			}
 
 			String[] date = lineas[1].trim().split("-");
 			String fechaCal = "";
 			try {
 				c.set(Integer.parseInt(date[0]), Integer.parseInt(date[1]) - 1, Integer.parseInt(date[2]), 0, 0, 0);
-				fechaCal = "fecha=\"" + Util.convertirFecha(c.getTime()) + "\"";
+				fechaCal = " fecha=\"" + Util.convertirFecha(c.getTime()) + "\"";
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -3150,13 +3166,14 @@ public class ConvertirV3_3 {
 			flgRfcOk = validarRFC(rfcEnajenante);
 
 			if ((rfcEnajenante != null) && (rfcEnajenante.trim().length() > 0) && flgRfcOk) {
+				
+				return Util.conctatArguments("\n<Santander:MovimientoECBFiscal ", datoFiscal, " descripcion=\"",
+								Util.convierte(lineas[3].trim()), "\"", " RFCenajenante=\"",Util.convierte(lineas[4].trim()), "\""," Importe=\"", lineas[5].trim(), "\"",fechaCal  ,"/>")
+								.toString().getBytes("UTF-8");
 
-				return Util
-						.conctatArguments("\n<Santander:MovimientoECBFiscal ", fechaCal, " descripcion=\"",
-								Util.convierte(lineas[3].trim()), "\"", " RFCenajenante=\"",
-								Util.convierte(lineas[4].trim()), "\"", " Importe=\"", lineas[5].trim(), "\"/>")
-						.toString().getBytes("UTF-8");
+						
 			} else {
+
 				/*
 				 * StringBuffer sb = new StringBuffer(); sb =
 				 * Util.conctatArguments("\n<ecb:MovimientoECB ", fechaCal, " descripcion=\"",
@@ -3166,10 +3183,9 @@ public class ConvertirV3_3 {
 				 * return "".getBytes("UTF-8");
 				 */
 
-				return Util
-						.conctatArguments("\n<Santander:MovimientoECB ", fechaCal, " descripcion=\"",
-								Util.convierte(lineas[3].trim()), "\"", " importe=\"", lineas[5].trim(), "\"/>")
-						.toString().getBytes("UTF-8");
+				return Util.conctatArguments("\n<Santander:MovimientoECB ",  datoFiscal, " descripcion=\"",
+						Util.convierte(lineas[3].trim()), "\""," importe=\"", lineas[5].trim(), "\"" , fechaCal,"/>")
+				.toString().getBytes("UTF-8");
 
 			}
 		} else {

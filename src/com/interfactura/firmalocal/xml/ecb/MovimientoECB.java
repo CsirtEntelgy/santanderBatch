@@ -13,6 +13,7 @@ public class MovimientoECB implements Comparable<MovimientoECB> {
 	private String rfcEnajenante;
 	private boolean fiscal;
 	private Date fechaOrden;
+	private String datoFiscal;
 	
 	public MovimientoECB(){
 		this.fecha = "";
@@ -23,7 +24,15 @@ public class MovimientoECB implements Comparable<MovimientoECB> {
 		this.saldoInicial = "";
 		this.saldoAlCorte = "";
 		this.rfcEnajenante = "";
+		this.datoFiscal = "";
 		this.fiscal = false;
+	}
+	public String getDatoFiscal() {
+		return datoFiscal;
+	}
+
+	public void setDatoFiscal(String datoFiscal) {
+		this.datoFiscal = datoFiscal;
 	}
 
 	public String getFecha() {
