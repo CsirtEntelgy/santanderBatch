@@ -1756,6 +1756,16 @@ public class GeneraXML_ECBDSV3_3 {
 																    	 movEcb.setFecha(atributo.getValue());		
 																    	 movEcb.setFechaOrden(convertDateMov(atributo.getValue()));
 																	}																
+																}
+																else if(atributo.getName().equals("IdMovto")){	
+																	this.existDatoFiscal = true;
+																	if (this.valorVacio(atributo.getValue())){
+																		this.fAttMovIncorrect = true;	
+																		break;
+																	}else{																		
+
+																    	 movEcb.setDatoFiscal(atributo.getValue());		
+																	}
 																}else if(atributo.getName().equals("referencia")){																
 																	movEcb.setReferencia(atributo.getValue());																	
 																}else if(atributo.getName().equals("descripcion")){
