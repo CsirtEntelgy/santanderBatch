@@ -1785,7 +1785,7 @@ public class GeneraXML_ECBDSV3_3 {
 																	}else{
 																		movEcb.setImporte(atributo.getValue());
 																	}																	
-																}else if(atributo.getName().equals("moneda")){
+																}else if(atributo.getName().equals("monMov")){
 																	movEcb.setMoneda(atributo.getValue());																
 																}else if(atributo.getName().equals("saldoInicial")){
 																	movEcb.setSaldoInicial(atributo.getValue());																
@@ -1821,6 +1821,15 @@ public class GeneraXML_ECBDSV3_3 {
 																	}else{
 																		movEcb.setDescripcion(atributo.getValue());
 																	}																															
+																}else if(atributo.getName().equals("IdMovto")){	
+																	this.existDatoFiscal = true;
+																	if (this.valorVacio(atributo.getValue())){
+																		this.fAttMovIncorrect = true;	
+																		break;
+																	}else{																		
+
+																    	 movEcb.setDatoFiscal(atributo.getValue());		
+																	}
 																}else if(atributo.getName().equals("Importe")){
 																	this.existImporte = true;
 																	if (this.isNotDecimal2Pos(atributo.getValue())){
@@ -1829,7 +1838,7 @@ public class GeneraXML_ECBDSV3_3 {
 																	}else{
 																		movEcb.setImporte(atributo.getValue());
 																	}																	
-																}else if(atributo.getName().equals("moneda")){
+																}else if(atributo.getName().equals("monMov")){
 																	movEcb.setMoneda(atributo.getValue());															
 																}else if(atributo.getName().equals("saldoInicial")){
 																	movEcb.setSaldoInicial(atributo.getValue());																
@@ -2182,9 +2191,7 @@ public class GeneraXML_ECBDSV3_3 {
 											if(!arrayMov[iMov].getDescripcion().equals("")){
 												movEcb.setAttribute("descripcion", arrayMov[iMov].getDescripcion().toString());
 											}									
-											if(!arrayMov[iMov].getMoneda().equals("")){
-												movEcb.setAttribute("moneda", arrayMov[iMov].getMoneda());
-											}
+											
 											if(!arrayMov[iMov].getSaldoInicial().equals("")){
 												movEcb.setAttribute("saldoInicial", arrayMov[iMov].getSaldoInicial());
 											}
@@ -2193,6 +2200,9 @@ public class GeneraXML_ECBDSV3_3 {
 											}
 											if(!arrayMov[iMov].getDatoFiscal().equals("")){
 												movEcb.setAttribute("IdMovto", arrayMov[iMov].getDatoFiscal());
+											}
+											if(!arrayMov[iMov].getMoneda().equals("")){
+												movEcb.setAttribute("monMov", arrayMov[iMov].getMoneda());
 											}
 											
 											//domComprobante.getDocumentElement().getChildNodes().item(i).getChildNodes().item(j).getChildNodes().item(k).appendChild(movEcb);

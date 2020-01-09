@@ -3131,12 +3131,14 @@ public class ConvertirV3_3 {
 
 		//System.out.println("length: " + lineas.length);
 		String datoFiscal = "";
+		String moneda = "";
+		linea = linea.trim();
 		lineas = linea.split("\\|");
 		if (lineas.length >= 7) {
 			Calendar c = Calendar.getInstance();
 			if(lineas.length >= 9){
 				// Viene informado el dato fiscal
-
+				lineas[7] = lineas[7].trim();
 				if( !Util.isNullEmpty(lineas[7])){
 
 					if(!lineas[7].contains("temp")){
@@ -3147,6 +3149,10 @@ public class ConvertirV3_3 {
 
 				}
 			}
+			if(!Util.isNullEmpty(lineas[6])){
+				moneda = " monMov=\"" + lineas[6] + "\"" ;
+			}
+			
 			String[] date = lineas[1].trim().split("-");
 			String fechaCal = "";
 			try {
@@ -3167,7 +3173,7 @@ public class ConvertirV3_3 {
 				return Util
 				.conctatArguments("\n<Santander:MovimientoECBFiscal ", datoFiscal, " descripcion=\"",
 								Util.convierte(lineas[3].trim()), "\"", " RFCenajenante=\"",
-								Util.convierte(lineas[4].trim()), "\""," Importe=\"", lineas[5].trim(), "\"",fechaCal  ,"/>")
+								Util.convierte(lineas[4].trim()), "\""," Importe=\"", lineas[5].trim(), "\"",fechaCal  ,moneda,"/>")
 						.toString().getBytes("UTF-8");
 			} else {
 				/*
@@ -3181,7 +3187,7 @@ public class ConvertirV3_3 {
 
 				return Util
 				.conctatArguments("\n<Santander:MovimientoECB ",  datoFiscal, " descripcion=\"",
-				Util.convierte(lineas[3].trim()), "\""," importe=\"", lineas[5].trim(), "\"" , fechaCal,"/>")
+				Util.convierte(lineas[3].trim()), "\""," importe=\"", lineas[5].trim(), "\"" , fechaCal,moneda,"/>")
 						.toString().getBytes("UTF-8");
 
 			}
