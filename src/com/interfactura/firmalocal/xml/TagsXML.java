@@ -20,9 +20,10 @@ import com.interfactura.firmalocal.persistence.CFDIssuedManager;
 public class TagsXML {
 
 	public TagsXML(){
-		
+	 
 	}
-	
+	public boolean isFronterizo = false;
+	public boolean isSatPostalCode = false;
 	public final String addenda="\r\n<as:AddendaSantanderV1 " +
 			"xmlns:as=\"http://www.santander.com.mx/schemas/xsd/AddendaSantanderV1\" " +
 			"xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">";

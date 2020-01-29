@@ -775,7 +775,201 @@ public class UtilCatalogos
 			return response;
 		}
 		
+
 		//Encuentra los traslados en los catalogos de equivalencia AMDA
+				//Metodo de charly translados
+				public static Map<String, Object> findTraslados(Map<String, ArrayList<CatalogosDom>> mapCatalogos, String importeCon, String descCon, Integer decimalesMoneda, String tipoComprobante, boolean isFronterizo){
+					System.out.println("Charly: se metio dentro de la funcion findTraslados con la variable isFronterizo= "+ isFronterizo);
+					Map<String, Object> responseMap = new LinkedHashMap<String, Object>();
+					String response = "";
+					String valTasa = "";
+					Double valTasaNum = 0.00 ;
+					Double importeConNum = 0.00 ;
+					Double importeTrasladoMul = 0.00;
+					String nodocon = "";
+					Double sumTotal = 0.00 ;
+					Double sumTotalIva = 0.00;
+					Double sumTotalIsr= 0.00;
+					Double sumTotalIeps = 0.00;
+					boolean exento = false;
+					boolean noExentoT = false;
+		
+					if(mapCatalogos.size() > 0 && descCon.trim().length() > 0){
+						
+						for(int i=0; i<mapCatalogos.get("EquivalenciaConceptoImpuesto").size(); i++){
+		//					System.out.println("findTraslados Dentro For " + mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal5() + " : " + mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal4());
+							if(mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal5().equalsIgnoreCase(descCon) && mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal4().equalsIgnoreCase("Traslado"))
+							{
+								
+								if(mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal3() != null){
+									//System.out.println("Val Tasa No nulo");
+									if(mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal3().length() > 0){
+										valTasa = mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal3();
+									}else{
+										//System.out.println("Val Tasa vacio length");
+										valTasa = "vacio";
+									}
+								}else{
+									//System.out.println("Val Tasa nulo");
+									valTasa = "vacio";
+								}
+		
+								try{
+									if(!valTasa.equalsIgnoreCase("vacio")){
+										valTasaNum = Double.parseDouble(valTasa);
+										//System.out.println("Val Tasa " + valTasaNum);
+									}else{
+		//								valTasaNum = Double.parseDouble(valTasa);
+										//System.out.println("Val Tasa Vacio " + valTasa);
+									}
+									valTasaNum = Double.parseDouble(valTasa);
+		//							System.out.println("Val Tasa " + valTasaNum);
+		//							System.out.println("Val Impor Conce Antes " + importeCon);
+									importeConNum = Double.parseDouble(importeCon);
+		//							System.out.println("Val Impor Conce " + valTasaNum);
+		//							importeTrasladoMul = (valTasaNum*importeConNum) + importeConNum;
+									//Charly: Aqui se determina si el iva va a ser de tipo fronterizo (0.08) o si es normal (0.16)
+									if(isFronterizo)
+									{
+										importeTrasladoMul = (0.08 * importeConNum);
+										System.out.println("Charly: se aplico el iva de 0.08");
+									}
+									else
+									{
+										importeTrasladoMul = (valTasaNum * importeConNum);
+										System.out.println("Charly:Se aplico el iva del 0.16");
+									}
+									//Charly: Aqui se determina si el iva va a ser de tipo fronterizo (0.08) o si es normal (0.16)
+		//							System.out.println("Val Impor Traslado " + importeTrasladoMul);
+									String tipoFactorValueMontos = findValTipoFactorByDesc(mapCatalogos, mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal2());
+		//							System.out.println("Val Impor tipoFactorValueMontos Tra O:  " + tipoFactorValueMontos);
+									if(!tipoFactorValueMontos.equalsIgnoreCase("Exento")){
+										if(mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal1().equalsIgnoreCase("001")){
+											responseMap.put("ISR", true);
+											sumTotalIsr = sumTotalIsr + importeTrasladoMul;
+		//									System.out.println("Val sumTotalIsr Traslado " + sumTotalIsr);
+										}else if(mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal1().equalsIgnoreCase("002")){
+											responseMap.put("IVA", true);
+											sumTotalIva = sumTotalIva + importeTrasladoMul;
+		//									System.out.println("Val sumTotalIva Traslado " + sumTotalIva);
+										}else if(mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal1().equalsIgnoreCase("003")){
+											responseMap.put("IEPS", true);
+											sumTotalIeps = sumTotalIeps + importeTrasladoMul;
+		//									System.out.println("Val sumTotalIeps Traslado " + sumTotalIeps);
+										}
+									}
+									
+									
+									String baseCamp = "";
+									if(UtilCatalogos.decimalesValidationMsj(importeCon, decimalesMoneda)){
+										if(tipoComprobante.equalsIgnoreCase("T") || tipoComprobante.equalsIgnoreCase("P")){
+											baseCamp = "Base=\"" + importeCon;
+										}else{
+											if(importeConNum > 0){
+												baseCamp = "Base=\"" + importeCon;
+											}else{
+												baseCamp = "ErrConTraBas001=\"" + importeCon;
+											}
+										}
+										
+									}else{
+										baseCamp = "ErrConTraBas002=\"" + importeCon;
+									}
+									
+									String impuestoLine = "";
+									if(mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal1() != null){
+										if(!findValImpuestoByClave(mapCatalogos, mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal1()).equalsIgnoreCase("vacio")){
+											impuestoLine = "\" Impuesto=\"" + mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal1() ;
+										}else{
+											impuestoLine = "\" ErrTraConImpu001=\"" + mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal1() ;
+										}
+									}else{
+										impuestoLine = "\" ErrTraConImpu001=\"" + mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal1() ;
+									}
+									
+									String tipoFactorLine = "";
+									String tipoFactorValue = "";
+									String tasaOCutoaLine = "";
+									String importeLine = "";
+									if(mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal2() != null){
+										tipoFactorValue= findValTipoFactorByDesc(mapCatalogos, mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal2());
+										if(!tipoFactorValue.equalsIgnoreCase("vacio")){
+											tipoFactorLine = "\" TipoFactor=\"" + tipoFactorValue;
+											String descImp = findDescImpuestoByClave(mapCatalogos, mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal1());
+											if(!tipoFactorValue.equalsIgnoreCase("Exento")){
+												noExentoT = true;
+												// descImp(Iva, IEPS, ISR), Descripcion(Tasa, Cuota O Exento), valor de la tasa, descripcion(Traslado O retencion)
+												//Buscando TasaOcuotaCatalogo findTasaOcuotaVal(mapCatalogos, descImp, mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal2(), valTasa, mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal4())
+											String findValTasa = findTasaOCuotaExist(mapCatalogos, descImp, mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal2(), valTasa, mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal4());
+												if(!findValTasa.equalsIgnoreCase("vacio")){
+													//Charly cambiar tasaocuota siempre y cuando exista iva fronterizo 
+													if(isFronterizo){
+													tasaOCutoaLine = "\" TasaOCuota=\"" + Util.completeZeroDecimals("0.08", 6);
+													System.out.println("Aplico el ivaFronterizo Variable tasaOCuota= "+ tasaOCutoaLine);
+													}
+													else{
+														tasaOCutoaLine = "\" TasaOCuota=\"" + Util.completeZeroDecimals(valTasa, 6);
+														System.out.println("No aplico el ivaFronterizo Variable tasaOCuota= "+ tasaOCutoaLine);
+													
+												}
+												}else{
+		//											tasaOCutoaLine = "\" ElValorDelCampoTasaOCuotaQueCorrespondeATrasladoNoContieneUnValorDelCatalogoc_TasaOCuota=\"" + Util.completeZeroDecimals(valTasa, 6);
+													tasaOCutoaLine = "\" ErrImpTraConTasaOCuota001=\"" + Util.completeZeroDecimals(valTasa, 6);
+												}
+												
+												importeLine = "\" Importe=\"" + decimales(importeTrasladoMul.toString(), decimalesMoneda);
+												System.out.println("DecimalesMoneda = " +decimalesMoneda);
+											}else{
+												exento = true;
+											}
+											
+										}else{
+											tipoFactorLine = "\" ErrTraConTipFac001=\"" + tipoFactorValue;
+										}
+									}else{
+										tipoFactorLine = "\" ErrTraConTipFac001=\"" + mapCatalogos.get("EquivalenciaConceptoImpuesto").get(i).getVal2();
+									}
+									
+									nodocon +=  "\n<cfdi:Traslado " + baseCamp +
+											   impuestoLine +
+											   tipoFactorLine +
+											   tasaOCutoaLine +
+											   importeLine + "\" " +
+											   " />" ;
+									sumTotal += importeTrasladoMul;
+		//							System.out.println("Val Suma Total Traslado " + sumTotal);
+		//							System.out.println("Val NodoCon Traslado " + nodocon);
+								}catch(NumberFormatException e){
+									logger.error(e);
+		//							System.out.println("No es numero findTraslados: " + valTasa);
+								}
+		
+							}else{
+		
+									response = "";
+		
+							}
+							response = nodocon;
+						}
+						
+		
+					}else{
+						response = "";
+					}
+		
+					responseMap.put("valNodoStr", response);
+					responseMap.put("sumaTotal", decimales(sumTotal.toString(), decimalesMoneda));
+					responseMap.put("sumTotalIsr", decimales(sumTotalIsr.toString(), decimalesMoneda));
+					responseMap.put("sumTotalIva", decimales(sumTotalIva.toString(), decimalesMoneda));
+					responseMap.put("sumTotalIeps", decimales(sumTotalIeps.toString(), decimalesMoneda));
+					responseMap.put("exento", exento);
+					responseMap.put("noExentoT", noExentoT);
+					return responseMap;
+				}
+				
+				
+
+
 		public static Map<String, Object> findTraslados(Map<String, ArrayList<CatalogosDom>> mapCatalogos, String importeCon, String descCon, Integer decimalesMoneda, String tipoComprobante){
 			Map<String, Object> responseMap = new LinkedHashMap<String, Object>();
 			String response = "";
